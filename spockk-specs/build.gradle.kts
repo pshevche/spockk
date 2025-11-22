@@ -12,6 +12,7 @@ plugins {
 dependencies {
     testImplementation(projects.spockkCore)
     testImplementation(gradleTestKit())
+    testImplementation(libs.spock)
     testImplementation(libs.junit.platform.testkit)
     testImplementation(libs.kotlin.compile.testing)
 
@@ -25,7 +26,9 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        includeEngines = setOf("spockk")
+    }
     systemProperty(
         "spockk.workspaceDir",
         layout.buildDirectory.dir("spockk-specs-workspaces").get().asFile.absolutePath

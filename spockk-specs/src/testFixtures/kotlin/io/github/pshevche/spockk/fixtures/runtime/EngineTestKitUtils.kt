@@ -6,7 +6,7 @@ import org.junit.platform.testkit.engine.Events
 
 object EngineTestKitUtils {
     fun execute(selector: DiscoverySelector): Events {
-        return EngineTestKit.engine("spockk")
+        return EngineTestKit.engine("spock")
             .selectors(selector)
             .execute()
             .testEvents()

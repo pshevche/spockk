@@ -25,3 +25,4 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 junit-platform-testkit = { module = "org.junit.platform:junit-platform-testkit", version.ref = "junit-platform" }
 kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.11.1" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+spock = { module = "org.spockframework:spock-core", version = "2.4-M6-groovy-4.0" }
