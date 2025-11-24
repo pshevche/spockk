@@ -14,12 +14,12 @@
 
 package io.github.pshevche.spockk.compilation.common
 
-internal enum class FeatureBlockLabel(val displayName: String, val fqn: String) {
-    GIVEN("given", "io.github.pshevche.spockk.lang.given"),
-    WHEN("when", "io.github.pshevche.spockk.lang.when"),
-    THEN("then", "io.github.pshevche.spockk.lang.then"),
-    EXPECT("expect", "io.github.pshevche.spockk.lang.expect"),
-    AND("and", "io.github.pshevche.spockk.lang.and");
+internal enum class FeatureBlockLabel(val displayName: String, val fqn: String, val blockKind: String?) {
+    GIVEN("given", "io.github.pshevche.spockk.lang.given", null),
+    WHEN("when", "io.github.pshevche.spockk.lang.when", "WHEN"),
+    THEN("then", "io.github.pshevche.spockk.lang.then", "THEN"),
+    EXPECT("expect", "io.github.pshevche.spockk.lang.expect", "EXPECT"),
+    AND("and", "io.github.pshevche.spockk.lang.and", null);
 
     companion object {
         fun from(fqn: String) = entries.find { fqn == it.fqn }

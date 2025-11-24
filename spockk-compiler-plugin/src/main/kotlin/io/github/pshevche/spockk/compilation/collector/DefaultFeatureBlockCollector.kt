@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlockLabel
+import io.github.pshevche.spockk.compilation.common.FeatureBlockLabelIrElement
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import io.github.pshevche.spockk.compilation.common.asIrBlockLabel
 import org.jetbrains.kotlin.ir.IrStatement
@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFile
 
 internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureBlockCollector {
 
-    private var currentLabel: FeatureBlockLabel? = null
+    private var currentLabel: FeatureBlockLabelIrElement? = null
     private val currentBlockStatements = mutableListOf<IrStatement>()
     private val featureBlockStatements = mutableListOf<FeatureBlockStatements>()
 
@@ -32,13 +32,13 @@ internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureB
             currentBlockStatements.add(statement)
         } else {
             completeCurrentBlock()
-            currentLabel = blockLabel.label
+            currentLabel = blockLabel
         }
     }
 
     private fun completeCurrentBlock() {
         currentLabel?.let {
-            featureBlockStatements.add(FeatureBlockStatements(it, currentBlockStatements.toList()))
+            featureBlockStatements.add(FeatureBlockStatements(it.label, it.description, currentBlockStatements.toList()))
             currentBlockStatements.clear()
         }
     }

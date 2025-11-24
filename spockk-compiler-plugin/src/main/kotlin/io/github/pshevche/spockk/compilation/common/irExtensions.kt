@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
@@ -54,13 +55,15 @@ internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElemen
     }
 
 internal fun IrGetObjectValue.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
-    FeatureBlockLabelIrElement.Companion.from(file, this)
+    FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrGetObjectValue.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
 
 internal fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
-    FeatureBlockLabelIrElement.Companion.from(file, this)
+    FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrCall.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
+
+internal fun IrValueParameter.isThis() = this.name.asString() == "<this>"
 
 private fun classId(className: String): ClassId = ClassId.topLevel(FqName(className))

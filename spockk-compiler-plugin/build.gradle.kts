@@ -15,6 +15,7 @@ dependencies {
 mavenPublishing {
     pom {
         name = "Spockk Kotlin Compiler Plugin"
-        description = "Kotlin compiler plugin that transforms Spockk’s concise specification syntax into runnable tests."
+        description =
+            "Kotlin compiler plugin that transforms Spockk’s concise specification syntax into runnable tests."
     }
 }

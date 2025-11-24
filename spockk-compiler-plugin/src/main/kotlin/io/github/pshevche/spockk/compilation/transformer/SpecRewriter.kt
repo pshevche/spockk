@@ -21,12 +21,13 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 internal class SpecRewriter(private val irFactory: SpockkIrFactory) {
 
     fun rewrite(spec: IrClass, context: SpecContext) {
-        annotateSpec(spec)
+        annotateSpec(spec, context)
     }
 
-    private fun annotateSpec(spec: IrClass) {
+    private fun annotateSpec(spec: IrClass, context: SpecContext) {
         if (!spec.isOpenOrAbstract()) {
-            spec.annotations += irFactory.specMetadataAnnotation()
+            spec.annotations += irFactory.spockkSpecMetadataAnnotation()
+            spec.annotations += irFactory.specMetadataAnnotation(context.fileName, context.line)
         }
     }
 }

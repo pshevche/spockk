@@ -1,8 +1,9 @@
 [versions]
 auto-service = "1.1.1"
 detekt = "1.23.8"
-kotlin = "2.2.21"
 junit-platform = "6.0.1"
+kotlin = "2.2.21"
+spock = "2.4-M6-groovy-4.0"
 
 [plugins]
 asciidoctor = { id = "org.asciidoctor.jvm.convert", version = "4.0.5" }
@@ -25,4 +26,4 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 junit-platform-testkit = { module = "org.junit.platform:junit-platform-testkit", version.ref = "junit-platform" }
 kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.11.1" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
-spock = { module = "org.spockframework:spock-core", version = "2.4-M6-groovy-4.0" }
+spock = { module = "org.spockframework:spock-core", version.ref = "spock" }

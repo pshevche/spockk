@@ -80,11 +80,12 @@ class Workspace {
                 
             dependencies {
                 testImplementation("io.github.pshevche.spockk:spockk-core:latest.integration")
+                testImplementation("org.spockframework:spock-core:${System.getProperty("spockk.spockVersion")}")
                 testRuntimeOnly("org.junit.platform:junit-platform-launcher:${System.getProperty("spockk.junitPlatformVersion")}")
             }
             tasks.test {
                 useJUnitPlatform {
-                    includeEngines.add("spockk")
+                    includeEngines.add("spock")
                 }
                 testLogging {
                     events.addAll(listOf(
@@ -102,7 +103,7 @@ class Workspace {
     fun addSuccessfulSpec(name: String = "SuccessfulSpec") {
         writeSpec(
             name, """
-            class $name {
+            class $name : spock.lang.Specification() {
                 fun `passing feature 1`() {
                     io.github.pshevche.spockk.lang.expect
                     assert(true)
@@ -121,7 +122,7 @@ class Workspace {
     fun addFailingSpec(name: String = "FailingSpec") {
         writeSpec(
             name, """
-            class $name {
+            class $name : spock.lang.Specification() {
                 fun `failing feature 1`() {
                     io.github.pshevche.spockk.lang.expect
                     assert(false)
