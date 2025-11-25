@@ -8,7 +8,7 @@ junit-platform = "6.0.1"
 asciidoctor = { id = "org.asciidoctor.jvm.convert", version = "4.0.5" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.3" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.10.4" }
+intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.10.5" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
