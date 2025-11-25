@@ -32,4 +32,9 @@ class SpockkAnnotationCompilationTest : BaseCompilationTest() {
         assertTransformation(sampleFromResource("SpecWithOnlyInheritedFeatures"))
     }
 
+    fun `captures blocks and their descriptions`() {
+        expect
+        assertTransformation(sampleFromResource("FeatureWithMultipleBlocksAndDescriptions"))
+    }
+
 }
