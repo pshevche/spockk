@@ -42,12 +42,12 @@ class SpockkTestEngineInheritanceTest {
         }
     }
 
-    fun `does not discover tests in open classes`() {
+    fun `discovers tests in open classes`() {
         `when`
         val events = execute(selectClass(InheritedOpenParentSpec::class.java))
 
         then
-        events.assertStatistics { it.started(0) }
+        events.assertStatistics { it.started(2) }
     }
 
     fun `does not discover tests in abstract classes`() {
@@ -62,7 +62,6 @@ class SpockkTestEngineInheritanceTest {
         `when`
         val features = execute(selectClass(InheritedOpenChildSpec::class.java))
             .started()
-            .filter { it.testDescriptor.children.isEmpty() }
             .map { it.testDescriptor.displayName }
             .toList()
 

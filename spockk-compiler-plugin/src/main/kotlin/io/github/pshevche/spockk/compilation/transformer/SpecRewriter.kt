@@ -15,7 +15,6 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
-import io.github.pshevche.spockk.compilation.common.isOpenOrAbstract
 import org.jetbrains.kotlin.ir.declarations.IrClass
 
 internal class SpecRewriter(private val irFactory: SpockkIrFactory) {
@@ -25,9 +24,7 @@ internal class SpecRewriter(private val irFactory: SpockkIrFactory) {
     }
 
     private fun annotateSpec(spec: IrClass, context: SpecContext) {
-        if (!spec.isOpenOrAbstract()) {
-            spec.annotations += irFactory.spockkSpecMetadataAnnotation()
-            spec.annotations += irFactory.specMetadataAnnotation(context.fileName, context.line)
-        }
+        spec.annotations += irFactory.spockkSpecMetadataAnnotation()
+        spec.annotations += irFactory.specMetadataAnnotation(context.fileName, context.line)
     }
 }

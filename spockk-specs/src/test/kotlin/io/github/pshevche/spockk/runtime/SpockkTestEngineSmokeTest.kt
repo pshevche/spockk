@@ -90,7 +90,7 @@ class SpockkTestEngineSmokeTest {
             .collect(toSet())
 
         then
-        assert(specIds.count() == 4)
+        assert(specIds.count() == 5)
     }
 
     fun `executes tests in the declaration order`() {

@@ -1,3 +1,5 @@
+@io.github.pshevche.spockk.lang.internal.SpecMetadata
+@org.spockframework.runtime.model.SpecMetadata(filename = "AbstractBaseSpec.kt", line = 1)
 abstract class AbstractBaseSpec {
     @io.github.pshevche.spockk.lang.internal.FeatureMetadata(0)
     @org.spockframework.runtime.model.FeatureMetadata(

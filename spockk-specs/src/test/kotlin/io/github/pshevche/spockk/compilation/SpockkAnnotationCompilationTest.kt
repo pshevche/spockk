@@ -21,7 +21,7 @@ class SpockkAnnotationCompilationTest : BaseCompilationTest() {
         assertTransformation(specWithSingleFeature("expect"))
     }
 
-    fun `does not annotate abstract spec classes`() {
+    fun `annotates abstract and open spec classes`() {
         expect
         assertTransformation(sampleFromResource("AbstractBaseSpec"))
         assertTransformation(sampleFromResource("OpenBaseSpec"))

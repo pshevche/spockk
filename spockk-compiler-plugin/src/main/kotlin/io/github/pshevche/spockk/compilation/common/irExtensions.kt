@@ -18,9 +18,7 @@ package io.github.pshevche.spockk.compilation.common
 
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
@@ -42,8 +40,6 @@ internal fun IrPluginContext.referenceClass(className: String): IrClassSymbol {
         null
     )
 }
-
-internal fun IrClass.isOpenOrAbstract() = this.modality == Modality.OPEN || this.modality == Modality.ABSTRACT
 
 internal fun IrFunction.mutableStatements(): MutableList<IrStatement>? = (body as? IrBlockBody)?.statements
 
