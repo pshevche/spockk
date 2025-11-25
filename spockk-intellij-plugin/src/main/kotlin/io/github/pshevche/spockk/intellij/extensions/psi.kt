@@ -14,18 +14,9 @@
 
 package io.github.pshevche.spockk.intellij.extensions
 
-import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
-import com.intellij.psi.util.CachedValueProvider
-import com.intellij.psi.util.CachedValuesManager
-import io.github.pshevche.spockk.intellij.SpockkBlockPsiElementVisitor
-import org.jetbrains.kotlin.asJava.classes.KtLightClass
-import org.jetbrains.kotlin.idea.base.psi.kotlinFqName
-import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.psiUtil.getStrictParentOfType
 
 private val SPOCKK_BLOCKS_FQN = setOf(
     "io.github.pshevche.spockk.lang.given",
@@ -34,38 +25,6 @@ private val SPOCKK_BLOCKS_FQN = setOf(
     "io.github.pshevche.spockk.lang.then",
     "io.github.pshevche.spockk.lang.and",
 )
-
-fun PsiElement.isSpec() = this is KtClass && hasSpockkBlocks()
-
-fun PsiElement.isFeatureMethod() = this is KtFunction && hasSpockkBlocks()
-
-fun PsiElement.enclosingSpec(): KtClass? {
-    val ktClass = this as? KtClass ?: this.getStrictParentOfType<KtClass>()
-    return when {
-        ktClass == null -> null
-        ktClass.isSpec() -> ktClass
-        else -> null
-    }
-}
-
-fun PsiElement.enclosingFeature(): KtFunction? {
-    val ktFunction = this as? KtFunction ?: this.getStrictParentOfType<KtFunction>()
-    return when {
-        ktFunction == null -> null
-        ktFunction.isFeatureMethod() -> ktFunction
-        else -> null
-    }
-}
-
-private fun PsiElement.hasSpockkBlocks(): Boolean {
-    return CachedValuesManager.getCachedValue(this) {
-        val visitor = SpockkBlockPsiElementVisitor()
-        accept(visitor)
-        CachedValueProvider.Result(visitor.hasSpockkBlocks(), this)
-    }
-}
-
-fun PsiElement.requiredFqn(): String = requireNotNull(this.kotlinFqName).asString()
 
 fun PsiElement.isSpockkBlock(): Boolean {
     return getSpockkImportDirectives(containingFile)
@@ -82,4 +41,3 @@ private fun getSpockkImportDirectives(file: PsiFile): List<String> {
     return listOf()
 }
 
-fun PsiClass.toKtClass(): KtClass? = (this as? KtLightClass)?.kotlinOrigin as? KtClass
