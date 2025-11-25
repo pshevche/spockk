@@ -5,8 +5,9 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Specification
 
-class SpockkE2ETest {
+class SpockkE2ETest : Specification() {
 
     val workspace = Workspace()
 

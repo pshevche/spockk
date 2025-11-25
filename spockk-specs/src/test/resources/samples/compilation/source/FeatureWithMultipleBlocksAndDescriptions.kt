@@ -1,4 +1,4 @@
-class FeatureWithMultipleBlocksAndDescriptions {
+class FeatureWithMultipleBlocksAndDescriptions : spock.lang.Specification() {
     fun `some feature`() {
         io.github.pshevche.spockk.lang.given
         var a = 1

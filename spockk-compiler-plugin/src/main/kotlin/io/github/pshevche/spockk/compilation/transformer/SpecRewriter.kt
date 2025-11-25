@@ -24,7 +24,6 @@ internal class SpecRewriter(private val irFactory: SpockkIrFactory) {
     }
 
     private fun annotateSpec(spec: IrClass, context: SpecContext) {
-        spec.annotations += irFactory.spockkSpecMetadataAnnotation()
         spec.annotations += irFactory.specMetadataAnnotation(context.fileName, context.line)
     }
 }

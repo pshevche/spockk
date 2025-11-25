@@ -5,8 +5,9 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Specification
 
-class SpockkKotlinCompatibilityTest {
+class SpockkKotlinCompatibilityTest : Specification() {
 
     val workspace = Workspace()
 

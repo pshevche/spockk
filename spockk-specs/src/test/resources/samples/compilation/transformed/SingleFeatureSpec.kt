@@ -1,7 +1,5 @@
-@io.github.pshevche.spockk.lang.internal.SpecMetadata
 @org.spockframework.runtime.model.SpecMetadata(filename = "SingleFeatureSpec.kt", line = 1)
-class SingleFeatureSpec {
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(0)
+class SingleFeatureSpec : spock.lang.Specification() {
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 0,
         name = "some feature",

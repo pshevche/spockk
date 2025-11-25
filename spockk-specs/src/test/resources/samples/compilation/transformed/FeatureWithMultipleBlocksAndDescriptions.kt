@@ -1,7 +1,5 @@
-@io.github.pshevche.spockk.lang.internal.SpecMetadata
 @org.spockframework.runtime.model.SpecMetadata(filename = "FeatureWithMultipleBlocksAndDescriptions.kt", line = 1)
-class FeatureWithMultipleBlocksAndDescriptions {
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(0)
+class FeatureWithMultipleBlocksAndDescriptions : spock.lang.Specification() {
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 0,
         name = "some feature",

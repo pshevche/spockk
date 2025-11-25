@@ -1,4 +1,4 @@
-abstract class BaseSpec {
+abstract class BaseSpec : spock.lang.Specification() {
     fun `inherited feature 1`() {
         io.github.pshevche.spockk.lang.expect
         assert(true)

@@ -27,9 +27,7 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform {
-        includeEngines = setOf("spockk")
-    }
+    useJUnitPlatform()
     systemProperty(
         "spockk.workspaceDir",
         layout.buildDirectory.dir("spockk-specs-workspaces").get().asFile.absolutePath

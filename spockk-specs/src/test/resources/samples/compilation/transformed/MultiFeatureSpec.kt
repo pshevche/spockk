@@ -1,7 +1,5 @@
-@io.github.pshevche.spockk.lang.internal.SpecMetadata
 @org.spockframework.runtime.model.SpecMetadata(filename = "MultiFeatureSpec.kt", line = 1)
-class MultiFeatureSpec {
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(0)
+class MultiFeatureSpec : spock.lang.Specification() {
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 0,
         name = "feature 1",
@@ -16,7 +14,6 @@ class MultiFeatureSpec {
         assert(true)
     }
 
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(1)
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 1,
         name = "feature 2",
@@ -31,7 +28,6 @@ class MultiFeatureSpec {
         assert(true)
     }
 
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(2)
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 2,
         name = "feature 3",

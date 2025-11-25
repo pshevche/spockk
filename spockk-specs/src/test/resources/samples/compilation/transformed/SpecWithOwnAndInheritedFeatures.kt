@@ -1,7 +1,5 @@
-@io.github.pshevche.spockk.lang.internal.SpecMetadata
 @org.spockframework.runtime.model.SpecMetadata(filename = "SpecWithOwnAndInheritedFeatures.kt", line = 1)
-abstract class BaseSpec {
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(0)
+abstract class BaseSpec : spock.lang.Specification() {
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 0,
         name = "inherited feature 1",
@@ -17,10 +15,8 @@ abstract class BaseSpec {
     }
 }
 
-@io.github.pshevche.spockk.lang.internal.SpecMetadata
 @org.spockframework.runtime.model.SpecMetadata(filename = "SpecWithOwnAndInheritedFeatures.kt", line = 8)
 abstract class IntermediateSpec : BaseSpec() {
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(1)
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 1,
         name = "inherited feature 2",
@@ -36,10 +32,8 @@ abstract class IntermediateSpec : BaseSpec() {
     }
 }
 
-@io.github.pshevche.spockk.lang.internal.SpecMetadata
 @org.spockframework.runtime.model.SpecMetadata(filename = "SpecWithOwnAndInheritedFeatures.kt", line = 15)
 class Spec : IntermediateSpec() {
-    @io.github.pshevche.spockk.lang.internal.FeatureMetadata(2)
     @org.spockframework.runtime.model.FeatureMetadata(
         ordinal = 2,
         name = "own feature",

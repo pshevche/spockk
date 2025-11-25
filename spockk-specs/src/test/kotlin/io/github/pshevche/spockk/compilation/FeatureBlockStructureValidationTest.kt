@@ -5,9 +5,10 @@ import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.Specification
 
 @OptIn(ExperimentalCompilerApi::class)
-class FeatureBlockStructureValidationTest {
+class FeatureBlockStructureValidationTest : Specification() {
 
     fun `accepts valid block sequences (single expectation)`() {
         `when`

@@ -31,25 +31,25 @@ internal class MutableSpockkTransformationContext {
 
     private val specs: MutableMap<IrClass, MutableSpecContext> = mutableMapOf()
 
+    fun addSpec(spec: IrClass) {
+        specs.computeIfAbsent(spec) {
+            val file = spec.file
+            val specLine = file.fileEntry.getLineNumber(spec.startOffset) + 1
+            MutableSpecContext(file.name, specLine)
+        }
+    }
+
     fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlockStatements>) =
-        createContextIfAbsent(spec).addFeature(feature, blocks)
+        specs[spec]?.addFeature(feature, blocks)
 
     fun addPotentialFeature(spec: IrClass, function: IrFunction) =
-        createContextIfAbsent(spec).addPotentialFeature(function)
-
-    private fun createContextIfAbsent(spec: IrClass): MutableSpecContext = specs.computeIfAbsent(spec) {
-        val file = spec.file
-        val specLine = file.fileEntry.getLineNumber(spec.startOffset) + 1
-        MutableSpecContext(file.name, specLine)
-    }
+        specs[spec]?.addPotentialFeature(function)
 
     fun finalized(): SpockkTransformationContext {
         return SpockkTransformationContext(buildMap {
             specs.forEach { (spec, ctx) ->
                 val features = finalizeFeatures(spec, ctx)
-                if (features.isNotEmpty()) {
-                    put(spec, SpockkTransformationContext.SpecContext(ctx.fileName, ctx.line, features.toMap()))
-                }
+                put(spec, SpockkTransformationContext.SpecContext(ctx.fileName, ctx.line, features.toMap()))
             }
         })
     }

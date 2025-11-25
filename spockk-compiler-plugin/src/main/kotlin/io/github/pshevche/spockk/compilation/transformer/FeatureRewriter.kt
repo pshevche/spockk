@@ -34,9 +34,6 @@ internal class FeatureRewriter(private val irFactory: SpockkIrFactory) {
     }
 
     private fun annotateFeature(feature: IrFunction, context: FeatureContext) {
-        feature.annotations += irFactory.spockkFeatureMetadataAnnotation(
-            context.ordinal
-        )
         feature.annotations += irFactory.featureMetadataAnnotation(
             context.ordinal,
             context.name,

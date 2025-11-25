@@ -9,9 +9,10 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
+import spock.lang.Specification
 import java.util.stream.Collectors.toSet
 
-class SpockkTestEngineSmokeTest {
+class SpockkTestEngineSmokeTest : Specification() {
 
     fun `discovers test class by class name`() {
         `when`

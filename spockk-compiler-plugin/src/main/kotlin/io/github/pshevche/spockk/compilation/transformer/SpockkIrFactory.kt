@@ -41,9 +41,6 @@ import org.jetbrains.kotlin.ir.util.toIrConst
 internal class SpockkIrFactory(private val pluginContext: IrPluginContext) {
 
     companion object {
-        private const val SPOCKK_SPEC_METADATA_FQN = "io.github.pshevche.spockk.lang.internal.SpecMetadata"
-        private const val SPOCKK_FEATURE_METADATA_FQN = "io.github.pshevche.spockk.lang.internal.FeatureMetadata"
-
         private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
         private const val FEATURE_METADATA_FQN = "org.spockframework.runtime.model.FeatureMetadata"
         private const val BLOCK_METADATA_FQN = "org.spockframework.runtime.model.BlockMetadata"
@@ -52,17 +49,10 @@ internal class SpockkIrFactory(private val pluginContext: IrPluginContext) {
 
     private val irBuiltIns = pluginContext.irBuiltIns
 
-    fun spockkSpecMetadataAnnotation() = createConstructorCall(SPOCKK_SPEC_METADATA_FQN)
-
     fun specMetadataAnnotation(fileName: String, line: Int) = createConstructorCall(
         SPEC_METADATA_FQN,
         fileName.toIrConst(),
         line.toIrConst()
-    )
-
-    fun spockkFeatureMetadataAnnotation(ordinal: Int) = createConstructorCall(
-        SPOCKK_FEATURE_METADATA_FQN,
-        ordinal.toIrConst()
     )
 
     fun featureMetadataAnnotation(

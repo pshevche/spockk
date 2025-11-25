@@ -17,16 +17,36 @@ package io.github.pshevche.spockk.compilation.collector
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.common.MutableSpockkTransformationContext
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.isClassWithFqName
+import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.ir.util.isFakeOverride
+import org.jetbrains.kotlin.name.FqName
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkTransformationContextCollector(private val context: MutableSpockkTransformationContext) :
     BaseSpockkIrElementTransformer() {
+
+    companion object {
+        private val SPECIFICATION_FQN = FqName("spock.lang.Specification")
+    }
+
+    override fun visitClassNew(declaration: IrClass): IrStatement {
+        if (isSpecification(declaration)) {
+            context.addSpec(declaration)
+        }
+
+        return super.visitClassNew(declaration)
+    }
+
+    private fun isSpecification(declaration: IrClass): Boolean {
+        return declaration.getAllSuperclasses().any { it.isClassWithFqName(SPECIFICATION_FQN) }
+    }
 
     override fun visitFunctionNew(declaration: IrFunction): IrStatement {
         if (declaration.isFakeOverride) {

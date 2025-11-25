@@ -9,8 +9,9 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
+import spock.lang.Specification
 
-class SpockkTestEngineInheritanceTest {
+class SpockkTestEngineInheritanceTest : Specification() {
 
     fun `discovers feature methods defined both in parent and child`() {
         `when`
