@@ -15,5 +15,5 @@ abstract class BaseSpec : spock.lang.Specification() {
   }
 }
 
-@org.spockframework.runtime.model.SpecMetadata(filename = "SpecWithOnlyInheritedFeatures.kt", line = 7)
+@org.spockframework.runtime.model.SpecMetadata(filename = "SpecWithOnlyInheritedFeatures.kt", line = 8)
 class Spec : BaseSpec()
