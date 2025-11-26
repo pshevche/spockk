@@ -14,7 +14,6 @@
 
 package io.github.pshevche.spockk.intellij
 
-
 import com.intellij.codeInspection.InspectionSuppressor
 import com.intellij.codeInspection.SuppressQuickFix
 import com.intellij.psi.PsiElement
@@ -22,16 +21,16 @@ import io.github.pshevche.spockk.intellij.extensions.isSpockkBlock
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 
 class SpockkUnusedBlockInspectionSuppressor : InspectionSuppressor {
-
-    override fun isSuppressedFor(element: PsiElement, toolId: String): Boolean {
-        if (toolId == "UnusedExpression" && element is KtNameReferenceExpression) {
-            return element.isSpockkBlock()
-        }
-
-        return false
+  override fun isSuppressedFor(element: PsiElement, toolId: String): Boolean {
+    if (toolId == "UnusedExpression" && element is KtNameReferenceExpression) {
+      return element.isSpockkBlock()
     }
 
-    override fun getSuppressActions(element: PsiElement?, toolId: String): Array<out SuppressQuickFix?> =
-        SuppressQuickFix.EMPTY_ARRAY
+    return false
+  }
 
+  override fun getSuppressActions(
+    element: PsiElement?,
+    toolId: String
+  ): Array<out SuppressQuickFix?> = SuppressQuickFix.EMPTY_ARRAY
 }

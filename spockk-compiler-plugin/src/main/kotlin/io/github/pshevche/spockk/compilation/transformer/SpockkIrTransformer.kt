@@ -23,26 +23,19 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkIrTransformer(
-    irFactory: SpockkIrFactory,
-    private val context: SpockkTransformationContext,
+  irFactory: SpockkIrFactory,
+  private val context: SpockkTransformationContext
 ) : BaseSpockkIrElementTransformer() {
+  private val specRewriter = SpecRewriter(irFactory)
+  private val featureRewriter = FeatureRewriter(irFactory)
 
-    private val specRewriter = SpecRewriter(irFactory)
-    private val featureRewriter = FeatureRewriter(irFactory)
-
-    override fun visitClassNew(declaration: IrClass): IrStatement {
-        return declaration.transformPostfix {
-            context.specContext(this)?.let {
-                specRewriter.rewrite(this, it)
-            }
-        }
+  override fun visitClassNew(declaration: IrClass): IrStatement =
+    declaration.transformPostfix {
+      context.specContext(this)?.let { specRewriter.rewrite(this, it) }
     }
 
-    override fun visitFunctionNew(declaration: IrFunction): IrStatement {
-        return declaration.transformPostfix {
-            context.featureContext(currentIrClass, this)?.let {
-                featureRewriter.rewrite(this, it)
-            }
-        }
+  override fun visitFunctionNew(declaration: IrFunction): IrStatement =
+    declaration.transformPostfix {
+      context.featureContext(currentIrClass, this)?.let { featureRewriter.rewrite(this, it) }
     }
 }

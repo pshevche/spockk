@@ -19,27 +19,24 @@ import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 
 internal class FeatureRewriter(private val irFactory: SpockkIrFactory) {
+  fun rewrite(feature: IrFunction, context: FeatureContext) {
+    rewriteFeatureStatements(feature, context)
+    annotateFeature(feature, context)
+  }
 
-    fun rewrite(feature: IrFunction, context: FeatureContext) {
-        rewriteFeatureStatements(feature, context)
-        annotateFeature(feature, context)
-    }
+  private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
+    feature.mutableStatements()?.clear()
+    feature.mutableStatements()?.addAll(context.blocks.flatMap { it.statements })
+  }
 
-    private fun rewriteFeatureStatements(
-        feature: IrFunction,
-        context: FeatureContext,
-    ) {
-        feature.mutableStatements()?.clear()
-        feature.mutableStatements()?.addAll(context.blocks.flatMap { it.statements })
-    }
-
-    private fun annotateFeature(feature: IrFunction, context: FeatureContext) {
-        feature.annotations += irFactory.featureMetadataAnnotation(
-            context.ordinal,
-            context.name,
-            context.line,
-            context.parameterNames,
-            context.blocks
-        )
-    }
+  private fun annotateFeature(feature: IrFunction, context: FeatureContext) {
+    feature.annotations +=
+      irFactory.featureMetadataAnnotation(
+        context.ordinal,
+        context.name,
+        context.line,
+        context.parameterNames,
+        context.blocks
+      )
+  }
 }

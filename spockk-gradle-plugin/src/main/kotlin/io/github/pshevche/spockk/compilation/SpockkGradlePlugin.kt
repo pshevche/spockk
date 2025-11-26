@@ -22,18 +22,21 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 @Suppress("unused")
 class SpockkGradlePlugin : KotlinCompilerPluginSupportPlugin {
-    override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
-        val project = kotlinCompilation.target.project
-        return project.provider { listOf() }
-    }
+  override fun applyToCompilation(
+    kotlinCompilation: KotlinCompilation<*>
+  ): Provider<List<SubpluginOption>> {
+    val project = kotlinCompilation.target.project
+    return project.provider { listOf() }
+  }
 
-    override fun getCompilerPluginId(): String = SpockkCompilerPluginConfig.SPOCKK_COMPILER_PLUGIN_ID
+  override fun getCompilerPluginId(): String = SpockkCompilerPluginConfig.SPOCKK_COMPILER_PLUGIN_ID
 
-    override fun getPluginArtifact(): SubpluginArtifact = SubpluginArtifact(
-        SpockkCompilerPluginConfig.SPOCKK_COMPILER_PLUGIN_GROUP,
-        SpockkCompilerPluginConfig.SPOCKK_COMPILER_ARTIFACT_ID,
-        SpockkCompilerPluginConfig.SPOCKK_COMPILER_VERSION
+  override fun getPluginArtifact(): SubpluginArtifact =
+    SubpluginArtifact(
+      SpockkCompilerPluginConfig.SPOCKK_COMPILER_PLUGIN_GROUP,
+      SpockkCompilerPluginConfig.SPOCKK_COMPILER_ARTIFACT_ID,
+      SpockkCompilerPluginConfig.SPOCKK_COMPILER_VERSION
     )
 
-    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
+  override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
 }

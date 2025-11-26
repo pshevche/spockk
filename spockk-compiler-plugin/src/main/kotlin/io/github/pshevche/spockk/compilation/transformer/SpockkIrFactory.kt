@@ -23,47 +23,43 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkIrFactory(pluginContext: IrPluginContext) {
+  companion object {
+    private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
+    private const val FEATURE_METADATA_FQN = "org.spockframework.runtime.model.FeatureMetadata"
+    private const val BLOCK_METADATA_FQN = "org.spockframework.runtime.model.BlockMetadata"
+    private const val BLOCK_KIND_FQN = "org.spockframework.runtime.model.BlockKind"
+  }
 
-    companion object {
-        private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
-        private const val FEATURE_METADATA_FQN = "org.spockframework.runtime.model.FeatureMetadata"
-        private const val BLOCK_METADATA_FQN = "org.spockframework.runtime.model.BlockMetadata"
-        private const val BLOCK_KIND_FQN = "org.spockframework.runtime.model.BlockKind"
-    }
+  private val irFactory: ContextAwareIrFactory = ContextAwareIrFactory(pluginContext)
 
-    private val irFactory: ContextAwareIrFactory = ContextAwareIrFactory(pluginContext)
+  fun specMetadataAnnotation(fileName: String, line: Int) =
+    irFactory.constructorCall(SPEC_METADATA_FQN, irFactory.const(fileName), irFactory.const(line))
 
-    fun specMetadataAnnotation(fileName: String, line: Int) = irFactory.constructorCall(
-        SPEC_METADATA_FQN,
-        irFactory.const(fileName),
-        irFactory.const(line)
+  fun featureMetadataAnnotation(
+    ordinal: Int,
+    name: String,
+    line: Int,
+    parameterNames: List<String>,
+    blocks: List<FeatureBlockStatements>
+  ): IrConstructorCall =
+    irFactory.constructorCall(
+      FEATURE_METADATA_FQN,
+      irFactory.const(ordinal),
+      irFactory.const(name),
+      irFactory.const(line),
+      irFactory.stringArray(parameterNames),
+      blockMetadataArray(blocks.filter { it.label.blockKind != null })
     )
 
-    fun featureMetadataAnnotation(
-        ordinal: Int,
-        name: String,
-        line: Int,
-        parameterNames: List<String>,
-        blocks: List<FeatureBlockStatements>,
-    ): IrConstructorCall = irFactory.constructorCall(
-        FEATURE_METADATA_FQN,
-        irFactory.const(ordinal),
-        irFactory.const(name),
-        irFactory.const(line),
-        irFactory.stringArray(parameterNames),
-        blockMetadataArray(blocks.filter { it.label.blockKind != null })
-    )
-
-    private fun blockMetadataArray(blocks: List<FeatureBlockStatements>): IrExpression {
-        return irFactory.array(
-            BLOCK_METADATA_FQN,
-            blocks.map { block ->
-                irFactory.constructorCall(
-                    BLOCK_METADATA_FQN,
-                    irFactory.enumValue(block.label.blockKind!!, BLOCK_KIND_FQN),
-                    irFactory.stringArray(listOf(block.description))
-                )
-            }
+  private fun blockMetadataArray(blocks: List<FeatureBlockStatements>): IrExpression =
+    irFactory.array(
+      BLOCK_METADATA_FQN,
+      blocks.map { block ->
+        irFactory.constructorCall(
+          BLOCK_METADATA_FQN,
+          irFactory.enumValue(block.label.blockKind!!, BLOCK_KIND_FQN),
+          irFactory.stringArray(listOf(block.description))
         )
-    }
+      }
+    )
 }

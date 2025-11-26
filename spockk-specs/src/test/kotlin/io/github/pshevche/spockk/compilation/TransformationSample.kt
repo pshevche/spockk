@@ -1,20 +1,39 @@
+/*
+ * Copyright 2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.github.pshevche.spockk.compilation
 
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
 
 data class TransformationSample(val source: SourceFile, val expected: SourceFile) {
-    companion object {
-        fun sampleFromResource(fileName: String): TransformationSample {
-            return TransformationSample(
-                resource("samples/compilation/source/${fileName}.kt"),
-                resource("samples/compilation/transformed/${fileName}.kt"),
-            )
-        }
+  companion object {
+    fun sampleFromResource(fileName: String): TransformationSample =
+      TransformationSample(
+        resource("samples/compilation/source/$fileName.kt"),
+        resource("samples/compilation/transformed/$fileName.kt")
+      )
 
-        private fun resource(resourcePath: String): SourceFile = kotlin(
-            resourcePath.substring(resourcePath.lastIndexOf("/") + 1),
-            this::class.java.classLoader.getResourceAsStream(resourcePath)!!.bufferedReader().readText()
-        )
-    }
+    private fun resource(resourcePath: String): SourceFile =
+      kotlin(
+        resourcePath.substring(resourcePath.lastIndexOf("/") + 1),
+        this::class
+          .java
+          .classLoader
+          .getResourceAsStream(resourcePath)!!
+          .bufferedReader()
+          .readText()
+      )
+  }
 }

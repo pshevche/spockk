@@ -21,36 +21,31 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 
 internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureBlockCollector {
+  private var currentLabel: FeatureBlockLabelIrElement? = null
+  private val currentBlockStatements = mutableListOf<IrStatement>()
+  private val featureBlockStatements = mutableListOf<FeatureBlockStatements>()
 
-    private var currentLabel: FeatureBlockLabelIrElement? = null
-    private val currentBlockStatements = mutableListOf<IrStatement>()
-    private val featureBlockStatements = mutableListOf<FeatureBlockStatements>()
-
-    override fun consume(statement: IrStatement) {
-        val blockLabel = statement.asIrBlockLabel(file)
-        if (blockLabel == null) {
-            currentBlockStatements.add(statement)
-        } else {
-            completeCurrentBlock()
-            currentLabel = blockLabel
-        }
+  override fun consume(statement: IrStatement) {
+    val blockLabel = statement.asIrBlockLabel(file)
+    if (blockLabel == null) {
+      currentBlockStatements.add(statement)
+    } else {
+      completeCurrentBlock()
+      currentLabel = blockLabel
     }
+  }
 
-    private fun completeCurrentBlock() {
-        currentLabel?.let {
-            featureBlockStatements.add(
-                FeatureBlockStatements(
-                    it.label,
-                    it.description,
-                    currentBlockStatements.toList()
-                )
-            )
-            currentBlockStatements.clear()
-        }
+  private fun completeCurrentBlock() {
+    currentLabel?.let {
+      featureBlockStatements.add(
+        FeatureBlockStatements(it.label, it.description, currentBlockStatements.toList())
+      )
+      currentBlockStatements.clear()
     }
+  }
 
-    override fun getBlockStatements(): List<FeatureBlockStatements> {
-        completeCurrentBlock()
-        return featureBlockStatements.toList()
-    }
+  override fun getBlockStatements(): List<FeatureBlockStatements> {
+    completeCurrentBlock()
+    return featureBlockStatements.toList()
+  }
 }

@@ -20,14 +20,8 @@ import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
-internal fun IrPluginContext.referenceClass(className: String): IrClassSymbol {
-    return this.referenceClass(classId(className)) ?: throw CompilationException(
-        "Cannot find class $className",
-        null,
-        null,
-        null
-    )
-}
+internal fun IrPluginContext.referenceClass(className: String): IrClassSymbol =
+  this.referenceClass(classId(className))
+    ?: throw CompilationException("Cannot find class $className", null, null, null)
 
 private fun classId(className: String): ClassId = ClassId.topLevel(FqName(className))
-

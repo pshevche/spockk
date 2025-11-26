@@ -26,18 +26,18 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 
 internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
-    when (this) {
-        is IrTypeOperatorCall -> (this.argument as? IrGetObjectValue)?.asIrBlockLabel(file)
-        is IrCall -> asIrBlockLabel(file)
-        else -> null
-    }
+  when (this) {
+    is IrTypeOperatorCall -> (this.argument as? IrGetObjectValue)?.asIrBlockLabel(file)
+    is IrCall -> asIrBlockLabel(file)
+    else -> null
+  }
 
 private fun IrGetObjectValue.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
-    FeatureBlockLabelIrElement.from(file, this)
+  FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrGetObjectValue.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
 
 private fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
-    FeatureBlockLabelIrElement.from(file, this)
+  FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrCall.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()

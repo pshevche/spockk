@@ -29,23 +29,21 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 @AutoService(CompilerPluginRegistrar::class)
 @OptIn(ExperimentalCompilerApi::class)
 class SpockkCompilerPlugin : CompilerPluginRegistrar() {
-    override val supportsK2: Boolean
-        get() = true
+  override val supportsK2: Boolean
+    get() = true
 
-    override fun ExtensionStorage.registerExtensions(
-        configuration: CompilerConfiguration,
-    ) {
-        IrGenerationExtension.registerExtension(SpockkIrGenerationExtension())
-    }
+  override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
+    IrGenerationExtension.registerExtension(SpockkIrGenerationExtension())
+  }
 
-    private class SpockkIrGenerationExtension() : IrGenerationExtension {
-        override fun generate(
-            moduleFragment: IrModuleFragment,
-            pluginContext: IrPluginContext,
-        ) {
-            val context = MutableSpockkTransformationContext()
-            moduleFragment.transform(SpockkTransformationContextCollector(context), null)
-            moduleFragment.transform(SpockkIrTransformer(SpockkIrFactory(pluginContext), context.finalized()), null)
-        }
+  private class SpockkIrGenerationExtension : IrGenerationExtension {
+    override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
+      val context = MutableSpockkTransformationContext()
+      moduleFragment.transform(SpockkTransformationContextCollector(context), null)
+      moduleFragment.transform(
+        SpockkIrTransformer(SpockkIrFactory(pluginContext), context.finalized()),
+        null
+      )
     }
+  }
 }

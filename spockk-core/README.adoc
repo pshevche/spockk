@@ -4,6 +4,6 @@ Declares additional Kotlin-specific specification syntax.
 
 == Noteworthy components
 
-- link:src/main/kotlin/io/github/pshevche/spockk/lang/lang.kt[lang]: contains block labels that allow users to define feature methods.
+- link:src/main/kotlin/io/github/pshevche/spockk/lang/Lang.kt[lang]: contains block labels that allow users to define feature methods.
 These blocks mark the features and statements that need to be transformed during compilations.
 They also help IntelliJ detect executable Spockk tests.

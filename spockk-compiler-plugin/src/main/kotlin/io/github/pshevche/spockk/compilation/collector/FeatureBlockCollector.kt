@@ -18,9 +18,7 @@ import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import org.jetbrains.kotlin.ir.IrStatement
 
 internal interface FeatureBlockCollector {
+  fun consume(statement: IrStatement)
 
-    fun consume(statement: IrStatement)
-
-    fun getBlockStatements(): List<FeatureBlockStatements>
-
+  fun getBlockStatements(): List<FeatureBlockStatements>
 }

@@ -37,59 +37,49 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.toIrConst
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
-internal class ContextAwareIrFactory(private val pluginContext: IrPluginContext) :
-    IrFactory(pluginContext.irFactory.stageController) {
+internal class ContextAwareIrFactory(private val pluginContext: IrPluginContext) : IrFactory(pluginContext.irFactory.stageController) {
+  private val irBuiltIns = pluginContext.irBuiltIns
 
-    private val irBuiltIns = pluginContext.irBuiltIns
-
-    internal fun constructorCall(className: String, vararg args: IrExpression): IrConstructorCall {
-        val classSymbol = pluginContext.referenceClass(className)
-        val constructorSymbol = classSymbol.constructors.first()
-        val classType = classSymbol.defaultType
-        return IrConstructorCallImpl.fromSymbolOwner(classType, constructorSymbol).apply {
-            args.withIndex().forEach {
-                arguments[it.index] = it.value
-            }
-        }
+  internal fun constructorCall(className: String, vararg args: IrExpression): IrConstructorCall {
+    val classSymbol = pluginContext.referenceClass(className)
+    val constructorSymbol = classSymbol.constructors.first()
+    val classType = classSymbol.defaultType
+    return IrConstructorCallImpl.fromSymbolOwner(classType, constructorSymbol).apply {
+      args.withIndex().forEach { arguments[it.index] = it.value }
     }
+  }
 
-    internal fun enumValue(value: String, enumClassName: String): IrGetEnumValue {
-        val enumClassSymbol = pluginContext.referenceClass(enumClassName)
-        val enumEntry = enumClassSymbol.owner.declarations
-            .filterIsInstance<IrEnumEntry>()
-            .first { it.name.asString() == value }
-        return IrGetEnumValueImpl(
-            SYNTHETIC_OFFSET,
-            SYNTHETIC_OFFSET,
-            enumClassSymbol.defaultType,
-            enumEntry.symbol
-        )
-    }
+  internal fun enumValue(value: String, enumClassName: String): IrGetEnumValue {
+    val enumClassSymbol = pluginContext.referenceClass(enumClassName)
+    val enumEntry =
+      enumClassSymbol.owner.declarations.filterIsInstance<IrEnumEntry>().first {
+        it.name.asString() == value
+      }
+    return IrGetEnumValueImpl(
+      SYNTHETIC_OFFSET,
+      SYNTHETIC_OFFSET,
+      enumClassSymbol.defaultType,
+      enumEntry.symbol
+    )
+  }
 
-    internal fun stringArray(elements: List<String>) = array(
-        irBuiltIns.stringType,
-        elements.map { const(it) }
+  internal fun stringArray(elements: List<String>) =
+    array(irBuiltIns.stringType, elements.map { const(it) })
+
+  internal fun array(elementClassName: String, elements: List<IrVarargElement>) =
+    array(pluginContext.referenceClass(elementClassName).defaultType, elements)
+
+  internal fun array(elementType: IrType, elements: List<IrVarargElement>): IrVararg =
+    IrVarargImpl(
+      SYNTHETIC_OFFSET,
+      SYNTHETIC_OFFSET,
+      irBuiltIns.arrayClass.typeWith(elementType),
+      elementType,
+      elements
     )
 
-    internal fun array(elementClassName: String, elements: List<IrVarargElement>) = array(
-        pluginContext.referenceClass(elementClassName).defaultType,
-        elements
+  internal fun const(value: Any): IrConst =
+    value.toIrConst(
+      pluginContext.referenceClass(value::class.qualifiedName!!).defaultTypeWithoutArguments
     )
-
-    internal fun array(
-        elementType: IrType,
-        elements: List<IrVarargElement>,
-    ): IrVararg {
-        return IrVarargImpl(
-            SYNTHETIC_OFFSET,
-            SYNTHETIC_OFFSET,
-            irBuiltIns.arrayClass.typeWith(elementType),
-            elementType,
-            elements
-        )
-    }
-
-    internal fun const(value: Any): IrConst =
-        value.toIrConst(pluginContext.referenceClass(value::class.qualifiedName!!).defaultTypeWithoutArguments)
-
 }

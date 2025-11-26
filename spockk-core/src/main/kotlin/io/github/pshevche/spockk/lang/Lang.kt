@@ -12,60 +12,61 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused", "ClassName", "FunctionNaming", "Filename")
+@file:Suppress("unused", "ClassName", "FunctionNaming")
 
 package io.github.pshevche.spockk.lang
 
-private fun throwIllegalLabelUsageException(label: String) {
-    throw UnsupportedOperationException("The 'given' label should not be used outside of Spockk feature methods")
-}
+private fun throwIllegalLabelUsageException(label: String): Unit =
+  throw UnsupportedOperationException(
+    "The 'given' label should not be used outside of Spockk feature methods"
+  )
 
 object given {
-    init {
-        throwIllegalLabelUsageException("given")
-    }
+  init {
+    throwIllegalLabelUsageException("given")
+  }
 }
 
 fun given(description: String) {
-    throwIllegalLabelUsageException("given")
+  throwIllegalLabelUsageException("given")
 }
 
 object expect {
-    init {
-        throwIllegalLabelUsageException("expect")
-    }
+  init {
+    throwIllegalLabelUsageException("expect")
+  }
 }
 
 fun expect(description: String) {
-    throwIllegalLabelUsageException("expect")
+  throwIllegalLabelUsageException("expect")
 }
 
 object `when` {
-    init {
-        throwIllegalLabelUsageException("when")
-    }
+  init {
+    throwIllegalLabelUsageException("when")
+  }
 }
 
 fun `when`(description: String) {
-    throwIllegalLabelUsageException("when")
+  throwIllegalLabelUsageException("when")
 }
 
 object then {
-    init {
-        throwIllegalLabelUsageException("then")
-    }
+  init {
+    throwIllegalLabelUsageException("then")
+  }
 }
 
 fun then(description: String) {
-    throwIllegalLabelUsageException("then")
+  throwIllegalLabelUsageException("then")
 }
 
 object and {
-    init {
-        throwIllegalLabelUsageException("and")
-    }
+  init {
+    throwIllegalLabelUsageException("and")
+  }
 }
 
 fun and(description: String) {
-    throwIllegalLabelUsageException("and")
+  throwIllegalLabelUsageException("and")
 }

@@ -18,26 +18,24 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import org.jetbrains.kotlin.psi.KtFile
 
-private val SPOCKK_BLOCKS_FQN = setOf(
+private val SPOCKK_BLOCKS_FQN =
+  setOf(
     "io.github.pshevche.spockk.lang.given",
     "io.github.pshevche.spockk.lang.expect",
     "io.github.pshevche.spockk.lang.`when`",
     "io.github.pshevche.spockk.lang.then",
-    "io.github.pshevche.spockk.lang.and",
-)
+    "io.github.pshevche.spockk.lang.and"
+  )
 
-fun PsiElement.isSpockkBlock(): Boolean {
-    return getSpockkImportDirectives(containingFile)
-        .any { it.endsWith(text) }
-}
+fun PsiElement.isSpockkBlock(): Boolean =
+  getSpockkImportDirectives(containingFile).any { it.endsWith(text) }
 
 private fun getSpockkImportDirectives(file: PsiFile): List<String> {
-    if (file is KtFile) {
-        return file.importDirectives
-            .mapNotNull { it.importedReference?.text }
-            .filter { SPOCKK_BLOCKS_FQN.contains(it) }
-    }
+  if (file is KtFile) {
+    return file.importDirectives
+      .mapNotNull { it.importedReference?.text }
+      .filter { SPOCKK_BLOCKS_FQN.contains(it) }
+  }
 
-    return listOf()
+  return listOf()
 }
-

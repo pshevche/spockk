@@ -23,114 +23,107 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 
 internal class ValidatingFeatureBlockCollector(
-    private val file: IrFile,
-    private val delegate: FeatureBlockCollector,
+  private val file: IrFile,
+  private val delegate: FeatureBlockCollector
 ) : FeatureBlockCollector {
+  enum class State {
+    INIT {
+      override val validBlocks: List<FeatureBlockLabel>
+        get() = listOf(FeatureBlockLabel.GIVEN, FeatureBlockLabel.EXPECT, FeatureBlockLabel.WHEN)
 
-    enum class State {
-        INIT {
-            override val validBlocks: List<FeatureBlockLabel>
-                get() = listOf(FeatureBlockLabel.GIVEN, FeatureBlockLabel.EXPECT, FeatureBlockLabel.WHEN)
-
-            override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State {
-                return when (block) {
-                    is FeatureBlockLabelIrElement.Given -> PRECONDITION
-                    is FeatureBlockLabelIrElement.Expect -> EXPECTATION_EXPECT
-                    is FeatureBlockLabelIrElement.When -> ACTION
-                    else -> failOnInvalidBlock(block)
-                }
-            }
-        },
-        PRECONDITION {
-            override val validBlocks: List<FeatureBlockLabel>
-                get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN, FeatureBlockLabel.EXPECT)
-
-            override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State {
-                return when (block) {
-                    is FeatureBlockLabelIrElement.And -> this
-                    is FeatureBlockLabelIrElement.When -> ACTION
-                    is FeatureBlockLabelIrElement.Expect -> EXPECTATION_EXPECT
-                    else -> failOnInvalidBlock(block)
-                }
-            }
-        },
-        ACTION {
-            override val validBlocks: List<FeatureBlockLabel>
-                get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.THEN)
-
-            override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State {
-                return when (block) {
-                    is FeatureBlockLabelIrElement.And -> this
-                    is FeatureBlockLabelIrElement.Then -> EXPECTATION_THEN
-                    else -> failOnInvalidBlock(block)
-                }
-            }
-        },
-        EXPECTATION_EXPECT {
-            override val validBlocks: List<FeatureBlockLabel>
-                get() = listOf(FeatureBlockLabel.AND)
-
-            override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State {
-                return when (block) {
-                    is FeatureBlockLabelIrElement.And -> this
-                    else -> failOnInvalidBlock(block)
-                }
-            }
-        },
-        EXPECTATION_THEN {
-            override val validBlocks: List<FeatureBlockLabel>
-                get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN)
-
-            override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State {
-                return when (block) {
-                    is FeatureBlockLabelIrElement.And -> this
-                    is FeatureBlockLabelIrElement.When -> ACTION
-                    else -> failOnInvalidBlock(block)
-                }
-            }
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.Given -> PRECONDITION
+          is FeatureBlockLabelIrElement.Expect -> EXPECTATION_EXPECT
+          is FeatureBlockLabelIrElement.When -> ACTION
+          else -> failOnInvalidBlock(block)
         }
-        ;
+    },
+    PRECONDITION {
+      override val validBlocks: List<FeatureBlockLabel>
+        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN, FeatureBlockLabel.EXPECT)
 
-        abstract val validBlocks: List<FeatureBlockLabel>
-
-        abstract fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State
-
-        fun failOnInvalidBlock(currentBlock: FeatureBlockLabelIrElement): Nothing {
-            val displayNames = validBlocks.map { "'${it.displayName}'" }
-            throw CompilationException(
-                "Expected to find one of spockk blocks ${displayNames}, but encountered '${currentBlock.label.displayName}'",
-                currentBlock.file,
-                currentBlock.element
-            )
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
+          is FeatureBlockLabelIrElement.When -> ACTION
+          is FeatureBlockLabelIrElement.Expect -> EXPECTATION_EXPECT
+          else -> failOnInvalidBlock(block)
         }
+    },
+    ACTION {
+      override val validBlocks: List<FeatureBlockLabel>
+        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.THEN)
 
-        fun isExpectation() = this == EXPECTATION_EXPECT || this == EXPECTATION_THEN
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
+          is FeatureBlockLabelIrElement.Then -> EXPECTATION_THEN
+          else -> failOnInvalidBlock(block)
+        }
+    },
+    EXPECTATION_EXPECT {
+      override val validBlocks: List<FeatureBlockLabel>
+        get() = listOf(FeatureBlockLabel.AND)
+
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
+          else -> failOnInvalidBlock(block)
+        }
+    },
+    EXPECTATION_THEN {
+      override val validBlocks: List<FeatureBlockLabel>
+        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN)
+
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
+          is FeatureBlockLabelIrElement.When -> ACTION
+          else -> failOnInvalidBlock(block)
+        }
+    };
+
+    abstract val validBlocks: List<FeatureBlockLabel>
+
+    abstract fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State
+
+    fun failOnInvalidBlock(currentBlock: FeatureBlockLabelIrElement): Nothing {
+      val displayNames = validBlocks.map { "'${it.displayName}'" }
+      throw CompilationException(
+        "Expected to find one of spockk blocks $displayNames, but encountered '${currentBlock.label.displayName}'",
+        currentBlock.file,
+        currentBlock.element
+      )
     }
 
-    private var currentState: State = State.INIT
-    private var lastBlock: FeatureBlockLabelIrElement? = null
+    fun isExpectation() = this == EXPECTATION_EXPECT || this == EXPECTATION_THEN
+  }
 
-    override fun consume(statement: IrStatement) {
-        statement.asIrBlockLabel(file)?.let {
-            currentState = currentState.nextOrFailIfInvalid(it)
-            lastBlock = it
-        }
-        delegate.consume(statement)
-    }
+  private var currentState: State = State.INIT
+  private var lastBlock: FeatureBlockLabelIrElement? = null
 
-    override fun getBlockStatements(): List<FeatureBlockStatements> {
-        assertBlockStructureIsComplete()
-        return delegate.getBlockStatements()
+  override fun consume(statement: IrStatement) {
+    statement.asIrBlockLabel(file)?.let {
+      currentState = currentState.nextOrFailIfInvalid(it)
+      lastBlock = it
     }
+    delegate.consume(statement)
+  }
 
-    private fun assertBlockStructureIsComplete() {
-        if (currentState != State.INIT && !currentState.isExpectation()) {
-            val displayNames = currentState.validBlocks.map { "'${it.displayName}'" }
-            throw CompilationException(
-                "Expected to find one of spockk blocks ${displayNames}, but reached the end of the feature method",
-                lastBlock?.file,
-                lastBlock?.element
-            )
-        }
+  override fun getBlockStatements(): List<FeatureBlockStatements> {
+    assertBlockStructureIsComplete()
+    return delegate.getBlockStatements()
+  }
+
+  private fun assertBlockStructureIsComplete() {
+    if (currentState != State.INIT && !currentState.isExpectation()) {
+      val displayNames = currentState.validBlocks.map { "'${it.displayName}'" }
+      throw CompilationException(
+        "Expected to find one of spockk blocks $displayNames, but reached the end of the feature method",
+        lastBlock?.file,
+        lastBlock?.element
+      )
     }
+  }
 }

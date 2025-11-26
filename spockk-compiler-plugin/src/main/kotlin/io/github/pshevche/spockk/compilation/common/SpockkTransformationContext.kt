@@ -17,19 +17,22 @@ package io.github.pshevche.spockk.compilation.common
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 
-internal data class SpockkTransformationContext(
-    private val specs: Map<IrClass, SpecContext>,
-) {
+internal data class SpockkTransformationContext(private val specs: Map<IrClass, SpecContext>) {
+  fun specContext(clazz: IrClass) = specs[clazz]
 
-    fun specContext(clazz: IrClass) = specs[clazz]
-    fun featureContext(clazz: IrClass, feature: IrFunction) = specs[clazz]?.features[feature]
+  fun featureContext(clazz: IrClass, feature: IrFunction) = specs[clazz]?.features[feature]
 
-    internal data class SpecContext(val fileName: String, val line: Int, val features: Map<IrFunction, FeatureContext>)
-    internal data class FeatureContext(
-        val ordinal: Int,
-        val name: String,
-        val line: Int,
-        val parameterNames: List<String>,
-        val blocks: List<FeatureBlockStatements>,
-    )
+  internal data class SpecContext(
+    val fileName: String,
+    val line: Int,
+    val features: Map<IrFunction, FeatureContext>
+  )
+
+  internal data class FeatureContext(
+    val ordinal: Int,
+    val name: String,
+    val line: Int,
+    val parameterNames: List<String>,
+    val blocks: List<FeatureBlockStatements>
+  )
 }

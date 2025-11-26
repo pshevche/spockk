@@ -18,4 +18,5 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 
-internal fun IrFunction.mutableStatements(): MutableList<IrStatement>? = (body as? IrBlockBody)?.statements
+internal fun IrFunction.mutableStatements(): MutableList<IrStatement>? =
+  (body as? IrBlockBody)?.statements

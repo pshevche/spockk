@@ -18,12 +18,11 @@ import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.
 import org.jetbrains.kotlin.ir.declarations.IrClass
 
 internal class SpecRewriter(private val irFactory: SpockkIrFactory) {
+  fun rewrite(spec: IrClass, context: SpecContext) {
+    annotateSpec(spec, context)
+  }
 
-    fun rewrite(spec: IrClass, context: SpecContext) {
-        annotateSpec(spec, context)
-    }
-
-    private fun annotateSpec(spec: IrClass, context: SpecContext) {
-        spec.annotations += irFactory.specMetadataAnnotation(context.fileName, context.line)
-    }
+  private fun annotateSpec(spec: IrClass, context: SpecContext) {
+    spec.annotations += irFactory.specMetadataAnnotation(context.fileName, context.line)
+  }
 }

@@ -10,4 +10,5 @@ dependencies {
     implementation(libs.plugins.detekt.asDependency())
     implementation(libs.plugins.kotlin.jvm.asDependency())
     implementation(libs.plugins.maven.publish.asDependency())
+    implementation(libs.plugins.spotless.asDependency())
 }
