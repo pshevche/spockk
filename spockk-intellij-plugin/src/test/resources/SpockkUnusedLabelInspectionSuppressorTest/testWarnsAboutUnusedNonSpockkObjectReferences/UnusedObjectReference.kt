@@ -1,9 +1,9 @@
 class UnusedObjectReference {
 
-    object expect
+  object expect
 
-    fun helper() {
-        expect
-        println("Hello, World!")
-    }
+  fun helper() {
+    expect
+    println("Hello, World!")
+  }
 }

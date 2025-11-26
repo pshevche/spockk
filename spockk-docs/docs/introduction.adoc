@@ -1,6 +1,6 @@
 == Introduction
 
-image::name_with_icon_light.svg[width=70%, align=center]
+image::name_with_icon_light.svg[width=70%,align=center]
 
 Spockk is an add-on for the https://spockframework.org/[Spock] testing framework that aims to provide Kotlin-native version of Spock's expressive specification syntax.
 Spockk is not a standalone testing framework and must be used in combination with Spock.

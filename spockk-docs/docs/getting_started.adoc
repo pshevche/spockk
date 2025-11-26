@@ -12,7 +12,7 @@ The **Spockk Core** module defines the specification syntax that allows definini
 The **Spock Core** module provides a `TestEngine` implementation that allows Spockk tests to run on the JUnit Platform.
 
 .Enable the Spockk test engine in your Gradle project
-[source, kotlin, subs="verbatim,attributes"]
+[source,kotlin,subs="verbatim,attributes"]
 ----
 // build.gradle.kts
 
@@ -30,7 +30,7 @@ tasks.named<Test>("test") {
 The **Spockk Gradle plugin** applies a Kotlin compiler plugin that transforms Spockk’s concise specification syntax into runnable tests during compilation.
 
 .Apply the Spockk Gradle plugin to support specification syntax
-[source, kotlin, subs="verbatim,attributes"]
+[source,kotlin,subs="verbatim,attributes"]
 ----
 // build.gradle.kts
 

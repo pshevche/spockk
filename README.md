@@ -6,7 +6,8 @@
   </picture>
 </h1>
 
-This repository is home to Spockk, an add-on for the [Spock](https://github.com/spockframework/spock) testing framework that brings its expressive BDD-style syntax for Groovy to Kotlin.
+This repository is home to Spockk, an add-on for the [Spock](https://github.com/spockframework/spock) testing framework
+that brings its expressive BDD-style syntax for Groovy to Kotlin.
 
 ## Sneak peek
 
