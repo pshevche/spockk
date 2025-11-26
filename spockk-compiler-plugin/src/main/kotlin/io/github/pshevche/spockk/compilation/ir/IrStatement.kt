@@ -14,34 +14,16 @@
 
 @file:OptIn(UnsafeDuringIrConstructionAPI::class)
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.ir
 
-import org.jetbrains.kotlin.backend.common.CompilationException
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import io.github.pshevche.spockk.compilation.common.FeatureBlockLabelIrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
-import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
-import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
-
-internal fun IrPluginContext.referenceClass(className: String): IrClassSymbol {
-    return this.referenceClass(classId(className)) ?: throw CompilationException(
-        "Cannot find class $className",
-        null,
-        null,
-        null
-    )
-}
-
-internal fun IrFunction.mutableStatements(): MutableList<IrStatement>? = (body as? IrBlockBody)?.statements
 
 internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
     when (this) {
@@ -50,16 +32,12 @@ internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElemen
         else -> null
     }
 
-internal fun IrGetObjectValue.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
+private fun IrGetObjectValue.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
     FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrGetObjectValue.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
 
-internal fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
+private fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
     FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrCall.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
-
-internal fun IrValueParameter.isThis() = this.name.asString() == "<this>"
-
-private fun classId(className: String): ClassId = ClassId.topLevel(FqName(className))

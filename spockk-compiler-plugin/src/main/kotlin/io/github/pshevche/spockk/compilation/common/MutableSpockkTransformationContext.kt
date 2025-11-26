@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.common
 
+import io.github.pshevche.spockk.compilation.ir.isThis
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.name

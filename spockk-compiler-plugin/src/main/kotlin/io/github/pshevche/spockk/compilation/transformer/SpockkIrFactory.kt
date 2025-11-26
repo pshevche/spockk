@@ -15,30 +15,14 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
-import io.github.pshevche.spockk.compilation.common.referenceClass
+import io.github.pshevche.spockk.compilation.ir.ContextAwareIrFactory
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.fir.backend.utils.defaultTypeWithoutArguments
-import org.jetbrains.kotlin.ir.declarations.IrEnumEntry
-import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
-import org.jetbrains.kotlin.ir.expressions.IrVararg
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
-import org.jetbrains.kotlin.ir.expressions.impl.fromSymbolOwner
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.types.typeWith
-import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
-import org.jetbrains.kotlin.ir.util.constructors
-import org.jetbrains.kotlin.ir.util.toIrConst
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
-internal class SpockkIrFactory(private val pluginContext: IrPluginContext) {
+internal class SpockkIrFactory(pluginContext: IrPluginContext) {
 
     companion object {
         private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
@@ -47,12 +31,12 @@ internal class SpockkIrFactory(private val pluginContext: IrPluginContext) {
         private const val BLOCK_KIND_FQN = "org.spockframework.runtime.model.BlockKind"
     }
 
-    private val irBuiltIns = pluginContext.irBuiltIns
+    private val irFactory: ContextAwareIrFactory = ContextAwareIrFactory(pluginContext)
 
-    fun specMetadataAnnotation(fileName: String, line: Int) = createConstructorCall(
+    fun specMetadataAnnotation(fileName: String, line: Int) = irFactory.constructorCall(
         SPEC_METADATA_FQN,
-        fileName.toIrConst(),
-        line.toIrConst()
+        irFactory.const(fileName),
+        irFactory.const(line)
     )
 
     fun featureMetadataAnnotation(
@@ -61,68 +45,25 @@ internal class SpockkIrFactory(private val pluginContext: IrPluginContext) {
         line: Int,
         parameterNames: List<String>,
         blocks: List<FeatureBlockStatements>,
-    ): IrConstructorCall {
-        return createConstructorCall(FEATURE_METADATA_FQN).apply {
-            arguments[0] = ordinal.toIrConst()
-            arguments[1] = name.toIrConst()
-            arguments[2] = line.toIrConst()
-            arguments[3] = parameterNames.toTypedArray().toIrConstantArray(this.symbol)
-            arguments[4] = blocks.filter { it.label.blockKind != null }.toIrBlockMetadataArray(this.symbol)
-//            arguments[4] = listOf<FeatureBlockStatements>().toIrBlockMetadataArray(this.symbol)
-        }
-    }
+    ): IrConstructorCall = irFactory.constructorCall(
+        FEATURE_METADATA_FQN,
+        irFactory.const(ordinal),
+        irFactory.const(name),
+        irFactory.const(line),
+        irFactory.stringArray(parameterNames),
+        blockMetadataArray(blocks.filter { it.label.blockKind != null })
+    )
 
-    private fun createConstructorCall(className: String, vararg args: IrExpression): IrConstructorCall {
-        val classSymbol = pluginContext.referenceClass(className)
-        val constructorSymbol = classSymbol.constructors.first()
-        val classType = classSymbol.defaultType
-        return IrConstructorCallImpl.fromSymbolOwner(classType, constructorSymbol).apply {
-            args.withIndex().forEach {
-                arguments[it.index] = it.value
-            }
-        }
-    }
-
-    private fun Any.toIrConst(): IrConst =
-        this.toIrConst(pluginContext.referenceClass(this::class.qualifiedName!!).defaultTypeWithoutArguments)
-
-    private fun Array<String>.toIrConstantArray(symbol: IrSymbol): IrVararg {
-        return IrVarargImpl(
-            SYNTHETIC_OFFSET,
-            SYNTHETIC_OFFSET,
-            irBuiltIns.arrayClass.typeWith(irBuiltIns.stringType),
-            irBuiltIns.stringType,
-            this.map { it.toIrConst() }
-        )
-    }
-
-    private fun String.toEnumValue(className: String): IrGetEnumValue {
-        val enumClassSymbol = pluginContext.referenceClass(className)
-        val enumEntry = enumClassSymbol.owner.declarations
-            .filterIsInstance<IrEnumEntry>()
-            .first { it.name.asString() == this }
-        return IrGetEnumValueImpl(
-            SYNTHETIC_OFFSET,
-            SYNTHETIC_OFFSET,
-            enumClassSymbol.defaultType,
-            enumEntry.symbol
-        )
-    }
-
-    private fun List<FeatureBlockStatements>.toIrBlockMetadataArray(symbol: IrConstructorSymbol): IrVararg {
-        val blockMetadataIrType = pluginContext.referenceClass(BLOCK_METADATA_FQN).defaultType
-        return IrVarargImpl(
-            SYNTHETIC_OFFSET,
-            SYNTHETIC_OFFSET,
-            irBuiltIns.arrayClass.typeWith(blockMetadataIrType),
-            blockMetadataIrType,
-            this.map { block ->
-                createConstructorCall(BLOCK_METADATA_FQN).apply {
-                    arguments[0] = block.label.blockKind!!.toEnumValue(BLOCK_KIND_FQN)
-                    arguments[1] = arrayOf(block.description).toIrConstantArray(symbol)
-                }
+    private fun blockMetadataArray(blocks: List<FeatureBlockStatements>): IrExpression {
+        return irFactory.array(
+            BLOCK_METADATA_FQN,
+            blocks.map { block ->
+                irFactory.constructorCall(
+                    BLOCK_METADATA_FQN,
+                    irFactory.enumValue(block.label.blockKind!!, BLOCK_KIND_FQN),
+                    irFactory.stringArray(listOf(block.description))
+                )
             }
         )
     }
-
 }

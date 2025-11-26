@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
-import io.github.pshevche.spockk.compilation.common.mutableStatements
+import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 
 internal class FeatureRewriter(private val irFactory: SpockkIrFactory) {

@@ -16,6 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.common
 
+import io.github.pshevche.spockk.compilation.ir.requiredFqn
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.expressions.IrCall
