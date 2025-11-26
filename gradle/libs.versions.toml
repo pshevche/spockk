@@ -13,17 +13,17 @@ intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.10.5"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
-plugin-publish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.35.0" }
+plugin-publish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
 
 [libraries]
 google-autoservice = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
 google-autoservice-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service" }
 hamcrest = { module = "org.hamcrest:hamcrest", version = "3.0" }
-junit4 = { module = "junit:junit", version = "4.13.2" }
 junit-platform-engine = { module = "org.junit.platform:junit-platform-engine", version.ref = "junit-platform" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 junit-platform-testkit = { module = "org.junit.platform:junit-platform-testkit", version.ref = "junit-platform" }
+junit4 = { module = "junit:junit", version = "4.13.2" }
 kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.11.1" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
