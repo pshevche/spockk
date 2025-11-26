@@ -7,7 +7,9 @@ A specification is represented as a Kotlin class, while features are defined as 
 
 [source,kotlin]
 ----
-class MyFirstSpecification {
+import spock.lang.Specification
+
+class MyFirstSpecification : Specification() {
     fun `adding an element to a list`() {
         // define preconditions, actions, and conditions
     }
@@ -35,7 +37,9 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.then
 
-class MyFirstSpecification {
+import spock.lang.Specification
+
+class MyFirstSpecification : Specification() {
     fun `adding an element to a list`() {
         given
         val myList = mutableListOf<Int>()
@@ -69,7 +73,7 @@ then("the account's balance is $10")
 // ...
 ----
 
-=== Defininig Conditions
+=== Defining Conditions
 
 Spockk does not yet provide built-in fixtures for defining conditions (assertions).
 However, it works seamlessly with Kotlin’s native assertion framework, as well as popular libraries such as AssertJ and Hamcrest.

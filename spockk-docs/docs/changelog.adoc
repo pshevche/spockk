@@ -1,6 +1,6 @@
 == Changelog
 
-=== v0.1
+=== v0.1.0
 
 - [Core] Implement rich BDD-style syntax for defining test features
 - [IntelliJ plugin] Detect Spockk syntax in test sources

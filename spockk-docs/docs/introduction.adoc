@@ -2,6 +2,6 @@
 
 image::name_with_icon_light.svg[width=70%, align=center]
 
-Spockk is a testing and specification framework for Kotlin.
-It is heavily inspired by the https://spockframework.org/[Spock] framework for Groovy and aims to provide a Kotlin-native version of Spock’s expressive specification syntax.
-Spockk runs on the JUnit Platform, making it compatible with most build tools and IDEs.
+Spockk is an add-on for the https://spockframework.org/[Spock] testing framework that aims to provide Kotlin-native version of Spock's expressive specification syntax.
+Spockk is not a standalone testing framework and must be used in combination with Spock.
+Spockk used together with Spock's JUnit Platform test engine is compatible with most build tools and IDEs.

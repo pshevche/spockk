@@ -1,10 +1,14 @@
 = spockk-intellij-plugin
 
 Provides support for Spockk tests in IntelliJ.
+The built-in plugin for Spock tests does a lot of the heavy lifting:
+
+- It detects specifications and features.
+- It provides Gradle run configurations for those tests.
+
+This plugin adds a single extension that ensures that Kotlin-specific syntax for feature blocks is not marked as unused by IntelliJ.
 
 == Noteworthy components
 
-- link:src/main/kotlin/io/github/pshevche/spockk/intellij/SpockkTestFramework.kt[SpockkTestFramework]: defines Spockk as a test framework. This enables multiple features out of the box (e.g., adds a run marker that denotes executable test containers, adds Spockk to the list of frameworks when creating tests from templates, etc)
-- link:src/main/kotlin/io/github/pshevche/spockk/intellij/SpockkRunConfigurationProducer.kt[SpockkRunConfigurationProducer]: provides the Gradle run configuration that has to be invoked when the user clicks "Run" symbols in IntelliJ. The producer needs to return a list of tasks, and IntelliJ handles the rest. Currently, it only works with the default test task.
-- link:src/main/kotlin/io/github/pshevche/spockk/intellij/SpockkImplicitUsageProvider.kt[SpockkImplicitUsageProvider]: prevents specification classes and feature methods from being marked as unused. By default, IntelliJ considers them to be unused test fixtures, rather than executable tests.
-- link:src/main/kotlin/io/github/pshevche/spockk/intellij/SpockkUnusedBlockInspectionSuppressor.kt[SpockkUnusedBlockInspectionSuppressor]: prevents block labels from being marked as unused. This only applies to labels without descriptions.
+- link:src/main/kotlin/io/github/pshevche/spockk/intellij/SpockkUnusedBlockInspectionSuppressor.kt[SpockkUnusedBlockInspectionSuppressor]: prevents block labels from being marked as unused.
+This only applies to labels without descriptions.

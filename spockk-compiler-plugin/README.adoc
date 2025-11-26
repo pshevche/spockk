@@ -5,4 +5,15 @@ Implements IR transformations that modify the simplified test syntax into execut
 == Noteworthy components
 
 - link:src/main/kotlin/io/github/pshevche/spockk/compilation/SpockkCompilerPlugin.kt[`SpockkCompilerPlugin`]: the entry point for the plugin that registers the IR transformer.
-- link:src/main/kotlin/io/github/pshevche/spockk/compilation/SpockkIrTransformer.kt[`SpockkIrTransformer`]: traverses the IR tree and rewrites specification classes and feature methods (e.g., appends annotations that support the test engine in detecting executable tests).
+- link:src/main/kotlin/io/github/pshevche/spockk/compilation/collector/SpockkTransformationContextCollector.kt[`SpockkTransformationContextCollector`]: traverses the IR tree and collects information about specs and features.
+- link:src/main/kotlin/io/github/pshevche/spockk/compilation/transformer/SpockkIrTransformer.kt[`SpockkIrTransformer`]: rewrites specification classes and feature methods (e.g., appends annotations that support the test engine in detecting executable tests).
+
+== Design considerations
+
+The IR transformation happens in two phases: firstly, the plugin collects information about declared specifications and feature methods, and transforms them in the second stage.
+This is done for two purposes:
+
+1. It allows us to decouple the actual rewriting of classes and methods from the traversal of the IR tree.
+2. To transform specifications, we need to know about features in the parent classes.
+It is not guaranteed that those will be visited and transformed before the child classes.
+Transforming specifications in the second step ensures that all parent classes have already been visited.
