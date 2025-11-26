@@ -1,5 +1,5 @@
 plugins {
-  alias(libs.plugins.kotlin.kapt)
+  kotlin("kapt")
   id("spockk.artifact-under-test-producer")
   id("spockk.compiler-plugin-producer")
   id("spockk.maven-central-publish")

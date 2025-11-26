@@ -11,7 +11,6 @@ buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.5" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.10.5" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.35.0" }
 plugin-publish = { id = "com.gradle.plugin-publish", version = "2.0.0" }
