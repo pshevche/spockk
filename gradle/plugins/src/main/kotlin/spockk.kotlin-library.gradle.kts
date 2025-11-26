@@ -21,7 +21,12 @@ detekt {
 
 spotless {
   kotlin {
-    target("src/main/kotlin/**/*.kt", "src/test/kotlin/**/*.kt")
+    // do not format kotlin files in resources
+    target(
+      "src/main/kotlin/**/*.kt",
+      "src/test/kotlin/**/*.kt",
+      "src/testFixtures/kotlin/**/*.kt"
+    )
     ktfmt()
     ktlint()
     licenseHeaderFile(rootProject.layout.projectDirectory.file("gradle/config/licenseHeader.txt").asFile)

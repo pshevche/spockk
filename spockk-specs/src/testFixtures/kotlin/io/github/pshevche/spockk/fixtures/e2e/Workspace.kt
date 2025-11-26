@@ -1,82 +1,98 @@
+/*
+ * Copyright 2025 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.github.pshevche.spockk.fixtures.e2e
 
-import java.nio.file.Files
-import java.nio.file.Paths
 import org.gradle.testkit.runner.GradleRunner
 import org.intellij.lang.annotations.Language
+import java.nio.file.Files
+import java.nio.file.Paths
 
 class Workspace {
 
-    val projectDir = Files.createDirectories(
-        Paths.get(
-            System.getProperty("spockk.workspaceDir"),
-            "workspace-${System.currentTimeMillis()}"
-        )
+  val projectDir =
+    Files.createDirectories(
+      Paths.get(
+        System.getProperty("spockk.workspaceDir"),
+        "workspace-${System.currentTimeMillis()}"
+      )
     )
-    private val settingsFile = projectDir.resolve("settings.gradle.kts").toFile()
-    private val buildFile = projectDir.resolve("build.gradle.kts").toFile()
-    private val sourcesDir = projectDir.resolve("src/test/kotlin").toFile()
+  private val settingsFile = projectDir.resolve("settings.gradle.kts").toFile()
+  private val buildFile = projectDir.resolve("build.gradle.kts").toFile()
+  private val sourcesDir = projectDir.resolve("src/test/kotlin").toFile()
 
-    fun setup(kotlinVersion: String = System.getProperty("spockk.kotlinVersion")) {
-        configureRepositories()
-        applyPlugins(kotlinVersion)
-        configureTestTasks()
-    }
+  fun setup(kotlinVersion: String = System.getProperty("spockk.kotlinVersion")) {
+    configureRepositories()
+    applyPlugins(kotlinVersion)
+    configureTestTasks()
+  }
 
-    fun build(vararg args: String) = runner(args.toList()).build()
+  fun build(vararg args: String) = runner(args.toList()).build()
 
-    fun buildAndFail(vararg args: String) = runner(args.toList()).buildAndFail()
+  fun buildAndFail(vararg args: String) = runner(args.toList()).buildAndFail()
 
-    private fun runner(args: List<String>): GradleRunner {
-        return GradleRunner.create()
-            .withProjectDir(projectDir.toFile())
-            .withArguments(args)
-            .forwardOutput()
-    }
+  private fun runner(args: List<String>): GradleRunner =
+    GradleRunner.create().withProjectDir(projectDir.toFile()).withArguments(args).forwardOutput()
 
-    private fun configureRepositories() {
-        settingsFile.writeText(
-            """
+  private fun configureRepositories() {
+    settingsFile.writeText(
+      """
             pluginManagement {
                 repositories {
                     gradlePluginPortal()
                     ${repoUnderTest("gradlePluginRepo")}
                 }
             }
-            """.trimIndent()
-        )
-        buildFile.writeText(
             """
+        .trimIndent()
+    )
+    buildFile.writeText(
+      """
             repositories {
                 mavenCentral()
                 ${repoUnderTest("compilerPluginRepo")}
                 ${repoUnderTest("coreRepo")}
             }
-            """.trimIndent()
-        )
-    }
-
-    private fun repoUnderTest(property: String) = """
-        maven {
-            url = uri("${System.getProperty("spockk.${property}")}")
-        }
-    """.trimIndent()
-
-    private fun applyPlugins(kotlinVersion: String) {
-        buildFile.appendText(
             """
+        .trimIndent()
+    )
+  }
+
+  private fun repoUnderTest(property: String) =
+    """
+        maven {
+            url = uri("${System.getProperty("spockk.$property")}")
+        }
+    """
+      .trimIndent()
+
+  private fun applyPlugins(kotlinVersion: String) {
+    buildFile.appendText(
+      """
                 
             plugins {
                 kotlin("jvm") version "$kotlinVersion"
                 id("io.github.pshevche.spockk") version "latest.integration"
             }
-            """.trimIndent()
-        )
-    }
-
-    private fun configureTestTasks() {
-        buildFile.appendText(
             """
+        .trimIndent()
+    )
+  }
+
+  private fun configureTestTasks() {
+    buildFile.appendText(
+      """
                 
             dependencies {
                 testImplementation("io.github.pshevche.spockk:spockk-core:latest.integration")
@@ -96,13 +112,15 @@ class Workspace {
                     displayGranularity = 0
                 }
             }
-            """.trimIndent()
-        )
-    }
+            """
+        .trimIndent()
+    )
+  }
 
-    fun addSuccessfulSpec(name: String = "SuccessfulSpec") {
-        writeSpec(
-            name, """
+  fun addSuccessfulSpec(name: String = "SuccessfulSpec") {
+    writeSpec(
+      name,
+      """
             class $name : spock.lang.Specification() {
                 fun `passing feature 1`() {
                     io.github.pshevche.spockk.lang.expect
@@ -115,13 +133,15 @@ class Workspace {
                 }
 
             }
-        """.trimIndent()
-        )
-    }
+        """
+        .trimIndent()
+    )
+  }
 
-    fun addFailingSpec(name: String = "FailingSpec") {
-        writeSpec(
-            name, """
+  fun addFailingSpec(name: String = "FailingSpec") {
+    writeSpec(
+      name,
+      """
             class $name : spock.lang.Specification() {
                 fun `failing feature 1`() {
                     io.github.pshevche.spockk.lang.expect
@@ -134,12 +154,13 @@ class Workspace {
                 }
 
             }
-        """.trimIndent()
-        )
-    }
+        """
+        .trimIndent()
+    )
+  }
 
-    private fun writeSpec(name: String, @Language("kotlin") content: String) {
-        Files.createDirectories(sourcesDir.toPath())
-        sourcesDir.resolve("${name}.kt").writeText(content)
-    }
+  private fun writeSpec(name: String, @Language("kotlin") content: String) {
+    Files.createDirectories(sourcesDir.toPath())
+    sourcesDir.resolve("$name.kt").writeText(content)
+  }
 }

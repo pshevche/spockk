@@ -6,10 +6,6 @@ exceptions:
   TooGenericExceptionCaught:
     active: false
 
-formatting:
-  MaximumLineLength:
-    active: false
-
 style:
   MaxLineLength:
     active: false
