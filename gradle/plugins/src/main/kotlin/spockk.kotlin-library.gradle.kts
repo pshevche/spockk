@@ -1,5 +1,4 @@
 plugins {
-  checkstyle
   `java-library`
   kotlin("jvm")
   id("io.gitlab.arturbosch.detekt")
@@ -14,11 +13,6 @@ java {
   toolchain {
     languageVersion = JavaLanguageVersion.of(21)
   }
-}
-
-checkstyle {
-  configFile = rootProject.layout.projectDirectory.file("gradle/config/checkstyle.xml").asFile
-  maxWarnings = 3
 }
 
 detekt {
