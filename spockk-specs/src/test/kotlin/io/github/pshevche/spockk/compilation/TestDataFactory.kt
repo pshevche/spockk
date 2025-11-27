@@ -27,7 +27,7 @@ object TestDataFactory {
                 fun `some feature`() {
                     $featureBody
                 }
-            } 
+            }
             """
         .trimIndent()
     )
@@ -42,7 +42,7 @@ object TestDataFactory {
                         io.github.pshevche.spockk.lang.$label
                         assert(true)
                     }
-                }   
+                }
             """
       ),
       kotlin(
@@ -60,7 +60,7 @@ object TestDataFactory {
                             [""]
                         )]
                     )
-                    fun `some feature`() {
+                    fun spock_feature_0_0() {
                         assert(true)
                     }
                 }

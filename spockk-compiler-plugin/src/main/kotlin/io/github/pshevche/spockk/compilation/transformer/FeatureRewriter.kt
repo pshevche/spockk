@@ -17,16 +17,13 @@ package io.github.pshevche.spockk.compilation.transformer
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.name.Name
 
 internal class FeatureRewriter(private val irFactory: SpockkIrFactory) {
   fun rewrite(feature: IrFunction, context: FeatureContext) {
-    rewriteFeatureStatements(feature, context)
     annotateFeature(feature, context)
-  }
-
-  private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
-    feature.mutableStatements()?.clear()
-    feature.mutableStatements()?.addAll(context.blocks.flatMap { it.statements })
+    renameFeature(feature, context)
+    rewriteFeatureStatements(feature, context)
   }
 
   private fun annotateFeature(feature: IrFunction, context: FeatureContext) {
@@ -38,5 +35,15 @@ internal class FeatureRewriter(private val irFactory: SpockkIrFactory) {
         context.parameterNames,
         context.blocks
       )
+  }
+
+  private fun renameFeature(feature: IrFunction, context: FeatureContext) {
+    // function names in Kotlin cannot start with $
+    feature.name = Name.identifier("spock_feature_${context.specDepth}_${context.ordinal}")
+  }
+
+  private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
+    feature.mutableStatements()?.clear()
+    feature.mutableStatements()?.addAll(context.blocks.flatMap { it.statements })
   }
 }

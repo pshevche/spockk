@@ -10,7 +10,7 @@ class MultiFeatureSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun `feature 1`() {
+  fun spock_feature_0_0() {
     assert(true)
   }
 
@@ -24,7 +24,7 @@ class MultiFeatureSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun `feature 2`() {
+  fun spock_feature_0_1() {
     assert(true)
   }
 
@@ -38,7 +38,7 @@ class MultiFeatureSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun `feature 3`() {
+  fun spock_feature_0_2() {
     assert(true)
   }
 }

@@ -29,6 +29,7 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
   )
 
   internal data class FeatureContext(
+    val specDepth: Int,
     val ordinal: Int,
     val name: String,
     val line: Int,

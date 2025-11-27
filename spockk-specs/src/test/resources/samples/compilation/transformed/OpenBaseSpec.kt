@@ -10,7 +10,7 @@ open class OpenBaseSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun `some feature`() {
+  fun spock_feature_0_0() {
     assert(true)
   }
 }

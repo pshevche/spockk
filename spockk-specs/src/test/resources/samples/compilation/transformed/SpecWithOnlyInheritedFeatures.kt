@@ -10,7 +10,7 @@ abstract class BaseSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun `inherited feature`() {
+  fun spock_feature_0_0() {
     assert(true)
   }
 }

@@ -10,7 +10,7 @@ abstract class BaseSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun `inherited feature 1`() {
+  fun spock_feature_0_0() {
     assert(true)
   }
 }
@@ -18,7 +18,7 @@ abstract class BaseSpec : spock.lang.Specification() {
 @org.spockframework.runtime.model.SpecMetadata(filename = "SpecWithOwnAndInheritedFeatures.kt", line = 8)
 abstract class IntermediateSpec : BaseSpec() {
   @org.spockframework.runtime.model.FeatureMetadata(
-    ordinal = 1,
+    ordinal = 0,
     name = "inherited feature 2",
     line = 9,
     parameterNames = [],
@@ -27,7 +27,7 @@ abstract class IntermediateSpec : BaseSpec() {
       [""]
     )]
   )
-  fun `inherited feature 2`() {
+  fun spock_feature_1_0() {
     assert(true)
   }
 }
@@ -35,7 +35,7 @@ abstract class IntermediateSpec : BaseSpec() {
 @org.spockframework.runtime.model.SpecMetadata(filename = "SpecWithOwnAndInheritedFeatures.kt", line = 15)
 class Spec : IntermediateSpec() {
   @org.spockframework.runtime.model.FeatureMetadata(
-    ordinal = 2,
+    ordinal = 0,
     name = "own feature",
     line = 16,
     parameterNames = [],
@@ -44,7 +44,7 @@ class Spec : IntermediateSpec() {
       [""]
     )]
   )
-  fun `own feature`() {
+  fun spock_feature_2_0() {
     assert(true)
   }
 }

@@ -19,24 +19,38 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.name
 import org.jetbrains.kotlin.ir.interpreter.getLastOverridden
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.isClassWithFqName
 import org.jetbrains.kotlin.ir.util.file
-import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.superClass
-import org.jetbrains.kotlin.utils.mapToIndex
+import org.jetbrains.kotlin.name.FqName
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class MutableSpockkTransformationContext {
+
+  companion object {
+    private val SPECIFICATION_FQN = FqName("spock.lang.Specification")
+  }
+
   private val specs: MutableMap<IrClass, MutableSpecContext> = mutableMapOf()
 
   fun addSpec(spec: IrClass) {
+    val specDepth = computeSpecDepth(spec)
     specs.computeIfAbsent(spec) {
       val file = spec.file
       val specLine = file.fileEntry.getLineNumber(spec.startOffset) + 1
-      MutableSpecContext(file.name, specLine)
+      MutableSpecContext(file.name, specLine, specDepth)
     }
+  }
+
+  private fun computeSpecDepth(spec: IrClass): Int {
+    val parentSpec = spec.superClass!!
+    if (parentSpec.isClassWithFqName(SPECIFICATION_FQN)) {
+      return 0
+    }
+
+    return computeSpecDepth(parentSpec) + 1
   }
 
   fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlockStatements>) =
@@ -49,52 +63,30 @@ internal class MutableSpockkTransformationContext {
     SpockkTransformationContext(
       buildMap {
         specs.forEach { (spec, ctx) ->
-          val features = finalizeFeatures(spec, ctx)
           put(
             spec,
-            SpockkTransformationContext.SpecContext(ctx.fileName, ctx.line, features.toMap())
+            SpockkTransformationContext.SpecContext(
+              ctx.fileName,
+              ctx.line,
+              finalizeFeatures(ctx)
+            )
           )
         }
       }
     )
 
   private fun finalizeFeatures(
-    spec: IrClass,
     ctx: MutableSpecContext
-  ): MutableMap<IrFunction, SpockkTransformationContext.FeatureContext> {
-    val features = mutableMapOf<IrFunction, SpockkTransformationContext.FeatureContext>()
-
-    val inheritedFeatures = determineInheritedFeatures(ctx, getInheritanceDepth(spec))
-    features.putAll(inheritedFeatures)
-
-    val featureOrdinalOffset = inheritedFeatures.size
-    ctx.features.forEach {
-      features[it.key] = it.value.copy(ordinal = it.value.ordinal + featureOrdinalOffset)
-    }
-    return features
-  }
-
-  private fun getInheritanceDepth(spec: IrClass): Map<IrClassSymbol, Int> {
-    val allParents = mutableListOf<IrClassSymbol>()
-    var currentClass = spec.superClass
-
-    while (currentClass != null) {
-      allParents.add(currentClass.symbol)
-      currentClass = currentClass.superClass
-    }
-
-    return allParents.reversed().mapToIndex()
+  ): Map<IrFunction, SpockkTransformationContext.FeatureContext> = buildMap {
+    putAll(determineInheritedFeatures(ctx))
+    putAll(ctx.features)
   }
 
   private fun determineInheritedFeatures(
-    ctx: MutableSpecContext,
-    inheritanceDepth: Map<IrClassSymbol, Int>
+    ctx: MutableSpecContext
   ): Map<IrFunction, SpockkTransformationContext.FeatureContext> =
     ctx.potentialFeatures
       .mapNotNull { func -> inheritedContext(func)?.let { func to it } }
-      .sortedBy { inheritanceDepth[it.first.getLastOverridden().parentAsClass.symbol] }
-      .mapToIndex()
-      .map { it.key.first to it.key.second.copy(ordinal = it.value) }
       .toMap()
 
   private fun inheritedContext(function: IrFunction): SpockkTransformationContext.FeatureContext? {
@@ -102,7 +94,7 @@ internal class MutableSpockkTransformationContext {
     return overriddenFunc.parentClassOrNull?.let { specs[it]?.features[overriddenFunc] }
   }
 
-  internal class MutableSpecContext(val fileName: String, val line: Int) {
+  internal class MutableSpecContext(val fileName: String, val line: Int, val specDepth: Int) {
     var featureOrdinal: Int = 0
     var features: MutableMap<IrFunction, SpockkTransformationContext.FeatureContext> =
       mutableMapOf()
@@ -113,6 +105,7 @@ internal class MutableSpockkTransformationContext {
         val file = feature.file
         val line = file.fileEntry.getLineNumber(feature.startOffset) + 1
         SpockkTransformationContext.FeatureContext(
+          specDepth,
           featureOrdinal,
           feature.name.asString(),
           line,
