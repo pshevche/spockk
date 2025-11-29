@@ -4,6 +4,7 @@ detekt = "1.23.8"
 junit-platform = "6.0.1"
 kotlin = "2.2.21"
 spock = "2.4-M7-groovy-5.0"
+mockito = "5.20.0"
 
 [plugins]
 asciidoctor = { id = "org.asciidoctor.jvm.convert", version = "4.0.5" }
@@ -27,3 +28,4 @@ junit4 = { module = "junit:junit", version = "4.13.2" }
 kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.11.1" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }

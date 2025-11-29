@@ -17,6 +17,7 @@ dependencies {
   testImplementation(libs.kotlin.compile.testing)
 
   testRuntimeOnly(libs.junit.platform.launcher)
+  testRuntimeOnly(libs.mockito)
 
   testFixturesImplementation(projects.spockkCompilerPlugin)
   testFixturesImplementation(projects.spockkCore)
@@ -35,6 +36,9 @@ tasks.test {
   systemProperty("spockk.junitPlatformVersion", libs.versions.junit.platform.get())
   systemProperty("spockk.kotlinVersion", libs.versions.kotlin.get())
   systemProperty("spockk.spockVersion", libs.versions.spock.get())
+  jvmArgs(
+    "-XX:+EnableDynamicAgentLoading" // TO Disable warning about byte-buddy-agent
+  )
 }
 
 powerAssert {

@@ -24,10 +24,15 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.IrVarargElement
+import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
 import org.jetbrains.kotlin.ir.expressions.impl.fromSymbolOwner
+import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.defaultType
@@ -37,7 +42,7 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.toIrConst
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
-internal class ContextAwareIrFactory(private val pluginContext: IrPluginContext) : IrFactory(pluginContext.irFactory.stageController) {
+internal class ContextAwareIrFactory(val pluginContext: IrPluginContext) : IrFactory(pluginContext.irFactory.stageController) {
   private val irBuiltIns = pluginContext.irBuiltIns
 
   internal fun constructorCall(className: String, vararg args: IrExpression): IrConstructorCall {
@@ -78,8 +83,21 @@ internal class ContextAwareIrFactory(private val pluginContext: IrPluginContext)
       elements
     )
 
-  internal fun const(value: Any): IrConst =
-    value.toIrConst(
+  internal fun constNull(): IrConst =
+    IrConstImpl.constNull(SYNTHETIC_OFFSET, SYNTHETIC_OFFSET, irBuiltIns.nothingType)
+
+  internal fun const(value: Any?): IrConst {
+    if (value == null) {
+      return constNull()
+    }
+    return value.toIrConst(
       pluginContext.referenceClass(value::class.qualifiedName!!).defaultTypeWithoutArguments
     )
+  }
+
+  internal fun call(type: IrType, symbol: IrSimpleFunctionSymbol) =
+    IrCallImpl(SYNTHETIC_OFFSET, SYNTHETIC_OFFSET, type, symbol)
+
+  internal fun classReference(type: IrType, classSymbol: IrClassifierSymbol) =
+    IrClassReferenceImpl(SYNTHETIC_OFFSET, SYNTHETIC_OFFSET, type, classSymbol, type)
 }

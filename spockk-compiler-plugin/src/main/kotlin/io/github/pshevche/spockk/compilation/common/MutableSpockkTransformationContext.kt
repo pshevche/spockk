@@ -24,15 +24,9 @@ import org.jetbrains.kotlin.ir.types.isClassWithFqName
 import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.superClass
-import org.jetbrains.kotlin.name.FqName
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class MutableSpockkTransformationContext {
-
-  companion object {
-    private val SPECIFICATION_FQN = FqName("spock.lang.Specification")
-  }
-
   private val specs: MutableMap<IrClass, MutableSpecContext> = mutableMapOf()
 
   fun addSpec(spec: IrClass) {
@@ -46,7 +40,7 @@ internal class MutableSpockkTransformationContext {
 
   private fun computeSpecDepth(spec: IrClass): Int {
     val parentSpec = spec.superClass!!
-    if (parentSpec.isClassWithFqName(SPECIFICATION_FQN)) {
+    if (parentSpec.isClassWithFqName(SpockkConstants.SPECIFICATION_FQN)) {
       return 0
     }
 
