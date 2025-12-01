@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.ir.ContextAwareIrFactory
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -23,7 +24,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkIrTransformer(
-  irFactory: SpockkIrFactory,
+  irFactory: ContextAwareIrFactory,
   private val context: SpockkTransformationContext
 ) : BaseSpockkIrElementTransformer() {
   private val specRewriter = SpecRewriter(irFactory)

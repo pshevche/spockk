@@ -15,14 +15,23 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
+import io.github.pshevche.spockk.compilation.ir.ContextAwareIrFactory
 import org.jetbrains.kotlin.ir.declarations.IrClass
 
-internal class SpecRewriter(private val irFactory: SpockkIrFactory) {
+internal class SpecRewriter(private val irFactory: ContextAwareIrFactory) {
+
+  companion object {
+    private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
+  }
+
   fun rewrite(spec: IrClass, context: SpecContext) {
     annotateSpec(spec, context)
   }
 
   private fun annotateSpec(spec: IrClass, context: SpecContext) {
-    spec.annotations += irFactory.specMetadataAnnotation(context.fileName, context.line)
+    spec.annotations += specMetadataAnnotation(context.fileName, context.line)
   }
+
+  private fun specMetadataAnnotation(fileName: String, line: Int) =
+    irFactory.constructorCall(SPEC_METADATA_FQN, irFactory.const(fileName), irFactory.const(line))
 }
