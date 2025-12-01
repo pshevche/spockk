@@ -11,3 +11,19 @@ runs:
         java-version: 21
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v5
+    - name: Detect whether running on a PR from a fork
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "IS_FORK=true" >> $GITHUB_ENV
+          else
+            echo "IS_FORK=false" >> $GITHUB_ENV
+          fi
+        else
+          if [ "${{ github.event.repository.fork }}" = "true" ]; then
+            echo "IS_FORK=true" >> $GITHUB_ENV
+          else
+            echo "IS_FORK=false" >> $GITHUB_ENV
+          fi
+        fi
