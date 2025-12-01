@@ -3,11 +3,13 @@ plugins {
 }
 
 val isCI = System.getenv("CI") != null
+val isFork = System.getenv("IS_FORK") == "true"
+
 mavenPublishing {
   // TODO: enable automatic publication once the release is confirmed
   publishToMavenCentral()
 
-  if (isCI) {
+  if (isCI && !isFork) {
     signAllPublications()
   }
 
