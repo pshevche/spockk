@@ -10,3 +10,6 @@
 # Binary files should be left untouched
 *.jar           binary
 
+# Spotless formatting newline issues on Windows using auto.crlf=false.
+# See https://github.com/diffplug/spotless/tree/main/plugin-gradle#line-endings-and-encodings-invisible-stuff
+* text eol=lf

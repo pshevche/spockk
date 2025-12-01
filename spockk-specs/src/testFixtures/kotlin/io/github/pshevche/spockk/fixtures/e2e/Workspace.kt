@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.fixtures.e2e
 
 import org.gradle.testkit.runner.GradleRunner
 import org.intellij.lang.annotations.Language
+import spock.util.environment.OperatingSystem
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -69,18 +70,23 @@ class Workspace {
     )
   }
 
-  private fun repoUnderTest(property: String) =
-    """
-        maven {
-            url = uri("${System.getProperty("spockk.$property")}")
-        }
-    """
+  private fun repoUnderTest(property: String): String {
+    var uri = System.getProperty("spockk.$property")
+    if (OperatingSystem.getCurrent().isWindows) {
+      uri = uri.replace("\\", "/")
+    }
+    return """
+          maven {
+              url = uri("$uri")
+          }
+      """
       .trimIndent()
+  }
 
   private fun applyPlugins(kotlinVersion: String) {
     buildFile.appendText(
       """
-                
+
             plugins {
                 kotlin("jvm") version "$kotlinVersion"
                 id("io.github.pshevche.spockk") version "latest.integration"
@@ -93,7 +99,7 @@ class Workspace {
   private fun configureTestTasks() {
     buildFile.appendText(
       """
-                
+
             dependencies {
                 testImplementation("io.github.pshevche.spockk:spockk-core:latest.integration")
                 testImplementation("org.spockframework:spock-core:${System.getProperty("spockk.spockVersion")}")
@@ -105,8 +111,8 @@ class Workspace {
                 }
                 testLogging {
                     events.addAll(listOf(
-                        org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED, 
-                        org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED, 
+                        org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+                        org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
                         org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
                     ))
                     displayGranularity = 0
