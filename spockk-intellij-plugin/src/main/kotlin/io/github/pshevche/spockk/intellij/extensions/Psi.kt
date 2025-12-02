@@ -24,7 +24,8 @@ private val SPOCKK_BLOCKS_FQN =
     "io.github.pshevche.spockk.lang.expect",
     "io.github.pshevche.spockk.lang.`when`",
     "io.github.pshevche.spockk.lang.then",
-    "io.github.pshevche.spockk.lang.and"
+    "io.github.pshevche.spockk.lang.and",
+    "io.github.pshevche.spockk.lang.where"
   )
 
 fun PsiElement.isSpockkBlock(): Boolean =

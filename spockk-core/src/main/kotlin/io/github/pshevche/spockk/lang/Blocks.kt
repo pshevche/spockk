@@ -70,3 +70,13 @@ object and {
 fun and(description: String) {
   throwIllegalLabelUsageException("and")
 }
+
+object where {
+  init {
+    throwIllegalLabelUsageException("where")
+  }
+}
+
+fun where(description: String) {
+  throwIllegalLabelUsageException("where")
+}

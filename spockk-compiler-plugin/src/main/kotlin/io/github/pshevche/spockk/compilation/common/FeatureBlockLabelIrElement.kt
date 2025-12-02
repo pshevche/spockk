@@ -51,6 +51,7 @@ internal sealed class FeatureBlockLabelIrElement(
         FeatureBlockLabel.THEN -> Then(description, file, element)
         FeatureBlockLabel.EXPECT -> Expect(description, file, element)
         FeatureBlockLabel.AND -> And(description, file, element)
+        FeatureBlockLabel.WHERE -> Where(description, file, element)
         else -> null
       }
   }
@@ -84,4 +85,10 @@ internal sealed class FeatureBlockLabelIrElement(
     override val file: IrFile,
     override val element: IrElement
   ) : FeatureBlockLabelIrElement(FeatureBlockLabel.AND, description, file, element)
+
+  data class Where(
+    override val description: String,
+    override val file: IrFile,
+    override val element: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.WHERE, description, file, element)
 }

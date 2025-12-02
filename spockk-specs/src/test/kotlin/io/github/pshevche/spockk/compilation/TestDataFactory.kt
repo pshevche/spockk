@@ -19,31 +19,35 @@ import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toUpperCaseAsciiOnly
 
 object TestDataFactory {
-  fun specWithFeatureBody(featureBody: String): SourceFile =
+  fun specWithFeature(feature: String): SourceFile =
     kotlin(
       "Spec.kt",
       """
-            class Spec {
-                fun `some feature`() {
-                    $featureBody
-                }
+            class Spec : spock.lang.Specification() {
+                $feature
             }
             """
         .trimIndent()
     )
 
+  fun specWithFeatureBody(featureBody: String): SourceFile =
+    specWithFeature(
+      """
+      fun `some feature`() {
+          $featureBody
+      }
+    """
+        .trimIndent()
+    )
+
   fun specWithSingleFeature(label: String) =
     TransformationSample(
-      kotlin(
-        "Spec.kt",
+      specWithFeatureBody(
         """
-                class Spec : spock.lang.Specification() {
-                    fun `some feature`() {
-                        io.github.pshevche.spockk.lang.$label
-                        assert(true)
-                    }
-                }
-            """
+        io.github.pshevche.spockk.lang.$label
+        assert(true)
+      """
+          .trimIndent()
       ),
       kotlin(
         "Spec.kt",
