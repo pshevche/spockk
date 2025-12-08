@@ -19,7 +19,10 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.gradle.testkit.runner.TaskOutcome
+import org.junit.jupiter.api.Assertions.assertFalse
 import spock.lang.Specification
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
 
 class SpockkE2ETest : Specification() {
 
@@ -35,12 +38,12 @@ class SpockkE2ETest : Specification() {
     val result = workspace.buildAndFail("test")
 
     then
-    assert(result.task(":test")!!.outcome == TaskOutcome.FAILED)
+    assertEquals(TaskOutcome.FAILED, result.task(":test")!!.outcome)
     result.output.let {
-      assert(it.contains("SuccessfulSpec > passing feature 1 PASSED"))
-      assert(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
-      assert(it.contains("FailingSpec > failing feature 1 FAILED"))
-      assert(it.contains("FailingSpec > failing feature 2 FAILED"))
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
+      assertContains(it, "FailingSpec > failing feature 1 FAILED")
+      assertContains(it, "FailingSpec > failing feature 2 FAILED")
     }
   }
 
@@ -54,12 +57,12 @@ class SpockkE2ETest : Specification() {
     val result = workspace.build("test", "--tests", "SuccessfulSpec")
 
     then
-    assert(result.task(":test")!!.outcome == TaskOutcome.SUCCESS)
+    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
     result.output.let {
-      assert(it.contains("SuccessfulSpec > passing feature 1 PASSED"))
-      assert(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
-      assert(!it.contains("FailingSpec > failing feature 1 FAILED"))
-      assert(!it.contains("FailingSpec > failing feature 2 FAILED"))
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
+      assertFalse(it.contains("FailingSpec > failing feature 1 FAILED"))
+      assertFalse(it.contains("FailingSpec > failing feature 2 FAILED"))
     }
   }
 
@@ -73,12 +76,12 @@ class SpockkE2ETest : Specification() {
     val result = workspace.build("test", "--tests", "SuccessfulSpec.passing feature 1")
 
     then
-    assert(result.task(":test")!!.outcome == TaskOutcome.SUCCESS)
+    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
     result.output.let {
-      assert(it.contains("SuccessfulSpec > passing feature 1 PASSED"))
-      assert(!it.contains("SuccessfulSpec > passing feature 2 PASSED"))
-      assert(!it.contains("FailingSpec > failing feature 1 FAILED"))
-      assert(!it.contains("FailingSpec > failing feature 2 FAILED"))
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertFalse(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
+      assertFalse(it.contains("FailingSpec > failing feature 1 FAILED"))
+      assertFalse(it.contains("FailingSpec > failing feature 2 FAILED"))
     }
   }
 }

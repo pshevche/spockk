@@ -18,8 +18,11 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
+import org.junit.jupiter.api.assertNotNull
 import org.spockframework.mock.MockUtil
 import spock.lang.Specification
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /** Tests the usage of the underlying Spock MockingApi is working. */
 class MockingApiTest : Specification() {
@@ -29,10 +32,11 @@ class MockingApiTest : Specification() {
     val m = Mock(Runnable::class.java)
 
     then
-    assert(m != null)
+    assertNotNull(m)
 
     `when`
     m.run()
+
     then
     assertIsSpockMock(m)
     assertMockName(m, "m")
@@ -53,6 +57,7 @@ class MockingApiTest : Specification() {
     `when`
     m.run()
     then
+
     assertIsSpockMock(m)
     assertMockName(m, "m")
   }
@@ -80,10 +85,11 @@ class MockingApiTest : Specification() {
     val m = Stub(Runnable::class.java)
 
     then
-    assert(m != null)
+    assertNotNull(m)
 
     `when`
     m.run()
+
     then
     assertIsSpockMock(m)
   }
@@ -94,6 +100,7 @@ class MockingApiTest : Specification() {
 
     `when`
     m.run()
+
     then
     assertIsSpockMock(m)
   }
@@ -103,13 +110,13 @@ class MockingApiTest : Specification() {
     val m = Spy(StringBuilder::class.java)
 
     then
-    assert(m != null)
+    assertNotNull(m)
 
     `when`
     m.append("a")
 
     then
-    assert(m.toString() == "a")
+    assertEquals("a", m.toString())
     assertIsSpockMock(m)
   }
 
@@ -121,7 +128,7 @@ class MockingApiTest : Specification() {
     m.append("a")
 
     then
-    assert(m.toString() == "a")
+    assertEquals("a", m.toString())
     assertIsSpockMock(m)
   }
 
@@ -133,6 +140,7 @@ class MockingApiTest : Specification() {
 
     `when`
     m.run()
+
     then
     assertIsSpockMock(m)
   }
@@ -142,15 +150,16 @@ class MockingApiTest : Specification() {
   fun `Usage in MockingAPI during field initialization`() {
     `when`
     mockField.run()
+
     then
     assertIsSpockMock(mockField)
   }
 
   private fun assertIsSpockMock(m: Any?) {
-    assert(MockUtil().isMock(m))
+    assertTrue(MockUtil().isMock(m))
   }
 
   private fun assertMockName(m: Any?, name: String) {
-    assert(MockUtil().asMock(m)!!.name == name)
+    assertEquals(MockUtil().asMock(m)!!.name, name)
   }
 }

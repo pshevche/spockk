@@ -12,6 +12,7 @@ plugins {
 dependencies {
   testImplementation(projects.spockkCore)
   testImplementation(gradleTestKit())
+  testImplementation(kotlin("test"))
   testImplementation(libs.spock)
   testImplementation(libs.junit.platform.testkit)
   testImplementation(libs.kotlin.compile.testing)
@@ -37,11 +38,18 @@ tasks.test {
   systemProperty("spockk.kotlinVersion", libs.versions.kotlin.get())
   systemProperty("spockk.spockVersion", libs.versions.spock.get())
   jvmArgs(
-    "-XX:+EnableDynamicAgentLoading" // TO Disable warning about byte-buddy-agent
+    "-XX:+EnableDynamicAgentLoading" // To disable warning about byte-buddy-agent
   )
 }
 
 powerAssert {
-  functions = setOf("kotlin.assert")
+  functions =
+    setOf(
+      "kotlin.test.assertContains",
+      "kotlin.test.assertEquals",
+      "kotlin.test.assertFalse",
+      "kotlin.test.assertNotNull",
+      "kotlin.test.assertTrue"
+    )
   includedSourceSets = setOf("test")
 }

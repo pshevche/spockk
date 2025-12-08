@@ -20,6 +20,8 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Specification
+import kotlin.test.assertContains
+import kotlin.test.assertEquals
 
 class SpockkKotlinCompatibilityTest : Specification() {
 
@@ -34,10 +36,10 @@ class SpockkKotlinCompatibilityTest : Specification() {
     val result = workspace.build("test")
 
     then
-    assert(result.task(":test")!!.outcome == TaskOutcome.SUCCESS)
+    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
     result.output.let {
-      assert(it.contains("SuccessfulSpec > passing feature 1 PASSED"))
-      assert(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
     }
   }
 
@@ -50,10 +52,10 @@ class SpockkKotlinCompatibilityTest : Specification() {
     val result = workspace.build("test")
 
     then
-    assert(result.task(":test")!!.outcome == TaskOutcome.SUCCESS)
+    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
     result.output.let {
-      assert(it.contains("SuccessfulSpec > passing feature 1 PASSED"))
-      assert(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
     }
   }
 
@@ -66,10 +68,10 @@ class SpockkKotlinCompatibilityTest : Specification() {
     val result = workspace.build("test")
 
     then
-    assert(result.task(":test")!!.outcome == TaskOutcome.SUCCESS)
+    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
     result.output.let {
-      assert(it.contains("SuccessfulSpec > passing feature 1 PASSED"))
-      assert(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
     }
   }
 
@@ -82,10 +84,10 @@ class SpockkKotlinCompatibilityTest : Specification() {
     val result = workspace.build("test")
 
     then
-    assert(result.task(":test")!!.outcome == TaskOutcome.SUCCESS)
+    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
     result.output.let {
-      assert(it.contains("SuccessfulSpec > passing feature 1 PASSED"))
-      assert(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
     }
   }
 }

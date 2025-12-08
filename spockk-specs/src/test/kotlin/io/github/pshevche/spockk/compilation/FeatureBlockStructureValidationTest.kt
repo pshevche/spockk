@@ -20,6 +20,9 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import spock.lang.Specification
+import kotlin.test.assertContains
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCompilerApi::class)
 class FeatureBlockStructureValidationTest : Specification() {
@@ -38,7 +41,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `accepts valid block sequences (multiple expectations)`() {
@@ -61,7 +64,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `accepts valid block sequences (single expectation with precondition)`() {
@@ -81,7 +84,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `accepts valid block sequences (single expectation with multiple preconditions)`() {
@@ -104,7 +107,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `accepts valid block sequences (single expectation with single action and precondition)`() {
@@ -128,7 +131,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `accepts valid block sequences (single expectation with multiple actions)`() {
@@ -154,7 +157,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `accepts valid block sequences (multiple expectations with single action)`() {
@@ -178,7 +181,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `accepts valid block sequences (multiple expectations with multiple actions)`() {
@@ -204,7 +207,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(result.isSuccess())
+    assertTrue(result.isSuccess())
   }
 
   fun `discards invalid block sequences (precondition with missing expectation)`() {
@@ -221,16 +224,15 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(!result.isSuccess())
-    assert(result.compilation.messages.contains("Spec.kt:3:21"))
-    assert(
-      result.compilation.messages.contains(
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:3:21")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `given`
+        Details: Expected to find one of spockk blocks ['and', 'when', 'expect'], but reached the end of the feature method
         """
-            Problem with `given`
-            Details: Expected to find one of spockk blocks ['and', 'when', 'expect'], but reached the end of the feature method
-            """
-          .trimIndent()
-      )
+        .trimIndent()
     )
   }
 
@@ -248,16 +250,15 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(!result.isSuccess())
-    assert(result.compilation.messages.contains("Spec.kt:3:21"))
-    assert(
-      result.compilation.messages.contains(
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:3:21")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `when`
+        Details: Expected to find one of spockk blocks ['and', 'then'], but reached the end of the feature method
         """
-            Problem with `when`
-            Details: Expected to find one of spockk blocks ['and', 'then'], but reached the end of the feature method
-            """
-          .trimIndent()
-      )
+        .trimIndent()
     )
   }
 
@@ -278,16 +279,15 @@ class FeatureBlockStructureValidationTest : Specification() {
       )
 
     then
-    assert(!result.isSuccess())
-    assert(result.compilation.messages.contains("Spec.kt:6:1"))
-    assert(
-      result.compilation.messages.contains(
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:6:1")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `expect`
+        Details: Expected to find one of spockk blocks ['and', 'then'], but encountered 'expect'
         """
-            Problem with `expect`
-            Details: Expected to find one of spockk blocks ['and', 'then'], but encountered 'expect'
-            """
-          .trimIndent()
-      )
+        .trimIndent()
     )
   }
 }
