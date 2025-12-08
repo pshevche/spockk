@@ -89,10 +89,11 @@ internal class ValidatingFeatureBlockCollector(
       override val validBlocks: List<FeatureBlockLabel>
         get() = listOf(FeatureBlockLabel.AND)
 
-      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State = when (block) {
-        is FeatureBlockLabelIrElement.And -> this
-        else -> failOnInvalidBlock(block)
-      }
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
+          else -> failOnInvalidBlock(block)
+        }
     };
 
     abstract val validBlocks: List<FeatureBlockLabel>
@@ -107,7 +108,7 @@ internal class ValidatingFeatureBlockCollector(
         } else {
           "Expected to find one of spockk blocks $displayNames, but encountered '${currentBlock.label.displayName}'"
         }
-      throw CompilationException(message, currentBlock.file, currentBlock.element)
+      throw CompilationException(message, currentBlock.file, currentBlock.ir)
     }
 
     fun isTerminal() =
@@ -136,7 +137,7 @@ internal class ValidatingFeatureBlockCollector(
       throw CompilationException(
         "Expected to find one of spockk blocks $displayNames, but reached the end of the feature method",
         lastBlock?.file,
-        lastBlock?.element
+        lastBlock?.ir
       )
     }
   }

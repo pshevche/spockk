@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.common
 
-import io.github.pshevche.spockk.compilation.ir.isThis
+import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.name
@@ -103,7 +103,7 @@ internal class MutableSpockkTransformationContext {
           featureOrdinal,
           feature.name.asString(),
           line,
-          feature.parameters.filter { !it.isThis() }.map { it.name.asString() },
+          feature.assignableParameters().map { it.name.asString() },
           blocks
         )
           .also { featureOrdinal += 1 }

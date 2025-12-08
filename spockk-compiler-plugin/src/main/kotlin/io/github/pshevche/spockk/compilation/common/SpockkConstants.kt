@@ -24,4 +24,6 @@ internal object SpockkConstants {
   val SPECIFICATION_FQN = FqName("spock.lang.Specification")
   val SPEC_INTERNALS_CLASS_ID = ClassId(SPOCK_RUNTIME_PKG, Name.identifier("SpecInternals"))
   val KCLASS_JAVA_PROPERTY_ID = CallableId(FqName("kotlin.jvm"), Name.identifier("java"))
+  val LIST_OF_FUNCTION_ID = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
+  val ARRAY_OF_FUNCTION_ID = CallableId(FqName("kotlin"), Name.identifier("arrayOf"))
 }

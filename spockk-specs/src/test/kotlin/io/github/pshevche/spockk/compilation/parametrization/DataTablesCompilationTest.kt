@@ -12,8 +12,16 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.ir
+package io.github.pshevche.spockk.compilation.parametrization
 
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import io.github.pshevche.spockk.compilation.BaseCompilationTest
+import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
+import io.github.pshevche.spockk.lang.expect
 
-internal fun IrValueParameter.isThis() = this.name.asString() == "<this>"
+class DataTablesCompilationTest : BaseCompilationTest() {
+
+  fun `basic usage`() {
+    expect
+    assertTransformation(sampleFromResource("parametrization/BasicDataTableSpec"))
+  }
+}

@@ -28,7 +28,7 @@ internal sealed class FeatureBlockLabelIrElement(
   val label: FeatureBlockLabel,
   open val description: String,
   open val file: IrFile,
-  open val element: IrElement
+  open val ir: IrElement
 ) {
   companion object {
     fun from(file: IrFile, element: IrGetObjectValue) =
@@ -59,36 +59,36 @@ internal sealed class FeatureBlockLabelIrElement(
   data class Given(
     override val description: String,
     override val file: IrFile,
-    override val element: IrElement
-  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.GIVEN, description, file, element)
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.GIVEN, description, file, ir)
 
   data class When(
     override val description: String,
     override val file: IrFile,
-    override val element: IrElement
-  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.WHEN, description, file, element)
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.WHEN, description, file, ir)
 
   data class Then(
     override val description: String,
     override val file: IrFile,
-    override val element: IrElement
-  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.THEN, description, file, element)
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.THEN, description, file, ir)
 
   data class Expect(
     override val description: String,
     override val file: IrFile,
-    override val element: IrElement
-  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.EXPECT, description, file, element)
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.EXPECT, description, file, ir)
 
   data class And(
     override val description: String,
     override val file: IrFile,
-    override val element: IrElement
-  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.AND, description, file, element)
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.AND, description, file, ir)
 
   data class Where(
     override val description: String,
     override val file: IrFile,
-    override val element: IrElement
-  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.WHERE, description, file, element)
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.WHERE, description, file, ir)
 }

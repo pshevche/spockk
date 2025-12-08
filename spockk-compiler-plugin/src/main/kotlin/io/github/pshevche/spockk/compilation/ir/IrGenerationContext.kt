@@ -16,12 +16,12 @@
 
 package io.github.pshevche.spockk.compilation.ir
 
-import io.github.pshevche.spockk.compilation.common.SpockkConstants
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
@@ -35,10 +35,13 @@ internal fun IrGeneratorContext.findRequiredClassSymbol(classId: ClassId): IrCla
     ?: throw CompilationException("Cannot find class ${classId.asString()}", null, null, null)
 
 internal fun IrGeneratorContext.findPropertyGetter(callableId: CallableId): IrFunction =
-  irBuiltIns.symbolFinder
-    .findProperties(SpockkConstants.KCLASS_JAVA_PROPERTY_ID)
-    .first()
-    .owner
-    .getter!!
+  irBuiltIns.symbolFinder.findProperties(callableId).first().owner.getter!!
+
+internal fun IrGeneratorContext.findUniqueFunctionSymbol(callableId: CallableId): IrFunctionSymbol =
+  findFunctionSymbols(callableId).first()
+
+internal fun IrGeneratorContext.findFunctionSymbols(
+  callableId: CallableId
+): Iterable<IrFunctionSymbol> = irBuiltIns.symbolFinder.findFunctions(callableId)
 
 private fun classId(className: String): ClassId = ClassId.topLevel(FqName(className))

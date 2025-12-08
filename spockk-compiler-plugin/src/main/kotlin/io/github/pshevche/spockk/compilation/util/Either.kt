@@ -12,11 +12,17 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.util
 
-import org.jetbrains.kotlin.ir.IrStatement
+sealed interface Either<L, R> {
 
-internal data class FeatureBlockStatements(
-  val element: FeatureBlockLabelIrElement,
-  val statements: List<IrStatement>
-)
+  fun <T> map(leftMapper: (L) -> T, rightMapper: (R) -> T): T =
+    when (this) {
+      is Left -> leftMapper(this.value)
+      is Right -> rightMapper(this.value)
+    }
+
+  data class Left<L, Any>(val value: L) : Either<L, Any>
+
+  data class Right<Any, R>(val value: R) : Either<Any, R>
+}
