@@ -372,9 +372,9 @@ class FeatureBlockStructureValidationTest : Specification() {
     assertContains(
       result.compilation.messages,
       """
-          Problem with `and`
-          Details: Did not expect to find any spockk blocks, but encountered 'and'
-          """
+        Problem with `and`
+        Details: Did not expect to find any spockk blocks, but encountered 'and'
+        """
         .trimIndent()
     )
   }
