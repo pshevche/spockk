@@ -15,11 +15,15 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
-import io.github.pshevche.spockk.compilation.ir.ContextAwareIrFactory
+import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
+import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.builders.irInt
+import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 
-internal class SpecRewriter(private val irFactory: ContextAwareIrFactory) {
+internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
 
   companion object {
     private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
@@ -31,13 +35,19 @@ internal class SpecRewriter(private val irFactory: ContextAwareIrFactory) {
   }
 
   private fun annotateSpec(spec: IrClass, context: SpecContext) {
-    spec.annotations += specMetadataAnnotation(context.fileName, context.line)
+    spec.annotations += specMetadataAnnotation(spec, context.fileName, context.line)
   }
 
-  private fun specMetadataAnnotation(fileName: String, line: Int) =
-    irFactory.constructorCall(SPEC_METADATA_FQN, irFactory.const(fileName), irFactory.const(line))
+  private fun specMetadataAnnotation(
+    spec: IrClass,
+    fileName: String,
+    line: Int
+  ): IrConstructorCall =
+    with(irBuilder(spec.symbol)) {
+      irAnnotation(SPEC_METADATA_FQN, irString(fileName), irInt(line))
+    }
 
   private fun rewriteMockingApi(spec: IrClass) {
-    MockingApiTransformer(irFactory, spec).rewriteMockingApi()
+    MockingApiTransformer(context, spec).rewriteMockingApi()
   }
 }

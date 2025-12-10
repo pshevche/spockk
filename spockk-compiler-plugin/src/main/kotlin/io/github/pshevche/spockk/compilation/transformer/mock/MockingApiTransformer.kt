@@ -12,12 +12,23 @@
  * limitations under the License.
  */
 
+@file:OptIn(InternalSymbolFinderAPI::class)
+
 package io.github.pshevche.spockk.compilation.transformer.mock
 
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.common.SpockkConstants
-import io.github.pshevche.spockk.compilation.ir.ContextAwareIrFactory
+import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
+import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
+import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.jvm.ir.kClassReference
+import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irNull
+import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -31,6 +42,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.findDeclaration
 import org.jetbrains.kotlin.ir.util.isSubtypeOf
 import org.jetbrains.kotlin.name.Name
@@ -38,20 +50,15 @@ import java.util.stream.Collectors
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class MockingApiTransformer(
-  private val irFactory: ContextAwareIrFactory,
+  override val context: IrGeneratorContext,
   private val spec: IrClass
-) : BaseSpockkIrElementTransformer() {
+) : BaseSpockkIrElementTransformer(),
+  SpockkIrRewriter {
 
-  private val pluginContext = irFactory.pluginContext
-  private val irBuiltIns = pluginContext.symbols.irBuiltIns
   private val specInternalsClass =
-    pluginContext.referenceClass(SpockkConstants.SPEC_INTERNALS_CLASS_ID)!!
+    context.findRequiredClassSymbol(SpockkConstants.SPEC_INTERNALS_CLASS_ID)
   private val kClassJavaPropGetter =
-    pluginContext
-      .referenceProperties(SpockkConstants.KCLASS_JAVA_PROPERTY_ID)
-      .first()
-      .owner
-      .getter!!
+    context.findPropertyGetter(SpockkConstants.KCLASS_JAVA_PROPERTY_ID)
 
   companion object {
 
@@ -119,34 +126,36 @@ internal class MockingApiTransformer(
     variable: IrVariable?,
     mockImplMethod: IrSimpleFunction
   ) {
-    // inferredName argument
-    expression.arguments.add(1, mockName(variable))
-    // inferredType argument
-    expression.arguments.add(2, inferMockType(variable))
-    expression.symbol = mockImplMethod.symbol
+    irBuilder(expression.symbol).let {
+      // inferredName argument
+      expression.arguments.add(1, mockName(variable, it))
+      // inferredType argument
+      expression.arguments.add(2, inferMockType(variable, it))
+      expression.symbol = mockImplMethod.symbol
+    }
   }
 
-  private fun inferMockType(variable: IrVariable?): IrExpression {
+  private fun inferMockType(variable: IrVariable?, builder: DeclarationIrBuilder): IrExpression {
     val classSym = variable?.type?.classOrNull
     if (variable == null || classSym == null) {
-      return irFactory.constNull()
+      return builder.irNull()
     }
 
-    val call = irFactory.call(variable.type, kClassJavaPropGetter.symbol)
+    val call = builder.irCall(kClassJavaPropGetter.symbol, variable.type)
     call.arguments.clear()
-    call.arguments.add(irFactory.classReference(variable.type, classSym))
+    call.arguments.add(builder.kClassReference(classSym.defaultType))
 
     return call
   }
 
-  private fun mockName(variable: IrVariable?): IrConst {
+  private fun mockName(variable: IrVariable?, builder: DeclarationIrBuilder): IrConst {
     val mockName: String?
     if (variable != null) {
       mockName = variable.name.toString()
     } else {
       mockName = null
     }
-    val inferredName = irFactory.const(mockName)
+    val inferredName = mockName?.let { builder.irString(it) } ?: builder.irNull()
     return inferredName
   }
 
@@ -155,7 +164,7 @@ internal class MockingApiTransformer(
     implArgCount: Int,
     call: IrCall
   ): IrSimpleFunction? {
-    val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(irBuiltIns)
+    val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(context.irBuiltIns)
     val mockImplMethod: IrSimpleFunction? =
       specInternalsClass.owner.findDeclaration { m: IrSimpleFunction ->
         if (m.name == mockMethodImplName && m.parameters.size == implArgCount) {

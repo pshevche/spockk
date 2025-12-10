@@ -16,14 +16,22 @@ package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
-import io.github.pshevche.spockk.compilation.ir.ContextAwareIrFactory
+import io.github.pshevche.spockk.compilation.ir.irAnnotation
+import io.github.pshevche.spockk.compilation.ir.irEnumValue
+import io.github.pshevche.spockk.compilation.ir.irStringArray
+import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.builders.irInt
+import org.jetbrains.kotlin.ir.builders.irString
+import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.name.Name
 
-internal class FeatureRewriter(private val irFactory: ContextAwareIrFactory) {
+internal class FeatureRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
 
   companion object {
     private const val FEATURE_METADATA_FQN = "org.spockframework.runtime.model.FeatureMetadata"
@@ -40,6 +48,7 @@ internal class FeatureRewriter(private val irFactory: ContextAwareIrFactory) {
   private fun annotateFeature(feature: IrFunction, context: FeatureContext) {
     feature.annotations +=
       featureMetadataAnnotation(
+        feature,
         context.ordinal,
         context.name,
         context.line,
@@ -59,30 +68,38 @@ internal class FeatureRewriter(private val irFactory: ContextAwareIrFactory) {
   }
 
   private fun featureMetadataAnnotation(
+    feature: IrFunction,
     ordinal: Int,
     name: String,
     line: Int,
     parameterNames: List<String>,
     blocks: List<FeatureBlockStatements>
   ): IrConstructorCall =
-    irFactory.constructorCall(
-      FEATURE_METADATA_FQN,
-      irFactory.const(ordinal),
-      irFactory.const(name),
-      irFactory.const(line),
-      irFactory.stringArray(parameterNames),
-      blockMetadataArray(blocks.filter { it.label.blockKind != null })
-    )
+    with(irBuilder(feature.symbol)) {
+      irAnnotation(
+        FEATURE_METADATA_FQN,
+        irInt(ordinal),
+        irString(name),
+        irInt(line),
+        irStringArray(parameterNames),
+        blockMetadataArray(this, blocks.filter { it.label.blockKind != null })
+      )
+    }
 
-  private fun blockMetadataArray(blocks: List<FeatureBlockStatements>): IrExpression =
-    irFactory.array(
-      BLOCK_METADATA_FQN,
-      blocks.map { block ->
-        irFactory.constructorCall(
-          BLOCK_METADATA_FQN,
-          irFactory.enumValue(block.label.blockKind!!, BLOCK_KIND_FQN),
-          irFactory.stringArray(listOf(block.description))
-        )
-      }
-    )
+  private fun blockMetadataArray(
+    builder: DeclarationIrBuilder,
+    blocks: List<FeatureBlockStatements>
+  ): IrExpression =
+    with(builder) {
+      irVararg(
+        irType(BLOCK_METADATA_FQN),
+        blocks.map { block ->
+          irAnnotation(
+            BLOCK_METADATA_FQN,
+            irEnumValue(block.label.blockKind!!, BLOCK_KIND_FQN),
+            irStringArray(listOf(block.description))
+          )
+        }
+      )
+    }
 }
