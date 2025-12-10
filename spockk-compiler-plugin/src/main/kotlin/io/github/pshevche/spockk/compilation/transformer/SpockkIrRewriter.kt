@@ -12,16 +12,14 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.ir
+package io.github.pshevche.spockk.compilation.transformer
 
-import org.jetbrains.kotlin.backend.common.CompilationException
-import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.symbols.IrSymbol
 
-internal fun IrPluginContext.referenceClass(className: String): IrClassSymbol =
-  this.referenceClass(classId(className))
-    ?: throw CompilationException("Cannot find class $className", null, null, null)
+interface SpockkIrRewriter {
+  val context: IrGeneratorContext
 
-private fun classId(className: String): ClassId = ClassId.topLevel(FqName(className))
+  fun irBuilder(owner: IrSymbol): DeclarationIrBuilder = DeclarationIrBuilder(context, owner)
+}
