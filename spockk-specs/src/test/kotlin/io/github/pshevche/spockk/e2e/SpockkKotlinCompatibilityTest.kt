@@ -27,6 +27,22 @@ class SpockkKotlinCompatibilityTest : Specification() {
 
   val workspace = Workspace()
 
+  fun `supports Kotlin 2_2_21`() {
+    given
+    workspace.setup("2.2.21")
+    workspace.addSuccessfulSpec()
+
+    `when`
+    val result = workspace.build("test")
+
+    then
+    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
+    result.output.let {
+      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
+      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
+    }
+  }
+
   fun `supports Kotlin 2_1_21`() {
     given
     workspace.setup("2.1.21")
