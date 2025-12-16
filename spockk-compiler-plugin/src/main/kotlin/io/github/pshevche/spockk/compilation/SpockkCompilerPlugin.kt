@@ -28,6 +28,9 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 @AutoService(CompilerPluginRegistrar::class)
 @OptIn(ExperimentalCompilerApi::class)
 class SpockkCompilerPlugin : CompilerPluginRegistrar() {
+  override val pluginId: String
+    get() = SpockkCompilerPluginConfig.SPOCKK_COMPILER_PLUGIN_ID
+
   override val supportsK2: Boolean
     get() = true
 
