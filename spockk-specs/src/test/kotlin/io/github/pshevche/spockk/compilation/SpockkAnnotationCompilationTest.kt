@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithSingleFeature
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.where
 
 class SpockkAnnotationCompilationTest : BaseCompilationTest() {
 
@@ -35,10 +36,16 @@ class SpockkAnnotationCompilationTest : BaseCompilationTest() {
     assertTransformation(specWithSingleFeature("expect"))
   }
 
-  fun `annotates abstract and open spec classes`() {
+  fun `annotates #scenario spec classes`(scenario: String, sampleName: String) {
     expect
-    assertTransformation(sampleFromResource("AbstractBaseSpec"))
-    assertTransformation(sampleFromResource("OpenBaseSpec"))
+    assertTransformation(sampleFromResource(sampleName))
+
+    where
+    // spotless:off
+    scenario; sampleName
+    "abstract"; "AbstractBaseSpec"
+    "open"; "OpenBaseSpec"
+    // spotless:on
   }
 
   fun `annotates child classes with @SpecMetadata if parent contains features`() {
