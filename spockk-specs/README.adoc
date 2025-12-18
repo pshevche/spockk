@@ -11,13 +11,3 @@ It applies the `spockk-compiler-plugin` directly rather than via the `spockk-gra
 The latter would require the `spockk-gradle-plugin` to be an included build plugin, which complicates the entire project setup.
 Tests mostly use the built-in assertion framework from Kotlin together with the https://kotlinlang.org/docs/power-assert.html[power-assert compiler plugin].
 While the assertions are very limited at the moment, this setup will allow us to easily migrate to implicit assertions once they are implemented.
-
-== io.github.pshevche.spockframework
-
-This package contains https://github.com/spockframework/spock/tree/master/spock-specs[Spock's original specifications] migrated to Kotlin and executed with Spockk.
-The idea is to ensure that Spockk is compatible with Spock.
-The number of this specs will increase as more features are added to Spockk.
-
-== io.github.pshevche.spockk
-
-This package contains specifications that are specific to Spockk (e.g., Kotlin compatibility checks, etc.)
