@@ -25,6 +25,9 @@ import org.jetbrains.kotlin.ir.util.dump
 
 @OptIn(ExperimentalCompilerApi::class)
 class IrDumpCapturingCompilerPlugin(private val irDumpBuilder: StringBuilder) : CompilerPluginRegistrar() {
+  override val pluginId: String
+    get() = "spockk-specs-ir-dump-capturer"
+
   override val supportsK2: Boolean
     get() = true
 
