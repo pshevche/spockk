@@ -20,7 +20,7 @@ import com.intellij.psi.PsiElement
 import io.github.pshevche.spockk.intellij.extensions.isSpockkBlock
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 
-class SpockkUnusedBlockInspectionSuppressor : InspectionSuppressor {
+class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
   override fun isSuppressedFor(element: PsiElement, toolId: String): Boolean {
     if (toolId == "UnusedExpression" && element is KtNameReferenceExpression) {
       return element.isSpockkBlock()

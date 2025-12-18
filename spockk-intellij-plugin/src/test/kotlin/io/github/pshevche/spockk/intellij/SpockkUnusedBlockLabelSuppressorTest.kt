@@ -18,18 +18,17 @@ import com.intellij.psi.PsiElement
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import java.nio.file.Paths
 
-class SpockkUnusedBlockInspectionSuppressorTest : LightJavaCodeInsightFixtureTestCase() {
-  private lateinit var suppressor: SpockkUnusedBlockInspectionSuppressor
+class SpockkUnusedBlockLabelSuppressorTest : SpockkLightJavaCodeInsightFixtureTestCase() {
+  private lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
   override fun setUp() {
     super.setUp()
-    suppressor = SpockkUnusedBlockInspectionSuppressor()
+    suppressor = SpockkUnusedExpressionInspectionSuppressor()
   }
 
   override fun getTestDataPath(): String {
     val path =
-      Paths.get("./src/test/resources/SpockkUnusedLabelInspectionSuppressorTest/")
-        .toAbsolutePath()
+      Paths.get("./src/test/resources/SpockkUnusedBlockLabelSuppressorTest/").toAbsolutePath()
     return path.toString()
   }
 
