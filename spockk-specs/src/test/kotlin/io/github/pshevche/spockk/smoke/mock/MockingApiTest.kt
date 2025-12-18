@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.mock
+package io.github.pshevche.spockk.smoke.mock
 
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given

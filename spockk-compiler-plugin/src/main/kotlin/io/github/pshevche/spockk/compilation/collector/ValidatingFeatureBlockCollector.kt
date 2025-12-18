@@ -64,22 +64,34 @@ internal class ValidatingFeatureBlockCollector(
     },
     EXPECTATION_EXPECT {
       override val validBlocks: List<FeatureBlockLabel>
-        get() = listOf(FeatureBlockLabel.AND)
+        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHERE)
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
           is FeatureBlockLabelIrElement.And -> this
+          is FeatureBlockLabelIrElement.Where -> DATA_DEFINITION
           else -> failOnInvalidBlock(block)
         }
     },
     EXPECTATION_THEN {
       override val validBlocks: List<FeatureBlockLabel>
-        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN)
+        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN, FeatureBlockLabel.WHERE)
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
           is FeatureBlockLabelIrElement.And -> this
           is FeatureBlockLabelIrElement.When -> ACTION
+          is FeatureBlockLabelIrElement.Where -> DATA_DEFINITION
+          else -> failOnInvalidBlock(block)
+        }
+    },
+    DATA_DEFINITION {
+      override val validBlocks: List<FeatureBlockLabel>
+        get() = listOf(FeatureBlockLabel.AND)
+
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
           else -> failOnInvalidBlock(block)
         }
     };
@@ -90,14 +102,17 @@ internal class ValidatingFeatureBlockCollector(
 
     fun failOnInvalidBlock(currentBlock: FeatureBlockLabelIrElement): Nothing {
       val displayNames = validBlocks.map { "'${it.displayName}'" }
-      throw CompilationException(
-        "Expected to find one of spockk blocks $displayNames, but encountered '${currentBlock.label.displayName}'",
-        currentBlock.file,
-        currentBlock.element
-      )
+      val message =
+        if (displayNames.isEmpty()) {
+          "Did not expect to find any spockk blocks, but encountered '${currentBlock.label.displayName}'"
+        } else {
+          "Expected to find one of spockk blocks $displayNames, but encountered '${currentBlock.label.displayName}'"
+        }
+      throw CompilationException(message, currentBlock.file, currentBlock.ir)
     }
 
-    fun isExpectation() = this == EXPECTATION_EXPECT || this == EXPECTATION_THEN
+    fun isTerminal() =
+      this == EXPECTATION_EXPECT || this == EXPECTATION_THEN || this == DATA_DEFINITION
   }
 
   private var currentState: State = State.INIT
@@ -117,12 +132,12 @@ internal class ValidatingFeatureBlockCollector(
   }
 
   private fun assertBlockStructureIsComplete() {
-    if (currentState != State.INIT && !currentState.isExpectation()) {
+    if (currentState != State.INIT && !currentState.isTerminal()) {
       val displayNames = currentState.validBlocks.map { "'${it.displayName}'" }
       throw CompilationException(
         "Expected to find one of spockk blocks $displayNames, but reached the end of the feature method",
         lastBlock?.file,
-        lastBlock?.element
+        lastBlock?.ir
       )
     }
   }

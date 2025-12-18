@@ -58,13 +58,12 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
   }
 
   private fun renameFeature(feature: IrFunction, context: FeatureContext) {
-    // function names in Kotlin cannot start with $
-    feature.name = Name.identifier("spock_feature_${context.specDepth}_${context.ordinal}")
+    feature.name = Name.identifier(InternalIdentifiers.getFeatureName(context))
   }
 
   private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
     feature.mutableStatements()?.clear()
-    feature.mutableStatements()?.addAll(context.blocks.flatMap { it.statements })
+    feature.mutableStatements()?.addAll(context.featureBlocks.flatMap { it.statements })
   }
 
   private fun featureMetadataAnnotation(
@@ -82,7 +81,7 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         irString(name),
         irInt(line),
         irStringArray(parameterNames),
-        blockMetadataArray(this, blocks.filter { it.label.blockKind != null })
+        blockMetadataArray(this, blocks.filter { it.element.label.blockKind != null })
       )
     }
 
@@ -96,8 +95,8 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         blocks.map { block ->
           irAnnotation(
             BLOCK_METADATA_FQN,
-            irEnumValue(block.label.blockKind!!, BLOCK_KIND_FQN),
-            irStringArray(listOf(block.description))
+            irEnumValue(block.element.label.blockKind!!, BLOCK_KIND_FQN),
+            irStringArray(listOf(block.element.description))
           )
         }
       )

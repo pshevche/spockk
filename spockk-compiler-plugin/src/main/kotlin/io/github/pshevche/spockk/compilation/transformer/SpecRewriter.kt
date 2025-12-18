@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation.transformer
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
+import io.github.pshevche.spockk.compilation.transformer.parametrization.WhereBlockRewriter
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irString
@@ -31,11 +32,20 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
 
   fun rewrite(spec: IrClass, context: SpecContext) {
     annotateSpec(spec, context)
+    rewriteWhereBlocks(spec, context)
     rewriteMockingApi(spec)
   }
 
   private fun annotateSpec(spec: IrClass, context: SpecContext) {
     spec.annotations += specMetadataAnnotation(spec, context.fileName, context.line)
+  }
+
+  private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {
+    context.features.forEach { (feature, featureContext) ->
+      featureContext.dataProviderBlocks.forEach {
+        WhereBlockRewriter(this.context, spec, feature, featureContext, it).rewrite()
+      }
+    }
   }
 
   private fun specMetadataAnnotation(

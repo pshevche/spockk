@@ -16,7 +16,11 @@ package io.github.pshevche.spockk.compilation.ir
 
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 
 internal fun IrFunction.mutableStatements(): MutableList<IrStatement>? =
   (body as? IrBlockBody)?.statements
+
+internal fun IrFunction.assignableParameters(): List<IrValueParameter> =
+  parameters.filter { it.name.asString() != "<this>" }

@@ -23,7 +23,8 @@ internal enum class FeatureBlockLabel(
   WHEN("when", "io.github.pshevche.spockk.lang.when", "WHEN"),
   THEN("then", "io.github.pshevche.spockk.lang.then", "THEN"),
   EXPECT("expect", "io.github.pshevche.spockk.lang.expect", "EXPECT"),
-  AND("and", "io.github.pshevche.spockk.lang.and", null);
+  AND("and", "io.github.pshevche.spockk.lang.and", null),
+  WHERE("where", "io.github.pshevche.spockk.lang.where", "WHERE");
 
   companion object {
     fun from(fqn: String) = entries.find { fqn == it.fqn }

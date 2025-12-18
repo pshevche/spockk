@@ -14,11 +14,13 @@
 
 package io.github.pshevche.spockk.compilation
 
+import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeature
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
@@ -210,6 +212,85 @@ class FeatureBlockStructureValidationTest : Specification() {
     assertTrue(result.isSuccess())
   }
 
+  fun `accepts valid block sequences (expectation with data definition)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeature(
+          """
+                fun `parameterized feature`(a: Int, b: Int, c: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a + b == c)
+
+                    io.github.pshevche.spockk.lang.where
+                    a ; b ; c
+                    1 ; 1 ; 2
+                    2 ; 2 ; 4
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assert(result.isSuccess())
+  }
+
+  @PendingFeature(reason = "multiple data provider blocks are not yet supported")
+  fun `accepts valid block sequences (multiple data definition blocks)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                fun `parameterized feature`(a: Int, b: Int, c: Int, d: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a + b + c == d)
+
+                    io.github.pshevche.spockk.lang.where
+                    a ; b
+                    1 ; 1
+
+                    io.github.pshevche.spockk.lang.and
+                    c ; d
+                    1 ; 3
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assert(result.isSuccess())
+  }
+
+  fun `accepts valid block sequences (expectation with action and data definition)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                fun `parameterized feature`(a: Int, b: Int, c: Int) {
+                    io.github.pshevche.spockk.lang.`when`
+                    val c = a + b
+
+                    io.github.pshevche.spockk.lang.then
+                    assert(a + b == c)
+
+                    io.github.pshevche.spockk.lang.where
+                    a ; b
+                    1 ; 1
+                    2 ; 2
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assert(result.isSuccess())
+  }
+
   fun `discards invalid block sequences (precondition with missing expectation)`() {
     `when`
     val result =
@@ -225,7 +306,7 @@ class FeatureBlockStructureValidationTest : Specification() {
 
     then
     assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:3:21")
+    assertContains(result.compilation.messages, "Spec.kt:3:11")
     assertContains(
       result.compilation.messages,
       """
@@ -251,7 +332,7 @@ class FeatureBlockStructureValidationTest : Specification() {
 
     then
     assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:3:21")
+    assertContains(result.compilation.messages, "Spec.kt:3:11")
     assertContains(
       result.compilation.messages,
       """
@@ -286,6 +367,42 @@ class FeatureBlockStructureValidationTest : Specification() {
       """
         Problem with `expect`
         Details: Expected to find one of spockk blocks ['and', 'then'], but encountered 'expect'
+        """
+        .trimIndent()
+    )
+  }
+
+  fun `discards invalid block sequences (data definition is not the last block)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                fun `parameterized feature`(a: Int, b: Int, c: Int, d: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a + b + c == d)
+
+                    io.github.pshevche.spockk.lang.where
+                    a ; b
+                    1 ; 1
+
+                    io.github.pshevche.spockk.lang.where
+                    c ; d
+                    1 ; 3
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:11:5")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `where`
+        Details: Expected to find one of spockk blocks ['and'], but encountered 'where'
         """
         .trimIndent()
     )

@@ -37,9 +37,7 @@ internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureB
 
   private fun completeCurrentBlock() {
     currentLabel?.let {
-      featureBlockStatements.add(
-        FeatureBlockStatements(it.label, it.description, currentBlockStatements.toList())
-      )
+      featureBlockStatements.add(FeatureBlockStatements(it, currentBlockStatements.toList()))
       currentBlockStatements.clear()
     }
   }

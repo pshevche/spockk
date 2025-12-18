@@ -14,15 +14,18 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.ir.IrBuiltIns
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
+import org.jetbrains.kotlin.name.Name
 
-interface SpockkIrRewriter {
-  val context: IrGeneratorContext
-  val irBuiltIns: IrBuiltIns
-    get() = context.irBuiltIns
+internal object InternalIdentifiers {
 
-  fun irBuilder(owner: IrSymbol): DeclarationIrBuilder = DeclarationIrBuilder(context, owner)
+  // function names in Kotlin cannot start with $
+  fun getFeatureName(context: FeatureContext): String =
+    "spock_feature_${context.specDepth}_${context.ordinal}"
+
+  fun getDataProviderName(featureContext: FeatureContext, providerIndex: Int): Name =
+    Name.identifier("${getFeatureName(featureContext)}prov$providerIndex")
+
+  fun getDataProcessorName(featureContext: FeatureContext): Name =
+    Name.identifier("${getFeatureName(featureContext)}proc")
 }

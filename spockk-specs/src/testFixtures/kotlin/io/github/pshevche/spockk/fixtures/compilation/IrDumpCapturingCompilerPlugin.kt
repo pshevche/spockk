@@ -37,7 +37,7 @@ class IrDumpCapturingCompilerPlugin(private val irDumpBuilder: StringBuilder) : 
 
   internal class SpockkIrGenerationExtension(private val irDumpBuilder: StringBuilder) : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-      val options = DumpIrTreeOptions(printFilePath = false)
+      val options = DumpIrTreeOptions(printFilePath = false, stableOrder = true)
       irDumpBuilder.append(moduleFragment.dump(options))
     }
   }
