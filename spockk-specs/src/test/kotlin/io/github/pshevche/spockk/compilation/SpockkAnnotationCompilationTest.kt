@@ -41,11 +41,9 @@ class SpockkAnnotationCompilationTest : BaseCompilationTest() {
     assertTransformation(sampleFromResource(sampleName))
 
     where
-    // spotless:off
     scenario; sampleName
     "abstract"; "AbstractBaseSpec"
     "open"; "OpenBaseSpec"
-    // spotless:on
   }
 
   fun `annotates child classes with @SpecMetadata if parent contains features`() {

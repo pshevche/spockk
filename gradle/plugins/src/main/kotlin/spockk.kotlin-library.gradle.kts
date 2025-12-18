@@ -27,14 +27,12 @@ spotless {
       "src/test/kotlin/**/*.kt",
       "src/testFixtures/kotlin/**/*.kt"
     )
-    ktfmt()
     ktlint()
     licenseHeaderFile(rootProject.layout.projectDirectory.file("gradle/config/licenseHeader.txt").asFile)
     toggleOffOn()
   }
 
   kotlinGradle {
-    ktfmt()
     ktlint()
   }
 }
