@@ -9,7 +9,7 @@ repositories { intellijPlatform { defaultRepositories() } }
 
 dependencies {
   intellijPlatform {
-    intellijIdeaCommunity("2025.2.4")
+    intellijIdea("2025.3")
 
     bundledPlugin("org.jetbrains.kotlin")
     bundledPlugin("org.jetbrains.plugins.gradle")
@@ -22,7 +22,7 @@ dependencies {
   testImplementation(libs.junit4)
 }
 
-val releaseNotesFile = layout.projectDirectory.dir("docs").file("release-notes.txt")
+val releaseNotesFile: RegularFile = layout.projectDirectory.dir("docs").file("release-notes.txt")
 
 intellijPlatform {
   buildSearchableOptions = false
