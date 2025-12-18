@@ -4,11 +4,9 @@ class BasicDataTableSpec : spock.lang.Specification() {
     kotlin.test.assertEquals(c, kotlin.math.max(a, b))
 
     io.github.pshevche.spockk.lang.where
-    // spotless:off
     a ; b ; c
     5 ; 7 ; 7
     3 ; 1 ; 3
     9 ; 9 ; 9
-    // spotless:on
   }
 }

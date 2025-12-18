@@ -29,7 +29,6 @@ spotless {
     )
     ktlint()
     licenseHeaderFile(rootProject.layout.projectDirectory.file("gradle/config/licenseHeader.txt").asFile)
-    toggleOffOn()
   }
 
   kotlinGradle {
