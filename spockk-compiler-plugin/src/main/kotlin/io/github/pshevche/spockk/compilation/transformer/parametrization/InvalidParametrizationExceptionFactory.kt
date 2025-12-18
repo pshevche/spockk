@@ -25,7 +25,13 @@ internal class InvalidParametrizationExceptionFactory(
 
   fun unrecognizedParameterizationSyntaxException() =
     CompilationException(
-      "where-blocks may only contain parametrization (e.g. 'variable(salary).from(1000, 5000, 9000)')",
+      """
+          where-blocks may only contain parametrization, e.g.
+             a ; b
+             1 ; 2
+             2 ; 3
+          """
+        .trimIndent(),
       file,
       whereBlockIr
     )

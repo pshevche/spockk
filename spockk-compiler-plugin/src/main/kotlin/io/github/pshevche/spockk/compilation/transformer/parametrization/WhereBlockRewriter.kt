@@ -54,6 +54,14 @@ import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.fileEntry
 import org.jetbrains.kotlin.name.Name
 
+/**
+ * Rewrites data provider statements like data tables and data pipes (to be implemented). The
+ * implementation closely follows Spock's WhereBlockRewriter and tries to follow the established
+ * implicit interface. There are some minor differences, however. In contrast to Groovy's AST nodes,
+ * Kotlin's IR nodes sometimes can't be created in isolation. They need to be attached to a parent,
+ * therefore, the rewriter sometimes does not cache the complete IR, but only the data required to
+ * construct them.
+ */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class WhereBlockRewriter(
   override val context: IrGeneratorContext,
