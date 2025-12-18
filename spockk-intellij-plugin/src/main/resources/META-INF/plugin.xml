@@ -17,7 +17,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <lang.inspectionSuppressor language="kotlin"
-                                   implementationClass="io.github.pshevche.spockk.intellij.SpockkUnusedBlockInspectionSuppressor"/>
+                                   implementationClass="io.github.pshevche.spockk.intellij.SpockkUnusedExpressionInspectionSuppressor"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">

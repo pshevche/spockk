@@ -10,5 +10,13 @@ This plugin adds a single extension that ensures that Kotlin-specific syntax for
 
 == Noteworthy components
 
-- link:src/main/kotlin/io/github/pshevche/spockk/intellij/SpockkUnusedBlockInspectionSuppressor.kt[SpockkUnusedBlockInspectionSuppressor]: prevents block labels from being marked as unused.
-This only applies to labels without descriptions.
+- link:src/main/kotlin/io/github/pshevche/spockk/intellij/SpockkUnusedExpressionInspectionSuppressor.kt[SpockkUnusedExpressionInspectionSuppressor]: prevents Spockk-specific expressions from being marked as unused.
+This applies to block labels without descriptions and data provider statements.
+
+== Dogfooding the development version
+
+1. Run `./gradlew :spockk-intellij-plugin:build`.
+2. Navigate to "IntelliJ IDEA -> Settings -> Plugins -> (Gear Icon) -> Install Plugin from Disk".
+3. Navigate to `spockk-intellij-plugin/build/libs`.
+4. Select `spockk-intellij-plugin-<version>.jar`.
+5. Restart the IDE if prompted.
