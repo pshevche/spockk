@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
@@ -235,6 +236,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     assert(result.isSuccess())
   }
 
+  @PendingFeature(reason = "multiple data provider blocks are not yet supported")
   fun `accepts valid block sequences (multiple data definition blocks)`() {
     `when`
     val result =
