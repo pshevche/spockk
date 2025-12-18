@@ -31,6 +31,9 @@ private val SPOCKK_BLOCKS_FQN =
 fun PsiElement.isSpockkBlock(): Boolean =
   getSpockkImportDirectives(containingFile).any { it.endsWith(text) }
 
+fun PsiElement.isDataProviderBlock(): Boolean =
+  getSpockkImportDirectives(containingFile).any { it.endsWith(text) } && text.contains("where")
+
 private fun getSpockkImportDirectives(file: PsiFile): List<String> {
   if (file is KtFile) {
     return file.importDirectives

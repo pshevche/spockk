@@ -15,7 +15,6 @@
 package io.github.pshevche.spockk.intellij
 
 import com.intellij.psi.PsiElement
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import java.nio.file.Paths
 
 class SpockkUnusedBlockLabelSuppressorTest : SpockkLightJavaCodeInsightFixtureTestCase() {
