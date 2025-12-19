@@ -10,7 +10,7 @@ abstract class BaseSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun spock_feature_0_0() {
+  fun `$spock_feature_0_0`() {
     assert(true)
   }
 }
@@ -27,7 +27,7 @@ abstract class IntermediateSpec : BaseSpec() {
       [""]
     )]
   )
-  fun spock_feature_1_0() {
+  fun `$spock_feature_1_0`() {
     assert(true)
   }
 }
@@ -44,7 +44,7 @@ class Spec : IntermediateSpec() {
       [""]
     )]
   )
-  fun spock_feature_2_0() {
+  fun `$spock_feature_2_0`() {
     assert(true)
   }
 }

@@ -51,7 +51,7 @@ object TestDataFactory {
       ),
       kotlin(
         "Spec.kt",
-        """
+        $$"""
                 @org.spockframework.runtime.model.SpecMetadata(filename = "Spec.kt", line = 1)
                 class Spec : spock.lang.Specification() {
                     @org.spockframework.runtime.model.FeatureMetadata(
@@ -60,11 +60,11 @@ object TestDataFactory {
                         line = 2,
                         parameterNames = [],
                         blocks = [org.spockframework.runtime.model.BlockMetadata(
-                            org.spockframework.runtime.model.BlockKind.${label.toUpperCaseAsciiOnly()},
+                            org.spockframework.runtime.model.BlockKind.$${label.toUpperCaseAsciiOnly()},
                             [""]
                         )]
                     )
-                    fun spock_feature_0_0() {
+                    fun `$spock_feature_0_0`() {
                         assert(true)
                     }
                 }

@@ -70,7 +70,7 @@ class SpockkTestEngineSmokeTest : Specification() {
         selectUniqueId(
           UniqueId.forEngine("spock")
             .append("spec", SimpleSpec::class.qualifiedName!!)
-            .append("feature", "spock_feature_0_0")
+            .append("feature", $$"$spock_feature_0_0")
         )
       )
 
@@ -83,7 +83,7 @@ class SpockkTestEngineSmokeTest : Specification() {
         selectUniqueId(
           UniqueId.forEngine("spock")
             .append("spec", SimpleSpec::class.qualifiedName!!)
-            .append("feature", "spock_feature_0_1")
+            .append("feature", $$"$spock_feature_0_1")
         )
       )
 

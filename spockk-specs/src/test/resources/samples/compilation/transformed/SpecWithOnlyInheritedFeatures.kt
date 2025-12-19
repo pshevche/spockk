@@ -10,7 +10,7 @@ abstract class BaseSpec : spock.lang.Specification() {
       [""]
     )]
   )
-  fun spock_feature_0_0() {
+  fun `$spock_feature_0_0`() {
     assert(true)
   }
 }
