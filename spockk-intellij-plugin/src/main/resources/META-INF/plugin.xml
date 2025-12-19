@@ -3,12 +3,7 @@
     <name>Spockk</name>
     <vendor url="https://www.github.com/pshevche">Pavlo Shevchenko</vendor>
     <description><![CDATA[
-    Provides seamless integration of the Spockk testing and specification framework with IntelliJ:
-
-    <ul>
-        <li>Detects Spockk syntax in test sources</li>
-        <li>Supports executing Spockk tests with Gradle</li>
-    </ul>
+    Provides seamless integration of the Spockk testing and specification framework with IntelliJ.
   ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -18,6 +13,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <lang.inspectionSuppressor language="kotlin"
                                    implementationClass="io.github.pshevche.spockk.intellij.SpockkUnusedExpressionInspectionSuppressor"/>
+        <lang.formatter language="kotlin"
+                        implementationClass="io.github.pshevche.spockk.intellij.SpockkDataTableFormattingModelBuilder"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
