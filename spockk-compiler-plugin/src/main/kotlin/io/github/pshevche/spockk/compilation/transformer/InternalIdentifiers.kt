@@ -19,9 +19,8 @@ import org.jetbrains.kotlin.name.Name
 
 internal object InternalIdentifiers {
 
-  // function names in Kotlin cannot start with $
   fun getFeatureName(context: FeatureContext): String =
-    "spock_feature_${context.specDepth}_${context.ordinal}"
+    $$"$spock_feature_$${context.specDepth}_$${context.ordinal}"
 
   fun getDataProviderName(featureContext: FeatureContext, providerIndex: Int): Name =
     Name.identifier("${getFeatureName(featureContext)}prov$providerIndex")

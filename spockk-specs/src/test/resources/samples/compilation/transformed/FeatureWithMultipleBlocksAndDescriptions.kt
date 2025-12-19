@@ -24,7 +24,7 @@ class FeatureWithMultipleBlocksAndDescriptions : spock.lang.Specification() {
       )
     ]
   )
-  fun spock_feature_0_0() {
+  fun `$spock_feature_0_0`() {
     var a = 1
 
     a += 1
