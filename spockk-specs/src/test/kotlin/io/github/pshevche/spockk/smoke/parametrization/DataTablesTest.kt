@@ -19,18 +19,19 @@ import io.github.pshevche.spockk.lang.where
 import spock.lang.Specification
 import kotlin.math.max
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DataTablesTest : Specification() {
 
-  //  companion object {
-  //    private const val STATIC_FIELD = 42
-  //
-  //    data class Person(val age: Int)
-  //  }
-  //
-  //  @Shared
-  //  private val sharedField = 42
-  //
+  companion object {
+//    private const val STATIC_FIELD = 42
+
+    data class Person(val age: Int)
+  }
+
+//  @Shared
+//  private val sharedField = 42
+
   fun `basic usage`(a: Int, b: Int, c: Int) {
     expect
     assertEquals(c, max(a, b))
@@ -40,6 +41,26 @@ class DataTablesTest : Specification() {
     5; 7; 7
     3; 1; 3
     9; 9; 9
+  }
+
+  fun `basic usage with collections`(a: List<Int>, b: List<Int>, c: List<Int>) {
+    expect
+    assertEquals(c, a + b)
+
+    where
+    a; b; c
+    listOf(1, 2); listOf(3); listOf(1, 2, 3)
+    listOf(1, 2); listOf(3, 4); listOf(1, 2, 3, 4)
+  }
+
+  fun `basic usage with custom objects`(younger: Person, older: Person) {
+    expect
+    assertTrue(younger.age < older.age)
+
+    where
+    younger; older
+    Person(10); Person(20)
+    Person(20); Person(30)
   }
 
   fun `estimate iterations correctly`(a: Int, b: Int, c: Int) {
