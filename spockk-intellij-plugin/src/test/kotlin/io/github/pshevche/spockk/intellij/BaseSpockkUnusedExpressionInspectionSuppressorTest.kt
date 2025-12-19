@@ -16,30 +16,22 @@ package io.github.pshevche.spockk.intellij
 
 import com.intellij.psi.PsiElement
 
-class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkUnusedExpressionInspectionSuppressorTest() {
+abstract class BaseSpockkUnusedExpressionInspectionSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
+
+  protected lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
   override fun setUp() {
     super.setUp()
-    myFixture.configureFromDefaultFile()
+    suppressor = SpockkUnusedExpressionInspectionSuppressor()
   }
 
-  fun testSuppressUnusedWarningsForSpockkBlockObjectReferences() {
-    // expect
-    assertTrue(isSuppressedFor("expect"))
-  }
+  protected fun isSuppressedFor(elementText: String): Boolean = isSuppressedFor(elementText, PsiElement::class.java)
 
-  fun testWarnsAboutSpockkObjectReferencesForOtherInspections() {
-    // expect
-    assertFalse(
-      suppressor.isSuppressedFor(
-        myFixture.findElementByText("expect", PsiElement::class.java),
-        "UnusedDeclaration"
-      )
-    )
-  }
-
-  fun testWarnsAboutUnusedNonSpockkObjectReferences() {
-    // expect
-    assertFalse(isSuppressedFor("expect"))
-  }
+  protected fun <T : PsiElement> isSuppressedFor(
+    elementText: String,
+    elementType: Class<T>
+  ): Boolean = suppressor.isSuppressedFor(
+    findRequiredElementByTextAndType(elementText, elementType),
+    "UnusedExpression"
+  )
 }

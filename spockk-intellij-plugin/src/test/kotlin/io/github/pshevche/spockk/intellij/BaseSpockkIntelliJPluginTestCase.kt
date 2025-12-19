@@ -16,12 +16,23 @@ package io.github.pshevche.spockk.intellij
 
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import java.nio.file.Paths
 
 abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTestCase() {
 
-  fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T {
+  override fun getTestDataPath(): String {
+    val testCaseName = this::class.simpleName!!
+    val path = Paths.get("./src/test/resources/$testCaseName/").toAbsolutePath()
+    return path.toString()
+  }
+
+  protected fun CodeInsightTestFixture.configureFromDefaultFile(): PsiFile = this.configureByFile("/${this@BaseSpockkIntelliJPluginTestCase.name}.kt")
+
+  protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T {
     val document = PsiDocumentManager.getInstance(project).getDocument(file)
     return document!!.text.allIndexesOf(text).firstNotNullOf {
       PsiTreeUtil.getParentOfType<T?>(file.findElementAt(it), elementClass)

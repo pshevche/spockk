@@ -16,70 +16,35 @@ package io.github.pshevche.spockk.intellij
 
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
-import java.nio.file.Paths
 
-class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
-  private lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
+class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkUnusedExpressionInspectionSuppressorTest() {
 
   override fun setUp() {
     super.setUp()
-    suppressor = SpockkUnusedExpressionInspectionSuppressor()
-  }
-
-  override fun getTestDataPath(): String {
-    val path =
-      Paths.get("./src/test/resources/SpockkUnusedDataTableStatementSuppressorTest/")
-        .toAbsolutePath()
-    return path.toString()
+    myFixture.configureFromDefaultFile()
   }
 
   fun testSuppressUnusedWarningsForDataTableStatements() {
-    // given
-    myFixture.configureByFile("/testSuppressUnusedWarningsForDataTableStatements/Spec.kt")
-
     // expect
     listOf("variable1", "variable2").forEach {
-      assertTrue(
-        suppressor.isSuppressedFor(
-          findRequiredElementByTextAndType(it, KtNameReferenceExpression::class.java),
-          "UnusedExpression"
-        )
-      )
+      assertTrue(isSuppressedFor(it, KtNameReferenceExpression::class.java))
     }
 
     // and
     listOf("val11", "val21", "val12", "val22").forEach {
-      assertTrue(
-        suppressor.isSuppressedFor(
-          findRequiredElementByTextAndType(it, KtLiteralStringTemplateEntry::class.java),
-          "UnusedExpression"
-        )
-      )
+      assertTrue(isSuppressedFor(it, KtLiteralStringTemplateEntry::class.java))
     }
   }
 
   fun testWarnsAboutDataTableStatementsInNonFeatures() {
-    // given
-    myFixture.configureByFile("/testWarnsAboutDataTableStatementsInNonFeatures/NonSpec.kt")
-
     // expect
     listOf("variable1", "variable2").forEach {
-      assertFalse(
-        suppressor.isSuppressedFor(
-          findRequiredElementByTextAndType(it, KtNameReferenceExpression::class.java),
-          "UnusedExpression"
-        )
-      )
+      assertFalse(isSuppressedFor(it, KtNameReferenceExpression::class.java))
     }
 
     // and
     listOf("val11", "val21", "val12", "val22").forEach {
-      assertFalse(
-        suppressor.isSuppressedFor(
-          findRequiredElementByTextAndType(it, KtLiteralStringTemplateEntry::class.java),
-          "UnusedExpression"
-        )
-      )
+      assertFalse(isSuppressedFor(it, KtLiteralStringTemplateEntry::class.java))
     }
   }
 }
