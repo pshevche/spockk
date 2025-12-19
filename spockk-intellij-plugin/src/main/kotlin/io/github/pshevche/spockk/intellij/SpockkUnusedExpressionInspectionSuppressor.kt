@@ -23,8 +23,6 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
-import io.github.pshevche.spockk.intellij.extensions.isDataProviderBlock
-import io.github.pshevche.spockk.intellij.extensions.isSpockkBlock
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 

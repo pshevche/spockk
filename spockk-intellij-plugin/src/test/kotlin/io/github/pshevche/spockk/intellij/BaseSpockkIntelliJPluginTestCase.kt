@@ -19,7 +19,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 
-abstract class SpockkLightJavaCodeInsightFixtureTestCase : LightJavaCodeInsightFixtureTestCase() {
+abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTestCase() {
 
   fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T {
     val document = PsiDocumentManager.getInstance(project).getDocument(file)

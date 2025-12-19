@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import java.nio.file.Paths
 
-class SpockkUnusedDataTableStatementSuppressorTest : SpockkLightJavaCodeInsightFixtureTestCase() {
+class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
   private lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
   override fun setUp() {

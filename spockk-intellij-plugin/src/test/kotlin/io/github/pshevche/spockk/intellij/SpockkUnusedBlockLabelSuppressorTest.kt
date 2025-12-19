@@ -17,7 +17,7 @@ package io.github.pshevche.spockk.intellij
 import com.intellij.psi.PsiElement
 import java.nio.file.Paths
 
-class SpockkUnusedBlockLabelSuppressorTest : SpockkLightJavaCodeInsightFixtureTestCase() {
+class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
   private lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
   override fun setUp() {

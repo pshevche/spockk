@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.intellij.extensions
+package io.github.pshevche.spockk.intellij
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
@@ -28,10 +28,10 @@ private val SPOCKK_BLOCKS_FQN =
     "io.github.pshevche.spockk.lang.where"
   )
 
-fun PsiElement.isSpockkBlock(): Boolean =
+internal fun PsiElement.isSpockkBlock(): Boolean =
   getSpockkImportDirectives(containingFile).any { it.endsWith(text) }
 
-fun PsiElement.isDataProviderBlock(): Boolean =
+internal fun PsiElement.isDataProviderBlock(): Boolean =
   getSpockkImportDirectives(containingFile).any { it.endsWith(text) } && text.contains("where")
 
 private fun getSpockkImportDirectives(file: PsiFile): List<String> {
