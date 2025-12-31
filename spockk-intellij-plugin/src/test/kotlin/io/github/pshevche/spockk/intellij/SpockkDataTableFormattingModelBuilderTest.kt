@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.psi.codeStyle.CodeStyleManager
 
 class SpockkDataTableFormattingModelBuilderTest : BaseSpockkIntelliJPluginTestCase() {
@@ -49,10 +50,12 @@ class SpockkDataTableFormattingModelBuilderTest : BaseSpockkIntelliJPluginTestCa
   }
 
   private fun checkFormattingBeforeAndAfter() {
-    myFixture.configureByFile("/$name/Before.kt")
+    myFixture.configureByFile("/$name/before.kt")
 
-    CodeStyleManager.getInstance(project).reformat(myFixture.file)
+    WriteCommandAction.runWriteCommandAction(project) {
+      CodeStyleManager.getInstance(project).reformat(myFixture.file)
+    }
 
-    myFixture.checkResultByFile("/$name/After.kt")
+    myFixture.checkResultByFile("/$name/after.kt")
   }
 }
