@@ -19,6 +19,16 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 
 class SpockkDataTableFormattingModelBuilderTest : BaseSpockkIntelliJPluginTestCase() {
 
+  fun testApplyKotlinFormatterByDefault() {
+    // expect
+    checkFormattingBeforeAndAfter()
+  }
+
+  fun testApplyDefaultFormatterToTablesOutsideOfWhereBlock() {
+    // expect
+    checkFormattingBeforeAndAfter()
+  }
+
   fun testSpockkTableBasicUsage() {
     // expect
     checkFormattingBeforeAndAfter()

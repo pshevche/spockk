@@ -14,7 +14,8 @@
         <lang.inspectionSuppressor language="kotlin"
                                    implementationClass="io.github.pshevche.spockk.intellij.SpockkUnusedExpressionInspectionSuppressor"/>
         <lang.formatter language="kotlin"
-                        implementationClass="io.github.pshevche.spockk.intellij.SpockkDataTableFormattingModelBuilder"/>
+                        implementationClass="io.github.pshevche.spockk.intellij.SpockkDataTableFormattingModelBuilder"
+                        order="first"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">

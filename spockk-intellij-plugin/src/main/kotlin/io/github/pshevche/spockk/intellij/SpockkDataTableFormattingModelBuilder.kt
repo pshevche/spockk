@@ -14,11 +14,51 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.formatting.Alignment
+import com.intellij.formatting.Block
 import com.intellij.formatting.FormattingContext
 import com.intellij.formatting.FormattingModel
 import com.intellij.formatting.FormattingModelBuilder
+import com.intellij.formatting.FormattingModelProvider
+import com.intellij.formatting.Indent
+import com.intellij.formatting.Spacing
+import org.jetbrains.kotlin.idea.formatter.KotlinBlock
+import org.jetbrains.kotlin.idea.formatter.KotlinSpacingBuilderUtilImpl
+import org.jetbrains.kotlin.idea.formatter.NodeAlignmentStrategy
+import org.jetbrains.kotlin.idea.formatter.createSpacingBuilder
 
 class SpockkDataTableFormattingModelBuilder : FormattingModelBuilder {
 
-  override fun createModel(formattingContext: FormattingContext): FormattingModel = super.createModel(formattingContext)
+  override fun createModel(formattingContext: FormattingContext): FormattingModel {
+    val containingFile = formattingContext.containingFile
+    val settings = formattingContext.codeStyleSettings
+
+    val defaultKotlinBlock = KotlinBlock(
+      containingFile.node,
+      NodeAlignmentStrategy.getNullStrategy(),
+      Indent.getNoneIndent(),
+      wrap = null,
+      settings,
+      createSpacingBuilder(settings, KotlinSpacingBuilderUtilImpl)
+    )
+
+    val spockkBlock = SpockkBlock(defaultKotlinBlock)
+
+    return FormattingModelProvider.createFormattingModelForPsiFile(
+      containingFile,
+      spockkBlock,
+      settings
+    )
+  }
+
+  class SpockkBlock(private val delegate: KotlinBlock) : Block by delegate {
+
+    override fun getSpacing(p0: Block?, p1: Block): Spacing? {
+      return delegate.getSpacing(p0, p1)
+    }
+
+    override fun getAlignment(): Alignment? {
+      return delegate.alignment
+    }
+  }
 }
