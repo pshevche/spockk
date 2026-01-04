@@ -21,11 +21,12 @@ import com.intellij.formatting.FormattingModel
 import com.intellij.formatting.FormattingModelBuilder
 import com.intellij.formatting.FormattingModelProvider
 import com.intellij.formatting.Indent
-import com.intellij.formatting.Spacing
+import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.idea.formatter.KotlinBlock
 import org.jetbrains.kotlin.idea.formatter.KotlinSpacingBuilderUtilImpl
 import org.jetbrains.kotlin.idea.formatter.NodeAlignmentStrategy
 import org.jetbrains.kotlin.idea.formatter.createSpacingBuilder
+import org.jetbrains.kotlin.psi.KtFunction
 
 class SpockkDataTableFormattingModelBuilder : FormattingModelBuilder {
 
@@ -42,23 +43,70 @@ class SpockkDataTableFormattingModelBuilder : FormattingModelBuilder {
       createSpacingBuilder(settings, KotlinSpacingBuilderUtilImpl)
     )
 
-    val spockkBlock = SpockkBlock(defaultKotlinBlock)
-
     return FormattingModelProvider.createFormattingModelForPsiFile(
       containingFile,
-      spockkBlock,
+      SpockkBlock(defaultKotlinBlock),
       settings
     )
   }
 
-  class SpockkBlock(private val delegate: KotlinBlock) : Block by delegate {
+  private class SpockkBlock(
+    private val delegate: Block,
+    private val alignmentProviders: MutableMap<KtFunction, DataTableAlignmentProvider> = mutableMapOf()
+  ) : Block by delegate {
 
-    override fun getSpacing(p0: Block?, p1: Block): Spacing? {
-      return delegate.getSpacing(p0, p1)
+    override fun getSubBlocks(): List<Block?> {
+      return delegate.subBlocks.map { SpockkBlock(it, alignmentProviders) }
     }
 
+    /**
+     * Align data table separators (i.e., semicolons).
+     * All separators with the same index will get the same alignment instance.
+     */
     override fun getAlignment(): Alignment? {
-      return delegate.alignment
+      return asDataTableSeparator()?.let {
+        val feature = it.getParentFeature() ?: return delegate.alignment
+        val alignmentProvider = alignmentProviders.computeIfAbsent(feature) { DataTableAlignmentProvider() }
+        return alignmentProvider.getAlignment(it)
+      } ?: delegate.alignment
+    }
+
+    private fun asDataTableSeparator(): PsiElement? {
+      return (delegate as? KotlinBlock)?.node?.psi?.takeIf {
+        it.text == ";" && it.isPartOfDataProviderBlock()
+      }
+    }
+
+    // required as default methods of Java interfaces are not delegated
+    override fun getDebugName() = delegate.debugName
+  }
+
+  /**
+   * Provides alignment for data table separators within a single feature.
+   * The implementation relies on the separators to be traversed line-by-line and column-by-column.
+   */
+  private class DataTableAlignmentProvider {
+    private var currentLine = -1
+    private var currentSeparatorIndex = 0
+    private val alignmentPerSeparatorIndex = mutableListOf<Alignment>()
+
+    fun getAlignment(element: PsiElement): Alignment? {
+      val line = element.getLineNumber()
+
+      // ensure that all separators with position currentSeparatorIndex get the same alignment
+      if (line != currentLine) {
+        currentLine = line
+        currentSeparatorIndex = 0
+      } else {
+        currentSeparatorIndex++
+      }
+
+      // create a new alignment if the separator index has not been seen before
+      if (currentSeparatorIndex > alignmentPerSeparatorIndex.lastIndex) {
+        alignmentPerSeparatorIndex.add(currentSeparatorIndex, Alignment.createAlignment(true))
+      }
+
+      return alignmentPerSeparatorIndex[currentSeparatorIndex]
     }
   }
 }
