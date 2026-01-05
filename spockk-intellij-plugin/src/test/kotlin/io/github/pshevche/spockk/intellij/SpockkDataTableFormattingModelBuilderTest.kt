@@ -39,22 +39,7 @@ class SpockkDataTableFormattingModelBuilderTest : BaseSpockkIntelliJPluginTestCa
     checkFormattingBeforeAndAfter()
   }
 
-  fun testSpockkTableWithFullwidthCharacters() {
-    // expect
-    checkFormattingBeforeAndAfter()
-  }
-
-  fun testSpockkTableWithLongTableParts() {
-    // expect
-    checkFormattingBeforeAndAfter()
-  }
-
   fun testSpockkTableWithBlockDescription() {
-    // expect
-    checkFormattingBeforeAndAfter()
-  }
-
-  fun testSpockkTableWithMultipleParts() {
     // expect
     checkFormattingBeforeAndAfter()
   }

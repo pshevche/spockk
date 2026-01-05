@@ -39,8 +39,12 @@ private val SPOCKK_BLOCKS_FQN =
 private val DATA_PROVIDER_BLOCK_IDX_KEY =
   Key.create<CachedValue<Int>>("spockk.data.provider.block.idx")
 
-internal fun PsiElement.isSpockkBlock(): Boolean =
-  SPOCKK_BLOCKS_FQN.contains(text) || getSpockkImportDirectives(containingFile).any { it.endsWith(text) }
+internal fun PsiElement.isSpockkBlock(): Boolean {
+  val firstBrace = text.indexOf("(")
+  val nameWithoutArgs = if (firstBrace > -1) text.substring(0, firstBrace) else text
+  return SPOCKK_BLOCKS_FQN.contains(nameWithoutArgs) ||
+    getSpockkImportDirectives(containingFile).any { it.endsWith(nameWithoutArgs) }
+}
 
 internal fun PsiElement.isDataProviderBlock(): Boolean =
   text.contains("where") && isSpockkBlock()
