@@ -20,5 +20,6 @@ ktlint_standard_function-signature = disabled
 ktlint_standard_function-naming = disabled
 
 [**/test/**/*.{kt,kts}]
-# data tables violate this rule
+# data tables violate these rules
 ktlint_standard_statement-wrapping = disabled
+ktlint_standard_no-multi-spaces = disabled
