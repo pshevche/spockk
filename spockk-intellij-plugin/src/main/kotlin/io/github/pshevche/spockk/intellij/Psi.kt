@@ -91,8 +91,6 @@ private fun getDataProviderBlockPosition(feature: KtFunction): Int? {
   return dataProviderBlockPosition.value.takeIf { it > -1 }
 }
 
-internal fun PsiElement.getLineNumber(): Int {
-  return PsiDocumentManager.getInstance(project)
-    .getDocument(containingFile)
-    ?.getLineNumber(textRange.startOffset)!!
-}
+internal fun PsiElement.getLineNumber(): Int = PsiDocumentManager.getInstance(project)
+  .getDocument(containingFile)
+  ?.getLineNumber(textRange.startOffset)!!

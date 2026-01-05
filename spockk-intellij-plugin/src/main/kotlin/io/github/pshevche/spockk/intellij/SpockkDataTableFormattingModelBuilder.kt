@@ -21,6 +21,7 @@ import com.intellij.formatting.FormattingModel
 import com.intellij.formatting.FormattingModelBuilder
 import com.intellij.formatting.FormattingModelProvider
 import com.intellij.formatting.Indent
+import com.intellij.formatting.Spacing
 import com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.idea.formatter.KotlinBlock
 import org.jetbrains.kotlin.idea.formatter.KotlinSpacingBuilderUtilImpl
@@ -34,6 +35,7 @@ class SpockkDataTableFormattingModelBuilder : FormattingModelBuilder {
     val containingFile = formattingContext.containingFile
     val settings = formattingContext.codeStyleSettings
 
+    // delegates to the default Kotlin formatter whenever we are not in the context of Spockk data tables
     val defaultKotlinBlock = KotlinBlock(
       containingFile.node,
       NodeAlignmentStrategy.getNullStrategy(),
@@ -50,31 +52,53 @@ class SpockkDataTableFormattingModelBuilder : FormattingModelBuilder {
     )
   }
 
+  /**
+   * Wraps the default Kotlin source code block with the option to add custom alignment and spacing for data table separators.
+   */
   private class SpockkBlock(
     private val delegate: Block,
     private val alignmentProviders: MutableMap<KtFunction, DataTableAlignmentProvider> = mutableMapOf()
   ) : Block by delegate {
 
-    override fun getSubBlocks(): List<Block?> {
-      return delegate.subBlocks.map { SpockkBlock(it, alignmentProviders) }
-    }
+    /**
+     * Wrap all children to support traversal of the blocks.
+     */
+    override fun getSubBlocks(): List<Block?> = delegate.subBlocks.map { SpockkBlock(it, alignmentProviders) }
 
     /**
-     * Align data table separators (i.e., semicolons).
-     * All separators with the same index will get the same alignment instance.
+     * Align all data table separators (i.e., semicolons) by their position in the table row.
+     * This will align semicolons even if they are not part of the data table, but it seems like a reasonable simplification for now.
      */
     override fun getAlignment(): Alignment? {
-      return asDataTableSeparator()?.let {
+      return delegate.asDataTableSeparator()?.let {
         val feature = it.getParentFeature() ?: return delegate.alignment
         val alignmentProvider = alignmentProviders.computeIfAbsent(feature) { DataTableAlignmentProvider() }
         return alignmentProvider.getAlignment(it)
       } ?: delegate.alignment
     }
 
-    private fun asDataTableSeparator(): PsiElement? {
-      return (delegate as? KotlinBlock)?.node?.psi?.takeIf {
-        it.text == ";" && it.isPartOfDataProviderBlock()
+    /**
+     * Adds whitespaces before and after data table separators.
+     */
+    override fun getSpacing(child1: Block?, child2: Block): Spacing? {
+      // child1 is null if child2 is the first block of a document (it can never be a data table separator)
+      if (child1 != null) {
+        // add a single whitespace after a separator
+        (child1 as SpockkBlock).delegate.asDataTableSeparator()?.let {
+          return Spacing.createSpacing(1, 1, 0, false, 0)
+        }
+
+        // add a single whitespace before a separator
+        (child2 as SpockkBlock).delegate.asDataTableSeparator()?.let {
+          return Spacing.createSpacing(1, 1, 0, false, 0)
+        }
       }
+
+      return delegate.getSpacing(child1, child2)
+    }
+
+    private fun Block.asDataTableSeparator(): PsiElement? = (this as? KotlinBlock)?.node?.psi?.takeIf {
+      it.text == ";" && it.isPartOfDataProviderBlock()
     }
 
     // required as default methods of Java interfaces are not delegated
