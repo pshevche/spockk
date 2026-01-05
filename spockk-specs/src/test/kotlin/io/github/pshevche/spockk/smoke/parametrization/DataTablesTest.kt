@@ -19,29 +19,48 @@ import io.github.pshevche.spockk.lang.where
 import spock.lang.Specification
 import kotlin.math.max
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DataTablesTest : Specification() {
 
-  //  companion object {
-  //    private const val STATIC_FIELD = 42
-  //
-  //    data class Person(val age: Int)
-  //  }
-  //
+  companion object {
+    //    private const val STATIC_FIELD = 42
+
+    data class Person(val age: Int)
+  }
+
   //  @Shared
   //  private val sharedField = 42
-  //
+
   fun `basic usage`(a: Int, b: Int, c: Int) {
     expect
     assertEquals(c, max(a, b))
 
     where
-    // spotless:off
-    a; b; c
-    5; 7; 7
-    3; 1; 3
-    9; 9; 9
-    // spotless:on
+    a ; b ; c
+    5 ; 7 ; 7
+    3 ; 1 ; 3
+    9 ; 9 ; 9
+  }
+
+  fun `basic usage with collections`(a: List<Int>, b: List<Int>, c: List<Int>) {
+    expect
+    assertEquals(c, a + b)
+
+    where
+    a            ; b            ; c
+    listOf(1, 2) ; listOf(3)    ; listOf(1, 2, 3)
+    listOf(1, 2) ; listOf(3, 4) ; listOf(1, 2, 3, 4)
+  }
+
+  fun `basic usage with custom objects`(younger: Person, older: Person) {
+    expect
+    assertTrue(younger.age < older.age)
+
+    where
+    younger    ; older
+    Person(10) ; Person(20)
+    Person(20) ; Person(30)
   }
 
   fun `estimate iterations correctly`(a: Int, b: Int, c: Int) {
@@ -49,12 +68,10 @@ class DataTablesTest : Specification() {
     assertEquals(3, specificationContext.currentIteration.estimatedNumIterations)
 
     where
-    // spotless:off
-    a; b; c
-    5; 7; 7
-    3; 1; 3
-    9; 9; 9
-    // spotless:on
+    a ; b ; c
+    5 ; 7 ; 7
+    3 ; 1 ; 3
+    9 ; 9 ; 9
   }
 
   //  fun `can use pseudo-column to enable one-column table`(a: Int) {
@@ -62,10 +79,8 @@ class DataTablesTest : Specification() {
   //      assertEquals(1, a)
   //
   //      where
-  //    // spotless:off
-//    a ; `_`
-//    1 ; `_`
-//    // spotless:on
+  //    a ; `_`
+  //    1 ; `_`
   //  }
   //
   //  fun `pseudo-column can be declared as parameter`(a: Int, `_`: Int) {
@@ -73,10 +88,8 @@ class DataTablesTest : Specification() {
   //      assertEquals(3, a)
   //
   //      where
-  //    // spotless:off
-//    a ; `_`
-//    3 ; `_`
-//    // spotless:on
+  //    a ; `_`
+  //    3 ; `_`
   //  }
   //
   //  fun `tables can be mixed with other parametrization`(a: Int, b: Int, c: Int, d: Int) {
@@ -85,10 +98,8 @@ class DataTablesTest : Specification() {
   //
   //      where
   //    variable(a).from(1)
-  //    // spotless:off
-//    b ; c
-//    2 ; 3
-//    // spotless:on
+  //    b ; c
+  //    2 ; 3
   //    variable(d).from(c + 1)
   //  }
   //
@@ -99,10 +110,8 @@ class DataTablesTest : Specification() {
   //      assertEquals(5, c)
   //
   //      where
-  //    // spotless:off
-//    a                  ; b          ; c
-//    "foo".substring(1) ; Person(23) ; max(4, 5)
-//    // spotless:on
+  //    a                  ; b          ; c
+  //    "foo".substring(1) ; Person(23) ; max(4, 5)
   //  }
   //
   //  fun `cells can reference shared and static fields`(a: Int, b: Int) {
@@ -111,10 +120,8 @@ class DataTablesTest : Specification() {
   //      assertEquals(42, b)
   //
   //      where
-  //    // spotless:off
-//    a            ; b
-//    STATIC_FIELD ; sharedField
-//    // spotless:on
+  //    a            ; b
+  //    STATIC_FIELD ; sharedField
   //  }
   //
   //  fun `cells can reference previous cells`(a: Int, b: Int, c: Int) {
@@ -122,10 +129,8 @@ class DataTablesTest : Specification() {
   //      assertEquals(listOf(0, 1, 2), listOf(a, b, c))
   //
   //      where
-  //    // spotless:off
-//    a ; b     ; c
-//    0 ; a + 1 ; b + 1
-//    // spotless:on
+  //    a ; b     ; c
+  //    0 ; a + 1 ; b + 1
   //  }
   //
   //  fun `cells in a data table can refer to the current value for a column to the left (plain
@@ -138,13 +143,11 @@ class DataTablesTest : Specification() {
   //      assertEquals(c, max(a, b))
   //
   //      where
-  //    // spotless:off
-//    a  ; b  ; c
-//    10 ; 20 ; b
-//    5  ; 3  ; a
-//    7  ; 9  ; b
-//    15 ; 11 ; a
-//    // spotless:on
+  //    a  ; b  ; c
+  //    10 ; 20 ; b
+  //    5  ; 3  ; a
+  //    7  ; 9  ; b
+  //    15 ; 11 ; a
   //  }
   //
   //  fun `cell references are pointing to the current row`(a: Int, b: Int, c: Int) {
@@ -153,12 +156,10 @@ class DataTablesTest : Specification() {
   //      assertEquals(3 * b, c)
   //
   //      where
-  //    // spotless:off
-//    a ; b         ; c
-//    0 ; 1 + a * 2 ; 3 * b
-//    1 ; 1 + a * 2 ; 3 * b
-//    2 ; 1 + a * 2 ; 3 * b
-//    // spotless:on
+  //    a ; b         ; c
+  //    0 ; 1 + a * 2 ; 3 * b
+  //    1 ; 1 + a * 2 ; 3 * b
+  //    2 ; 1 + a * 2 ; 3 * b
   //  }
   //
   //  fun `cell references are evaluated correctly in the method's name (a = #a, b = #b)`(
@@ -169,11 +170,9 @@ class DataTablesTest : Specification() {
   //    true
   //
   //      where
-  //    // spotless:off
-//    a ; b
-//    0 ; a + 1
-//    2 ; a
-//    // spotless:on
+  //    a ; b
+  //    0 ; a + 1
+  //    2 ; a
   //  }
   //
   //  fun `data tables can be referenced from following variables`(a: Int, b: Int, c: Int) {
@@ -181,11 +180,9 @@ class DataTablesTest : Specification() {
   //      assertEquals(3, c)
   //
   //      where
-  //    // spotless:off
-//    a ; b
-//    1 ; 2
-//    1 ; a + 1
-//    // spotless:on
+  //    a ; b
+  //    1 ; 2
+  //    1 ; a + 1
   //
   //    variable(c).from(b + 1)
   //  }
@@ -203,11 +200,9 @@ class DataTablesTest : Specification() {
   //    variable(x).from(1)
   //
   //      and
-  //    // spotless:off
-//    y ; z ; a
-//    1 ; y ; y + z
-//    2 ; y ; y + z
-//    // spotless:on
+  //    y ; z ; a
+  //    1 ; y ; y + z
+  //    2 ; y ; y + z
   //  }
   //
   //  fun `data pipe variables do not break data table previous column references`(
@@ -223,10 +218,8 @@ class DataTablesTest : Specification() {
   //    variable(x).from(listOf(1, 2))
   //
   //      and
-  //    // spotless:off
-//    y ; z ; a
-//    3 ; y ; y + z
-//    4 ; y ; y + z
-//    // spotless:on
+  //    y ; z ; a
+  //    3 ; y ; y + z
+  //    4 ; y ; y + z
   //  }
 }

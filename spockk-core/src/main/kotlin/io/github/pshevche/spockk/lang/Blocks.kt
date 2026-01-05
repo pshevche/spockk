@@ -16,10 +16,9 @@
 
 package io.github.pshevche.spockk.lang
 
-private fun throwIllegalLabelUsageException(label: String): Unit =
-  throw UnsupportedOperationException(
-    "The 'given' label should not be used outside of Spockk feature methods"
-  )
+private fun throwIllegalLabelUsageException(label: String): Nothing = throw UnsupportedOperationException(
+  "The 'given' label should not be used outside of Spockk feature methods"
+)
 
 object given {
   init {
