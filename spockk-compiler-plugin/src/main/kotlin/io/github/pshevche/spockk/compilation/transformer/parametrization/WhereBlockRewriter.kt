@@ -15,9 +15,12 @@
 package io.github.pshevche.spockk.compilation.transformer.parametrization
 
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
+import io.github.pshevche.spockk.compilation.common.SpockkConstants.SPECIFICATION_FQN
+import io.github.pshevche.spockk.compilation.common.SpockkConstants.WILDCARD_FQN
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
+import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.irArrayOf
 import io.github.pshevche.spockk.compilation.ir.irListOf
@@ -27,12 +30,15 @@ import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.fir.lazy.Fir2IrLazyPropertyForPureField
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.builders.IrBuilder
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irSet
@@ -43,6 +49,7 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrGetField
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator.IMPLICIT_COERCION_TO_UNIT
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
@@ -52,6 +59,7 @@ import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.fileEntry
+import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.Name
 
 /**
@@ -173,10 +181,11 @@ internal class WhereBlockRewriter(
     rewriteSimpleParameterization(featureVariable, column.drop(1).map { it as IrExpression })
   }
 
-  private fun isWildcardRef(header: IrStatement): Boolean {
-    // TODO pshevche: support wildcards
-    return false
-  }
+  private fun isWildcardRef(header: IrStatement): Boolean = (header as? IrExpression)
+    ?.let { unwrapImplicitCoercionToUnit(it) }
+    ?.let { it as? IrGetField }
+    ?.let { it.symbol.owner.fqNameWhenAvailable == WILDCARD_FQN }
+    ?: false
 
   private fun IrStatement.asDataTableVariable(): IrValueParameter {
     val paramSymbol =
@@ -288,7 +297,7 @@ internal class WhereBlockRewriter(
           +irReturn(
             irListOf(
               featureVariable.symbol.owner.type,
-              unwrapImplicitCoercionToUnit(variableValues)
+              replaceWildcardRef(unwrapImplicitCoercionToUnit(variableValues), this)
             )
           )
         }
@@ -298,19 +307,41 @@ internal class WhereBlockRewriter(
           +irReturn(
             irListOf(
               featureVariable.symbol.owner.type,
-              unwrapImplicitCoercionToUnit(variableValues)
+              replaceWildcardRef(unwrapImplicitCoercionToUnit(variableValues), this)
             )
           )
         }
       }
     }
 
-  private fun unwrapImplicitCoercionToUnit(expressions: List<IrExpression>): List<IrExpression> =
-    expressions.map { exp ->
-      (exp as? IrTypeOperatorCall)?.let {
-        if (it.operator == IMPLICIT_COERCION_TO_UNIT) it.argument else it
-      } ?: exp
+  fun replaceWildcardRef(dataProviderValues: List<IrExpression>, builder: IrBuilder): List<IrExpression> =
+    dataProviderValues.map { value ->
+      (value as? IrGetValue)
+        // the usage of spock's wildcard object is checked earlier
+        ?.takeIf { it.symbol.owner.name.asString() == "_" }
+        ?.let { irGetWildcardField(builder) }
+        ?: value
     }
+
+  private fun irGetWildcardField(builder: IrBuilder): IrGetField {
+    val specificationSymbol = builder.context.findRequiredClassSymbol(SPECIFICATION_FQN.asString())
+    val wildcardField = specificationSymbol
+      .owner
+      .declarations
+      .filterIsInstance<Fir2IrLazyPropertyForPureField>()
+      .map { it.backingField!! }
+      .single { it.symbol.owner.fqNameWhenAvailable == WILDCARD_FQN }
+    return builder.irGetField(receiver = null, field = wildcardField).apply {
+      superQualifierSymbol = specificationSymbol
+    }
+  }
+
+  private fun unwrapImplicitCoercionToUnit(expressions: List<IrExpression>): List<IrExpression> =
+    expressions.map { unwrapImplicitCoercionToUnit(it) }
+
+  private fun unwrapImplicitCoercionToUnit(exp: IrExpression): IrExpression = (exp as? IrTypeOperatorCall)?.let {
+    if (it.operator == IMPLICIT_COERCION_TO_UNIT) it.argument else it
+  } ?: exp
 
   private fun initializeDataProcessorMethod(): IrFunction =
     spec

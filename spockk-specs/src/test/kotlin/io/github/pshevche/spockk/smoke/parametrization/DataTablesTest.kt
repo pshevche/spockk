@@ -74,24 +74,24 @@ class DataTablesTest : Specification() {
     9 ; 9 ; 9
   }
 
-  //  fun `can use pseudo-column to enable one-column table`(a: Int) {
-  //      expect
-  //      assertEquals(1, a)
-  //
-  //      where
-  //    a ; `_`
-  //    1 ; `_`
-  //  }
-  //
-  //  fun `pseudo-column can be declared as parameter`(a: Int, `_`: Int) {
-  //      expect
-  //      assertEquals(3, a)
-  //
-  //      where
-  //    a ; `_`
-  //    3 ; `_`
-  //  }
-  //
+  fun `can use pseudo-column to enable one-column table`(a: Int) {
+    expect
+    assertEquals(1, a)
+
+    where
+    a ; `_`
+    1 ; `_`
+  }
+
+  fun `pseudo-column can be declared as parameter`(a: Int, `_`: Any) {
+    expect
+    assertEquals(3, a)
+
+    where
+    a ; `_`
+    3 ; `_`
+  }
+
   //  fun `tables can be mixed with other parametrization`(a: Int, b: Int, c: Int, d: Int) {
   //      expect
   //      assertEquals(listOf(1, 2, 3, 4), listOf(a, b, c, d))

@@ -89,14 +89,14 @@ internal fun DeclarationIrBuilder.irListOf(
   elementType: IrType,
   elements: List<IrExpression>
 ): IrFunctionAccessExpression {
-  // we need a signature that accepts varargs
   val listOfSymbol =
     context.findFunctionSymbols(LIST_OF_FUNCTION_ID).first {
-      it.owner.parameters.single().isVararg
+      val param = it.owner.parameters.single()
+      if (elements.size > 1) param.isVararg else !param.isVararg
     }
   return irCall(listOfSymbol, context.irBuiltIns.listClass.typeWith(elementType)).apply {
     typeArguments[0] = elementType
-    arguments[0] = irVararg(irOutType(elementType), elements)
+    arguments[0] = if (elements.size > 1) irVararg(irOutType(elementType), elements) else elements.first()
   }
 }
 
