@@ -161,4 +161,9 @@ class DataTablesCompilationTest : BaseCompilationTest() {
         .trimIndent()
     )
   }
+
+  fun `wildcard usage`() {
+    expect
+    assertTransformation(sampleFromResource("parametrization/WildcardDataTableSpec"))
+  }
 }

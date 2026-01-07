@@ -26,4 +26,5 @@ internal object SpockkConstants {
   val KCLASS_JAVA_PROPERTY_ID = CallableId(FqName("kotlin.jvm"), Name.identifier("java"))
   val LIST_OF_FUNCTION_ID = CallableId(FqName("kotlin.collections"), Name.identifier("listOf"))
   val ARRAY_OF_FUNCTION_ID = CallableId(FqName("kotlin"), Name.identifier("arrayOf"))
+  val WILDCARD_FQN = FqName("spock.lang.Specification._")
 }
