@@ -102,18 +102,18 @@ class DataTablesTest : Specification() {
   //    2 ; 3
   //    variable(d).from(c + 1)
   //  }
-  //
-  //  fun `cells may contain arbitrary expressions`(a: String, b: Person, c: Int) {
-  //      expect
-  //      assertEquals("oo", a)
-  //      assertEquals(23, b.age)
-  //      assertEquals(5, c)
-  //
-  //      where
-  //    a                  ; b          ; c
-  //    "foo".substring(1) ; Person(23) ; max(4, 5)
-  //  }
-  //
+
+  fun `cells may contain arbitrary expressions`(a: String, b: Person, c: Int) {
+    expect
+    assertEquals("oo", a)
+    assertEquals(23, b.age)
+    assertEquals(5, c)
+
+    where
+    a                  ; b          ; c
+    "foo".substring(1) ; Person(23) ; max(4, 5)
+  }
+
   //  fun `cells can reference shared and static fields`(a: Int, b: Int) {
   //      expect
   //      assertEquals(42, a)
