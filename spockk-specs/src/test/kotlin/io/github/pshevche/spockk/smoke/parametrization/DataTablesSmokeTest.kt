@@ -21,7 +21,7 @@ import kotlin.math.max
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class DataTablesTest : Specification() {
+class DataTablesSmokeTest : Specification() {
 
   companion object {
     //    private const val STATIC_FIELD = 42
