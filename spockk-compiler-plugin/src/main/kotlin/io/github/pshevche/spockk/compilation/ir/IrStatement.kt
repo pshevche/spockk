@@ -41,3 +41,15 @@ private fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
   FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrCall.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
+
+internal fun IrStatement.isFromCall() = (this as? IrCall)
+  ?.symbol
+  ?.owner
+  ?.fqNameWhenAvailable
+  ?.asString()
+  ?.matches(IrIdentifiers.Spockk.FROM_FQN_REGEX) ?: false
+
+internal fun IrStatement.isSingleVariableInitializer() = (this as? IrCall)
+  ?.symbol
+  ?.owner
+  ?.fqNameWhenAvailable == IrIdentifiers.Spockk.SINGLE_VARIABLE_INIT_FQN

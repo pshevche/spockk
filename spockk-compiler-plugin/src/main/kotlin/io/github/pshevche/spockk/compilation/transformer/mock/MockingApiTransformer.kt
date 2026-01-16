@@ -17,7 +17,7 @@
 package io.github.pshevche.spockk.compilation.transformer.mock
 
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
-import io.github.pshevche.spockk.compilation.common.SpockkConstants
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
@@ -56,9 +56,9 @@ internal class MockingApiTransformer(
   SpockkIrRewriter {
 
   private val specInternalsClass =
-    context.findRequiredClassSymbol(SpockkConstants.SPEC_INTERNALS_CLASS_ID)
+    context.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_CLASS_ID)
   private val kClassJavaPropGetter =
-    context.findPropertyGetter(SpockkConstants.KCLASS_JAVA_PROPERTY_ID)
+    context.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
 
   companion object {
 

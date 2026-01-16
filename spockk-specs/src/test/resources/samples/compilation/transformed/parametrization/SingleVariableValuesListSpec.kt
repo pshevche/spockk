@@ -19,12 +19,11 @@ class SingleVariableValuesListSpec : spock.lang.Specification() {
   )
   fun `$spock_feature_0_0`(a: Int) {
     assertEquals(0, a % 2)
-
-    where
-    variable(a).from(listOf(2, 4, 6))
   }
 
-  @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["a"], previousDataTableVariables = [])
+  @org.spockframework.runtime.model.DataProviderMetadata(line = 0,
+    dataVariables = ["a"],
+    previousDataTableVariables = [])
   fun `$spock_feature_0_0prov0`(): Any {
     return listOf<Int>(2, 4, 6)
   }

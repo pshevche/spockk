@@ -16,7 +16,7 @@ package io.github.pshevche.spockk.compilation.collector
 
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.common.MutableSpockkTransformationContext
-import io.github.pshevche.spockk.compilation.common.SpockkConstants
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_FQN
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -43,7 +43,7 @@ internal class SpockkTransformationContextCollector(
 
   private fun isSpecification(declaration: IrClass): Boolean =
     declaration.getAllSuperclasses().any {
-      it.isClassWithFqName(SpockkConstants.SPECIFICATION_FQN)
+      it.isClassWithFqName(SPECIFICATION_FQN)
     }
 
   override fun visitFunctionNew(declaration: IrFunction): IrStatement {
