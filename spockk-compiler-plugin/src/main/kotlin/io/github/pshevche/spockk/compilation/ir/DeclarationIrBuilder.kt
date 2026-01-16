@@ -16,8 +16,6 @@
 
 package io.github.pshevche.spockk.compilation.ir
 
-import io.github.pshevche.spockk.compilation.common.SpockkConstants.ARRAY_OF_FUNCTION_ID
-import io.github.pshevche.spockk.compilation.common.SpockkConstants.LIST_OF_FUNCTION_ID
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.builders.IrBuilder
@@ -33,6 +31,7 @@ import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
+import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -90,9 +89,9 @@ internal fun DeclarationIrBuilder.irListOf(
   elements: List<IrExpression>
 ): IrFunctionAccessExpression {
   val listOfSymbol =
-    context.findFunctionSymbols(LIST_OF_FUNCTION_ID).first {
+    context.findFunctionSymbols(IrIdentifiers.Kotlin.LIST_OF_CALLABLE_ID).first {
       val param = it.owner.parameters.single()
-      if (elements.size > 1) param.isVararg else !param.isVararg
+      if (elements.size > 1 || elements.single() is IrVararg) param.isVararg else !param.isVararg
     }
   return irCall(listOfSymbol, context.irBuiltIns.listClass.typeWith(elementType)).apply {
     typeArguments[0] = elementType
@@ -104,7 +103,7 @@ internal fun DeclarationIrBuilder.irArrayOf(
   elementType: IrType,
   elements: List<IrExpression>
 ): IrFunctionAccessExpression {
-  val arrayOfSymbol = context.findUniqueFunctionSymbol(ARRAY_OF_FUNCTION_ID)
+  val arrayOfSymbol = context.findUniqueFunctionSymbol(IrIdentifiers.Kotlin.ARRAY_OF_CALLABLE_ID)
   return irCall(arrayOfSymbol, context.irBuiltIns.arrayClass.typeWith(elementType)).apply {
     typeArguments[0] = elementType
     arguments[0] = irVararg(irOutType(elementType), elements)

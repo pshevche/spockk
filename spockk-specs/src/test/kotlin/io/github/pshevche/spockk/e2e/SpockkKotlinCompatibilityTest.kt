@@ -17,7 +17,9 @@ package io.github.pshevche.spockk.e2e
 import io.github.pshevche.spockk.fixtures.e2e.Workspace
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
+import io.github.pshevche.spockk.lang.where
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Specification
 import kotlin.test.assertContains
@@ -27,9 +29,9 @@ class SpockkKotlinCompatibilityTest : Specification() {
 
   val workspace = Workspace()
 
-  fun `supports Kotlin 2_2_21`() {
+  fun `supports Kotlin #kotlinVersion`(kotlinVersion: String) {
     given
-    workspace.setup("2.2.21")
+    workspace.setup(kotlinVersion)
     workspace.addSuccessfulSpec()
 
     `when`
@@ -41,69 +43,14 @@ class SpockkKotlinCompatibilityTest : Specification() {
       assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
       assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
     }
-  }
 
-  fun `supports Kotlin 2_1_21`() {
-    given
-    workspace.setup("2.1.21")
-    workspace.addSuccessfulSpec()
-
-    `when`
-    val result = workspace.build("test")
-
-    then
-    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
-    }
-  }
-
-  fun `supports Kotlin 2_0_21`() {
-    given
-    workspace.setup("2.0.21")
-    workspace.addSuccessfulSpec()
-
-    `when`
-    val result = workspace.build("test")
-
-    then
-    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
-    }
-  }
-
-  fun `supports Kotlin 1_9_25`() {
-    given
-    workspace.setup("1.9.25")
-    workspace.addSuccessfulSpec()
-
-    `when`
-    val result = workspace.build("test")
-
-    then
-    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
-    }
-  }
-
-  fun `supports Kotlin 1_8_22`() {
-    given
-    workspace.setup("1.8.22")
-    workspace.addSuccessfulSpec()
-
-    `when`
-    val result = workspace.build("test")
-
-    then
-    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
-    }
+    where
+    variable(kotlinVersion).from(
+      "1.8.22",
+      "1.9.25",
+      "2.0.21",
+      "2.1.21",
+      "2.2.21"
+    )
   }
 }

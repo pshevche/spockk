@@ -52,4 +52,25 @@ internal class InvalidParametrizationExceptionFactory(
       file,
       whereBlockIr
     )
+
+  fun invalidDataPipeTargetException() =
+    CompilationException(
+      "Data pipe target must be declared inline as 'variable(a)' or 'variables(a, b)'",
+      file,
+      whereBlockIr
+    )
+
+  fun invalidFeatureVariableReferenceException() =
+    CompilationException(
+      "Data provider must reference a feature method variable",
+      file,
+      whereBlockIr
+    )
+
+  fun invalidDataPipeSyntaxException() =
+    CompilationException(
+      "Data pipes must follow the 'variable(a).from(1, 2)' or 'variables(a, b).from(listOf(1, 2), listOf(2, 3))' syntax",
+      file,
+      whereBlockIr
+    )
 }

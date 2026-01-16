@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.common
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -40,7 +41,7 @@ internal class MutableSpockkTransformationContext {
 
   private fun computeSpecDepth(spec: IrClass): Int {
     val parentSpec = spec.superClass!!
-    if (parentSpec.isClassWithFqName(SpockkConstants.SPECIFICATION_FQN)) {
+    if (parentSpec.isClassWithFqName(IrIdentifiers.Spock.SPECIFICATION_FQN)) {
       return 0
     }
 

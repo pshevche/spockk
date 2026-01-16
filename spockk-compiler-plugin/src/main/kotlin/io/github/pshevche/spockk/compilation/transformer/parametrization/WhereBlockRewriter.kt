@@ -15,9 +15,8 @@
 package io.github.pshevche.spockk.compilation.transformer.parametrization
 
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
-import io.github.pshevche.spockk.compilation.common.SpockkConstants.SPECIFICATION_FQN
-import io.github.pshevche.spockk.compilation.common.SpockkConstants.WILDCARD_FQN
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
@@ -26,6 +25,10 @@ import io.github.pshevche.spockk.compilation.ir.irArrayOf
 import io.github.pshevche.spockk.compilation.ir.irListOf
 import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irVar
+import io.github.pshevche.spockk.compilation.ir.isFromCall
+import io.github.pshevche.spockk.compilation.ir.isList
+import io.github.pshevche.spockk.compilation.ir.isMultiVariableInitializer
+import io.github.pshevche.spockk.compilation.ir.isSingleVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
@@ -47,6 +50,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrBody
+import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
@@ -105,8 +109,14 @@ internal class WhereBlockRewriter(
   }
 
   private fun rewriteWhereStatements(stats: ListIterator<IrStatement>) {
-    // TODO: check for data-pipes syntax
+    val stat = stats.next()
+    if (stat.isFromCall()) {
+      stats.previous()
+      rewriteDataPipeLikeParameterization(stats)
+      return
+    }
 
+    stats.previous()
     val potentialHeaderRow = getExpressionChain(stats)
     if (potentialHeaderRow.size > 1) {
       repeat(potentialHeaderRow.size) { stats.previous() }
@@ -135,6 +145,30 @@ internal class WhereBlockRewriter(
 
     return result.toList()
   }
+
+  private fun rewriteDataPipeLikeParameterization(stats: ListIterator<IrStatement>) {
+    val stat = stats.next() as IrCall
+    val variablesCall = (stat.arguments.first()!! as? IrCall) ?: throw exceptionFactory.invalidDataPipeTargetException()
+    if (variablesCall.isSingleVariableInitializer()) {
+      val featureVariable = getReferencedFeatureVariables(variablesCall).single()
+      val values = stat.arguments.last()!!
+      rewriteSimpleParameterization(featureVariable, listOf(values))
+    } else if (variablesCall.isMultiVariableInitializer()) {
+      val featureVariables = getReferencedFeatureVariables(variablesCall)
+      val values = stat.arguments.drop(1)
+      featureVariables.zip(values).forEach { (featureVariable, value) ->
+        rewriteSimpleParameterization(featureVariable, listOf(value!!))
+      }
+    } else {
+      throw exceptionFactory.invalidDataPipeSyntaxException()
+    }
+  }
+
+  private fun getReferencedFeatureVariables(variablesCall: IrCall): List<IrValueParameter> =
+    variablesCall.arguments.map {
+      (it as? IrGetValue)?.asFeatureVariable()
+        ?: throw exceptionFactory.invalidDataPipeTargetException()
+    }
 
   private fun rewriteExpressionTableLikeParameterization(stats: ListIterator<IrStatement>) {
     val rows = mutableListOf<List<IrStatement>>()
@@ -184,15 +218,18 @@ internal class WhereBlockRewriter(
   private fun isWildcardRef(header: IrStatement): Boolean = (header as? IrExpression)
     ?.let { unwrapImplicitCoercionToUnit(it) }
     ?.let { it as? IrGetField }
-    ?.let { it.symbol.owner.fqNameWhenAvailable == WILDCARD_FQN }
+    ?.let { it.symbol.owner.fqNameWhenAvailable == IrIdentifiers.Spock.WILDCARD_FQN }
     ?: false
 
-  private fun IrStatement.asDataTableVariable(): IrValueParameter {
-    val paramSymbol =
-      (this as? IrTypeOperatorCall)?.argument?.let { it as? IrGetValue }?.symbol
-        as? IrValueParameterSymbol
+  private fun IrStatement.asDataTableVariable(): IrValueParameter = (this as? IrTypeOperatorCall)
+    ?.argument
+    ?.let { it as? IrGetValue }
+    ?.asFeatureVariable() ?: throw exceptionFactory.invalidDataTableHeaderException()
+
+  private fun IrGetValue.asFeatureVariable(): IrValueParameter {
+    val paramSymbol = symbol as? IrValueParameterSymbol
     return feature.assignableParameters().find { it.symbol == paramSymbol }
-      ?: throw exceptionFactory.invalidDataTableHeaderException()
+      ?: throw exceptionFactory.invalidFeatureVariableReferenceException()
   }
 
   private fun getPreviousDataTableVariables(nextDataVariableIndex: Int): List<String> =
@@ -294,27 +331,33 @@ internal class WhereBlockRewriter(
     with(irBuilder(function.symbol)) {
       if (previousVariables.isEmpty()) {
         irBlockBody {
-          +irReturn(
-            irListOf(
-              featureVariable.symbol.owner.type,
-              replaceWildcardRef(unwrapImplicitCoercionToUnit(variableValues), this)
-            )
-          )
+          +irReturn(createDataProviderReturnStatement(this@with, featureVariable, variableValues))
         }
       } else {
         // TODO: support references to previous data variables
         irBlockBody {
-          +irReturn(
-            irListOf(
-              featureVariable.symbol.owner.type,
-              replaceWildcardRef(unwrapImplicitCoercionToUnit(variableValues), this)
-            )
-          )
+          +irReturn(createDataProviderReturnStatement(this@with, featureVariable, variableValues))
         }
       }
     }
 
-  fun replaceWildcardRef(dataProviderValues: List<IrExpression>, builder: IrBuilder): List<IrExpression> =
+  private fun createDataProviderReturnStatement(
+    builder: DeclarationIrBuilder,
+    featureVariable: IrValueParameter,
+    variableValues: List<IrExpression>
+  ): IrExpression {
+    val isValueSingleList = variableValues.singleOrNull()?.type?.isList() ?: false
+    if (isValueSingleList) {
+      return variableValues.single()
+    }
+
+    return builder.irListOf(
+      featureVariable.symbol.owner.type,
+      replaceWildcardRef(unwrapImplicitCoercionToUnit(variableValues), builder)
+    )
+  }
+
+  private fun replaceWildcardRef(dataProviderValues: List<IrExpression>, builder: IrBuilder): List<IrExpression> =
     dataProviderValues.map { value ->
       (value as? IrGetValue)
         // the usage of spock's wildcard object is checked earlier
@@ -324,13 +367,13 @@ internal class WhereBlockRewriter(
     }
 
   private fun irGetWildcardField(builder: IrBuilder): IrGetField {
-    val specificationSymbol = builder.context.findRequiredClassSymbol(SPECIFICATION_FQN.asString())
+    val specificationSymbol = builder.context.findRequiredClassSymbol(IrIdentifiers.Spock.SPECIFICATION_FQN.asString())
     val wildcardField = specificationSymbol
       .owner
       .declarations
       .filterIsInstance<Fir2IrLazyPropertyForPureField>()
       .map { it.backingField!! }
-      .single { it.symbol.owner.fqNameWhenAvailable == WILDCARD_FQN }
+      .single { it.symbol.owner.fqNameWhenAvailable == IrIdentifiers.Spock.WILDCARD_FQN }
     return builder.irGetField(receiver = null, field = wildcardField).apply {
       superQualifierSymbol = specificationSymbol
     }

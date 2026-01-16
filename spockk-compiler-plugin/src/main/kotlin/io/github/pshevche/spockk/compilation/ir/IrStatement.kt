@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.name.FqName
 
 internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
   when (this) {
@@ -40,4 +41,15 @@ internal fun IrGetObjectValue.requiredFqn() = symbol.owner.fqNameWhenAvailable!!
 private fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
   FeatureBlockLabelIrElement.from(file, this)
 
-internal fun IrCall.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
+internal fun IrCall.fqName(): FqName? = symbol.owner.fqNameWhenAvailable
+
+internal fun IrCall.requiredFqn() = fqName()!!.asString()
+
+internal fun IrStatement.isFromCall() = (this as? IrCall)
+  ?.fqName()
+  ?.asString()
+  ?.matches(IrIdentifiers.Spockk.FROM_FQN_REGEX) ?: false
+
+internal fun IrCall.isSingleVariableInitializer() = fqName() == IrIdentifiers.Spockk.SINGLE_VARIABLE_INIT_FQN
+
+internal fun IrCall.isMultiVariableInitializer() = fqName() == IrIdentifiers.Spockk.MULTI_VARIABLE_INIT_FQN
