@@ -148,21 +148,27 @@ internal class WhereBlockRewriter(
 
   private fun rewriteDataPipeLikeParameterization(stats: ListIterator<IrStatement>) {
     val stat = stats.next() as IrCall
-    val variablesCall = (stat.arguments.first()!! as? IrCall) ?: return
+    val variablesCall = (stat.arguments.first()!! as? IrCall) ?: throw exceptionFactory.invalidDataPipeTargetException()
     if (variablesCall.isSingleVariableInitializer()) {
-      val featureVariable = (variablesCall.arguments.single() as IrGetValue).asFeatureVariable()
+      val featureVariable = getReferencedFeatureVariables(variablesCall).single()
       val values = stat.arguments.last()!!
       rewriteSimpleParameterization(featureVariable, listOf(values))
     } else if (variablesCall.isMultiVariableInitializer()) {
-      val featureVariables = variablesCall.arguments.map { (it as IrGetValue).asFeatureVariable() }
+      val featureVariables = getReferencedFeatureVariables(variablesCall)
       val values = stat.arguments.drop(1)
       featureVariables.zip(values).forEach { (featureVariable, value) ->
         rewriteSimpleParameterization(featureVariable, listOf(value!!))
       }
     } else {
-      throw exceptionFactory.invalidDataPipeArgumentsException()
+      throw exceptionFactory.invalidDataPipeSyntaxException()
     }
   }
+
+  private fun getReferencedFeatureVariables(variablesCall: IrCall): List<IrValueParameter> =
+    variablesCall.arguments.map {
+      (it as? IrGetValue)?.asFeatureVariable()
+        ?: throw exceptionFactory.invalidDataPipeTargetException()
+    }
 
   private fun rewriteExpressionTableLikeParameterization(stats: ListIterator<IrStatement>) {
     val rows = mutableListOf<List<IrStatement>>()
@@ -223,7 +229,7 @@ internal class WhereBlockRewriter(
   private fun IrGetValue.asFeatureVariable(): IrValueParameter {
     val paramSymbol = symbol as? IrValueParameterSymbol
     return feature.assignableParameters().find { it.symbol == paramSymbol }
-      ?: throw exceptionFactory.invalidDataTableHeaderException()
+      ?: throw exceptionFactory.invalidFeatureVariableReferenceException()
   }
 
   private fun getPreviousDataTableVariables(nextDataVariableIndex: Int): List<String> =

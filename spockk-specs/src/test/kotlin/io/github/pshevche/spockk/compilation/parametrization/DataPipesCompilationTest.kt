@@ -15,12 +15,86 @@
 package io.github.pshevche.spockk.compilation.parametrization
 
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
+import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeature
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
+import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import kotlin.test.assertContains
+import kotlin.test.assertFalse
 
 @OptIn(ExperimentalCompilerApi::class)
 class DataPipesCompilationTest : BaseCompilationTest() {
+
+  fun `rejects data pipes with non-inline data pipe declaration`() {
+    `when`
+    val result =
+      transform(
+        specWithFeature(
+          """
+                fun `parameterized feature`(a: Int, b: Int) {
+                    io.github.pshevche.spockk.lang.given
+                    val dataPipeVars = io.github.pshevche.spockk.lang.variables(a, b)
+
+                    io.github.pshevche.spockk.lang.expect
+                    assert((a + b) % 2 == 0)
+
+                    io.github.pshevche.spockk.lang.where
+                    dataPipeVars.from(listOf(1, 2), listOf(3, 4))
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:9:5")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `where`
+        Details: Data pipe target must be declared inline as 'variable(a)' or 'variables(a, b)'
+        """
+        .trimIndent()
+    )
+  }
+
+  fun `rejects data pipes that do not target feature variables`() {
+    `when`
+    val result =
+      transform(
+        specWithFeature(
+          """
+                fun `parameterized feature`(a: Int) {
+                    io.github.pshevche.spockk.lang.given
+                    var nonFeatureVariable: Int? = null
+
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a % 2 == 0)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variables(a, nonFeatureVariable).from(listOf(1, 2), listOf(3, 4))
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:9:5")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `where`
+        Details: Data provider must reference a feature method variable
+        """
+        .trimIndent()
+    )
+  }
 
   fun `single variable single value`() {
     expect
