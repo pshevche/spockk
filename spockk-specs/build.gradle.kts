@@ -30,6 +30,8 @@ dependencies {
 
 tasks.test {
   useJUnitPlatform()
+  maxParallelForks = Runtime.getRuntime().availableProcessors() / 2
+
   systemProperty(
     "spockk.workspaceDir",
     layout.buildDirectory.dir("spockk-specs-workspaces").get().asFile.absolutePath
@@ -37,6 +39,7 @@ tasks.test {
   systemProperty("spockk.junitPlatformVersion", libs.versions.junit.platform.get())
   systemProperty("spockk.kotlinVersion", libs.versions.kotlin.get())
   systemProperty("spockk.spockVersion", libs.versions.spock.get())
+
   jvmArgs(
     "-XX:+EnableDynamicAgentLoading" // To disable warning about byte-buddy-agent
   )
