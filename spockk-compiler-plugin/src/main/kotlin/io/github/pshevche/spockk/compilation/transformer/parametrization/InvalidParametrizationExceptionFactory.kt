@@ -52,4 +52,11 @@ internal class InvalidParametrizationExceptionFactory(
       file,
       whereBlockIr
     )
+
+  fun invalidDataPipeArgumentsException() =
+    CompilationException(
+      "Data pipes must follow the 'variable(a).from(1, 2)' or 'variables(a, b).from(listOf(1, 2), listOf(2, 3))' syntax",
+      file,
+      whereBlockIr
+    )
 }

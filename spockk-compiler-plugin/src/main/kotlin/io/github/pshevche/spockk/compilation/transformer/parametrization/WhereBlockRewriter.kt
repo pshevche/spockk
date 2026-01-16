@@ -27,6 +27,7 @@ import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irVar
 import io.github.pshevche.spockk.compilation.ir.isFromCall
 import io.github.pshevche.spockk.compilation.ir.isList
+import io.github.pshevche.spockk.compilation.ir.isMultiVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.isSingleVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
@@ -108,7 +109,6 @@ internal class WhereBlockRewriter(
   }
 
   private fun rewriteWhereStatements(stats: ListIterator<IrStatement>) {
-    // TODO: check for data-pipes syntax
     val stat = stats.next()
     if (stat.isFromCall()) {
       stats.previous()
@@ -148,12 +148,19 @@ internal class WhereBlockRewriter(
 
   private fun rewriteDataPipeLikeParameterization(stats: ListIterator<IrStatement>) {
     val stat = stats.next() as IrCall
-    val variables = stat.arguments.first()!!
-    val values = stat.arguments.last()!!
-    if (variables.isSingleVariableInitializer()) {
-      val featureVariableAccess = (variables as IrCall).arguments.single() as IrGetValue
-      val featureVariable = featureVariableAccess.asFeatureVariable()
+    val variablesCall = (stat.arguments.first()!! as? IrCall) ?: return
+    if (variablesCall.isSingleVariableInitializer()) {
+      val featureVariable = (variablesCall.arguments.single() as IrGetValue).asFeatureVariable()
+      val values = stat.arguments.last()!!
       rewriteSimpleParameterization(featureVariable, listOf(values))
+    } else if (variablesCall.isMultiVariableInitializer()) {
+      val featureVariables = variablesCall.arguments.map { (it as IrGetValue).asFeatureVariable() }
+      val values = stat.arguments.drop(1)
+      featureVariables.zip(values).forEach { (featureVariable, value) ->
+        rewriteSimpleParameterization(featureVariable, listOf(value!!))
+      }
+    } else {
+      throw exceptionFactory.invalidDataPipeArgumentsException()
     }
   }
 

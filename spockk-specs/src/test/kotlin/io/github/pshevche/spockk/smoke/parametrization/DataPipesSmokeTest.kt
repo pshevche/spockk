@@ -16,17 +16,19 @@ package io.github.pshevche.spockk.smoke.parametrization
 
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
+import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.where
 import spock.lang.Specification
+import kotlin.math.max
 import kotlin.test.assertEquals
 
 class DataPipesSmokeTest : Specification() {
 
-  //  companion object {
-  //    private const val STATIC_FIELD = 42
-  //
-  //    data class Person(val age: Int)
-  //  }
+  companion object {
+    //    private const val STATIC_FIELD = 42
+
+    data class Person(val age: Int)
+  }
   //
   //  @Shared
   //  private val sharedField = 42
@@ -55,37 +57,37 @@ class DataPipesSmokeTest : Specification() {
     variable(a).from(listOf(2, 4, 6))
   }
 
-  //  fun `single data pipe with multiple variables`(a: Int, b: Int, c: Int) {
-  //    expect
-  //    assertEquals(c, a + b)
-  //
-  //    where
-  //    variables(a, b, c).from(listOf(1, 2), listOf(3, 4), listOf(4, 6))
-  //  }
-  //
-  //  fun `multiple data pipes`(a: Int, b: Int, c: Int) {
-  //    expect
-  //    assertEquals(c, a + b)
-  //
-  //    where
-  //    variables(a, b).from(listOf(1, 2), listOf(3, 4))
-  //    variable(c).from(listOf(4, 6))
-  //  }
-  //
-  //  fun `pipes may contain arbitrary expressions`(a: String, b: Person, c: Int) {
-  //    expect
-  //    assertEquals("oo", a)
-  //    assertEquals(23, b.age)
-  //    assertEquals(5, c)
-  //
-  //    where
-  //    variables(a, b, c).from(
-  //      listOf("foo".substring(1)),
-  //      listOf(Person(23)),
-  //      listOf(max(4, 5))
-  //    )
-  //  }
-  //
+  fun `single data pipe with multiple variables`(a: Int, b: Int, c: Int) {
+    expect
+    assertEquals(c, a + b)
+
+    where
+    variables(a, b, c).from(listOf(1, 2), listOf(3, 4), listOf(4, 6))
+  }
+
+  fun `multiple data pipes`(a: Int, b: Int, c: Int) {
+    expect
+    assertEquals(c, a + b)
+
+    where
+    variables(a, b).from(listOf(1, 2), listOf(3, 4))
+    variable(c).from(listOf(4, 6))
+  }
+
+  fun `pipes may contain arbitrary expressions`(a: String, b: Person, c: Int) {
+    expect
+    assertEquals("oo", a)
+    assertEquals(23, b.age)
+    assertEquals(5, c)
+
+    where
+    variables(a, b, c).from(
+      listOf("foo".substring(1)),
+      listOf(Person(23)),
+      listOf(max(4, 5))
+    )
+  }
+
   //  fun `pipes can reference shared and static fields`(a: Int, b: Int) {
   //    expect
   //    assertEquals(42, a)
