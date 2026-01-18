@@ -19,7 +19,7 @@ import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toUpperCaseAsciiOnly
 
 object TestDataFactory {
-  fun specWithFeature(feature: String): SourceFile =
+  fun specWithBody(feature: String): SourceFile =
     kotlin(
       "Spec.kt",
       """
@@ -31,7 +31,7 @@ object TestDataFactory {
     )
 
   fun specWithFeatureBody(featureBody: String): SourceFile =
-    specWithFeature(
+    specWithBody(
       """
       fun `some feature`() {
           $featureBody

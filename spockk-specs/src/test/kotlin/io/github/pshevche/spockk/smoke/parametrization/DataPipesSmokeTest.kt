@@ -25,13 +25,10 @@ import kotlin.test.assertEquals
 class DataPipesSmokeTest : Specification() {
 
   companion object {
-    //    private const val STATIC_FIELD = 42
+    private const val STATIC_FIELD = 42
 
     data class Person(val age: Int)
   }
-  //
-  //  @Shared
-  //  private val sharedField = 42
 
   fun `single variable single value`(a: Int) {
     expect
@@ -88,16 +85,14 @@ class DataPipesSmokeTest : Specification() {
     )
   }
 
-  //  fun `pipes can reference shared and static fields`(a: Int, b: Int) {
-  //    expect
-  //    assertEquals(42, a)
-  //    assertEquals(42, b)
-  //
-  //    where
-  //    variable(a).from(STATIC_FIELD)
-  //    variable(b).from(sharedField)
-  //  }
-  //
+  fun `pipes can reference static fields`(a: Int) {
+    expect
+    assertEquals(42, a)
+
+    where
+    variable(a).from(STATIC_FIELD)
+  }
+
   //  fun `pipes can reference previous variables`(a: Int, b: Int, c: Int) {
   //    expect
   //    assertEquals(listOf(0, 1, 2), listOf(a, b, c))

@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.compilation.parametrization
 
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
-import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeature
+import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.expect
@@ -37,7 +37,7 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     `when`
     val result =
       transform(
-        specWithFeature(
+        specWithBody(
           """
                 fun `parameterized feature`(a: Int, b: Int) {
                     io.github.pshevche.spockk.lang.expect
@@ -71,7 +71,7 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     `when`
     val result =
       transform(
-        specWithFeature(
+        specWithBody(
           """
                 fun `parameterized feature`(a: Int, b: Int) {
                     io.github.pshevche.spockk.lang.expect
@@ -102,7 +102,7 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     `when`
     val result =
       transform(
-        specWithFeature(
+        specWithBody(
           """
                 fun `parameterized feature`(a: Int, b: Int) {
                     io.github.pshevche.spockk.lang.expect
@@ -134,7 +134,7 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     `when`
     val result =
       transform(
-        specWithFeature(
+        specWithBody(
           """
                 fun `parameterized feature`(a: Int, b: Int) {
                     io.github.pshevche.spockk.lang.expect
