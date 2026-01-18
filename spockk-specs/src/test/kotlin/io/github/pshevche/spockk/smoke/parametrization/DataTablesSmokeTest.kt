@@ -24,13 +24,10 @@ import kotlin.test.assertTrue
 class DataTablesSmokeTest : Specification() {
 
   companion object {
-    //    private const val STATIC_FIELD = 42
+    private const val STATIC_FIELD = 42
 
     data class Person(val age: Int)
   }
-
-  //  @Shared
-  //  private val sharedField = 42
 
   fun `basic usage`(a: Int, b: Int, c: Int) {
     expect
@@ -114,16 +111,16 @@ class DataTablesSmokeTest : Specification() {
     "foo".substring(1) ; Person(23) ; max(4, 5)
   }
 
-  //  fun `cells can reference shared and static fields`(a: Int, b: Int) {
-  //      expect
-  //      assertEquals(42, a)
-  //      assertEquals(42, b)
-  //
-  //      where
-  //    a            ; b
-  //    STATIC_FIELD ; sharedField
-  //  }
-  //
+  fun `cells can reference static fields`(a: Int, b: Int) {
+    expect
+    assertEquals(42, a)
+    assertEquals(42, b)
+
+    where
+    a            ; b
+    STATIC_FIELD ; 42
+  }
+
   //  fun `cells can reference previous cells`(a: Int, b: Int, c: Int) {
   //      expect
   //      assertEquals(listOf(0, 1, 2), listOf(a, b, c))

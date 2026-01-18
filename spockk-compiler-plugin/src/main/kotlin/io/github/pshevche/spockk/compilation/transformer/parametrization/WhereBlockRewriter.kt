@@ -92,6 +92,7 @@ internal class WhereBlockRewriter(
 
   private val exceptionFactory =
     InvalidParametrizationExceptionFactory(spec.file, whereBlock.element.ir)
+  private val instanceFieldAccessChecker = InstanceFieldAccessChecker(spec.file, whereBlock.element.ir)
   private var dataProviderCount = 0
   private val dataProcessorVars = mutableListOf<IrVariable>()
 
@@ -265,10 +266,13 @@ internal class WhereBlockRewriter(
     dataProcessorVarValue: IrExpression
   ) {
     with(irBuilder(dataProcessorMethod.symbol)) {
-      dataProcessorMethod.mutableStatements()?.apply {
+      val dataProcessorStats = buildList<IrStatement> {
         add(dataProcessorVar)
         add(irSet(dataProcessorVar.symbol, irAs(dataProcessorVarValue, dataProcessorVar.type)))
+      }.also {
+        instanceFieldAccessChecker.check(it)
       }
+      dataProcessorMethod.mutableStatements()?.addAll(dataProcessorStats)
     }
   }
 
@@ -330,13 +334,17 @@ internal class WhereBlockRewriter(
   ): IrBody =
     with(irBuilder(function.symbol)) {
       if (previousVariables.isEmpty()) {
+        val dataProviderStatements = createDataProviderReturnStatement(this, featureVariable, variableValues)
+          .also { instanceFieldAccessChecker.check(it) }
         irBlockBody {
-          +irReturn(createDataProviderReturnStatement(this@with, featureVariable, variableValues))
+          +irReturn(dataProviderStatements)
         }
       } else {
         // TODO: support references to previous data variables
+        val dataProviderStatements = createDataProviderReturnStatement(this, featureVariable, variableValues)
+          .also { instanceFieldAccessChecker.check(it) }
         irBlockBody {
-          +irReturn(createDataProviderReturnStatement(this@with, featureVariable, variableValues))
+          +irReturn(dataProviderStatements)
         }
       }
     }
