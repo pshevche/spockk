@@ -19,9 +19,13 @@ package io.github.pshevche.spockk.compilation.ir
 import io.github.pshevche.spockk.compilation.common.FeatureBlockLabelIrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
+import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
+import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.FqName
@@ -53,3 +57,8 @@ internal fun IrStatement.isFromCall() = (this as? IrCall)
 internal fun IrCall.isSingleVariableInitializer() = fqName() == IrIdentifiers.Spockk.SINGLE_VARIABLE_INIT_FQN
 
 internal fun IrCall.isMultiVariableInitializer() = fqName() == IrIdentifiers.Spockk.MULTI_VARIABLE_INIT_FQN
+
+internal fun IrGetValue.asFeatureVariable(feature: IrFunction): IrValueParameter? {
+  val paramSymbol = symbol as? IrValueParameterSymbol
+  return feature.assignableParameters().find { it.symbol == paramSymbol }
+}
