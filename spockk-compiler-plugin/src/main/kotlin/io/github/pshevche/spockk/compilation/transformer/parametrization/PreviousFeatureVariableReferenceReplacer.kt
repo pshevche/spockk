@@ -16,11 +16,8 @@ package io.github.pshevche.spockk.compilation.transformer.parametrization
 
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
-import io.github.pshevche.spockk.compilation.transformer.parametrization.PreviousFeatureVariablesAccessTracker.ReferencedFeatureVariable
-import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -28,21 +25,11 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class PreviousFeatureVariableReferenceReplacer(
   private val feature: IrFunction,
-  private val referencedFeatureVariables: Set<ReferencedFeatureVariable>,
-  private val dataProcessorStatBuilder: DeclarationIrBuilder,
-  private val dataProcessorVars: MutableList<IrVariable>
+  private val featureVariableReplacement: Map<IrValueParameter, IrExpression>
 ) : BaseSpockkIrElementTransformer() {
-
-  private val referencedDataProcessorVarIdx = referencedFeatureVariables.associate {
-    it.variableName to it.dataProcessorVariableIndex
-  }
 
   fun replaceReferences(expression: IrExpression): IrExpression = expression.transform(this, null)
 
   override fun visitGetValue(expression: IrGetValue): IrExpression = expression.asFeatureVariable(feature)
-    ?.let { featureVar ->
-      referencedDataProcessorVarIdx[featureVar.name.asString()]
-        ?.let { dataProcessorVars[it] }
-        ?.let { dataProcessorStatBuilder.irGet(it) }
-    } ?: expression
+    ?.let { featureVariableReplacement[it] } ?: expression
 }

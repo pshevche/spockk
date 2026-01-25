@@ -123,7 +123,7 @@ class DataPipesCompilationTest : BaseCompilationTest() {
 
   fun `reference another feature variable`() {
     expect
-    assertTransformation(sampleFromResource("parametrization/ReferenceFeatureVariableSpec"))
+    assertTransformation(sampleFromResource("parametrization/ReferenceFeatureVariableInDataPipeSpec"))
   }
 
   fun `rejects data pipes referencing other variables as iteration values`() {

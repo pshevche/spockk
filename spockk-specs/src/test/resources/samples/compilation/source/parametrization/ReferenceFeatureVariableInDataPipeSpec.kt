@@ -1,7 +1,7 @@
 import io.github.pshevche.spockk.lang.*
 import kotlin.test.assertEquals
 
-class ReferenceFeatureVariableSpec : spock.lang.Specification() {
+class ReferenceFeatureVariableInDataPipeSpec : spock.lang.Specification() {
   fun `a feature`(a: Int, b: Int) {
     expect
     assertEquals(b, a)

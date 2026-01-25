@@ -373,7 +373,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       result.compilation.messages,
       """
         Problem with `where`
-        Details: Expected to find one of spockk blocks ['and'], but encountered 'where'
+        Details: Did not expect to find any spockk blocks, but encountered 'where'
         """
         .trimIndent()
     )

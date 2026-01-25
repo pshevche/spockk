@@ -166,4 +166,9 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     expect
     assertTransformation(sampleFromResource("parametrization/WildcardDataTableSpec"))
   }
+
+  fun `reference another feature variable`() {
+    expect
+    assertTransformation(sampleFromResource("parametrization/ReferenceFeatureVariableInDataTableSpec"))
+  }
 }

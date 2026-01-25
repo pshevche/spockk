@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation.transformer.parametrization
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -24,32 +25,19 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class PreviousFeatureVariablesAccessTracker(
   private val feature: IrFunction,
-  referenceableVariables: List<String>
+  private val referenceableVariables: Set<String>
 ) : BaseSpockkIrElementTransformer() {
 
-  data class ReferencedFeatureVariable(val variableName: String, val dataProcessorVariableIndex: Int)
+  private val referencedFeatureVariables: MutableSet<IrValueParameter> = mutableSetOf()
 
-  private val referenceableVariablesWithIndex =
-    referenceableVariables.withIndex().associateBy({ it.value }, { it.index })
-  private val referencedFeatureVariables: MutableSet<ReferencedFeatureVariable> = mutableSetOf()
-
-  fun check(expression: IrExpression): Set<ReferencedFeatureVariable> {
+  fun check(expression: IrExpression): Set<IrValueParameter> {
     expression.transform(this, null)
     return referencedFeatureVariables.toSet()
   }
 
   override fun visitGetValue(expression: IrGetValue): IrExpression = super.visitGetValue(expression).also {
     expression.asFeatureVariable(feature)
-      ?.let { featureVariable ->
-        referenceableVariablesWithIndex[featureVariable.name.asString()]
-          ?.let { replacementIdx ->
-            referencedFeatureVariables.add(
-              ReferencedFeatureVariable(
-                featureVariable.name.asString(),
-                replacementIdx
-              )
-            )
-          }
-      }
+      ?.takeIf { referenceableVariables.contains(it.name.asString()) }
+      ?.let { referencedFeatureVariables.add(it) }
   }
 }

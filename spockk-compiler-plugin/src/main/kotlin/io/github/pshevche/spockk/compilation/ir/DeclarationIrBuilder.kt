@@ -16,6 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.ir
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.LIST_FQN
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.builders.IrBuilder
@@ -42,11 +43,14 @@ import org.jetbrains.kotlin.ir.types.IrTypeProjection
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.impl.buildTypeProjection
 import org.jetbrains.kotlin.ir.types.impl.toBuilder
+import org.jetbrains.kotlin.ir.types.typeOrFail
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.types.typeWithArguments
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.constructors
+import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.isVararg
+import org.jetbrains.kotlin.ir.util.toIrConst
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
@@ -138,3 +142,20 @@ private fun irVariable(name: Name, type: IrType, isVar: Boolean): IrVariable =
     isConst = false,
     isLateinit = false
   )
+
+fun IrBuilder.irListGet(
+  list: IrExpression,
+  idx: Int
+): IrExpression {
+  val getFunction = context.findRequiredClassSymbol(LIST_FQN.asString())
+    .owner
+    .functions
+    .single { it.name.asString() == "get" }
+
+  val elementType = (list.type as IrSimpleType).arguments.single().typeOrFail
+  return irCall(getFunction.symbol, elementType).apply {
+    dispatchReceiver = list
+    // arguments[0] = this is set via the dispatchReceiver
+    arguments[1] = idx.toIrConst(context.irBuiltIns.intType)
+  }
+}

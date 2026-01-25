@@ -1,8 +1,8 @@
 import io.github.pshevche.spockk.lang.*
 import kotlin.test.assertEquals
 
-@org.spockframework.runtime.model.SpecMetadata(filename = "ReferenceFeatureVariableSpec.kt", line = 4)
-class ReferenceFeatureVariableSpec : spock.lang.Specification() {
+@org.spockframework.runtime.model.SpecMetadata(filename = "ReferenceFeatureVariableInDataPipeSpec.kt", line = 4)
+class ReferenceFeatureVariableInDataPipeSpec : spock.lang.Specification() {
   @org.spockframework.runtime.model.FeatureMetadata(
     ordinal = 0,
     name = "a feature",

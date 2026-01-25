@@ -23,6 +23,7 @@ import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.irArrayOf
+import io.github.pshevche.spockk.compilation.ir.irListGet
 import io.github.pshevche.spockk.compilation.ir.irListOf
 import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irVar
@@ -33,7 +34,6 @@ import io.github.pshevche.spockk.compilation.ir.isSingleVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
-import io.github.pshevche.spockk.compilation.transformer.parametrization.PreviousFeatureVariablesAccessTracker.ReferencedFeatureVariable
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.fir.lazy.Fir2IrLazyPropertyForPureField
 import org.jetbrains.kotlin.ir.IrStatement
@@ -264,19 +264,20 @@ internal class WhereBlockRewriter(
   private fun IrGetValue.asFeatureVariable(): IrValueParameter =
     asFeatureVariable(feature) ?: throw exceptionFactory.invalidFeatureVariableReferenceException()
 
-  private fun getPreviousDataProcessorVariables(nextDataVariableIndex: Int): List<String> {
+  private fun getPreviousDataProcessorVariables(nextDataVariableIndex: Int): List<IrVariable> {
     if (dataProcessorVars.isEmpty()) {
       return emptyList()
     }
 
-    return dataProcessorVars.subList(0, nextDataVariableIndex - 1).map { it.name.asString() }
+    return dataProcessorVars.subList(0, nextDataVariableIndex - 1)
   }
 
   private fun getReferencedPreviousFeatureVariables(
-    previousDataProcessorVars: List<String>,
+    referenceableVariables: List<IrVariable>,
     expression: IrExpression
-  ): Set<ReferencedFeatureVariable> =
-    PreviousFeatureVariablesAccessTracker(feature, previousDataProcessorVars).check(expression)
+  ): Set<IrValueParameter> =
+    PreviousFeatureVariablesAccessTracker(feature, referenceableVariables.map { it.name.asString() }.toSet())
+      .check(expression)
 
   private fun rewriteSimpleParameterization(
     featureVariable: IrValueParameter,
@@ -294,22 +295,24 @@ internal class WhereBlockRewriter(
 
   private fun rewriteSimpleDerivedParametrization(
     featureVariable: IrValueParameter,
-    referencedFeatureVariables: Set<ReferencedFeatureVariable>,
+    referencedFeatureVariables: Set<IrValueParameter>,
     value: IrExpression
   ) {
     val dataProcessorVar = createDataProcessorVariable(featureVariable)
-    val dataProcessorVarValue = replaceFeatureVariableReferences(value, referencedFeatureVariables)
+    val featureVariableReplacement = referencedFeatureVariables.associateWith { fv ->
+      val correspondingDataProcessorVar = dataProcessorVars.first { it.name == fv.name }
+      irBuilder(dataProcessorMethod.symbol).irGet(correspondingDataProcessorVar)
+    }
+    val dataProcessorVarValue = replaceFeatureVariableReferences(value, featureVariableReplacement)
     createDataProcessorStatement(dataProcessorVar, dataProcessorVarValue)
   }
 
   private fun replaceFeatureVariableReferences(
     expression: IrExpression,
-    referencedFeatureVariables: Set<ReferencedFeatureVariable>
+    variableReplacement: Map<IrValueParameter, IrExpression>
   ): IrExpression = PreviousFeatureVariableReferenceReplacer(
     feature,
-    referencedFeatureVariables,
-    irBuilder(dataProcessorMethod.symbol),
-    dataProcessorVars
+    variableReplacement
   ).replaceReferences(expression)
 
   private fun createDataProcessorParameter(nextDataVariableIndex: Int): IrValueParameter =
@@ -359,12 +362,12 @@ internal class WhereBlockRewriter(
       }
   }
 
-  fun createPreviousDataTableParameters(dataProvider: IrFunction, previousVariables: List<String>) {
+  fun createPreviousDataTableParameters(dataProvider: IrFunction, previousVariables: List<IrVariable>) {
     previousVariables.forEach {
-      val parameterName = Name.identifier("spock_p_$it")
+      val parameterName = Name.identifier("spock_p_${it.name.asString()}")
       dataProvider.addValueParameter(
         parameterName,
-        irBuiltIns.listClass.typeWith(irBuiltIns.anyType)
+        irBuiltIns.listClass.typeWith(it.type)
       )
     }
   }
@@ -372,7 +375,7 @@ internal class WhereBlockRewriter(
   private fun createDataProviderAnnotation(
     function: IrFunction,
     nextDataVariableIndex: Int,
-    previousVariables: List<String>
+    previousVariables: List<IrVariable>
   ): IrConstructorCall {
     val dataVariables =
       dataProcessorVars.subList(nextDataVariableIndex, dataProcessorVars.size).map {
@@ -383,48 +386,53 @@ internal class WhereBlockRewriter(
         DATA_PROVIDER_METADATA_FQN,
         irInt(spec.fileEntry.getLineNumber(SYNTHETIC_OFFSET)),
         irStringArray(dataVariables),
-        irStringArray(previousVariables)
+        irStringArray(previousVariables.map { it.name.asString() })
       )
     }
   }
 
   private fun createDataProviderBody(
-    function: IrFunction,
+    dataProviderMethod: IrFunction,
     featureVariable: IrValueParameter,
     variableValues: List<IrExpression>,
-    previousVariables: List<String>
-  ): IrBody =
-    with(irBuilder(function.symbol)) {
-      if (previousVariables.isEmpty()) {
-        val dataProviderStatements = createDataProviderReturnStatement(this, featureVariable, variableValues)
-          .also { instanceFieldAccessChecker.check(it) }
-        irBlockBody {
-          +irReturn(dataProviderStatements)
-        }
-      } else {
-        // TODO: support references to previous data variables
-        val dataProviderStatements = createDataProviderReturnStatement(this, featureVariable, variableValues)
-          .also { instanceFieldAccessChecker.check(it) }
-        irBlockBody {
-          +irReturn(dataProviderStatements)
-        }
-      }
+    previousVariables: List<IrVariable>
+  ): IrBody = with(irBuilder(dataProviderMethod.symbol)) {
+    val dataProviderStatements =
+      createDataProviderReturnStatement(this, dataProviderMethod, featureVariable, variableValues, previousVariables)
+        .also { instanceFieldAccessChecker.check(it) }
+    irBlockBody {
+      +irReturn(dataProviderStatements)
     }
+  }
 
   private fun createDataProviderReturnStatement(
     builder: DeclarationIrBuilder,
+    dataProviderMethod: IrFunction,
     featureVariable: IrValueParameter,
-    variableValues: List<IrExpression>
+    variableValues: List<IrExpression>,
+    previousVariables: List<IrVariable>
   ): IrExpression {
-    val isValueSingleList = variableValues.singleOrNull()?.type?.isList() ?: false
-    if (isValueSingleList) {
-      return variableValues.single()
+    val valuesWithReplacedFeatureVariableReferences = variableValues.withIndex().map { (idx, expr) ->
+      val referencedFeatureVariables = getReferencedPreviousFeatureVariables(previousVariables, expr)
+      if (referencedFeatureVariables.isEmpty()) {
+        return@map expr
+      }
+
+      val variablesReplacement = referencedFeatureVariables.associateWith { fv ->
+        val dataProviderVar =
+          dataProviderMethod.parameters.find { it.name.asString() == "spock_p_${fv.name.asString()}" }!!
+        builder.irListGet(builder.irGet(dataProviderVar), idx)
+      }
+      return@map replaceFeatureVariableReferences(expr, variablesReplacement)
     }
 
-    return builder.irListOf(
-      featureVariable.symbol.owner.type,
-      replaceWildcardRef(unwrapImplicitCoercionToUnit(variableValues), builder)
-    )
+    val returnValues =
+      replaceWildcardRef(unwrapImplicitCoercionToUnit(valuesWithReplacedFeatureVariableReferences), builder)
+
+    return returnValues
+      .singleOrNull()
+      ?.takeIf { it.type.isList() }
+      ?: builder.irListOf(featureVariable.symbol.owner.type, returnValues)
   }
 
   private fun replaceWildcardRef(dataProviderValues: List<IrExpression>, builder: IrBuilder): List<IrExpression> =
