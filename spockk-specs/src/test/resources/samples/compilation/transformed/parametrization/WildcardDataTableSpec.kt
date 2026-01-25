@@ -60,7 +60,7 @@ class WildcardDataTableSpec : spock.lang.Specification() {
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0,
     dataVariables = ["_"],
     previousDataTableVariables = ["a"])
-  fun `$spock_feature_0_1prov1`(spock_p_a: List<Any>): Any {
+  fun `$spock_feature_0_1prov1`(spock_p_a: List<Int>): Any {
     return listOf<Any>(`_`)
   }
 

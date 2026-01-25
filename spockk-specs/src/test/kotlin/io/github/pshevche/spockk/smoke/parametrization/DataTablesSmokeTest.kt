@@ -15,6 +15,7 @@
 package io.github.pshevche.spockk.smoke.parametrization
 
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
 import spock.lang.Specification
 import kotlin.math.max
@@ -89,16 +90,16 @@ class DataTablesSmokeTest : Specification() {
     3 ; `_`
   }
 
-  //  fun `tables can be mixed with other parametrization`(a: Int, b: Int, c: Int, d: Int) {
-  //      expect
-  //      assertEquals(listOf(1, 2, 3, 4), listOf(a, b, c, d))
-  //
-  //      where
-  //    variable(a).from(1)
-  //    b ; c
-  //    2 ; 3
-  //    variable(d).from(c + 1)
-  //  }
+  fun `tables can be mixed with other parametrization`(a: Int, b: Int, c: Int, d: Int) {
+    expect
+    assertEquals(listOf(1, 2, 3, 4), listOf(a, b, c, d))
+
+    where
+    variable(a).from(1)
+    b ; c
+    2 ; 3
+    variable(d).from(c + 1)
+  }
 
   fun `cells may contain arbitrary expressions`(a: String, b: Person, c: Int) {
     expect
@@ -121,102 +122,101 @@ class DataTablesSmokeTest : Specification() {
     STATIC_FIELD ; 42
   }
 
-  //  fun `cells can reference previous cells`(a: Int, b: Int, c: Int) {
-  //      expect
-  //      assertEquals(listOf(0, 1, 2), listOf(a, b, c))
-  //
-  //      where
-  //    a ; b     ; c
-  //    0 ; a + 1 ; b + 1
-  //  }
-  //
-  //  fun `cells in a data table can refer to the current value for a column to the left (plain
-  // reference)`(
-  //    a: Int,
-  //    b: Int,
-  //    c: Int
-  //  ) {
-  //      expect
-  //      assertEquals(c, max(a, b))
-  //
-  //      where
-  //    a  ; b  ; c
-  //    10 ; 20 ; b
-  //    5  ; 3  ; a
-  //    7  ; 9  ; b
-  //    15 ; 11 ; a
-  //  }
-  //
-  //  fun `cell references are pointing to the current row`(a: Int, b: Int, c: Int) {
-  //      expect
-  //      assertEquals(1 + a * 2, b)
-  //      assertEquals(3 * b, c)
-  //
-  //      where
-  //    a ; b         ; c
-  //    0 ; 1 + a * 2 ; 3 * b
-  //    1 ; 1 + a * 2 ; 3 * b
-  //    2 ; 1 + a * 2 ; 3 * b
-  //  }
-  //
-  //  fun `cell references are evaluated correctly in the method's name (a = #a, b = #b)`(
-  //    a: Int,
-  //    b: Int
-  //  ) {
-  //      expect
-  //    true
-  //
-  //      where
-  //    a ; b
-  //    0 ; a + 1
-  //    2 ; a
-  //  }
-  //
-  //  fun `data tables can be referenced from following variables`(a: Int, b: Int, c: Int) {
-  //      expect
-  //      assertEquals(3, c)
-  //
-  //      where
-  //    a ; b
-  //    1 ; 2
-  //    1 ; a + 1
-  //
-  //    variable(c).from(b + 1)
-  //  }
-  //
+  fun `cells can reference previous cells`(a: Int, b: Int, c: Int) {
+    expect
+    assertEquals(listOf(0, 1, 2), listOf(a, b, c))
+
+    where
+    a ; b     ; c
+    0 ; a + 1 ; b + 1
+  }
+
+  fun `cells in a data table can refer to the current value for a column to the left (plain reference)`(
+    a: Int,
+    b: Int,
+    c: Int
+  ) {
+    expect
+    assertEquals(c, max(a, b))
+
+    where
+    a  ; b  ; c
+    10 ; 20 ; b
+    5  ; 3  ; a
+    7  ; 9  ; b
+    15 ; 11 ; a
+  }
+
+  fun `cell references are pointing to the current row`(a: Int, b: Int, c: Int) {
+    expect
+    assertEquals(1 + a * 2, b)
+    assertEquals(3 * b, c)
+
+    where
+    a ; b         ; c
+    0 ; 1 + a * 2 ; 3 * b
+    1 ; 1 + a * 2 ; 3 * b
+    2 ; 1 + a * 2 ; 3 * b
+  }
+
+  fun `cell references are evaluated correctly in the method's name (a = #a, b = #b)`(
+    a: Int,
+    b: Int
+  ) {
+    expect
+    assertTrue(true)
+
+    where
+    a ; b
+    0 ; a + 1
+    2 ; a
+  }
+
+  fun `data tables can be referenced from following variables`(a: Int, b: Int, c: Int) {
+    expect
+    assertEquals(3, c)
+
+    where
+    a ; b
+    1 ; 2
+    1 ; a + 1
+
+    variable(c).from(b + 1)
+  }
+
+  //  TODO pshevche: requires support for multiple data-provider blocks
   //  fun `derived data variables do not break data table previous column references`(
   //    x: Int,
   //    y: Int,
   //    z: Int,
   //    a: Int
   //  ) {
-  //      expect
-  //      assertEquals(y, z)
+  //    expect
+  //    assertEquals(y, z)
   //
-  //      where
+  //    where
   //    variable(x).from(1)
   //
-  //      and
+  //    and
   //    y ; z ; a
   //    1 ; y ; y + z
   //    2 ; y ; y + z
   //  }
-  //
-  //  fun `data pipe variables do not break data table previous column references`(
-  //    x: Int,
-  //    y: Int,
-  //    z: Int,
-  //    a: Int
-  //  ) {
-  //      expect
-  //      assertEquals(y, z)
-  //
-  //      where
-  //    variable(x).from(listOf(1, 2))
-  //
-  //      and
-  //    y ; z ; a
-  //    3 ; y ; y + z
-  //    4 ; y ; y + z
-  //  }
+
+  fun `data pipe variables do not break data table previous column references`(
+    x: Int,
+    y: Int,
+    z: Int,
+    a: Int
+  ) {
+    expect
+    assertEquals(y, z)
+
+    where
+    variable(x).from(listOf(1, 2))
+
+    y ; z ; a
+    3 ; y ; y + z
+    4 ; y ; y + z
+  }
 }

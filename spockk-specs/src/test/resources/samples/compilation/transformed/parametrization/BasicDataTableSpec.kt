@@ -24,12 +24,12 @@ class BasicDataTableSpec : spock.lang.Specification() {
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["b"], previousDataTableVariables = ["a"])
-  fun `$spock_feature_0_0prov1`(spock_p_a: List<Any>): Any {
+  fun `$spock_feature_0_0prov1`(spock_p_a: List<Int>): Any {
     return listOf<Int>(7, 1, 9)
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["c"], previousDataTableVariables = ["a", "b"])
-  fun `$spock_feature_0_0prov2`(spock_p_a: List<Any>, spock_p_b: List<Any>): Any {
+  fun `$spock_feature_0_0prov2`(spock_p_a: List<Int>, spock_p_b: List<Int>): Any {
     return listOf<Int>(7, 3, 9)
   }
 

@@ -93,11 +93,13 @@ class DataPipesSmokeTest : Specification() {
     variable(a).from(STATIC_FIELD)
   }
 
-  //  fun `pipes can reference previous variables`(a: Int, b: Int, c: Int) {
-  //    expect
-  //    assertEquals(listOf(0, 1, 2), listOf(a, b, c))
-  //
-  //    where
-  //    variables(a, b, c).from(listOf(0), listOf(a + 1), listOf(b + 1))
-  //  }
+  fun `pipes can reference previous variables`(a: Int, b: Int, c: Int) {
+    expect
+    assertEquals(listOf(0, 1, 2), listOf(a, b, c))
+
+    where
+    variable(a).from(0)
+    variable(b).from(a + 1)
+    variable(c).from(b + 1)
+  }
 }

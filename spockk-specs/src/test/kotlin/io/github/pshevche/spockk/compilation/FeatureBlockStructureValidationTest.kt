@@ -20,7 +20,6 @@ import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.test.assertContains
 import kotlin.test.assertFalse
@@ -236,34 +235,6 @@ class FeatureBlockStructureValidationTest : Specification() {
     assert(result.isSuccess())
   }
 
-  @PendingFeature(reason = "multiple data provider blocks are not yet supported")
-  fun `accepts valid block sequences (multiple data definition blocks)`() {
-    `when`
-    val result =
-      transform(
-        specWithFeatureBody(
-          """
-                fun `parameterized feature`(a: Int, b: Int, c: Int, d: Int) {
-                    io.github.pshevche.spockk.lang.expect
-                    assert(a + b + c == d)
-
-                    io.github.pshevche.spockk.lang.where
-                    a ; b
-                    1 ; 1
-
-                    io.github.pshevche.spockk.lang.and
-                    c ; d
-                    1 ; 3
-                }
-                """
-            .trimIndent()
-        )
-      )
-
-    then
-    assert(result.isSuccess())
-  }
-
   fun `accepts valid block sequences (expectation with action and data definition)`() {
     `when`
     val result =
@@ -402,7 +373,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       result.compilation.messages,
       """
         Problem with `where`
-        Details: Expected to find one of spockk blocks ['and'], but encountered 'where'
+        Details: Did not expect to find any spockk blocks, but encountered 'where'
         """
         .trimIndent()
     )

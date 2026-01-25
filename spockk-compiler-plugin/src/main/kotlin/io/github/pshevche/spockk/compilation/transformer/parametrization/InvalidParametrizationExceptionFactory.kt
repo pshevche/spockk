@@ -67,6 +67,13 @@ internal class InvalidParametrizationExceptionFactory(
       whereBlockIr
     )
 
+  fun invalidPreviousVariableReferenceInDataPipeException() =
+    CompilationException(
+      "Data pipes may reference other feature variables only if the reference is the only value (valid: 'variable(a).from(other + 1)'; invalid: 'variable(a).from(1, other)')",
+      file,
+      whereBlockIr
+    )
+
   fun invalidDataPipeSyntaxException() =
     CompilationException(
       "Data pipes must follow the 'variable(a).from(1, 2)' or 'variables(a, b).from(listOf(1, 2), listOf(2, 3))' syntax",

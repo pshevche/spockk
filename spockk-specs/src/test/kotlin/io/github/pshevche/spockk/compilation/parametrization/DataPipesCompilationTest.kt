@@ -120,4 +120,73 @@ class DataPipesCompilationTest : BaseCompilationTest() {
     expect
     assertTransformation(sampleFromResource("parametrization/MultiPipeMultiVariableSpec"))
   }
+
+  fun `reference another feature variable`() {
+    expect
+    assertTransformation(sampleFromResource("parametrization/ReferenceFeatureVariableInDataPipeSpec"))
+  }
+
+  fun `rejects data pipes referencing other variables as iteration values`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun `parameterized feature`(a: Int, b: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(b == a)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(1, 2, 3)
+                    io.github.pshevche.spockk.lang.variable(b).from(1, a, 3)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:6:5")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `where`
+        Details: Data pipes may reference other feature variables only if the reference is the only value (valid: 'variable(a).from(other + 1)'; invalid: 'variable(a).from(1, other)')
+        """
+        .trimIndent()
+    )
+  }
+
+  fun `rejects data pipes referencing other variables in multi-variables variant`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun `parameterized feature`(a: Int, b: Int, c: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(b == a)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(listOf(1, 2))
+                    io.github.pshevche.spockk.lang.variables(b, c).from(listOf(1, 2), listOf(1, a))
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(result.compilation.messages, "Spec.kt:6:5")
+    assertContains(
+      result.compilation.messages,
+      """
+        Problem with `where`
+        Details: Data pipes may reference other feature variables only if the reference is the only value (valid: 'variable(a).from(other + 1)'; invalid: 'variable(a).from(1, other)')
+        """
+        .trimIndent()
+    )
+  }
 }
