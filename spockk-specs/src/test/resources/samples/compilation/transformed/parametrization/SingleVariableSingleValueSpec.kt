@@ -21,15 +21,10 @@ class SingleVariableSingleValueSpec : spock.lang.Specification() {
     assertEquals(1, a)
   }
 
-  @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["a"], previousDataTableVariables = [])
-  fun `$spock_feature_0_0prov0`(): Any {
-    return listOf<Int>(1)
-  }
-
   @org.spockframework.runtime.model.DataProcessorMetadata(dataVariables = ["a"])
-  fun `$spock_feature_0_0proc`(spock_p0: Any): Any {
+  fun `$spock_feature_0_0proc`(): Any {
     var a: Int
-    a = (( spock_p0 ) as Int)
+    a = (( 1 ) as Int)
     return arrayOf<Any>(a)
   }
 }

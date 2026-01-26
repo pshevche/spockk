@@ -97,6 +97,8 @@ class DataTablesSmokeTest : Specification() {
 
     where
     variable(a).from(1)
+
+    and
     b ; c
     2 ; 3
     variable(d).from(c + 1)
