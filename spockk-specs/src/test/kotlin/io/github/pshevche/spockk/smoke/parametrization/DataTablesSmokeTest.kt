@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.smoke.parametrization
 
+import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
@@ -184,24 +185,23 @@ class DataTablesSmokeTest : Specification() {
     variable(c).from(b + 1)
   }
 
-  //  TODO pshevche: requires support for multiple data-provider blocks
-  //  fun `derived data variables do not break data table previous column references`(
-  //    x: Int,
-  //    y: Int,
-  //    z: Int,
-  //    a: Int
-  //  ) {
-  //    expect
-  //    assertEquals(y, z)
-  //
-  //    where
-  //    variable(x).from(1)
-  //
-  //    and
-  //    y ; z ; a
-  //    1 ; y ; y + z
-  //    2 ; y ; y + z
-  //  }
+  fun `derived data variables do not break data table previous column references`(
+    x: Int,
+    y: Int,
+    z: Int,
+    a: Int
+  ) {
+    expect
+    assertEquals(y, z)
+
+    where
+    variable(x).from(1)
+
+    and
+    y ; z ; a
+    1 ; y ; y + z
+    2 ; y ; y + z
+  }
 
   fun `data pipe variables do not break data table previous column references`(
     x: Int,

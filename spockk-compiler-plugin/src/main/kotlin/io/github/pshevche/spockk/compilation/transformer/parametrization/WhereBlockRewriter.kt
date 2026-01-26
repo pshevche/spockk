@@ -19,7 +19,6 @@ import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
-import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.irArrayOf
@@ -66,6 +65,7 @@ import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.fileEntry
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.isConstantLike
 import org.jetbrains.kotlin.name.Name
 
 /**
@@ -81,8 +81,7 @@ internal class WhereBlockRewriter(
   override val context: IrGeneratorContext,
   private val spec: IrClass,
   private val feature: IrFunction,
-  private val featureContext: SpockkTransformationContext.FeatureContext,
-  private val whereBlock: FeatureBlockStatements
+  private val featureContext: SpockkTransformationContext.FeatureContext
 ) : SpockkIrRewriter {
 
   companion object {
@@ -92,24 +91,39 @@ internal class WhereBlockRewriter(
       "org.spockframework.runtime.model.DataProcessorMetadata"
   }
 
-  private val exceptionFactory =
-    InvalidParametrizationExceptionFactory(spec.file, whereBlock.element.ir)
-  private val instanceFieldAccessChecker = InstanceFieldAccessChecker(spec.file, whereBlock.element.ir)
-  private var dataProviderCount = 0
   private val dataProcessorVars = mutableListOf<IrVariable>()
-
+  private var dataProviderCount = 0
   private lateinit var dataProcessorMethod: IrFunction
+  private lateinit var rewriteResources: SingleBlockRewriteResources
 
-  fun rewrite() {
-    dataProcessorMethod = initializeDataProcessorMethod()
+  private data class SingleBlockRewriteResources(
+    val exceptionFactory: InvalidParametrizationExceptionFactory,
+    val instanceFieldAccessChecker: InstanceFieldAccessChecker,
+    val dataProcessorVars: MutableList<IrVariable>
+  )
 
-    val stats = whereBlock.statements.listIterator()
+  fun rewrite(dataProviderBlock: FeatureBlockStatements) {
+    if (!::dataProcessorMethod.isInitialized) {
+      dataProcessorMethod = initializeDataProcessorMethod()
+    }
+    rewriteResources = createRewriteResources(dataProviderBlock)
+    val stats = dataProviderBlock.statements.listIterator()
     while (stats.hasNext()) {
       rewriteWhereStatements(stats)
     }
-
-    finalizeDataProcessorMethod()
   }
+
+  fun finalizeRewrite() {
+    if (::dataProcessorMethod.isInitialized) {
+      finalizeDataProcessorMethod()
+    }
+  }
+
+  private fun createRewriteResources(block: FeatureBlockStatements): SingleBlockRewriteResources = SingleBlockRewriteResources(
+    InvalidParametrizationExceptionFactory(spec.file, block.element.ir),
+    InstanceFieldAccessChecker(spec.file, block.element.ir),
+    mutableListOf()
+  )
 
   private fun rewriteWhereStatements(stats: ListIterator<IrStatement>) {
     val stat = stats.next()
@@ -127,7 +141,7 @@ internal class WhereBlockRewriter(
       return
     }
 
-    throw exceptionFactory.unrecognizedParameterizationSyntaxException()
+    throw rewriteResources.exceptionFactory.unrecognizedParameterizationSyntaxException()
   }
 
   private fun getExpressionChain(stats: ListIterator<IrStatement>): List<IrStatement> {
@@ -151,13 +165,14 @@ internal class WhereBlockRewriter(
 
   private fun rewriteDataPipeLikeParameterization(stats: ListIterator<IrStatement>) {
     val stat = stats.next() as IrCall
-    val variablesCall = (stat.arguments.first()!! as? IrCall) ?: throw exceptionFactory.invalidDataPipeTargetException()
+    val variablesCall =
+      (stat.arguments.first()!! as? IrCall) ?: throw rewriteResources.exceptionFactory.invalidDataPipeTargetException()
     if (variablesCall.isSingleVariableInitializer()) {
       rewriteDataPipeForSingleVariable(variablesCall, stat)
     } else if (variablesCall.isMultiVariableInitializer()) {
       rewriteDataPipeForMultipleVariables(variablesCall, stat)
     } else {
-      throw exceptionFactory.invalidDataPipeSyntaxException()
+      throw rewriteResources.exceptionFactory.invalidDataPipeSyntaxException()
     }
   }
 
@@ -168,12 +183,20 @@ internal class WhereBlockRewriter(
     val featureVariable = getFeatureVariablesDefinedInDataPipe(variablesCall).single()
     val values = stat.arguments.last()!!
     val referencedFeatureVariables =
-      getReferencedPreviousFeatureVariables(getPreviousDataProcessorVariables(dataProcessorVars.size + 1), values)
+      getReferencedPreviousFeatureVariables(
+        getPreviousDataProcessorVariables(rewriteResources.dataProcessorVars.size + 1),
+        values
+      )
     if (referencedFeatureVariables.isEmpty()) {
-      rewriteSimpleParameterization(featureVariable, listOf(values))
+      if (values.isConstantLike) {
+        // don't create a data provider in this case and just set the value directly in the data processor
+        rewriteSimpleDerivedParametrization(featureVariable, referencedFeatureVariables, values)
+      } else {
+        rewriteSimpleParameterization(featureVariable, listOf(values))
+      }
     } else {
       if (values.type.isList() || values.type.isArray()) {
-        throw exceptionFactory.invalidPreviousVariableReferenceInDataPipeException()
+        throw rewriteResources.exceptionFactory.invalidPreviousVariableReferenceInDataPipeException()
       }
       rewriteSimpleDerivedParametrization(featureVariable, referencedFeatureVariables, values)
     }
@@ -187,12 +210,12 @@ internal class WhereBlockRewriter(
     val values = stat.arguments.drop(1)
     val hasFeatureVariableReferences = values.any {
       getReferencedPreviousFeatureVariables(
-        getPreviousDataProcessorVariables(dataProcessorVars.size + 1),
+        getPreviousDataProcessorVariables(rewriteResources.dataProcessorVars.size + 1),
         it!!
       ).isNotEmpty()
     }
     if (hasFeatureVariableReferences) {
-      throw exceptionFactory.invalidPreviousVariableReferenceInDataPipeException()
+      throw rewriteResources.exceptionFactory.invalidPreviousVariableReferenceInDataPipeException()
     }
     featureVariables.zip(values).forEach { (featureVariable, value) ->
       rewriteSimpleParameterization(featureVariable, listOf(value!!))
@@ -202,7 +225,7 @@ internal class WhereBlockRewriter(
   private fun getFeatureVariablesDefinedInDataPipe(variablesCall: IrCall): List<IrValueParameter> =
     variablesCall.arguments.map {
       (it as? IrGetValue)?.asFeatureVariable()
-        ?: throw exceptionFactory.invalidDataPipeTargetException()
+        ?: throw rewriteResources.exceptionFactory.invalidDataPipeTargetException()
     }
 
   private fun rewriteExpressionTableLikeParameterization(stats: ListIterator<IrStatement>) {
@@ -218,14 +241,14 @@ internal class WhereBlockRewriter(
       }
 
       if (rows.isNotEmpty() && rows.last().size != row.size) {
-        throw exceptionFactory.invalidRowSizeException(rows.size + 1, row.size, rows.last().size)
+        throw rewriteResources.exceptionFactory.invalidRowSizeException(rows.size + 1, row.size, rows.last().size)
       }
 
       rows.add(row)
     }
 
     if (rows.size == 1) {
-      throw exceptionFactory.missingValuesRowsException()
+      throw rewriteResources.exceptionFactory.missingValuesRowsException()
     }
 
     transposeRowsToColumns(rows).forEach { turnIntoSimpleParameterization(it) }
@@ -259,17 +282,17 @@ internal class WhereBlockRewriter(
   private fun IrStatement.asDataTableVariable(): IrValueParameter = (this as? IrTypeOperatorCall)
     ?.argument
     ?.let { it as? IrGetValue }
-    ?.asFeatureVariable() ?: throw exceptionFactory.invalidDataTableHeaderException()
+    ?.asFeatureVariable() ?: throw rewriteResources.exceptionFactory.invalidDataTableHeaderException()
 
   private fun IrGetValue.asFeatureVariable(): IrValueParameter =
-    asFeatureVariable(feature) ?: throw exceptionFactory.invalidFeatureVariableReferenceException()
+    asFeatureVariable(feature) ?: throw rewriteResources.exceptionFactory.invalidFeatureVariableReferenceException()
 
   private fun getPreviousDataProcessorVariables(nextDataVariableIndex: Int): List<IrVariable> {
-    if (dataProcessorVars.isEmpty()) {
+    if (rewriteResources.dataProcessorVars.isEmpty()) {
       return emptyList()
     }
 
-    return dataProcessorVars.subList(0, nextDataVariableIndex - 1)
+    return rewriteResources.dataProcessorVars.subList(0, nextDataVariableIndex - 1)
   }
 
   private fun getReferencedPreviousFeatureVariables(
@@ -283,7 +306,7 @@ internal class WhereBlockRewriter(
     featureVariable: IrValueParameter,
     variableValues: List<IrExpression>
   ) {
-    val nextDataVariableIndex = dataProcessorMethod.assignableParameters().size
+    val nextDataVariableIndex = rewriteResources.dataProcessorVars.size
     val dataProcessorParameter = createDataProcessorParameter(nextDataVariableIndex)
     val dataProcessorVar = createDataProcessorVariable(featureVariable)
     createDataProcessorStatement(
@@ -300,7 +323,7 @@ internal class WhereBlockRewriter(
   ) {
     val dataProcessorVar = createDataProcessorVariable(featureVariable)
     val featureVariableReplacement = referencedFeatureVariables.associateWith { fv ->
-      val correspondingDataProcessorVar = dataProcessorVars.first { it.name == fv.name }
+      val correspondingDataProcessorVar = rewriteResources.dataProcessorVars.first { it.name == fv.name }
       irBuilder(dataProcessorMethod.symbol).irGet(correspondingDataProcessorVar)
     }
     val dataProcessorVarValue = replaceFeatureVariableReferences(value, featureVariableReplacement)
@@ -324,7 +347,10 @@ internal class WhereBlockRewriter(
   private fun createDataProcessorVariable(featureVariable: IrValueParameter): IrVariable =
     irVar(featureVariable.name, featureVariable.type)
       .apply { parent = dataProcessorMethod }
-      .also { dataProcessorVars.add(it) }
+      .also {
+        dataProcessorVars.add(it)
+        rewriteResources.dataProcessorVars.add(it)
+      }
 
   private fun createDataProcessorStatement(
     dataProcessorVar: IrVariable,
@@ -335,7 +361,7 @@ internal class WhereBlockRewriter(
         add(dataProcessorVar)
         add(irSet(dataProcessorVar.symbol, irAs(dataProcessorVarValue, dataProcessorVar.type)))
       }.also {
-        instanceFieldAccessChecker.check(it)
+        rewriteResources.instanceFieldAccessChecker.check(it)
       }
       dataProcessorMethod.mutableStatements()?.addAll(dataProcessorStats)
     }
@@ -346,7 +372,7 @@ internal class WhereBlockRewriter(
     variableValues: List<IrExpression>,
     nextDataVariableIndex: Int
   ) {
-    val previousVariables = getPreviousDataProcessorVariables(dataProcessorVars.size)
+    val previousVariables = getPreviousDataProcessorVariables(rewriteResources.dataProcessorVars.size)
     spec
       .addMemberFunction(
         InternalIdentifiers.getDataProviderName(featureContext, dataProviderCount++),
@@ -378,7 +404,7 @@ internal class WhereBlockRewriter(
     previousVariables: List<IrVariable>
   ): IrConstructorCall {
     val dataVariables =
-      dataProcessorVars.subList(nextDataVariableIndex, dataProcessorVars.size).map {
+      rewriteResources.dataProcessorVars.subList(nextDataVariableIndex, rewriteResources.dataProcessorVars.size).map {
         it.name.asString()
       }
     return with(irBuilder(function.symbol)) {
@@ -399,7 +425,7 @@ internal class WhereBlockRewriter(
   ): IrBody = with(irBuilder(dataProviderMethod.symbol)) {
     val dataProviderStatements =
       createDataProviderReturnStatement(this, dataProviderMethod, featureVariable, variableValues, previousVariables)
-        .also { instanceFieldAccessChecker.check(it) }
+        .also { rewriteResources.instanceFieldAccessChecker.check(it) }
     irBlockBody {
       +irReturn(dataProviderStatements)
     }
