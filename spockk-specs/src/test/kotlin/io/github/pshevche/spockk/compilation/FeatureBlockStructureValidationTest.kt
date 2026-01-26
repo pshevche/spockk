@@ -292,7 +292,6 @@ class FeatureBlockStructureValidationTest : Specification() {
 
     then
     assert(result.isSuccess())
-    println(result.irDump)
   }
 
   fun `discards invalid block sequences (precondition with missing expectation)`() {
