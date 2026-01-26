@@ -87,10 +87,13 @@ internal class ValidatingFeatureBlockCollector(
     },
     DATA_DEFINITION {
       override val validBlocks: List<FeatureBlockLabel>
-        get() = emptyList()
+        get() = listOf(FeatureBlockLabel.AND)
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
-        failOnInvalidBlock(block)
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
+          else -> failOnInvalidBlock(block)
+        }
     };
 
     abstract val validBlocks: List<FeatureBlockLabel>

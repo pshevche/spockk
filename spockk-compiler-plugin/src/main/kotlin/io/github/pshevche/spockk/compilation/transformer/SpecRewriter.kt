@@ -42,9 +42,11 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
 
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {
     context.features.forEach { (feature, featureContext) ->
+      val rewriter = WhereBlockRewriter(this.context, spec, feature, featureContext)
       featureContext.dataProviderBlocks.forEach {
-        WhereBlockRewriter(this.context, spec, feature, featureContext, it).rewrite()
+        rewriter.rewrite(it)
       }
+      rewriter.finalizeRewrite()
     }
   }
 

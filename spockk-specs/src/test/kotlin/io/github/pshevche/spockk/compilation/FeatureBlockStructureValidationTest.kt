@@ -262,6 +262,38 @@ class FeatureBlockStructureValidationTest : Specification() {
     assert(result.isSuccess())
   }
 
+  fun `accepts valid block sequences (expectation with multiple data definitions)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun `parameterized feature`(
+                  x: Int,
+                  y: Int,
+                  z: Int,
+                  a: Int
+                ) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(y == z)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(x).from(1)
+
+                    io.github.pshevche.spockk.lang.and
+                    y ; z ; a
+                    1 ; y ; y + z
+                    2 ; y ; y + z
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assert(result.isSuccess())
+  }
+
   fun `discards invalid block sequences (precondition with missing expectation)`() {
     `when`
     val result =
@@ -373,7 +405,7 @@ class FeatureBlockStructureValidationTest : Specification() {
       result.compilation.messages,
       """
         Problem with `where`
-        Details: Did not expect to find any spockk blocks, but encountered 'where'
+        Details: Expected to find one of spockk blocks ['and'], but encountered 'where'
         """
         .trimIndent()
     )
