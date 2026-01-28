@@ -1,5 +1,13 @@
 == Changelog
 
+=== v0.2.0
+
+- [Core] Added support for data-driven features
+- [Core] Introduced experimental support for Spock extensions
+- [Core] Added support for Kotlin 2.3.0
+- [IntelliJ Plugin] Added syntax support for Spock’s data-driven features
+- [IntelliJ Plugin] Integrated with Spock’s native IntelliJ plugin
+
 === v0.1.0
 
 - [Core] Implement rich BDD-style syntax for defining test features
