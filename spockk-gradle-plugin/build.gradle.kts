@@ -28,7 +28,6 @@ val isFork = System.getenv("IS_FORK") == "true"
 
 if (isCI && !isFork) {
   signing {
-    isRequired = true
     useInMemoryPgpKeys(
       System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyId"),
       System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKey"),
