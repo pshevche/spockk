@@ -26,11 +26,13 @@ gradlePlugin {
 val isCI = System.getenv("CI") != null
 val isFork = System.getenv("IS_FORK") == "true"
 
-signing {
-  isRequired = isCI && !isFork
-  useInMemoryPgpKeys(
-    System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyId"),
-    System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKey"),
-    System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword")
-  )
+if (isCI && !isFork) {
+  signing {
+    isRequired = true
+    useInMemoryPgpKeys(
+      System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyId"),
+      System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKey"),
+      System.getenv("ORG_GRADLE_PROJECT_signingInMemoryKeyPassword")
+    )
+  }
 }
