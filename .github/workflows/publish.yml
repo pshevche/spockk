@@ -57,8 +57,7 @@ jobs:
           GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PLUGIN_PUBLISH_SECRET }}
 
       - name: Publish IntelliJ plugin
-        # TODO enable automatic publication after the first release
-        if: ${{ github.event.inputs.component == 'spockk-intellij-plugin' }}
+        if: ${{ github.event.inputs.component == 'spockk-intellij-plugin' || github.event.inputs.component == 'all' }}
         run: ./gradlew :spockk-intellij-plugin:publishPlugin
         env:
           ORG_GRADLE_PROJECT_jetbrainsMarketplaceToken: ${{ secrets.JETBRAINS_MARKETPLACE_TOKEN }}
