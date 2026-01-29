@@ -1,4 +1,4 @@
 <ul>
-    <li>[NEW] Detect Spockk syntax in test sources</li>
-    <li>[NEW] Execute Spockk tests with Gradle from IDE</li>
+    <li>[NEW] Support syntax for Spockk's data-driven features</li>
+    <li>[NEW] Integrate with Spock's native IntelliJ plugin</li>
 </ul>

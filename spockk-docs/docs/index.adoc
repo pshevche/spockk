@@ -9,4 +9,6 @@ include::getting_started.adoc[]
 
 include::writing_tests.adoc[]
 
+include::data_driven_testing.adoc[]
+
 include::changelog.adoc[]
