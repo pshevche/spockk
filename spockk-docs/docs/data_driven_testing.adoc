@@ -10,7 +10,7 @@ Data tables are a convenient way to exercise a feature method with a fixed set o
 
 [source,kotlin,indent=0]
 ----
-class MathDataTableSpec : Specification() {
+class MathSpec : Specification() {
   fun `maximum of two numbers`(a: Int, b: Int, c: Int) {
     expect
     assertEquals(c, max(a, b))

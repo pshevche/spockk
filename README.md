@@ -12,26 +12,25 @@ that brings its expressive BDD-style syntax for Groovy to Kotlin.
 ## Sneak peek
 
 ```kotlin
-import io.github.pshevche.spockk.lang.and
-import io.github.pshevche.spockk.lang.given
-import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.then
-
+import io.github.pshevche.spockk.lang.`when`
+import io.github.pshevche.spockk.lang.where
 import spock.lang.Specification
+import kotlin.test.assertEquals
 
-class MyFirstSpecification : Specification() {
-    fun `adding an element to a list`() {
-        given
-        val myList = mutableListOf<Int>()
-
+class MathTest : Specification() {
+    fun `sum of two numbers`(a: Int, b: Int, expectedSum: Int) {
         `when`
-        myList.add(1)
-
-        and
-        myList.add(2)
+        val sum = a + b
 
         then
-        assert(myList.size == 2)
+        assertEquals(expectedSum, sum)
+
+        where
+        a ; b ; expectedSum
+        1 ; 3 ; 4
+        7 ; 4 ; 11
+        0 ; 0 ; 0
     }
 }
 ```
