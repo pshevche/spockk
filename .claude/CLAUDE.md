@@ -71,6 +71,11 @@ When writing or modifying Kotlin IR transformations in `spockk-compiler-plugin`:
 - **GitHub Pages**: spockk-docs
 - Version defined in `gradle.properties` (currently `0.2.0`)
 
+## Git Conventions
+
+- **Commit messages**: Use [Conventional Commits](https://www.conventionalcommits.org/) — e.g., `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
+- **Branch naming**: `<username>/<short-description>` where `<username>` is the `$USER` environment variable (e.g., `pshevche/configure-claude`)
+
 ## CI
 
 - GitHub Actions: `verify.yml` (push/PR to main), `publish.yml` (manual dispatch)
