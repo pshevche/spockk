@@ -1,0 +1,204 @@
+= Spec Field Handling in Spock
+
+== Example
+
+=== Before (what the developer writes)
+
+[source,groovy]
+----
+class MySpec extends Specification {
+  def instanceField = "hello"
+  def uninitializedField
+  @Shared def sharedField = 42
+  @Shared def uninitializedSharedField
+  final answer = 42
+  @Shared final sharedAnswer = 42
+  static staticField = "static"
+  static uninitializedStaticField
+
+  def "feature one"() {
+    expect:
+    instanceField == "hello"
+    sharedField == 42
+  }
+}
+----
+
+=== After (what Spock transforms it into)
+
+[source,groovy]
+----
+class MySpec extends Specification {
+  // Instance field with initializer: initializer moved to $spock_initializeFields()
+  @FieldMetadata(name = 'instanceField', ordinal = 0, line = 2, initializer = true)
+  private Object instanceField
+
+  // Instance field without initializer: no initializer to move, just annotated
+  @FieldMetadata(name = 'uninitializedField', ordinal = 1, line = 3, initializer = false)
+  private Object uninitializedField
+
+  // Final field: renamed to internal name, getter generated, made non-final
+  @FieldMetadata(name = 'answer', ordinal = 2, line = 6, initializer = true)
+  private Object $spock_finalField_answer
+
+  Object getAnswer() { return $spock_finalField_answer }
+
+  // Shared field with initializer: renamed, made protected volatile, getter/setter generated
+  @FieldMetadata(name = 'sharedField', ordinal = 3, line = 4, initializer = true)
+  protected volatile Object $spock_sharedField_sharedField
+
+  Object getSharedField() { return this.specificationContext.sharedInstance.$spock_sharedField_sharedField }
+  void setSharedField(Object $spock_value) { this.specificationContext.sharedInstance.$spock_sharedField_sharedField = $spock_value }
+
+  // Shared field without initializer: still renamed and accessors generated, but no initializer moved
+  @FieldMetadata(name = 'uninitializedSharedField', ordinal = 4, line = 5, initializer = false)
+  protected volatile Object $spock_sharedField_uninitializedSharedField
+
+  Object getUninitializedSharedField() { return this.specificationContext.sharedInstance.$spock_sharedField_uninitializedSharedField }
+  void setUninitializedSharedField(Object $spock_value) { this.specificationContext.sharedInstance.$spock_sharedField_uninitializedSharedField = $spock_value }
+
+  // Shared final field: same as shared, plus getter only (no setter)
+  @FieldMetadata(name = 'sharedAnswer', ordinal = 5, line = 7, initializer = true)
+  protected volatile Object $spock_sharedField_sharedAnswer
+
+  Object getSharedAnswer() { return this.specificationContext.sharedInstance.$spock_sharedField_sharedAnswer }
+
+  // Static fields: completely ignored by Spock's field transformations.
+  // SpecParser.visitField() returns early for static fields (gField.isStatic()),
+  // so they receive no @FieldMetadata, no renaming, and no initializer movement.
+  // They remain plain JVM static fields, initialized by the class's <clinit>.
+  static staticField = "static"
+  static uninitializedStaticField
+
+  // Instance field initializers moved here (called per iteration)
+  private Object $spock_initializeFields() {
+    instanceField = "hello"
+    $spock_finalField_answer = 42
+  }
+
+  // Shared field initializers moved here (called once per spec run)
+  private Object $spock_initializeSharedFields() {
+    $spock_sharedField_sharedField = 42
+    $spock_sharedField_sharedAnswer = 42
+  }
+}
+----
+
+== Explanation
+
+Spock performs several categories of field transformations at compile time, all in `SpecRewriter.visitField()`. Static fields and non-initialized fields are notable for what Spock _does not_ do to them:
+
+=== Instance field initializer movement
+
+*What:* All instance field initializers are removed from the field declaration and moved into a synthetic `$spock_initializeFields()` method. The order of initialization statements matches the original declaration order.
+
+*Why:* Spock creates a *new spec instance per feature iteration* (via `PlatformSpecRunner.createSpecInstance(context, false)` in `IterationNode.prepare()`). Moving initializers to a synthetic method allows the Spock runtime to control exactly when initialization runs -- after the instance is created but before `setup()`. The execution order per iteration is:
+
+. `createSpecInstance()` -- new instance created via `newInstance()`
+. `$spock_initializeFields()` -- via `runInitializer()` (walks the spec hierarchy bottom-up)
+. `setup()` -- via `runSetup()` (walks the spec hierarchy top-down)
+. Feature method execution
+. `cleanup()` -- via `runCleanup()` (walks the spec hierarchy bottom-up)
+
+*Implementation:* `SpecRewriter.handleNonSharedField()` calls `moveInitializer(field, getInitializerMethod(), fieldInitializerCount++)`, which creates a `FieldInitializationExpression` (an assignment `field = initialExpr`) and adds it to the first block of the `$spock_initializeFields()` method. The method is lazily created by `getInitializerMethod()`.
+
+*Key detail:* The initializer method is `ACC_PRIVATE | ACC_SYNTHETIC` so that each level in the spec hierarchy has its own independent initializer method. The runtime calls them recursively via `doRunInitializer()` which walks `spec.getSuperSpec()`.
+
+=== Shared field transformation (`@Shared`)
+
+*What:* `@Shared` fields undergo five transformations:
+
+. *Rename*: Internal name changed to `$spock_sharedField_<originalName>` (via `InternalIdentifiers.getSharedFieldName()`)
+. *Accessor generation*: A getter (and setter if non-final) are generated. These accessors route through `specificationContext.getSharedInstance()` -- they read/write the field on the shared instance, not the current instance.
+. *Initializer movement*: Initializer moved to `$spock_initializeSharedFields()` (called once per spec run, not per iteration)
+. *Visibility change*: Made `protected volatile` (protected for subclass access, volatile for thread safety)
+. *Final removal*: `final` modifier removed
+
+*Why:* Spock uses a two-instance model:
+
+* One *shared instance* created once per spec class (in `SpecNode.prepare()` via `runSharedSpec()`)
+* One *per-iteration instance* created per feature method invocation (in `IterationNode.prepare()`)
+
+`@Shared` fields must survive across all iterations and features. The shared instance holds the actual values; the getter/setter on per-iteration instances delegate to the shared instance via `specificationContext.getSharedInstance()`.
+
+*Runtime lifecycle for shared fields:*
+
+. `createSpecInstance(context, true)` -- shared instance created
+. `$spock_initializeSharedFields()` -- via `runSharedInitializer()`
+. `setupSpec()` -- via `runSetupSpec()`
+. (features execute, each getting new instances that delegate to shared instance)
+. `cleanupSpec()` -- via `runCleanupSpec()`
+
+*Important:* Shared fields are NOT truly static. They are re-initialized on each spec run (unlike static fields, which persist across runs). The test `SharedVsStaticFields` explicitly verifies this distinction.
+
+=== Final field transformation
+
+*What:* Non-shared `final` fields:
+
+. Renamed to `$spock_finalField_<originalName>`
+. Getter generated (using the original name)
+. `final` modifier removed
+. Initializer moved to `$spock_initializeFields()`
+
+*Why:* Removing `final` is necessary because Spock moves the initializer out of the constructor into the synthetic initializer method. A `final` field can only be set in a constructor or field initializer in JVM bytecode, so Spock must remove the modifier to allow assignment in the synthetic method. The getter preserves the original property-like access semantics.
+
+=== Static fields
+
+*What:* Static fields are completely ignored by Spock's field transformation pipeline. `SpecParser.visitField()` returns early with `if (gField.isStatic()) return;`, so static fields never enter the Spock model at all.
+
+*Consequence:* Static fields receive no `@FieldMetadata` annotation, no renaming, and no initializer movement. They remain plain JVM static fields initialized by the class's `<clinit>`. Unlike `@Shared` fields, static fields persist across spec runs (the JVM only loads the class once). The test `SharedVsStaticFields` explicitly demonstrates this difference: a `@Shared` field is re-initialized on each spec run, while a static field retains its value across runs, which can cause test failures if tests mutate it.
+
+=== Non-initialized fields
+
+*What:* Fields without an initializer expression are still processed by Spock, but no initializer is moved since there is nothing to move.
+
+* *Non-shared, non-final:* Gets `@FieldMetadata` with `initializer = false`. No entry in `$spock_initializeFields()`. The field retains its JVM default value (`null`, `0`, `false`).
+* *Non-shared, final:* Spock reports a compilation error: `"Final field '%s' is not initialized."` (in `handleNonSharedField()`).
+* *Shared, non-final:* Still renamed, made `protected volatile`, and gets getter/setter generated -- but no entry in `$spock_initializeSharedFields()`. The field retains its JVM default value on the shared instance.
+* *Shared, final:* Spock reports a compilation error: `"@Shared final field '%s' is not initialized."` (in `moveSharedFieldInitializer()`).
+
+=== Field metadata annotation
+
+All fields get a `@FieldMetadata` annotation (added by `SpecAnnotator.addFieldMetadata()`) containing:
+
+* `name`: original field name (before any renaming)
+* `ordinal`: declaration order
+* `line`: source line number
+* `initializer`: whether the field had an initial value expression
+
+This metadata is used at runtime by `SpecInfoBuilder.buildFields()` to reconstruct the field model.
+
+=== Field access restrictions
+
+`InstanceFieldAccessChecker` enforces that only `@Shared` and static fields can be accessed from:
+
+* `setupSpec()` / `cleanupSpec()` methods (checked in `SpecRewriter.checkFieldAccessInFixtureMethod()`)
+* `where` blocks (checked in `WhereBlockRewriter` at data provider creation, data processor creation, and filter block creation)
+
+This is because these contexts execute in the shared instance context, where per-iteration instance fields don't have meaningful values.
+
+== References
+
+=== Source files
+
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/compiler/SpecRewriter.java[`SpecRewriter.java`] -- main field transformation logic (`visitField()`, `handleSharedField()`, `handleNonSharedField()`, `moveInitializer()`)
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/compiler/SpecParser.java[`SpecParser.java`] -- parses fields, detects `@Shared` annotation
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/compiler/SpecAnnotator.java[`SpecAnnotator.java`] -- adds `@FieldMetadata` annotations
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/compiler/model/Field.java[`Field.java`] -- compile-time field model
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/compiler/FieldInitializationExpression.java[`FieldInitializationExpression.java`] -- marker expression type for moved field initializers
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/compiler/InstanceFieldAccessChecker.java[`InstanceFieldAccessChecker.java`] -- validates field access in `setupSpec`/`cleanupSpec`/`where` blocks
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/util/InternalIdentifiers.java[`InternalIdentifiers.java`] -- naming conventions (`$spock_initializeFields`, `$spock_sharedField_*`, `$spock_finalField_*`)
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/runtime/PlatformSpecRunner.java[`PlatformSpecRunner.java`] -- runtime execution of initializer/shared initializer methods, instance creation
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/runtime/SpecNode.java[`SpecNode.java`] -- JUnit Platform integration; calls `runSharedSpec()`, `runSetupSpec()`, `runCleanupSpec()`
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/runtime/IterationNode.java[`IterationNode.java`] -- per-iteration instance creation, `runInitializer()`, `runSetup()`, `runCleanup()`
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/runtime/model/FieldInfo.java[`FieldInfo.java`] -- runtime field model
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/runtime/SpecInfoBuilder.java[`SpecInfoBuilder.java`] -- builds runtime model from `@FieldMetadata` annotations, discovers `$spock_initializeFields`/`$spock_initializeSharedFields`
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/runtime/SpecificationContext.java[`SpecificationContext.java`] -- holds `sharedInstance` reference used by shared field accessors
+* https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/spock/lang/Specification.java[`Specification.java`] -- base class with `specificationContext` field
+
+=== Tests
+
+* https://github.com/spockframework/spock/blob/master/spock-specs/src/test/groovy/org/spockframework/smoke/SharedFields.groovy[`SharedFields.groovy`] -- shared field access from subclass, `$`-prefixed names, getter/setter type compatibility with interfaces
+* https://github.com/spockframework/spock/blob/master/spock-specs/src/test/groovy/org/spockframework/smoke/SharedVsStaticFields.groovy[`SharedVsStaticFields.groovy`] -- verifies shared fields are re-initialized between spec runs (unlike static fields)
+* https://github.com/spockframework/spock/blob/master/spock-specs/src/test/groovy/org/spockframework/smoke/SharedFieldsInSuperclass.groovy[`SharedFieldsInSuperclass.groovy`] -- verifies shared fields with different visibility modifiers are accessible from subclasses
+* https://github.com/spockframework/spock/blob/master/spock-specs/src/test/resources/snapshots/org/spockframework/smoke/ast/AstSpec/astToSourceSpecBody_renders_only_methods__fields__properties__object_initializers_and_their_annotation_by_default.groovy[AST snapshot test] -- shows `@FieldMetadata` annotation and `$spock_initializeFields` for a simple field
