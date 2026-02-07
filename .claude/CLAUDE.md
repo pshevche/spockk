@@ -40,12 +40,28 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 - **License headers**: Apache 2.0 on all source files (`gradle/config/licenseHeader.txt`)
 - **Line endings**: LF, with final newline
 
+## IR Transformations
+
+When writing or modifying Kotlin IR transformations in `spockk-compiler-plugin`:
+
+- **Prefer `DeclarationIrBuilder` extension functions** over raw `IrFactory` or `Ir*Impl` constructors. The project's `DeclarationIrBuilder.kt` (`spockk-compiler-plugin/.../compilation/ir/DeclarationIrBuilder.kt`) provides helpers like `irAnnotation()`, `irListOf()`, `irArrayOf()`, `irVar()`, `irVal()`, `irEnumValue()`, etc. Use these instead of manually constructing IR nodes.
+- **Implement the `SpockkIrRewriter` interface** for new rewriters. It provides `context: IrGeneratorContext` and `irBuilder(owner)` factory method.
+- **Extend `BaseSpockkIrElementTransformer`** when writing visitor-based transformers that need `currentIrClass`/`currentIrFunction` access.
+- **Follow the composition pattern**: `SpockkIrTransformer` delegates to `SpecRewriter`/`FeatureRewriter`, which in turn delegate to specialized rewriters like `WhereBlockRewriter`. Prefer composing rewriters over deep inheritance.
+
 ## Testing
 
 - Tests live in `spockk-specs/src/test/kotlin/`, organized by type: `compilation/`, `e2e/`, `runtime/`, `smoke/`
 - Test fixtures in `spockk-specs/src/testFixtures/`
 - Uses Kotlin power-assert for enhanced assertion messages
 - Parallel execution enabled (half available processors)
+
+### Testing conventions
+
+- **Transformation correctness → snapshot tests**: Create a source/transformed file pair under `spockk-specs/src/test/resources/samples/compilation/source/` and `transformed/`. Use `TransformationSample.sampleFromResource("FileName")` and `assertTransformation()` from `BaseCompilationTest`. This compiles the source with the Spockk plugin and the expected file without it, then compares IR dumps.
+- **Error scenarios → inline specs**: Use `TestDataFactory.specWithFeatureBody()` or `specWithBody()` to define the spec inline in the test. Call `transform()` and assert `result.isSuccess()` is false and `result.compilation.messages` contains expected error text.
+- **Runtime behavior → smoke tests**: Write actual Spockk specs in `smoke/` that exercise the feature end-to-end. These are real specs that run via the Spock test engine.
+- **Test discovery/execution → engine tests**: Use `EngineTestKitUtils.execute()` with JUnit Platform selectors in `runtime/` tests.
 
 ## Publishing
 
