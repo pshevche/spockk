@@ -56,9 +56,9 @@ class FieldHandlingCompilationTest : BaseCompilationTest() {
     assertTransformation(sampleFromResource("fields/SharedLateinitVarField"))
   }
 
-  fun `ignores static field`() {
+  fun `ignores static fields`() {
     expect
-    assertTransformation(sampleFromResource("fields/StaticField"))
+    assertTransformation(sampleFromResource("fields/StaticFields"))
   }
 
   @PendingFeature

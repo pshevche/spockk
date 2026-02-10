@@ -22,7 +22,9 @@ interface HasValueProperty {
   var value: String
 }
 
-class SharedFieldTypeCompatibility : Specification(), HasValueProperty {
+class SharedFieldTypeCompatibility :
+  Specification(),
+  HasValueProperty {
   @Shared override var value = "1"
 
   fun `feature`() {

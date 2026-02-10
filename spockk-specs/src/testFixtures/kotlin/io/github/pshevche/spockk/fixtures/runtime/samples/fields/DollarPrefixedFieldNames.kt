@@ -12,6 +12,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("PropertyName")
+
 package io.github.pshevche.spockk.fixtures.runtime.samples.fields
 
 import io.github.pshevche.spockk.lang.expect
