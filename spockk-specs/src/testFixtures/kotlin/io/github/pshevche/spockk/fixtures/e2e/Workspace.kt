@@ -33,9 +33,15 @@ class Workspace {
   private val buildFile = projectDir.resolve("build.gradle.kts").toFile()
   private val sourcesDir = projectDir.resolve("src/test/kotlin").toFile()
 
-  fun setup(kotlinVersion: String = System.getProperty("spockk.kotlinVersion")) {
+  fun setup(
+    kotlinVersion: String = System.getProperty("spockk.kotlinVersion"),
+    jdkVersion: Int? = null
+  ) {
     configureRepositories()
     applyPlugins(kotlinVersion)
+    if (jdkVersion != null) {
+      configureJdkToolchain(jdkVersion)
+    }
     configureTestTasks()
   }
 
@@ -90,6 +96,20 @@ class Workspace {
             plugins {
                 kotlin("jvm") version "$kotlinVersion"
                 id("io.github.pshevche.spockk") version "latest.integration"
+            }
+            """
+        .trimIndent()
+    )
+  }
+
+  private fun configureJdkToolchain(jdkVersion: Int) {
+    buildFile.appendText(
+      """
+
+            java {
+                toolchain {
+                    languageVersion = JavaLanguageVersion.of($jdkVersion)
+                }
             }
             """
         .trimIndent()

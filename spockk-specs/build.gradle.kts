@@ -40,6 +40,10 @@ tasks.test {
   systemProperty("spockk.kotlinVersion", libs.versions.kotlin.get())
   systemProperty("spockk.spockVersion", libs.versions.spock.get())
 
+  // JDK paths for cross-version testing
+  systemProperty("spockk.jdk21", System.getenv("JDK21") ?: "")
+  systemProperty("spockk.jdk25", System.getenv("JDK25") ?: "")
+
   jvmArgs(
     "-XX:+EnableDynamicAgentLoading" // To disable warning about byte-buddy-agent
   )

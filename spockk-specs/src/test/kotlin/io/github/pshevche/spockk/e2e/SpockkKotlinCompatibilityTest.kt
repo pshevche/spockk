@@ -27,11 +27,16 @@ import kotlin.test.assertEquals
 
 class SpockkKotlinCompatibilityTest : Specification() {
 
+  data class KotlinAndJdkVersions(
+    val kotlinVersion: String,
+    val jdkVersion: Int
+  )
+
   val workspace = Workspace()
 
-  fun `supports Kotlin #kotlinVersion`(kotlinVersion: String) {
+  fun `supports #versions`(versions: KotlinAndJdkVersions) {
     given
-    workspace.setup(kotlinVersion)
+    workspace.setup(versions.kotlinVersion, versions.jdkVersion)
     workspace.addSuccessfulSpec()
 
     `when`
@@ -45,12 +50,17 @@ class SpockkKotlinCompatibilityTest : Specification() {
     }
 
     where
-    variable(kotlinVersion).from(
-      "1.8.22",
-      "1.9.25",
-      "2.0.21",
-      "2.1.21",
-      "2.2.21"
-    )
+    variable(versions).from(VERSION_COMBINATIONS)
+  }
+
+  companion object {
+    private val KOTLIN_VERSIONS = listOf("1.8.22", "1.9.25", "2.0.21", "2.1.21", "2.2.21")
+    private val JDK_VERSIONS = listOf(21, 25)
+
+    private val VERSION_COMBINATIONS = KOTLIN_VERSIONS.flatMap { kotlinVersion ->
+      JDK_VERSIONS.map { jdkVersion ->
+        KotlinAndJdkVersions(kotlinVersion, jdkVersion)
+      }
+    }
   }
 }
