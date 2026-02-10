@@ -12,20 +12,19 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.fixtures.runtime.samples
+package io.github.pshevche.spockk.fixtures.runtime.samples.fields
 
 import io.github.pshevche.spockk.lang.expect
+import spock.lang.Shared
 import spock.lang.Specification
 
-class SimpleSpec : Specification() {
+open class SharedFieldAccessFromSubclassBase : Specification() {
+  @Shared var x = "abc"
+}
 
-  fun `successful feature`() {
+class SharedFieldAccessFromSubclass : SharedFieldAccessFromSubclassBase() {
+  fun `feature`() {
     expect
-    assert(true)
-  }
-
-  fun `failing feature`() {
-    expect
-    assert(false)
+    assert(x.length == 3)
   }
 }

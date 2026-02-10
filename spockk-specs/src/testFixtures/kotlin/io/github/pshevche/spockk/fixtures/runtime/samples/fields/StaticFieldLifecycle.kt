@@ -12,6 +12,25 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.fixtures.runtime.samples
+package io.github.pshevche.spockk.fixtures.runtime.samples.fields
 
-class InheritedFromAbstractChildSpec : InheritedAbstractParentSpec()
+import io.github.pshevche.spockk.lang.expect
+import spock.lang.Specification
+
+class StaticFieldLifecycle : Specification() {
+  companion object {
+    var x = 42
+  }
+
+  fun `increment`() {
+    x++
+    expect
+    assert(x == 43)
+  }
+
+  fun `increment again`() {
+    x++
+    expect
+    assert(x == 44)
+  }
+}

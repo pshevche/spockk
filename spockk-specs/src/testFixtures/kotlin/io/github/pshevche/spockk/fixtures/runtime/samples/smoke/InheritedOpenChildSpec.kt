@@ -12,19 +12,18 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.fixtures.runtime.samples
+package io.github.pshevche.spockk.fixtures.runtime.samples.smoke
 
 import io.github.pshevche.spockk.lang.expect
-import spock.lang.Specification
 
-class AnotherSimpleSpec : Specification() {
+class InheritedOpenChildSpec : InheritedOpenParentSpec() {
 
-  fun `successful feature`() {
+  fun `successful child feature`() {
     expect
     assert(true)
   }
 
-  fun `failing feature`() {
+  fun `failing child feature`() {
     expect
     assert(false)
   }
