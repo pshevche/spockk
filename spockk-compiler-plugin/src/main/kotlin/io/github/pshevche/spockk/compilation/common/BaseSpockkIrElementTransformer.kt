@@ -20,7 +20,10 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 
 internal open class BaseSpockkIrElementTransformer : IrElementTransformerVoidWithContext() {
   protected val currentIrClass: IrClass
-    get() = currentClass!!.irElement as IrClass
+    get() = maybeCurrentIrClass!!
+
+  protected val maybeCurrentIrClass: IrClass?
+    get() = currentClass?.irElement as? IrClass
 
   protected val currentIrFunction: IrFunction
     get() = currentFunction!!.irElement as IrFunction
