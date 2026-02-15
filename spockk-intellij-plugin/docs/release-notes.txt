@@ -1,4 +1,3 @@
 <ul>
-    <li>[NEW] Support syntax for Spockk's data-driven features</li>
-    <li>[NEW] Integrate with Spock's native IntelliJ plugin</li>
+    <li>[FIX] Maintenance release with dependency upgrades</li>
 </ul>

@@ -37,6 +37,9 @@ internal class SpockkIrTransformer(
 
   override fun visitFunctionNew(declaration: IrFunction): IrStatement =
     declaration.transformPostfix {
-      context.featureContext(currentIrClass, this)?.let { featureRewriter.rewrite(this, it) }
+      // extension functions do not have a reference to a class
+      maybeCurrentIrClass?.let {
+        context.featureContext(it, this)?.let { ctx -> featureRewriter.rewrite(this, ctx) }
+      }
     }
 }
