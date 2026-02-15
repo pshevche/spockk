@@ -1,4 +1,4 @@
-@org.spockframework.runtime.model.SpecMetadata(filename = "StaticField.kt", line = 1)
+@org.spockframework.runtime.model.SpecMetadata(filename = "StaticFields.kt", line = 1)
 class StaticField : spock.lang.Specification() {
   companion object {
     val staticField = "static"
