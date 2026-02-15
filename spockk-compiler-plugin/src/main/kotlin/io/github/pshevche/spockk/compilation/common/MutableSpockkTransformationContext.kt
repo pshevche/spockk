@@ -91,9 +91,9 @@ internal class MutableSpockkTransformationContext {
 
   internal class MutableSpecContext(val fileName: String, val line: Int, val specDepth: Int) {
     var featureOrdinal: Int = 0
-    var features: MutableMap<IrFunction, SpockkTransformationContext.FeatureContext> =
+    val features: MutableMap<IrFunction, SpockkTransformationContext.FeatureContext> =
       mutableMapOf()
-    var potentialFeatures: MutableSet<IrFunction> = mutableSetOf()
+    val potentialFeatures: MutableSet<IrFunction> = mutableSetOf()
 
     fun addFeature(feature: IrFunction, blocks: List<FeatureBlockStatements>) {
       features.computeIfAbsent(feature) {
