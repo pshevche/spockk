@@ -1,7 +1,7 @@
 [versions]
 auto-service = "1.1.1"
 detekt = "1.23.8"
-junit-platform = "6.0.2"
+junit-platform = "6.0.3"
 kotlin = "2.3.10"
 spock = "2.4-groovy-5.0"
 mockito = "5.21.0"
