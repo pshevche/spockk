@@ -42,9 +42,10 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
   }
 
   private fun rewriteFields(spec: IrClass, context: SpecContext) {
-    if (context.fields.isNotEmpty()) {
-      FieldRewriter(this.context, spec, context.fields).rewrite()
-    }
+    // Always create FieldRewriter even when the spec has no fields of its own,
+    // because registerParentSharedFields() needs to run for subclasses that
+    // inherit shared fields from parent specs.
+    FieldRewriter(this.context, spec, context.fields).rewrite()
   }
 
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {

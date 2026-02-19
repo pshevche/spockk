@@ -8,8 +8,6 @@ class MultipleFields : spock.lang.Specification() {
   )
   private var `$spock_finalField_answer`: Int? = null
 
-  fun getAnswer(): Int? = `$spock_finalField_answer`
-
   @org.spockframework.runtime.model.FieldMetadata(
     name = "instanceField",
     ordinal = 1,
@@ -18,21 +16,15 @@ class MultipleFields : spock.lang.Specification() {
   )
   private var instanceField: String? = null
 
+  @spock.lang.Shared
   @org.spockframework.runtime.model.FieldMetadata(
     name = "sharedField",
     ordinal = 2,
     line = 5,
     initializer = true
   )
-  @Volatile
+  @kotlin.jvm.Volatile
   protected var `$spock_sharedField_sharedField`: Int? = null
-
-  fun getSharedField(): Int? =
-    specificationContext.sharedInstance.`$spock_sharedField_sharedField`
-
-  fun setSharedField(value: Int?) {
-    specificationContext.sharedInstance.`$spock_sharedField_sharedField` = value
-  }
 
   @org.spockframework.runtime.model.FeatureMetadata(
     ordinal = 0,
@@ -55,7 +47,12 @@ class MultipleFields : spock.lang.Specification() {
     instanceField = "hello"
   }
 
+  fun getAnswer(): Int? = `$spock_finalField_answer`
+
   private fun `$spock_initializeSharedFields`() {
     `$spock_sharedField_sharedField` = 24
   }
+
+  fun getSharedField(): Int? =
+    ((specificationContext as org.spockframework.runtime.SpecificationContext).sharedInstance as MultipleFields).`$spock_sharedField_sharedField`
 }

@@ -1,20 +1,14 @@
 @org.spockframework.runtime.model.SpecMetadata(filename = "SharedVarField.kt", line = 1)
 class SharedVarField : spock.lang.Specification() {
+  @spock.lang.Shared
   @org.spockframework.runtime.model.FieldMetadata(
     name = "sharedField",
     ordinal = 0,
     line = 3,
     initializer = true
   )
-  @Volatile
+  @kotlin.jvm.Volatile
   protected var `$spock_sharedField_sharedField`: Int? = null
-
-  fun getSharedField(): Int? =
-    specificationContext.sharedInstance.`$spock_sharedField_sharedField`
-
-  fun setSharedField(value: Int?) {
-    specificationContext.sharedInstance.`$spock_sharedField_sharedField` = value
-  }
 
   @org.spockframework.runtime.model.FeatureMetadata(
     ordinal = 0,
@@ -32,5 +26,12 @@ class SharedVarField : spock.lang.Specification() {
 
   private fun `$spock_initializeSharedFields`() {
     `$spock_sharedField_sharedField` = 42
+  }
+
+  fun getSharedField(): Int? =
+    ((specificationContext as org.spockframework.runtime.SpecificationContext).sharedInstance as SharedVarField).`$spock_sharedField_sharedField`
+
+  fun setSharedField(value: Int?) {
+    ((specificationContext as org.spockframework.runtime.SpecificationContext).sharedInstance as SharedVarField).`$spock_sharedField_sharedField` = value
   }
 }

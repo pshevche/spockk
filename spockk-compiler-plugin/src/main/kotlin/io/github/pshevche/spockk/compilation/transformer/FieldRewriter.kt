@@ -18,29 +18,24 @@ package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
-import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
+import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
-import org.jetbrains.kotlin.ir.expressions.IrGetValue
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
+import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irBlockBody
-import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irExprBody
+import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.builders.irString
-import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
-import org.jetbrains.kotlin.ir.builders.irAs
-import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrField
@@ -51,15 +46,20 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
+import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrSetField
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.toIrConst
+import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.Name
 
 internal class FieldRewriter(
@@ -98,6 +98,7 @@ internal class FieldRewriter(
 
   fun rewrite() {
     fields.forEach { rewriteField(it) }
+    registerParentSharedFields()
     replaceFieldReferences()
   }
 
@@ -216,8 +217,12 @@ internal class FieldRewriter(
       }
     } else {
       // Preserve DEFAULT getter/setter bodies (GET_FIELD/SET_FIELD) by skipping them
-      // during reference replacement. Feature method references are redirected to
-      // the generated getXxx()/setXxx() methods below.
+      // during reference replacement. Feature method references are redirected to the
+      // generated getXxx()/setXxx() methods below. The DEFAULT getter/setter bodies
+      // must remain as simple GET_FIELD/SET_FIELD because:
+      // - The $spock_initializeSharedFields method calls the setter directly on the
+      //   shared instance, which needs direct field access (not sharedInstance routing)
+      // - Subclass access to parent shared fields is handled by registerParentSharedFields()
       originalGetter?.let { generatedFunctionSymbols += it.symbol }
       originalSetter?.let { generatedFunctionSymbols += it.symbol }
 
@@ -263,7 +268,8 @@ internal class FieldRewriter(
   }
 
   private fun makeProtected(field: IrField, property: IrProperty) {
-    field.visibility = DescriptorVisibilities.PROTECTED
+    // In Kotlin, backing fields are always private even for protected properties.
+    // Only change the property and accessor visibility.
     property.visibility = DescriptorVisibilities.PROTECTED
     property.getter?.visibility = DescriptorVisibilities.PROTECTED
     property.setter?.visibility = DescriptorVisibilities.PROTECTED
@@ -371,14 +377,17 @@ internal class FieldRewriter(
     val getter = property?.getter
     if (getter != null) {
       getter.returnType = nullableType
-      getter.body?.transform(object : IrElementTransformerVoid() {
-        override fun visitGetField(expression: IrGetField): IrExpression {
-          if (expression.symbol == field.symbol) {
-            expression.type = nullableType
+      getter.body?.transform(
+        object : IrElementTransformerVoid() {
+          override fun visitGetField(expression: IrGetField): IrExpression {
+            if (expression.symbol == field.symbol) {
+              expression.type = nullableType
+            }
+            return super.visitGetField(expression)
           }
-          return super.visitGetField(expression)
-        }
-      }, null)
+        },
+        null
+      )
     }
 
     // Update setter parameter type and GET_VAR expressions referencing it in setter body
@@ -387,14 +396,17 @@ internal class FieldRewriter(
       val valueParam = setter.parameters.firstOrNull { it.name.asString() != "<this>" }
       if (valueParam != null) {
         valueParam.type = nullableType
-        setter.body?.transform(object : IrElementTransformerVoid() {
-          override fun visitGetValue(expression: IrGetValue): IrExpression {
-            if (expression.symbol == valueParam.symbol) {
-              expression.type = nullableType
+        setter.body?.transform(
+          object : IrElementTransformerVoid() {
+            override fun visitGetValue(expression: IrGetValue): IrExpression {
+              if (expression.symbol == valueParam.symbol) {
+                expression.type = nullableType
+              }
+              return super.visitGetValue(expression)
             }
-            return super.visitGetValue(expression)
-          }
-        }, null)
+          },
+          null
+        )
       }
     }
 
@@ -409,15 +421,11 @@ internal class FieldRewriter(
 
   // --- Initializer method creation ---
 
-  private fun getOrCreateInstanceFieldsInit(): IrSimpleFunction {
-    return instanceFieldsInitMethod ?: createInitMethod(InternalIdentifiers.INITIALIZE_FIELDS_METHOD)
-      .also { instanceFieldsInitMethod = it }
-  }
+  private fun getOrCreateInstanceFieldsInit(): IrSimpleFunction = instanceFieldsInitMethod ?: createInitMethod(InternalIdentifiers.INITIALIZE_FIELDS_METHOD)
+    .also { instanceFieldsInitMethod = it }
 
-  private fun getOrCreateSharedFieldsInit(): IrSimpleFunction {
-    return sharedFieldsInitMethod ?: createInitMethod(InternalIdentifiers.INITIALIZE_SHARED_FIELDS_METHOD)
-      .also { sharedFieldsInitMethod = it }
-  }
+  private fun getOrCreateSharedFieldsInit(): IrSimpleFunction = sharedFieldsInitMethod ?: createInitMethod(InternalIdentifiers.INITIALIZE_SHARED_FIELDS_METHOD)
+    .also { sharedFieldsInitMethod = it }
 
   private fun createInitMethod(name: Name): IrSimpleFunction {
     val method = spec.addMemberFunction(name, irBuiltIns.unitType) as IrSimpleFunction
@@ -447,7 +455,7 @@ internal class FieldRewriter(
     // Remove from top-level declarations - DEFAULT_PROPERTY_ACCESSORs live only in the property
     spec.declarations.remove(setter)
     setter.origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
-    setter.visibility = DescriptorVisibilities.PRIVATE
+    setter.visibility = property.visibility
     setter.correspondingPropertySymbol = property.symbol
     property.setter = setter
 
@@ -481,8 +489,10 @@ internal class FieldRewriter(
               // Use IMPLICIT_ARGUMENT origin to match the IR Kotlin generates for
               // implicit 'this' receivers in property access expressions
               arguments[0] = IrGetValueImpl(
-                SYNTHETIC_OFFSET, SYNTHETIC_OFFSET,
-                thisParam.type, thisParam.symbol,
+                SYNTHETIC_OFFSET,
+                SYNTHETIC_OFFSET,
+                thisParam.type,
+                thisParam.symbol,
                 IrStatementOrigin.IMPLICIT_ARGUMENT
               )
             }
@@ -498,7 +508,9 @@ internal class FieldRewriter(
 
   // Creates getXxx() that delegates to the DEFAULT getter on the shared instance:
   // `fun getXxx(): T? = (specificationContext.sharedInstance as Spec).$spock_sharedField_xxx`
-  // This matches the expected IR where a CALL to the DEFAULT getter is dispatched on the cast instance.
+  // The DEFAULT getter has a simple GET_FIELD body, so calling it on the shared instance
+  // correctly reads the field from the shared instance (no recursion since DEFAULT getter
+  // body is not modified for non-override fields).
   private fun createSharedGetter(name: Name, field: IrField): IrSimpleFunction {
     val property = field.correspondingPropertySymbol?.owner
       ?: error("Shared field ${field.name} has no backing property")
@@ -509,7 +521,7 @@ internal class FieldRewriter(
       irBlockBody {
         +irReturn(
           irCall(defaultGetter.symbol, field.type, origin = IrStatementOrigin.GET_PROPERTY).apply {
-            arguments[0] = irAs(irGetSharedInstance(getter), spec.defaultType)
+            arguments[0] = irAs(irGetSharedInstance(getter), spec.symbol.defaultType)
           }
         )
       }
@@ -530,7 +542,7 @@ internal class FieldRewriter(
     setter.body = with(irBuilder(setter.symbol)) {
       irBlockBody {
         +irCall(defaultSetter.symbol, irBuiltIns.unitType, origin = IrStatementOrigin.EQ).apply {
-          arguments[0] = irAs(irGetSharedInstance(setter), spec.defaultType)
+          arguments[0] = irAs(irGetSharedInstance(setter), spec.symbol.defaultType)
           arguments[1] = irGet(valueParam)
         }
       }
@@ -540,62 +552,58 @@ internal class FieldRewriter(
   }
 
   // Update the body of an existing getter to route through specificationContext.sharedInstance
-  // Used for override shared fields to preserve interface-declared signatures
+  // Used for override shared fields to preserve interface-declared signatures.
+  // Uses direct GET_FIELD (not CALL to DEFAULT getter) to avoid infinite recursion,
+  // since the getter itself is being updated to route through sharedInstance.
   private fun updateSharedGetterBody(getter: IrSimpleFunction, field: IrField) {
-    val property = field.correspondingPropertySymbol?.owner
-    val defaultGetter = property?.getter
     getter.body = with(irBuilder(getter.symbol)) {
       irBlockBody {
         +irReturn(
-          if (defaultGetter != null) {
-            irCall(defaultGetter.symbol, getter.returnType, origin = IrStatementOrigin.GET_PROPERTY).apply {
-              arguments[0] = irAs(irGetSharedInstance(getter), spec.defaultType)
-            }
-          } else {
-            irGetField(irAs(irGetSharedInstance(getter), spec.defaultType), field, type = getter.returnType)
-          }
+          irGetField(irAs(irGetSharedInstance(getter), spec.symbol.defaultType), field, type = getter.returnType)
         )
       }
     }
   }
 
   // Update the body of an existing setter to route through specificationContext.sharedInstance
-  // Used for override shared fields to preserve interface-declared signatures
+  // Used for override shared fields to preserve interface-declared signatures.
+  // Uses direct SET_FIELD (not CALL to DEFAULT setter) to avoid infinite recursion.
   private fun updateSharedSetterBody(setter: IrSimpleFunction, field: IrField) {
-    val property = field.correspondingPropertySymbol?.owner
-    val defaultSetter = property?.setter
     val valueParam = setter.parameters.first { it.name.asString() != "<this>" }
     setter.body = with(irBuilder(setter.symbol)) {
       irBlockBody {
-        if (defaultSetter != null) {
-          +irCall(defaultSetter.symbol, irBuiltIns.unitType, origin = IrStatementOrigin.EQ).apply {
-            arguments[0] = irAs(irGetSharedInstance(setter), spec.defaultType)
-            arguments[1] = irGet(valueParam)
-          }
-        } else {
-          +irSetField(
-            receiver = irAs(irGetSharedInstance(setter), spec.defaultType),
-            field = field,
-            value = irGet(valueParam)
-          )
-        }
+        +irSetField(
+          receiver = irAs(irGetSharedInstance(setter), spec.symbol.defaultType),
+          field = field,
+          value = irGet(valueParam)
+        )
       }
     }
   }
 
-  // Build `this.specificationContext.sharedInstance` expression (returns Specification?).
-  // Callers wrap with irAs(..., spec.defaultType) to cast to the spec class.
+  // Build `(this.specificationContext as SpecificationContext).sharedInstance` (returns Specification?).
+  // Callers wrap with irAs(..., spec.symbol.defaultType) to cast to the spec class.
   private fun irGetSharedInstance(fn: IrFunction): IrExpression {
     val specContextGetter = findSpecificationContextGetter()
     val sharedInstanceGetter = findSharedInstanceGetter()
+    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
 
     return with(irBuilder(fn.symbol)) {
       val thisParam = fn.parameters.first { it.name.asString() == "<this>" }
-      val specContextCall = irCall(specContextGetter.symbol, specContextGetter.returnType).apply {
-        dispatchReceiver = irGet(thisParam)
-      }
-      irCall(sharedInstanceGetter.symbol, sharedInstanceGetter.returnType).apply {
-        dispatchReceiver = specContextCall
+      val specContextCall =
+        irCall(specContextGetter.symbol, specContextGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY).apply {
+          dispatchReceiver = IrGetValueImpl(
+            SYNTHETIC_OFFSET,
+            SYNTHETIC_OFFSET,
+            thisParam.type,
+            thisParam.symbol,
+            IrStatementOrigin.IMPLICIT_ARGUMENT
+          )
+        }
+      // Cast ISpecificationContext? to SpecificationContext (getSharedInstance is on the concrete class)
+      val castSpecContext = irAs(specContextCall, specContextClass.defaultType)
+      irCall(sharedInstanceGetter.symbol, sharedInstanceGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY).apply {
+        dispatchReceiver = castSpecContext
       }
     }
   }
@@ -626,13 +634,102 @@ internal class FieldRewriter(
       .first { it.name.asString() == "getSharedInstance" }
   }
 
+  // --- Parent class shared field discovery ---
+
+  // When a subclass extends a spec with shared fields, the subclass's feature methods may
+  // reference parent class shared fields via the parent's DEFAULT property getter. Since the
+  // FieldReferenceReplacer only has mappings for the current class's fields, we need to also
+  // register mappings for parent class shared fields so they get replaced with the parent's
+  // generated getXxx()/setXxx() functions.
+  private fun registerParentSharedFields() {
+    // Build a map of parent class shared field accessors: parent getter/setter symbol -> generated getXxx/setXxx
+    val parentAccessorMap = mutableMapOf<IrSimpleFunctionSymbol, IrSimpleFunction>()
+
+    var superClass: IrClass? = findDirectSuperClass(spec)
+    while (superClass != null) {
+      for (property in superClass.declarations.filterIsInstance<IrProperty>()) {
+        val field = property.backingField ?: continue
+        val fieldName = field.name.asString()
+        if (!fieldName.startsWith("\$spock_sharedField_")) continue
+
+        // Extract original field name from the Spock naming convention
+        val originalName = fieldName.removePrefix("\$spock_sharedField_")
+        val getterName = "get${originalName.replaceFirstChar { it.uppercaseChar() }}"
+        val setterName = "set${originalName.replaceFirstChar { it.uppercaseChar() }}"
+
+        // Find the generated getXxx()/setXxx() functions in the parent class
+        val parentGetter = superClass.declarations
+          .filterIsInstance<IrSimpleFunction>()
+          .find { it.name.asString() == getterName }
+        val parentSetter = superClass.declarations
+          .filterIsInstance<IrSimpleFunction>()
+          .find { it.name.asString() == setterName }
+
+        // Map parent's DEFAULT getter/setter to parent's generated getXxx()/setXxx()
+        val defaultGetter = property.getter
+        val defaultSetter = property.setter
+        if (parentGetter != null && defaultGetter != null) {
+          getterReplacements[defaultGetter.symbol] = parentGetter
+          parentAccessorMap[defaultGetter.symbol] = parentGetter
+        }
+        if (parentSetter != null && defaultSetter != null) {
+          setterReplacements[defaultSetter.symbol] = parentSetter
+          parentAccessorMap[defaultSetter.symbol] = parentSetter
+        }
+      }
+
+      superClass = findDirectSuperClass(superClass)
+    }
+
+    // In Kotlin IR, when a subclass inherits a property, the IR may create fake override
+    // getters/setters. CALLs in the subclass target these fake override symbols rather than
+    // the parent's actual getter/setter symbols. We need to also map these fake override
+    // symbols to the parent's generated getXxx()/setXxx() functions.
+    if (parentAccessorMap.isNotEmpty()) {
+      for (property in spec.declarations.filterIsInstance<IrProperty>()) {
+        if (!property.isFakeOverride) continue
+        val fakeGetter = property.getter
+        if (fakeGetter != null) {
+          // Check if any of the overridden symbols map to a parent shared field accessor
+          for (overridden in fakeGetter.overriddenSymbols) {
+            val replacement = parentAccessorMap[overridden]
+            if (replacement != null) {
+              getterReplacements[fakeGetter.symbol] = replacement
+              generatedFunctionSymbols += fakeGetter.symbol
+              break
+            }
+          }
+        }
+        val fakeSetter = property.setter
+        if (fakeSetter != null) {
+          for (overridden in fakeSetter.overriddenSymbols) {
+            val replacement = parentAccessorMap[overridden]
+            if (replacement != null) {
+              setterReplacements[fakeSetter.symbol] = replacement
+              generatedFunctionSymbols += fakeSetter.symbol
+              break
+            }
+          }
+        }
+      }
+    }
+  }
+
+  private fun findDirectSuperClass(clazz: IrClass): IrClass? =
+    clazz.superTypes
+      .mapNotNull { (it as? org.jetbrains.kotlin.ir.types.IrSimpleType)?.classifier }
+      .mapNotNull { (it as? org.jetbrains.kotlin.ir.symbols.IrClassSymbol)?.owner }
+      .firstOrNull { it.kind == org.jetbrains.kotlin.descriptors.ClassKind.CLASS }
+
   // --- Reference replacement ---
 
   private fun replaceFieldReferences() {
     if (fieldGetters.isEmpty() && fieldSetters.isEmpty() &&
       getterReplacements.isEmpty() && setterReplacements.isEmpty() &&
       getterTypeUpdates.isEmpty()
-    ) return
+    ) {
+      return
+    }
 
     val replacer = FieldReferenceReplacer()
     spec.declarations.forEach { decl ->
@@ -648,8 +745,11 @@ internal class FieldRewriter(
     // Skip functions whose bodies must not be transformed (e.g. DEFAULT_PROPERTY_ACCESSORs
     // for renamed val fields, whose GET_FIELD body should remain as-is)
     override fun visitSimpleFunction(declaration: IrSimpleFunction) =
-      if (declaration.symbol in generatedFunctionSymbols) declaration
-      else super.visitSimpleFunction(declaration)
+      if (declaration.symbol in generatedFunctionSymbols) {
+        declaration
+      } else {
+        super.visitSimpleFunction(declaration)
+      }
 
     override fun visitGetField(expression: IrGetField): IrExpression {
       val getter = fieldGetters[expression.symbol]

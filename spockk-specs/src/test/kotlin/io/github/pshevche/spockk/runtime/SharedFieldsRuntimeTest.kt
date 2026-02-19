@@ -53,7 +53,6 @@ class SharedFieldsRuntimeTest : Specification() {
     events.assertStatistics { it.started(1).succeeded(1) }
   }
 
-  @PendingFeature
   fun `shared fields reset between spec runs`() {
     `when`
     val firstRun = execute(selectClass(SharedFieldLifecycle::class.java))
