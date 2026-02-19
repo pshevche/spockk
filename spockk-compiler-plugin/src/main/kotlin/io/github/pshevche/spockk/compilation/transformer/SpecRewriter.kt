@@ -32,12 +32,19 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
 
   fun rewrite(spec: IrClass, context: SpecContext) {
     annotateSpec(spec, context)
+    rewriteFields(spec, context)
     rewriteWhereBlocks(spec, context)
     rewriteMockingApi(spec)
   }
 
   private fun annotateSpec(spec: IrClass, context: SpecContext) {
     spec.annotations += specMetadataAnnotation(spec, context.fileName, context.line)
+  }
+
+  private fun rewriteFields(spec: IrClass, context: SpecContext) {
+    if (context.fields.isNotEmpty()) {
+      FieldRewriter(this.context, spec, context.fields).rewrite()
+    }
   }
 
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {

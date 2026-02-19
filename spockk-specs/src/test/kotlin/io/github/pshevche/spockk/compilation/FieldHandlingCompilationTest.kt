@@ -16,41 +16,34 @@ package io.github.pshevche.spockk.compilation
 
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.lang.expect
-import spock.lang.PendingFeature
 
 class FieldHandlingCompilationTest : BaseCompilationTest() {
 
-  @PendingFeature
   fun `transforms instance var field`() {
     expect
     assertTransformation(sampleFromResource("fields/InstanceVarField"))
   }
 
-  @PendingFeature
   fun `transforms instance val field`() {
     expect
     assertTransformation(sampleFromResource("fields/InstanceValField"))
   }
 
-  @PendingFeature
   fun `transforms instance lateinit var field`() {
     expect
     assertTransformation(sampleFromResource("fields/InstanceLateinitVarField"))
   }
 
-  @PendingFeature
   fun `transforms shared var field and replaces references`() {
     expect
     assertTransformation(sampleFromResource("fields/SharedVarField"))
   }
 
-  @PendingFeature
   fun `transforms shared val field and replaces references`() {
     expect
     assertTransformation(sampleFromResource("fields/SharedValField"))
   }
 
-  @PendingFeature
   fun `transforms shared lateinit var field and replaces references`() {
     expect
     assertTransformation(sampleFromResource("fields/SharedLateinitVarField"))
@@ -61,7 +54,6 @@ class FieldHandlingCompilationTest : BaseCompilationTest() {
     assertTransformation(sampleFromResource("fields/StaticFields"))
   }
 
-  @PendingFeature
   fun `transforms multiple fields preserving declaration order`() {
     expect
     assertTransformation(sampleFromResource("fields/MultipleFields"))

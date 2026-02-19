@@ -21,6 +21,7 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -45,6 +46,15 @@ internal class SpockkTransformationContextCollector(
     declaration.getAllSuperclasses().any {
       it.isClassWithFqName(SPECIFICATION_FQN)
     }
+
+  override fun visitPropertyNew(declaration: IrProperty): IrStatement {
+    val ownerClass = maybeCurrentIrClass
+    if (ownerClass != null && context.isSpec(ownerClass) && !declaration.isFakeOverride) {
+      context.addField(ownerClass, declaration)
+    }
+
+    return super.visitPropertyNew(declaration)
+  }
 
   override fun visitFunctionNew(declaration: IrFunction): IrStatement {
     if (declaration.isFakeOverride) {

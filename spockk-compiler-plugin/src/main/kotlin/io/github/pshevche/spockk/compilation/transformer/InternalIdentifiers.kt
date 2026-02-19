@@ -19,8 +19,17 @@ import org.jetbrains.kotlin.name.Name
 
 internal object InternalIdentifiers {
 
+  val INITIALIZE_FIELDS_METHOD: Name = Name.identifier($$"$spock_initializeFields")
+  val INITIALIZE_SHARED_FIELDS_METHOD: Name = Name.identifier($$"$spock_initializeSharedFields")
+
   fun getFeatureName(context: FeatureContext): String =
     $$"$spock_feature_$${context.specDepth}_$${context.ordinal}"
+
+  fun getSharedFieldName(originalName: String): Name =
+    Name.identifier($$"$spock_sharedField_$${originalName}")
+
+  fun getFinalFieldName(originalName: String): Name =
+    Name.identifier($$"$spock_finalField_$${originalName}")
 
   fun getDataProviderName(featureContext: FeatureContext, providerIndex: Int): Name =
     Name.identifier("${getFeatureName(featureContext)}prov$providerIndex")

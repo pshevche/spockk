@@ -18,11 +18,13 @@ import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.name
 import org.jetbrains.kotlin.ir.interpreter.getLastOverridden
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.isClassWithFqName
 import org.jetbrains.kotlin.ir.util.file
+import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.superClass
 
@@ -48,6 +50,11 @@ internal class MutableSpockkTransformationContext {
     return computeSpecDepth(parentSpec) + 1
   }
 
+  fun isSpec(clazz: IrClass): Boolean = specs.containsKey(clazz)
+
+  fun addField(spec: IrClass, property: IrProperty) =
+    specs[spec]?.addField(property, spec)
+
   fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlockStatements>) =
     specs[spec]?.addFeature(feature, blocks)
 
@@ -63,7 +70,8 @@ internal class MutableSpockkTransformationContext {
             SpockkTransformationContext.SpecContext(
               ctx.fileName,
               ctx.line,
-              finalizeFeatures(ctx)
+              finalizeFeatures(ctx),
+              ctx.fields.toList()
             )
           )
         }
@@ -94,6 +102,33 @@ internal class MutableSpockkTransformationContext {
     val features: MutableMap<IrFunction, SpockkTransformationContext.FeatureContext> =
       mutableMapOf()
     val potentialFeatures: MutableSet<IrFunction> = mutableSetOf()
+    val fields: MutableList<SpockkTransformationContext.FieldContext> = mutableListOf()
+
+    fun addField(property: IrProperty, spec: IrClass) {
+      val file = spec.file
+      val line = file.fileEntry.getLineNumber(property.startOffset) + 1
+      val backingField = property.backingField
+      val hasInitializer = backingField?.initializer != null
+      val isShared = property.annotations.any { it.isSpockShared() } ||
+        backingField?.annotations?.any { it.isSpockShared() } == true
+      fields.add(
+        SpockkTransformationContext.FieldContext(
+          property = property,
+          name = property.name.asString(),
+          ordinal = fields.size,
+          line = line,
+          hasInitializer = hasInitializer,
+          isShared = isShared,
+          isVal = !property.isVar,
+          isLateinit = property.isLateinit
+        )
+      )
+    }
+
+    private fun org.jetbrains.kotlin.ir.expressions.IrConstructorCall.isSpockShared(): Boolean {
+      val fqn = symbol.owner.parentClassOrNull?.fqNameWhenAvailable?.asString()
+      return fqn == "spock.lang.Shared"
+    }
 
     fun addFeature(feature: IrFunction, blocks: List<FeatureBlockStatements>) {
       features.computeIfAbsent(feature) {
