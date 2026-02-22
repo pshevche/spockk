@@ -24,7 +24,8 @@ import org.jetbrains.kotlin.ir.interpreter.getLastOverridden
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.isClassWithFqName
 import org.jetbrains.kotlin.ir.util.file
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.fileEntry
+import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.superClass
 
@@ -50,10 +51,8 @@ internal class MutableSpockkTransformationContext {
     return computeSpecDepth(parentSpec) + 1
   }
 
-  fun isSpec(clazz: IrClass): Boolean = specs.containsKey(clazz)
-
   fun addField(spec: IrClass, property: IrProperty) =
-    specs[spec]?.addField(property, spec)
+    specs[spec]?.addField(property)
 
   fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlockStatements>) =
     specs[spec]?.addFeature(feature, blocks)
@@ -104,13 +103,13 @@ internal class MutableSpockkTransformationContext {
     val potentialFeatures: MutableSet<IrFunction> = mutableSetOf()
     val fields: MutableList<SpockkTransformationContext.FieldContext> = mutableListOf()
 
-    fun addField(property: IrProperty, spec: IrClass) {
-      val file = spec.file
-      val line = file.fileEntry.getLineNumber(property.startOffset) + 1
+    fun addField(property: IrProperty) {
+      val fileEntry = property.fileEntry
+      val line = fileEntry.getLineNumber(property.startOffset) + 1
       val backingField = property.backingField
       val hasInitializer = backingField?.initializer != null
-      val isShared = property.annotations.any { it.isSpockShared() } ||
-        backingField?.annotations?.any { it.isSpockShared() } == true
+      val isShared = property.hasAnnotation(IrIdentifiers.Spock.SHARED_ANNOTATION_FQN) ||
+        backingField?.hasAnnotation(IrIdentifiers.Spock.SHARED_ANNOTATION_FQN) ?: false
       fields.add(
         SpockkTransformationContext.FieldContext(
           property = property,
@@ -123,11 +122,6 @@ internal class MutableSpockkTransformationContext {
           isLateinit = property.isLateinit
         )
       )
-    }
-
-    private fun org.jetbrains.kotlin.ir.expressions.IrConstructorCall.isSpockShared(): Boolean {
-      val fqn = symbol.owner.parentClassOrNull?.fqNameWhenAvailable?.asString()
-      return fqn == "spock.lang.Shared"
     }
 
     fun addFeature(feature: IrFunction, blocks: List<FeatureBlockStatements>) {

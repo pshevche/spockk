@@ -48,9 +48,8 @@ internal class SpockkTransformationContextCollector(
     }
 
   override fun visitPropertyNew(declaration: IrProperty): IrStatement {
-    val ownerClass = maybeCurrentIrClass
-    if (ownerClass != null && context.isSpec(ownerClass) && !declaration.isFakeOverride) {
-      context.addField(ownerClass, declaration)
+    if (!declaration.isFakeOverride) {
+      maybeCurrentIrClass?.let { context.addField(it, declaration) }
     }
 
     return super.visitPropertyNew(declaration)

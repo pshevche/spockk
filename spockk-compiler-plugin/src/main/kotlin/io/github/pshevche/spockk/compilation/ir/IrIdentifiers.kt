@@ -30,6 +30,7 @@ internal object IrIdentifiers {
     val RUNTIME_PKG_FQN = FqName("org.spockframework.runtime")
     val SPECIFICATION_FQN = FqName("spock.lang.Specification")
     val WILDCARD_FQN = SPECIFICATION_FQN.child("_".asName())
+    val SHARED_ANNOTATION_FQN = FqName("spock.lang.Shared")
 
     // ClassId
     val SPEC_INTERNALS_CLASS_ID = ClassId(RUNTIME_PKG_FQN, "SpecInternals".asName())
