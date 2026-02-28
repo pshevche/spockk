@@ -9,7 +9,7 @@ repositories { intellijPlatform { defaultRepositories() } }
 
 dependencies {
   intellijPlatform {
-    intellijIdea("2025.3.2")
+    intellijIdea("2025.3.3")
 
     bundledPlugin("org.jetbrains.kotlin")
     bundledPlugin("org.jetbrains.plugins.gradle")
