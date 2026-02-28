@@ -81,6 +81,58 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
     assertTrue(result.isSuccess())
   }
 
+  fun `data pipes can reference shared instance fields`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                @spock.lang.Shared
+                private val sharedField = 2
+
+                fun `field access`(a: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a % 2 == 0)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(1, sharedField)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `data tables can reference shared instance fields`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                @spock.lang.Shared
+                private val sharedField = 2
+
+                fun `field access`(a: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a % 2 == 0)
+
+                    io.github.pshevche.spockk.lang.where
+                    a ; `_`
+                    1 ; `_`
+                    sharedField ; `_`
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
   fun `data pipes can invoke companion methods`() {
     `when`
     val result =
@@ -161,7 +213,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       result.compilation.messages,
       """
         Problem with `where`
-        Details: Only companion object members may be accessed from here
+        Details: Only companion object members and @Shared fields may be accessed from here
         """
         .trimIndent()
     )
@@ -195,7 +247,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       result.compilation.messages,
       """
         Problem with `where`
-        Details: Only companion object members may be accessed from here
+        Details: Only companion object members and @Shared fields may be accessed from here
         """
         .trimIndent()
     )
@@ -227,7 +279,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       result.compilation.messages,
       """
         Problem with `where`
-        Details: Only companion object members may be accessed from here
+        Details: Only companion object members and @Shared fields may be accessed from here
         """
         .trimIndent()
     )
@@ -261,7 +313,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       result.compilation.messages,
       """
         Problem with `where`
-        Details: Only companion object members may be accessed from here
+        Details: Only companion object members and @Shared fields may be accessed from here
         """
         .trimIndent()
     )

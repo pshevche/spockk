@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
+import spock.lang.Shared
 import spock.lang.Specification
 import kotlin.math.max
 import kotlin.test.assertEquals
@@ -30,6 +31,9 @@ class DataTablesSmokeTest : Specification() {
 
     data class Person(val age: Int)
   }
+
+  @Shared
+  private val sharedField = 42
 
   fun `basic usage`(a: Int, b: Int, c: Int) {
     expect
@@ -123,6 +127,7 @@ class DataTablesSmokeTest : Specification() {
     where
     a            ; b
     STATIC_FIELD ; 42
+    sharedField  ; 42
   }
 
   fun `cells can reference previous cells`(a: Int, b: Int, c: Int) {

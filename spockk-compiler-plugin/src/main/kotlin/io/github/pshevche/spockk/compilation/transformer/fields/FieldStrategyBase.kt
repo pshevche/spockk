@@ -23,6 +23,7 @@ import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.irGetThis
 import io.github.pshevche.spockk.compilation.ir.makeNullableWithNullDefault
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
@@ -41,12 +42,8 @@ import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
-import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.Name
 
 internal abstract class FieldStrategyBase(
@@ -104,7 +101,7 @@ internal abstract class FieldStrategyBase(
   ) {
     val initExpr = field.initializer?.expression ?: return
     val dispatchReceiver = initializeFieldsMethod.requiredThisParameter()
-    val reboundValue = rebindDispatchReceiverReferences(initExpr, dispatchReceiver)
+    val reboundValue = initExpr.rebindDispatchReceiverReferences(dispatchReceiver, irBuilder(dispatchReceiver.symbol))
     val initializeFieldsStat = with(irBuilder(initializeFieldsMethod.symbol)) {
       val setter = property.setter
       if (setter == null) {
@@ -121,27 +118,6 @@ internal abstract class FieldStrategyBase(
     }
     initializeFieldsMethod.mutableStatements()?.add(initializeFieldsStat)
     field.initializer = null
-  }
-
-  // Replaces IrGetValue references to any dispatch receiver '<this>' that is not targetParam
-  // with a reference to targetParam. Needed when moving field initializers to a new method.
-  protected fun rebindDispatchReceiverReferences(
-    expr: IrExpression,
-    targetParam: IrValueParameter
-  ): IrExpression {
-    val rebinder = object : IrElementTransformerVoid() {
-      override fun visitGetValue(expression: IrGetValue): IrExpression {
-        val paramOwner = expression.symbol.owner
-        if (paramOwner is IrValueParameter &&
-          paramOwner.name.asString() == "<this>" &&
-          paramOwner.symbol != targetParam.symbol
-        ) {
-          return irBuilder(targetParam.symbol).irGet(targetParam)
-        }
-        return super.visitGetValue(expression)
-      }
-    }
-    return expr.transform(rebinder, null)
   }
 
   // --- Field type helpers ---
