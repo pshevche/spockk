@@ -27,7 +27,7 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
     val fileName: String,
     val line: Int,
     val features: Map<IrFunction, FeatureContext>,
-    val fields: List<FieldContext>
+    val fields: Map<IrProperty, FieldContext>
   )
 
   internal data class FeatureContext(
@@ -47,7 +47,6 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
   }
 
   internal data class FieldContext(
-    val property: IrProperty,
     val name: String,
     val ordinal: Int,
     val line: Int,

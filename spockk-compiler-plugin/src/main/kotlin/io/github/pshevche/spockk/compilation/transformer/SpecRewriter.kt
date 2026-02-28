@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
+import io.github.pshevche.spockk.compilation.transformer.fields.FieldRewriter
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
 import io.github.pshevche.spockk.compilation.transformer.parametrization.WhereBlockRewriter
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext

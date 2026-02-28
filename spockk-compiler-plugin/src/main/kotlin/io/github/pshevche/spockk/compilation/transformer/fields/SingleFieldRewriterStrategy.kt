@@ -1,0 +1,37 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.pshevche.spockk.compilation.transformer.fields
+
+import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrProperty
+
+internal interface SingleFieldRewriterStrategy {
+  fun transform(property: IrProperty)
+
+  companion object {
+    fun create(
+      fieldCtx: FieldContext,
+      state: FieldRewriteState,
+      context: IrGeneratorContext,
+      spec: IrClass
+    ): SingleFieldRewriterStrategy = when {
+      fieldCtx.isShared -> SharedFieldStrategy(fieldCtx, state, context, spec)
+      !fieldCtx.isLateinit && fieldCtx.isVal -> ValFieldStrategy(fieldCtx, state, context, spec)
+      else -> VarFieldStrategy(fieldCtx, state, context, spec)
+    }
+  }
+}

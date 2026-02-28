@@ -70,7 +70,7 @@ internal class MutableSpockkTransformationContext {
               ctx.fileName,
               ctx.line,
               finalizeFeatures(ctx),
-              ctx.fields.toList()
+              ctx.fields
             )
           )
         }
@@ -101,7 +101,7 @@ internal class MutableSpockkTransformationContext {
     val features: MutableMap<IrFunction, SpockkTransformationContext.FeatureContext> =
       mutableMapOf()
     val potentialFeatures: MutableSet<IrFunction> = mutableSetOf()
-    val fields: MutableList<SpockkTransformationContext.FieldContext> = mutableListOf()
+    val fields: LinkedHashMap<IrProperty, SpockkTransformationContext.FieldContext> = linkedMapOf()
 
     fun addField(property: IrProperty) {
       val fileEntry = property.fileEntry
@@ -110,17 +110,14 @@ internal class MutableSpockkTransformationContext {
       val hasInitializer = backingField?.initializer != null
       val isShared = property.hasAnnotation(IrIdentifiers.Spock.SHARED_ANNOTATION_FQN) ||
         backingField?.hasAnnotation(IrIdentifiers.Spock.SHARED_ANNOTATION_FQN) ?: false
-      fields.add(
-        SpockkTransformationContext.FieldContext(
-          property = property,
-          name = property.name.asString(),
-          ordinal = fields.size,
-          line = line,
-          hasInitializer = hasInitializer,
-          isShared = isShared,
-          isVal = !property.isVar,
-          isLateinit = property.isLateinit
-        )
+      fields[property] = SpockkTransformationContext.FieldContext(
+        name = property.name.asString(),
+        ordinal = fields.size,
+        line = line,
+        hasInitializer = hasInitializer,
+        isShared = isShared,
+        isVal = !property.isVar,
+        isLateinit = property.isLateinit
       )
     }
 
