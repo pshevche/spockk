@@ -17,6 +17,9 @@
 package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.VOLATILE_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_CONTEXT_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_INTERNALS_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
@@ -65,11 +68,6 @@ internal class SharedFieldStrategy(
   context: IrGeneratorContext,
   spec: IrClass
 ) : FieldStrategyBase(context, spec, state) {
-
-  companion object {
-    private const val VOLATILE_FQN = "kotlin.jvm.Volatile"
-    private const val SPECIFICATION_CONTEXT_FQN = "org.spockframework.runtime.SpecificationContext"
-  }
 
   override fun rewrite(property: IrProperty) {
     val field = property.backingField ?: return
@@ -284,12 +282,12 @@ internal class SharedFieldStrategy(
       clazz = clazz.superTypes.firstOrNull()?.let {
         val fqn = (it as? IrSimpleType)
           ?.classifier
-          ?.let { c -> (c as? IrClassSymbol)?.owner?.fqNameWhenAvailable?.asString() }
+          ?.let { c -> (c as? IrClassSymbol)?.owner?.fqNameWhenAvailable }
           ?: return@let null
         context.findRequiredClassSymbol(fqn).owner
       }
     }
-    val specInternalsClass = context.findRequiredClassSymbol("org.spockframework.runtime.SpecInternals")
+    val specInternalsClass = context.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
     return specInternalsClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { it.name.asString() == "getSpecificationContext" }

@@ -40,14 +40,18 @@ internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElemen
 private fun IrGetObjectValue.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
   FeatureBlockLabelIrElement.from(file, this)
 
-internal fun IrGetObjectValue.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
+internal fun IrGetObjectValue.requiredFqn() = requireNotNull(symbol.owner.fqNameWhenAvailable) {
+  "Missing FqName for an object reference $this"
+}
 
 private fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
   FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrCall.fqName(): FqName? = symbol.owner.fqNameWhenAvailable
 
-internal fun IrCall.requiredFqn() = fqName()!!.asString()
+internal fun IrCall.requiredFqn() = requireNotNull(fqName()!!) {
+  "Missing FqName for a function call $this"
+}
 
 internal fun IrStatement.isFromCall() = (this as? IrCall)
   ?.fqName()

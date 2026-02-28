@@ -17,6 +17,8 @@ package io.github.pshevche.spockk.compilation.transformer.parametrization
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROCESSOR_METADATA_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROVIDER_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
@@ -84,13 +86,6 @@ internal class WhereBlockRewriter(
   private val featureContext: SpockkTransformationContext.FeatureContext
 ) : SpockkIrRewriter {
 
-  companion object {
-    private const val DATA_PROVIDER_METADATA_FQN =
-      "org.spockframework.runtime.model.DataProviderMetadata"
-    private const val DATA_PROCESSOR_METADATA_FQN =
-      "org.spockframework.runtime.model.DataProcessorMetadata"
-  }
-
   private val dataProcessorVars = mutableListOf<IrVariable>()
   private var dataProviderCount = 0
   private lateinit var dataProcessorMethod: IrFunction
@@ -119,11 +114,12 @@ internal class WhereBlockRewriter(
     }
   }
 
-  private fun createRewriteResources(block: FeatureBlockStatements): SingleBlockRewriteResources = SingleBlockRewriteResources(
-    InvalidParametrizationExceptionFactory(spec.file, block.element.ir),
-    InstanceFieldAccessChecker(spec.file, block.element.ir),
-    mutableListOf()
-  )
+  private fun createRewriteResources(block: FeatureBlockStatements): SingleBlockRewriteResources =
+    SingleBlockRewriteResources(
+      InvalidParametrizationExceptionFactory(spec.file, block.element.ir),
+      InstanceFieldAccessChecker(spec.file, block.element.ir),
+      mutableListOf()
+    )
 
   private fun rewriteWhereStatements(stats: ListIterator<IrStatement>) {
     val stat = stats.next()
@@ -471,7 +467,7 @@ internal class WhereBlockRewriter(
     }
 
   private fun irGetWildcardField(builder: IrBuilder): IrGetField {
-    val specificationSymbol = builder.context.findRequiredClassSymbol(IrIdentifiers.Spock.SPECIFICATION_FQN.asString())
+    val specificationSymbol = builder.context.findRequiredClassSymbol(IrIdentifiers.Spock.SPECIFICATION_FQN)
     val wildcardField = specificationSymbol
       .owner
       .declarations

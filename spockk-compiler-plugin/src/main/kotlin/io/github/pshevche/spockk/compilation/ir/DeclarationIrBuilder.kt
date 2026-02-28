@@ -55,11 +55,12 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.ir.util.toIrConst
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
 internal fun DeclarationIrBuilder.irAnnotation(
-  className: String,
+  className: FqName,
   vararg args: IrExpression
 ): IrConstructorCall {
   val classSymbol = context.findRequiredClassSymbol(className)
@@ -72,14 +73,14 @@ internal fun DeclarationIrBuilder.irAnnotation(
 internal fun DeclarationIrBuilder.irStringArray(elements: List<String>) =
   irVararg(context.irBuiltIns.stringType, elements.map { irString(it) })
 
-internal fun DeclarationIrBuilder.irType(typeName: String): IrType =
-  context.findRequiredClassSymbol(typeName).defaultType
+internal fun DeclarationIrBuilder.irType(typeFqn: FqName): IrType =
+  context.findRequiredClassSymbol(typeFqn).defaultType
 
 internal fun DeclarationIrBuilder.irEnumValue(
   value: String,
-  enumClassName: String
+  enumClassFqn: FqName
 ): IrGetEnumValue {
-  val enumClassSymbol = context.findRequiredClassSymbol(enumClassName)
+  val enumClassSymbol = context.findRequiredClassSymbol(enumClassFqn)
   val enumEntry =
     enumClassSymbol.owner.declarations.filterIsInstance<IrEnumEntry>().first {
       it.name.asString() == value
@@ -151,7 +152,7 @@ fun IrBuilder.irListGet(
   list: IrExpression,
   idx: Int
 ): IrExpression {
-  val getFunction = context.findRequiredClassSymbol(LIST_FQN.asString())
+  val getFunction = context.findRequiredClassSymbol(LIST_FQN)
     .owner
     .functions
     .single { it.name.asString() == "get" }

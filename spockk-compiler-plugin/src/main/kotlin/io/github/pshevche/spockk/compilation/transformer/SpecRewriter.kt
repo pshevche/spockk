@@ -15,6 +15,7 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.transformer.fields.FieldsRewriter
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
@@ -26,10 +27,6 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 
 internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
-
-  companion object {
-    private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
-  }
 
   fun rewrite(spec: IrClass, context: SpecContext) {
     annotateSpec(spec, context)

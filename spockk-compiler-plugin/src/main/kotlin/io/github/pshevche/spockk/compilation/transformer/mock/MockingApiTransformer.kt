@@ -46,7 +46,6 @@ import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.findDeclaration
 import org.jetbrains.kotlin.ir.util.isSubtypeOf
 import org.jetbrains.kotlin.name.Name
-import java.util.stream.Collectors
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class MockingApiTransformer(
@@ -56,18 +55,14 @@ internal class MockingApiTransformer(
   SpockkIrRewriter {
 
   private val specInternalsClass =
-    context.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_CLASS_ID)
+    context.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
   private val kClassJavaPropGetter =
     context.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
 
   companion object {
 
-    private val MOCK_METHODS: Map<Name, Name> =
-      setOf("Mock", "Stub", "Spy")
-        .stream()
-        .collect(
-          Collectors.toMap({ f -> Name.identifier(f) }, { f -> Name.identifier(f + "Impl") })
-        )
+    private val MOCK_METHODS: Map<Name, Name> = setOf("Mock", "Stub", "Spy")
+      .associate { Name.identifier(it) to Name.identifier(it + "Impl") }
   }
 
   fun rewriteMockingApi() {

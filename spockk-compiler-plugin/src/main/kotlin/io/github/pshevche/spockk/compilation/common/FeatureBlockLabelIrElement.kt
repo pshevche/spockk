@@ -23,6 +23,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.name.FqName
 
 internal sealed class FeatureBlockLabelIrElement(
   val label: FeatureBlockLabel,
@@ -40,7 +41,7 @@ internal sealed class FeatureBlockLabelIrElement(
     }
 
     private fun fromElement(
-      fqn: String,
+      fqn: FqName,
       description: String,
       file: IrFile,
       element: IrElement

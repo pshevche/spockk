@@ -27,12 +27,9 @@ import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 
-internal fun IrGeneratorContext.findRequiredClassSymbol(className: String): IrClassSymbol =
-  findRequiredClassSymbol(classId(className))
-
-internal fun IrGeneratorContext.findRequiredClassSymbol(classId: ClassId): IrClassSymbol =
-  irBuiltIns.symbolFinder.findClass(classId)
-    ?: throw CompilationException("Cannot find class ${classId.asString()}", null, null, null)
+internal fun IrGeneratorContext.findRequiredClassSymbol(classFqn: FqName): IrClassSymbol =
+  irBuiltIns.symbolFinder.findClass(ClassId.topLevel(classFqn))
+    ?: throw CompilationException("Cannot find class ${classFqn.asString()}", null, null, null)
 
 internal fun IrGeneratorContext.findPropertyGetter(callableId: CallableId): IrFunction =
   irBuiltIns.symbolFinder.findProperties(callableId).first().owner.getter!!
@@ -43,5 +40,3 @@ internal fun IrGeneratorContext.findUniqueFunctionSymbol(callableId: CallableId)
 internal fun IrGeneratorContext.findFunctionSymbols(
   callableId: CallableId
 ): Iterable<IrFunctionSymbol> = irBuiltIns.symbolFinder.findFunctions(callableId)
-
-private fun classId(className: String): ClassId = ClassId.topLevel(FqName(className))
