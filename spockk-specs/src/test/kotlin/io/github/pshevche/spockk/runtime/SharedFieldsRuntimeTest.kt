@@ -15,7 +15,6 @@
 package io.github.pshevche.spockk.runtime
 
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
-import io.github.pshevche.spockk.fixtures.runtime.samples.fields.DollarPrefixedFieldNames
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldAccessFromSubclass
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldLifecycle
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldTypeCompatibility
@@ -23,7 +22,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.fields.StaticFieldLife
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
-import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class SharedFieldsRuntimeTest : Specification() {
@@ -34,15 +32,6 @@ class SharedFieldsRuntimeTest : Specification() {
 
     then
     events.assertStatistics { it.started(1).succeeded(1) }
-  }
-
-  @PendingFeature
-  fun `shared fields with dollar prefixed names work correctly`() {
-    `when`
-    val events = execute(selectClass(DollarPrefixedFieldNames::class.java))
-
-    then
-    events.assertStatistics { it.started(3).succeeded(3) }
   }
 
   fun `shared field getters and setters use declared type`() {
