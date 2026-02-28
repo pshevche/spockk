@@ -17,29 +17,48 @@ package io.github.pshevche.spockk.compilation.ir
 import org.jetbrains.kotlin.builtins.StandardNames.BUILT_INS_PACKAGE_FQ_NAME
 import org.jetbrains.kotlin.builtins.StandardNames.COLLECTIONS_PACKAGE_FQ_NAME
 import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 internal object IrIdentifiers {
 
   private fun String.asName() = Name.identifier(this)
+  private fun FqName.child(name: String) = child(name.asName())
 
   internal object Spock {
     // FqName
-    val RUNTIME_PKG_FQN = FqName("org.spockframework.runtime")
-    val SPECIFICATION_FQN = FqName("spock.lang.Specification")
-    val WILDCARD_FQN = SPECIFICATION_FQN.child("_".asName())
+    private val LANG_PKG_FQN = FqName("spock.lang")
+    val SPECIFICATION_FQN = LANG_PKG_FQN.child("Specification")
+    val WILDCARD_FQN = SPECIFICATION_FQN.child("_")
+    val SHARED_ANNOTATION_FQN = LANG_PKG_FQN.child("Shared")
 
-    // ClassId
-    val SPEC_INTERNALS_CLASS_ID = ClassId(RUNTIME_PKG_FQN, "SpecInternals".asName())
+    private val RUNTIME_PKG_FQN = FqName("org.spockframework.runtime")
+    val SPECIFICATION_CONTEXT_FQN = RUNTIME_PKG_FQN.child("SpecificationContext")
+    val SPEC_INTERNALS_FQN = RUNTIME_PKG_FQN.child("SpecInternals")
+
+    private val RUNTIME_MODEL_PKG_FQN = RUNTIME_PKG_FQN.child("model")
+    val BLOCK_KIND_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockKind")
+    val BLOCK_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockMetadata")
+    val DATA_PROVIDER_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("DataProviderMetadata")
+    val DATA_PROCESSOR_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("DataProcessorMetadata")
+    val FEATURE_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("FeatureMetadata")
+    val FIELD_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("FieldMetadata")
+    val SPEC_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("SpecMetadata")
   }
 
   internal object Spockk {
     // FqName
-    val LANG_PKG_FQN = FqName("io.github.pshevche.spockk.lang")
-    val SINGLE_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variable".asName())
-    val MULTI_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variables".asName())
+    private val LANG_PKG_FQN = FqName("io.github.pshevche.spockk.lang")
+
+    val GIVEN_BLOCK_FQN = LANG_PKG_FQN.child("given")
+    val WHEN_BLOCK_FQN = LANG_PKG_FQN.child("when")
+    val THEN_BLOCK_FQN = LANG_PKG_FQN.child("then")
+    val EXPECT_BLOCK_FQN = LANG_PKG_FQN.child("expect")
+    val AND_BLOCK_FQN = LANG_PKG_FQN.child("and")
+    val WHERE_BLOCK_FQN = LANG_PKG_FQN.child("where")
+
+    val SINGLE_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variable")
+    val MULTI_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variables")
 
     // Misc
     val FROM_FQN_REGEX = "io\\.github\\.pshevche\\.spockk\\.lang\\.DataVariable.+\\.from".toRegex()
@@ -47,11 +66,14 @@ internal object IrIdentifiers {
 
   internal object Kotlin {
     // FqName
-    val LIST_FQN = COLLECTIONS_PACKAGE_FQ_NAME.child("List".asName())
+    val LIST_FQN = COLLECTIONS_PACKAGE_FQ_NAME.child("List")
+
+    private val JVM_PKG_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("jvm")
+    val VOLATILE_FQN = JVM_PKG_FQN.child("Volatile")
 
     // CallableId
-    val KCLASS_JAVA_CALLABLE_ID = CallableId(BUILT_INS_PACKAGE_FQ_NAME.child("jvm".asName()), Name.identifier("java"))
+    val KCLASS_JAVA_CALLABLE_ID = CallableId(JVM_PKG_FQN, "java".asName())
     val LIST_OF_CALLABLE_ID = CallableId(COLLECTIONS_PACKAGE_FQ_NAME, "listOf".asName())
-    val ARRAY_OF_CALLABLE_ID = CallableId(BUILT_INS_PACKAGE_FQ_NAME, Name.identifier("arrayOf"))
+    val ARRAY_OF_CALLABLE_ID = CallableId(BUILT_INS_PACKAGE_FQ_NAME, "arrayOf".asName())
   }
 }

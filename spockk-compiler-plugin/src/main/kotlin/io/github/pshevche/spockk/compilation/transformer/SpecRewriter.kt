@@ -15,7 +15,9 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
+import io.github.pshevche.spockk.compilation.transformer.fields.FieldsRewriter
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
 import io.github.pshevche.spockk.compilation.transformer.parametrization.WhereBlockRewriter
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
@@ -26,18 +28,22 @@ import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 
 internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
 
-  companion object {
-    private const val SPEC_METADATA_FQN = "org.spockframework.runtime.model.SpecMetadata"
-  }
-
   fun rewrite(spec: IrClass, context: SpecContext) {
     annotateSpec(spec, context)
+    rewriteFields(spec, context)
     rewriteWhereBlocks(spec, context)
     rewriteMockingApi(spec)
   }
 
   private fun annotateSpec(spec: IrClass, context: SpecContext) {
     spec.annotations += specMetadataAnnotation(spec, context.fileName, context.line)
+  }
+
+  private fun rewriteFields(spec: IrClass, context: SpecContext) {
+    // Always create FieldRewriter even when the spec has no fields of its own,
+    // because registerParentSharedFields() needs to run for subclasses that
+    // inherit shared fields from parent specs.
+    FieldsRewriter(this.context, spec, context.fields).rewrite()
   }
 
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {

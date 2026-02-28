@@ -15,10 +15,10 @@
 package io.github.pshevche.spockk.runtime
 
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
-import io.github.pshevche.spockk.fixtures.runtime.samples.InheritedAbstractParentSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.InheritedFromAbstractChildSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.InheritedOpenChildSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.InheritedOpenParentSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.smoke.InheritedAbstractParentSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.smoke.InheritedFromAbstractChildSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.smoke.InheritedOpenChildSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.smoke.InheritedOpenParentSpec
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass

@@ -26,14 +26,18 @@ import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrEnumEntry
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
+import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
@@ -51,11 +55,12 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.ir.util.toIrConst
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
 internal fun DeclarationIrBuilder.irAnnotation(
-  className: String,
+  className: FqName,
   vararg args: IrExpression
 ): IrConstructorCall {
   val classSymbol = context.findRequiredClassSymbol(className)
@@ -68,14 +73,14 @@ internal fun DeclarationIrBuilder.irAnnotation(
 internal fun DeclarationIrBuilder.irStringArray(elements: List<String>) =
   irVararg(context.irBuiltIns.stringType, elements.map { irString(it) })
 
-internal fun DeclarationIrBuilder.irType(typeName: String): IrType =
-  context.findRequiredClassSymbol(typeName).defaultType
+internal fun DeclarationIrBuilder.irType(typeFqn: FqName): IrType =
+  context.findRequiredClassSymbol(typeFqn).defaultType
 
 internal fun DeclarationIrBuilder.irEnumValue(
   value: String,
-  enumClassName: String
+  enumClassFqn: FqName
 ): IrGetEnumValue {
-  val enumClassSymbol = context.findRequiredClassSymbol(enumClassName)
+  val enumClassSymbol = context.findRequiredClassSymbol(enumClassFqn)
   val enumEntry =
     enumClassSymbol.owner.declarations.filterIsInstance<IrEnumEntry>().first {
       it.name.asString() == value
@@ -147,7 +152,7 @@ fun IrBuilder.irListGet(
   list: IrExpression,
   idx: Int
 ): IrExpression {
-  val getFunction = context.findRequiredClassSymbol(LIST_FQN.asString())
+  val getFunction = context.findRequiredClassSymbol(LIST_FQN)
     .owner
     .functions
     .single { it.name.asString() == "get" }
@@ -159,3 +164,11 @@ fun IrBuilder.irListGet(
     arguments[1] = idx.toIrConst(context.irBuiltIns.intType)
   }
 }
+
+fun IrBuilder.irGetThis(thisValueParam: IrValueParameter): IrGetValue = IrGetValueImpl(
+  SYNTHETIC_OFFSET,
+  SYNTHETIC_OFFSET,
+  thisValueParam.type,
+  thisValueParam.symbol,
+  IrStatementOrigin.IMPLICIT_ARGUMENT
+)

@@ -15,18 +15,25 @@
 package io.github.pshevche.spockk.compilation.transformer.parametrization
 
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SHARED_ANNOTATION_FQN
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.util.fileOrNull
+import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.util.file
+import org.jetbrains.kotlin.ir.util.hasAnnotation
+import org.jetbrains.kotlin.ir.util.isGetter
+import org.jetbrains.kotlin.ir.util.isSetter
+import org.jetbrains.kotlin.ir.util.isStatic
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class InstanceFieldAccessChecker(
-  private val file: IrFile,
+  private val spec: IrClass,
   private val whereBlockIr: IrElement
 ) : BaseSpockkIrElementTransformer() {
   fun check(expression: IrExpression) {
@@ -37,13 +44,33 @@ internal class InstanceFieldAccessChecker(
     statements.forEach { it.transform(this, null) }
   }
 
-  override fun visitGetValue(expression: IrGetValue): IrExpression = super.visitGetValue(expression).also {
-    if (expression.symbol.owner.name.asString() == "<this>") {
-      throw CompilationException(
-        "Only companion object members may be accessed from here",
-        file,
-        whereBlockIr
-      )
+  override fun visitCall(expression: IrCall): IrExpression {
+    val owner = expression.symbol.owner
+    val receiver = expression.dispatchReceiver
+
+    if (receiver != null && receiver.isCurrentSpec()) {
+      when {
+        owner.isGetter || owner.isSetter -> {
+          val backingField = owner.correspondingPropertySymbol?.owner?.backingField
+          if (backingField?.hasAnnotation(SHARED_ANNOTATION_FQN) != true) {
+            throwIllegalMemberAccessException()
+          }
+        }
+
+        !owner.isStatic -> throwIllegalMemberAccessException()
+      }
     }
+
+    return super.visitCall(expression)
   }
+
+  private fun throwIllegalMemberAccessException(): Nothing = throw CompilationException(
+    "Only companion object members and @Shared fields may be accessed from here",
+    spec.file,
+    whereBlockIr
+  )
+
+  private fun IrExpression.isCurrentSpec(): Boolean =
+    this is IrGetValue && symbol.owner.name.asString() == "<this>" &&
+      symbol.owner.type.classOrNull?.owner == spec
 }

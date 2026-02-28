@@ -17,6 +17,8 @@ package io.github.pshevche.spockk.compilation.transformer.parametrization
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROCESSOR_METADATA_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROVIDER_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
@@ -31,6 +33,8 @@ import io.github.pshevche.spockk.compilation.ir.isList
 import io.github.pshevche.spockk.compilation.ir.isMultiVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.isSingleVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences
+import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -84,13 +88,6 @@ internal class WhereBlockRewriter(
   private val featureContext: SpockkTransformationContext.FeatureContext
 ) : SpockkIrRewriter {
 
-  companion object {
-    private const val DATA_PROVIDER_METADATA_FQN =
-      "org.spockframework.runtime.model.DataProviderMetadata"
-    private const val DATA_PROCESSOR_METADATA_FQN =
-      "org.spockframework.runtime.model.DataProcessorMetadata"
-  }
-
   private val dataProcessorVars = mutableListOf<IrVariable>()
   private var dataProviderCount = 0
   private lateinit var dataProcessorMethod: IrFunction
@@ -119,11 +116,12 @@ internal class WhereBlockRewriter(
     }
   }
 
-  private fun createRewriteResources(block: FeatureBlockStatements): SingleBlockRewriteResources = SingleBlockRewriteResources(
-    InvalidParametrizationExceptionFactory(spec.file, block.element.ir),
-    InstanceFieldAccessChecker(spec.file, block.element.ir),
-    mutableListOf()
-  )
+  private fun createRewriteResources(block: FeatureBlockStatements): SingleBlockRewriteResources =
+    SingleBlockRewriteResources(
+      InvalidParametrizationExceptionFactory(spec.file, block.element.ir),
+      InstanceFieldAccessChecker(spec, block.element.ir),
+      mutableListOf()
+    )
 
   private fun rewriteWhereStatements(stats: ListIterator<IrStatement>) {
     val stat = stats.next()
@@ -452,8 +450,11 @@ internal class WhereBlockRewriter(
       return@map replaceFeatureVariableReferences(expr, variablesReplacement)
     }
 
-    val returnValues =
-      replaceWildcardRef(unwrapImplicitCoercionToUnit(valuesWithReplacedFeatureVariableReferences), builder)
+    val returnValues = postProcessDataProviderVariables(
+      dataProviderMethod,
+      valuesWithReplacedFeatureVariableReferences,
+      builder
+    )
 
     return returnValues
       .singleOrNull()
@@ -461,17 +462,34 @@ internal class WhereBlockRewriter(
       ?: builder.irListOf(featureVariable.symbol.owner.type, returnValues)
   }
 
-  private fun replaceWildcardRef(dataProviderValues: List<IrExpression>, builder: IrBuilder): List<IrExpression> =
-    dataProviderValues.map { value ->
-      (value as? IrGetValue)
-        // the usage of spock's wildcard object is checked earlier
-        ?.takeIf { it.symbol.owner.name.asString() == "_" }
-        ?.let { irGetWildcardField(builder) }
-        ?: value
-    }
+  private fun postProcessDataProviderVariables(
+    dataProviderMethod: IrFunction,
+    dataProviderValues: List<IrExpression>,
+    builder: DeclarationIrBuilder
+  ): List<IrExpression> = dataProviderValues
+    .map { unwrapImplicitCoercionToUnit(it) }
+    .map { replaceWildcardRef(it, builder) }
+    .map { it.rebindDispatchReceiverReferences(dataProviderMethod.requiredThisParameter(), builder) }
+
+  private fun rebindDispatchReceiverReferences(
+    expressions: List<IrExpression>,
+    dataProviderThisParam: IrValueParameter
+  ): List<IrExpression> = expressions.map {
+    it.rebindDispatchReceiverReferences(
+      dataProviderThisParam,
+      irBuilder(dataProviderThisParam.symbol)
+    )
+  }
+
+  private fun replaceWildcardRef(dataProviderValue: IrExpression, builder: IrBuilder): IrExpression =
+    (dataProviderValue as? IrGetValue)
+      // the usage of spock's wildcard object is checked earlier
+      ?.takeIf { it.symbol.owner.name.asString() == "_" }
+      ?.let { irGetWildcardField(builder) }
+      ?: dataProviderValue
 
   private fun irGetWildcardField(builder: IrBuilder): IrGetField {
-    val specificationSymbol = builder.context.findRequiredClassSymbol(IrIdentifiers.Spock.SPECIFICATION_FQN.asString())
+    val specificationSymbol = builder.context.findRequiredClassSymbol(IrIdentifiers.Spock.SPECIFICATION_FQN)
     val wildcardField = specificationSymbol
       .owner
       .declarations
@@ -482,9 +500,6 @@ internal class WhereBlockRewriter(
       superQualifierSymbol = specificationSymbol
     }
   }
-
-  private fun unwrapImplicitCoercionToUnit(expressions: List<IrExpression>): List<IrExpression> =
-    expressions.map { unwrapImplicitCoercionToUnit(it) }
 
   private fun unwrapImplicitCoercionToUnit(exp: IrExpression): IrExpression = (exp as? IrTypeOperatorCall)?.let {
     if (it.operator == IMPLICIT_COERCION_TO_UNIT) it.argument else it

@@ -17,17 +17,21 @@
 package io.github.pshevche.spockk.compilation.ir
 
 import io.github.pshevche.spockk.compilation.common.FeatureBlockLabelIrElement
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.FqName
 
 internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
@@ -40,14 +44,18 @@ internal fun IrStatement.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElemen
 private fun IrGetObjectValue.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
   FeatureBlockLabelIrElement.from(file, this)
 
-internal fun IrGetObjectValue.requiredFqn() = symbol.owner.fqNameWhenAvailable!!.asString()
+internal fun IrGetObjectValue.requiredFqn() = requireNotNull(symbol.owner.fqNameWhenAvailable) {
+  "Missing FqName for an object reference $this"
+}
 
 private fun IrCall.asIrBlockLabel(file: IrFile): FeatureBlockLabelIrElement? =
   FeatureBlockLabelIrElement.from(file, this)
 
 internal fun IrCall.fqName(): FqName? = symbol.owner.fqNameWhenAvailable
 
-internal fun IrCall.requiredFqn() = fqName()!!.asString()
+internal fun IrCall.requiredFqn() = requireNotNull(fqName()!!) {
+  "Missing FqName for a function call $this"
+}
 
 internal fun IrStatement.isFromCall() = (this as? IrCall)
   ?.fqName()
@@ -61,4 +69,25 @@ internal fun IrCall.isMultiVariableInitializer() = fqName() == IrIdentifiers.Spo
 internal fun IrGetValue.asFeatureVariable(feature: IrFunction): IrValueParameter? {
   val paramSymbol = symbol as? IrValueParameterSymbol
   return feature.assignableParameters().find { it.symbol == paramSymbol }
+}
+
+// when moving property access to a new method (e.g., from feature's where block to the data provider method)
+// we need to rebind the dispatch receiver (i.e., '<this>') to the new target, as it includes the method reference
+internal fun IrExpression.rebindDispatchReceiverReferences(
+  targetParam: IrValueParameter,
+  irBuilder: DeclarationIrBuilder
+): IrExpression {
+  val rebinder = object : IrElementTransformerVoid() {
+    override fun visitGetValue(expression: IrGetValue): IrExpression {
+      val paramOwner = expression.symbol.owner
+      if (paramOwner is IrValueParameter &&
+        paramOwner.name.asString() == "<this>" &&
+        paramOwner.symbol != targetParam.symbol
+      ) {
+        return irBuilder.irGet(targetParam)
+      }
+      return super.visitGetValue(expression)
+    }
+  }
+  return transform(rebinder, null)
 }

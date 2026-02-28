@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.runtime
 
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
-import io.github.pshevche.spockk.fixtures.runtime.samples.SimpleSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.smoke.SimpleSpec
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.UniqueId

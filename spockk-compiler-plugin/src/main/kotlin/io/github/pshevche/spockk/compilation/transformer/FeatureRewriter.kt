@@ -16,6 +16,9 @@ package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_KIND_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_METADATA_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FEATURE_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.irEnumValue
 import io.github.pshevche.spockk.compilation.ir.irStringArray
@@ -32,12 +35,6 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.name.Name
 
 internal class FeatureRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
-
-  companion object {
-    private const val FEATURE_METADATA_FQN = "org.spockframework.runtime.model.FeatureMetadata"
-    private const val BLOCK_METADATA_FQN = "org.spockframework.runtime.model.BlockMetadata"
-    private const val BLOCK_KIND_FQN = "org.spockframework.runtime.model.BlockKind"
-  }
 
   fun rewrite(feature: IrFunction, context: FeatureContext) {
     annotateFeature(feature, context)

@@ -14,19 +14,27 @@
 
 package io.github.pshevche.spockk.compilation.common
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.AND_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.EXPECT_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.GIVEN_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.THEN_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.WHEN_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.WHERE_BLOCK_FQN
+import org.jetbrains.kotlin.name.FqName
+
 internal enum class FeatureBlockLabel(
   val displayName: String,
-  val fqn: String,
+  val fqn: FqName,
   val blockKind: String?
 ) {
-  GIVEN("given", "io.github.pshevche.spockk.lang.given", null),
-  WHEN("when", "io.github.pshevche.spockk.lang.when", "WHEN"),
-  THEN("then", "io.github.pshevche.spockk.lang.then", "THEN"),
-  EXPECT("expect", "io.github.pshevche.spockk.lang.expect", "EXPECT"),
-  AND("and", "io.github.pshevche.spockk.lang.and", null),
-  WHERE("where", "io.github.pshevche.spockk.lang.where", "WHERE");
+  GIVEN("given", GIVEN_BLOCK_FQN, null),
+  WHEN("when", WHEN_BLOCK_FQN, "WHEN"),
+  THEN("then", THEN_BLOCK_FQN, "THEN"),
+  EXPECT("expect", EXPECT_BLOCK_FQN, "EXPECT"),
+  AND("and", AND_BLOCK_FQN, null),
+  WHERE("where", WHERE_BLOCK_FQN, "WHERE");
 
   companion object {
-    fun from(fqn: String) = entries.find { fqn == it.fqn }
+    fun from(fqn: FqName) = entries.find { fqn == it.fqn }
   }
 }

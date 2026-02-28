@@ -12,19 +12,23 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.fixtures.runtime.samples
+package io.github.pshevche.spockk.fixtures.runtime.samples.fields
 
 import io.github.pshevche.spockk.lang.expect
+import spock.lang.Shared
+import spock.lang.Specification
 
-class InheritedOpenChildSpec : InheritedOpenParentSpec() {
+interface HasValueProperty {
+  var value: String
+}
 
-  fun `successful child feature`() {
+class SharedFieldTypeCompatibility :
+  Specification(),
+  HasValueProperty {
+  @Shared override var value = "1"
+
+  fun `feature`() {
     expect
-    assert(true)
-  }
-
-  fun `failing child feature`() {
-    expect
-    assert(false)
+    assert(value == "1")
   }
 }

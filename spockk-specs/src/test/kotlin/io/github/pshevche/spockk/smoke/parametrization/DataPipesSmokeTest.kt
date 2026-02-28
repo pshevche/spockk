@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.where
+import spock.lang.Shared
 import spock.lang.Specification
 import kotlin.math.max
 import kotlin.test.assertEquals
@@ -29,6 +30,9 @@ class DataPipesSmokeTest : Specification() {
 
     data class Person(val age: Int)
   }
+
+  @Shared
+  private val sharedField = 42
 
   fun `single variable single value`(a: Int) {
     expect
@@ -90,7 +94,7 @@ class DataPipesSmokeTest : Specification() {
     assertEquals(42, a)
 
     where
-    variable(a).from(STATIC_FIELD)
+    variable(a).from(STATIC_FIELD, sharedField)
   }
 
   fun `pipes can reference previous variables`(a: Int, b: Int, c: Int) {
