@@ -164,10 +164,10 @@ fun IrBuilder.irListGet(
   }
 }
 
-fun IrBuilder.irGetThis(dispatchReceiver: IrValueParameter): IrGetValue = IrGetValueImpl(
+fun IrBuilder.irGetThis(thisValueParam: IrValueParameter): IrGetValue = IrGetValueImpl(
   SYNTHETIC_OFFSET,
   SYNTHETIC_OFFSET,
-  dispatchReceiver.type,
-  dispatchReceiver.symbol,
+  thisValueParam.type,
+  thisValueParam.symbol,
   IrStatementOrigin.IMPLICIT_ARGUMENT
 )

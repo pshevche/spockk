@@ -13,6 +13,7 @@
  */
 
 @file:OptIn(UnsafeDuringIrConstructionAPI::class)
+
 package io.github.pshevche.spockk.compilation.ir
 
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder

@@ -115,7 +115,7 @@ internal class SharedFieldStrategy(
       // For shared val with initializer: create DEFAULT setter so init method can use
       // a setter CALL (matching the expected IR from `$spock_sharedField_x = value`)
       if (fieldCtx.isVal && fieldCtx.hasInitializer && !fieldCtx.isLateinit) {
-        createValFieldSetter(property, field, newName)
+        createValFieldSetter(newName, property, field)
       }
     }
 

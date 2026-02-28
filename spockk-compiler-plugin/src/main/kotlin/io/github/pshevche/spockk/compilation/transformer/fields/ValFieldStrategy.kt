@@ -18,6 +18,7 @@ package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
+import io.github.pshevche.spockk.compilation.ir.irGetThis
 import io.github.pshevche.spockk.compilation.ir.makeMutable
 import io.github.pshevche.spockk.compilation.ir.makePrivate
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
@@ -29,12 +30,10 @@ import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.name.Name
 
 /**
@@ -55,34 +54,28 @@ internal class ValFieldStrategy(
 
   override fun rewrite(property: IrProperty) {
     val field = property.backingField ?: return
-    val originalFieldSymbol = field.symbol
-    val originalGetter = property.getter
 
     annotateField(field, fieldCtx)
 
-    // Rename field and property to the Spock-internal name
     val newName = InternalIdentifiers.getFinalFieldName(fieldCtx.name)
-    field.name = newName
-    property.name = newName
-    property.getter?.name = Name.special("<get-${newName.asString()}>")
-
-    // Make private var (remove final, change visibility)
-    field.makePrivate()
-    property.makePrivate()
-    field.makeMutable()
-    property.makeMutable()
-
-    // Exclude the DEFAULT getter from reference replacement to preserve its direct GET_FIELD body.
-    // The explicit getXxx() method (created below) is what feature methods use.
-    originalGetter?.let { state.onFunctionGenerated(it.symbol) }
+    rename(field, property, newName)
+    updateModifiers(field, property)
 
     if (fieldCtx.hasInitializer) {
       // Create DEFAULT_PROPERTY_ACCESSOR setter before moving initializer so
       // moveInitializerToInstanceInit can use a setter CALL (matching expected IR)
-      createValFieldSetter(property, field, newName)
+      createValFieldSetter(newName, property, field)
       moveFieldInitializerForInstanceField(field, property)
       makeFieldNullableWithNullDefault(field)
     }
+
+    // updating the getter after the setter in case the field's type changes
+    createOrReplaceGetter(field, property)
+  }
+
+  private fun createOrReplaceGetter(field: IrField, property: IrProperty) {
+    val originalFieldSymbol = field.symbol
+    val originalGetter = property.getter
 
     // Generate explicit getter: fun get<OriginalName>(): T? = $spock_finalField_xxx
     val getter = createValGetter(
@@ -91,15 +84,39 @@ internal class ValFieldStrategy(
       field
     )
 
-    // Register for reference replacement
-    originalGetter?.let { state.onGetterReplaced(it.symbol, getter) }
+    originalGetter?.let {
+      // Exclude the DEFAULT getter from reference replacement to preserve its direct GET_FIELD body.
+      // The explicit getXxx() method (created below) is what feature methods use.
+      state.onFunctionGenerated(it.symbol)
+      state.onGetterReplaced(it.symbol, getter)
+    }
+
     state.onFieldGetterCreated(originalFieldSymbol, getter)
+  }
+
+  // Make private var (remove final, change visibility)
+  private fun updateModifiers(field: IrField, property: IrProperty) {
+    field.makePrivate()
+    property.makePrivate()
+    field.makeMutable()
+    property.makeMutable()
+  }
+
+  // Rename field and property to the Spock-internal name
+  private fun rename(
+    field: IrField,
+    property: IrProperty,
+    newName: Name
+  ) {
+    field.name = newName
+    property.name = newName
+    property.getter?.name = Name.special("<get-${newName.asString()}>")
   }
 
   // Creates an explicit getter that delegates to the DEFAULT property getter via GET_PROPERTY origin.
   // This matches the expected IR: `fun getAnswer(): Int? = $spock_finalField_answer`
-  private fun createValGetter(name: Name, property: IrProperty, field: IrField): IrSimpleFunction {
-    val getter = spec.addMemberFunction(name, field.type) as IrSimpleFunction
+  private fun createValGetter(name: Name, property: IrProperty, field: IrField): IrFunction {
+    val getter = spec.addMemberFunction(name, field.type)
     val thisParam = getter.parameters.first { it.name.asString() == "<this>" }
     val defaultGetter = property.getter
     getter.body = with(irBuilder(getter.symbol)) {
@@ -107,13 +124,7 @@ internal class ValFieldStrategy(
         +irReturn(
           if (defaultGetter != null) {
             irCall(defaultGetter.symbol, field.type, origin = IrStatementOrigin.GET_PROPERTY).apply {
-              arguments[0] = IrGetValueImpl(
-                SYNTHETIC_OFFSET,
-                SYNTHETIC_OFFSET,
-                thisParam.type,
-                thisParam.symbol,
-                IrStatementOrigin.IMPLICIT_ARGUMENT
-              )
+              arguments[0] = irGetThis(thisParam)
             }
           } else {
             irGetField(irGet(thisParam), field)

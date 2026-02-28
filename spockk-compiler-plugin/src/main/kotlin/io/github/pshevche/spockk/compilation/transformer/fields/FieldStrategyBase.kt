@@ -168,9 +168,9 @@ internal abstract class FieldStrategyBase(
   // Removed from spec.declarations since DEFAULT_PROPERTY_ACCESSORs are only accessible
   // as children of their property, not as top-level class declarations.
   protected fun createValFieldSetter(
+    setterName: Name,
     property: IrProperty,
-    field: IrField,
-    setterName: Name
+    field: IrField
   ): IrSimpleFunction {
     val setter = spec.addMemberFunction(
       Name.special("<set-${setterName.asString()}>"),
