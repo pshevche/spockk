@@ -16,15 +16,13 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fields
 
-import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.IrSimpleType
+import org.jetbrains.kotlin.ir.util.superClass
 
 /**
  * Wires subclass feature method references to parent class shared field accessors.
@@ -37,23 +35,58 @@ import org.jetbrains.kotlin.ir.types.IrSimpleType
  *    target fake override symbols rather than the parent's actual symbols)
  */
 internal class ParentSharedFieldRegistrar(
-  private val context: IrGeneratorContext,
   private val spec: IrClass,
   private val state: FieldRewriteState
 ) {
 
   fun register() {
-    val parentAccessorMap = mutableMapOf<IrSimpleFunctionSymbol, IrSimpleFunction>()
+    val parentAccessorMap = getParentAccessorsForCurrentInheritedFields()
+
+    // Map fake override symbols in the current class to the same parent generated functions.
+    // In Kotlin IR, CALLs in a subclass target fake override symbols rather than the parent's
+    // actual getter/setter symbols.
+    if (parentAccessorMap.isNotEmpty()) {
+      for (property in spec.declarations.filterIsInstance<IrProperty>()) {
+        if (!property.isFakeOverride) continue
+
+        val fakeGetter = property.getter
+        findReplacementFor(fakeGetter, parentAccessorMap)
+          ?.also {
+            state.onGetterReplaced(fakeGetter!!.symbol, it)
+            state.onFunctionGenerated(fakeGetter.symbol)
+          }
+
+        val fakeSetter = property.setter
+        findReplacementFor(fakeSetter, parentAccessorMap)
+          ?.also {
+            state.onSetterReplaced(fakeSetter!!.symbol, it)
+            state.onFunctionGenerated(fakeSetter.symbol)
+          }
+      }
+    }
+  }
+
+  private fun findReplacementFor(
+    function: IrSimpleFunction?,
+    parentAccessors: Map<IrFunctionSymbol, IrFunction>
+  ): IrFunction? {
+    return function?.overriddenSymbols
+      ?.map { parentAccessors[it] }
+      ?.firstOrNull()
+  }
+
+  private fun getParentAccessorsForCurrentInheritedFields(): Map<IrFunctionSymbol, IrFunction> {
+    val parentAccessorMap = mutableMapOf<IrFunctionSymbol, IrFunction>()
 
     // Walk superclass hierarchy to find transformed shared fields and their generated accessors
-    var superClass: IrClass? = findDirectSuperClass(spec)
+    var superClass: IrClass? = spec.superClass
     while (superClass != null) {
       for (property in superClass.declarations.filterIsInstance<IrProperty>()) {
         val field = property.backingField ?: continue
         val fieldName = field.name.asString()
-        if (!fieldName.startsWith("\$spock_sharedField_")) continue
+        if (!fieldName.startsWith($$"$spock_sharedField_")) continue
 
-        val originalName = fieldName.removePrefix("\$spock_sharedField_")
+        val originalName = fieldName.removePrefix($$"$spock_sharedField_")
         val getterName = "get${originalName.replaceFirstChar { it.uppercaseChar() }}"
         val setterName = "set${originalName.replaceFirstChar { it.uppercaseChar() }}"
 
@@ -75,46 +108,9 @@ internal class ParentSharedFieldRegistrar(
         }
       }
 
-      superClass = findDirectSuperClass(superClass)
+      superClass = superClass.superClass
     }
-
-    // Map fake override symbols in the current class to the same parent generated functions.
-    // In Kotlin IR, CALLs in a subclass target fake override symbols rather than the parent's
-    // actual getter/setter symbols.
-    if (parentAccessorMap.isNotEmpty()) {
-      for (property in spec.declarations.filterIsInstance<IrProperty>()) {
-        if (!property.isFakeOverride) continue
-
-        val fakeGetter = property.getter
-        if (fakeGetter != null) {
-          for (overridden in fakeGetter.overriddenSymbols) {
-            val replacement = parentAccessorMap[overridden]
-            if (replacement != null) {
-              state.onGetterReplaced(fakeGetter.symbol, replacement)
-              state.onFunctionGenerated(fakeGetter.symbol)
-              break
-            }
-          }
-        }
-
-        val fakeSetter = property.setter
-        if (fakeSetter != null) {
-          for (overridden in fakeSetter.overriddenSymbols) {
-            val replacement = parentAccessorMap[overridden]
-            if (replacement != null) {
-              state.onSetterReplaced(fakeSetter.symbol, replacement)
-              state.onFunctionGenerated(fakeSetter.symbol)
-              break
-            }
-          }
-        }
-      }
-    }
+    return parentAccessorMap
   }
 
-  private fun findDirectSuperClass(clazz: IrClass): IrClass? =
-    clazz.superTypes
-      .mapNotNull { (it as? IrSimpleType)?.classifier }
-      .mapNotNull { (it as? IrClassSymbol)?.owner }
-      .firstOrNull { it.kind == ClassKind.CLASS }
 }

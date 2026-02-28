@@ -33,7 +33,7 @@ internal class FieldsRewriter(
       SingleFieldRewriterStrategy.create(fieldCtx, context, spec, state).rewrite(property)
     }
 
-    ParentSharedFieldRegistrar(context, spec, state).register()
+    ParentSharedFieldRegistrar( spec, state).register()
     FieldReferenceReplacer(context, spec, state).replace()
   }
 }

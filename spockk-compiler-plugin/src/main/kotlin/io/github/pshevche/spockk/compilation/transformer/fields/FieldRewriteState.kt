@@ -14,9 +14,9 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fields
 
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.types.IrType
 
 /**
@@ -24,51 +24,51 @@ import org.jetbrains.kotlin.ir.types.IrType
  * listener-style write methods and typed read methods, so strategies never access raw maps.
  */
 internal class FieldRewriteState {
-  private val fieldGetters = mutableMapOf<IrFieldSymbol, IrSimpleFunction>()
-  private val fieldSetters = mutableMapOf<IrFieldSymbol, IrSimpleFunction>()
-  private val getterReplacements = mutableMapOf<IrSimpleFunctionSymbol, IrSimpleFunction>()
-  private val setterReplacements = mutableMapOf<IrSimpleFunctionSymbol, IrSimpleFunction>()
-  private val getterTypeUpdates = mutableMapOf<IrSimpleFunctionSymbol, IrType>()
-  private val generated = mutableSetOf<IrSimpleFunctionSymbol>()
+  private val fieldGetters = mutableMapOf<IrFieldSymbol, IrFunction>()
+  private val fieldSetters = mutableMapOf<IrFieldSymbol, IrFunction>()
+  private val getterReplacements = mutableMapOf<IrFunctionSymbol, IrFunction>()
+  private val setterReplacements = mutableMapOf<IrFunctionSymbol, IrFunction>()
+  private val getterTypeUpdates = mutableMapOf<IrFunctionSymbol, IrType>()
+  private val generated = mutableSetOf<IrFunctionSymbol>()
 
   // Lazily-created initializer methods shared across all field strategies
-  var instanceFieldsInitMethod: IrSimpleFunction? = null
-  var sharedFieldsInitMethod: IrSimpleFunction? = null
+  var instanceFieldsInitMethod: IrFunction? = null
+  var sharedFieldsInitMethod: IrFunction? = null
 
   // -- write (listener) API --
 
-  fun onFieldGetterCreated(fieldSymbol: IrFieldSymbol, getter: IrSimpleFunction) {
+  fun onFieldGetterCreated(fieldSymbol: IrFieldSymbol, getter: IrFunction) {
     fieldGetters[fieldSymbol] = getter
   }
 
-  fun onFieldSetterCreated(fieldSymbol: IrFieldSymbol, setter: IrSimpleFunction) {
+  fun onFieldSetterCreated(fieldSymbol: IrFieldSymbol, setter: IrFunction) {
     fieldSetters[fieldSymbol] = setter
   }
 
-  fun onGetterReplaced(originalSymbol: IrSimpleFunctionSymbol, replacement: IrSimpleFunction) {
+  fun onGetterReplaced(originalSymbol: IrFunctionSymbol, replacement: IrFunction) {
     getterReplacements[originalSymbol] = replacement
   }
 
-  fun onSetterReplaced(originalSymbol: IrSimpleFunctionSymbol, replacement: IrSimpleFunction) {
+  fun onSetterReplaced(originalSymbol: IrFunctionSymbol, replacement: IrFunction) {
     setterReplacements[originalSymbol] = replacement
   }
 
-  fun onGetterTypeUpdated(getterSymbol: IrSimpleFunctionSymbol, newType: IrType) {
+  fun onGetterTypeUpdated(getterSymbol: IrFunctionSymbol, newType: IrType) {
     getterTypeUpdates[getterSymbol] = newType
   }
 
-  fun onFunctionGenerated(symbol: IrSimpleFunctionSymbol) {
+  fun onFunctionGenerated(symbol: IrFunctionSymbol) {
     generated += symbol
   }
 
   // -- read API for FieldReferenceReplacer / ParentSharedFieldRegistrar --
 
-  fun fieldGetter(symbol: IrFieldSymbol): IrSimpleFunction? = fieldGetters[symbol]
-  fun fieldSetter(symbol: IrFieldSymbol): IrSimpleFunction? = fieldSetters[symbol]
-  fun getterReplacement(symbol: IrSimpleFunctionSymbol): IrSimpleFunction? = getterReplacements[symbol]
-  fun setterReplacement(symbol: IrSimpleFunctionSymbol): IrSimpleFunction? = setterReplacements[symbol]
-  fun getterTypeUpdate(symbol: IrSimpleFunctionSymbol): IrType? = getterTypeUpdates[symbol]
-  fun isGenerated(symbol: IrSimpleFunctionSymbol): Boolean = symbol in generated
+  fun fieldGetter(symbol: IrFieldSymbol): IrFunction? = fieldGetters[symbol]
+  fun fieldSetter(symbol: IrFieldSymbol): IrFunction? = fieldSetters[symbol]
+  fun getterReplacement(symbol: IrFunctionSymbol): IrFunction? = getterReplacements[symbol]
+  fun setterReplacement(symbol: IrFunctionSymbol): IrFunction? = setterReplacements[symbol]
+  fun getterTypeUpdate(symbol: IrFunctionSymbol): IrType? = getterTypeUpdates[symbol]
+  fun isGenerated(symbol: IrFunctionSymbol): Boolean = symbol in generated
 
   fun isEmpty(): Boolean =
     fieldGetters.isEmpty() &&

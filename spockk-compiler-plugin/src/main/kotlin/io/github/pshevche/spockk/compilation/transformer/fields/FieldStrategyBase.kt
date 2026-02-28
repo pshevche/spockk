@@ -81,11 +81,11 @@ internal abstract class FieldStrategyBase(
 
   // --- Init method management ---
 
-  protected fun getOrCreateInstanceFieldsInit(): IrSimpleFunction =
+  protected fun getOrCreateInstanceFieldsInit(): IrFunction =
     state.instanceFieldsInitMethod ?: createInitMethod(InternalIdentifiers.INITIALIZE_FIELDS_METHOD)
       .also { state.instanceFieldsInitMethod = it }
 
-  protected fun getOrCreateSharedFieldsInit(): IrSimpleFunction =
+  protected fun getOrCreateSharedFieldsInit(): IrFunction =
     state.sharedFieldsInitMethod ?: createInitMethod(InternalIdentifiers.INITIALIZE_SHARED_FIELDS_METHOD)
       .also { state.sharedFieldsInitMethod = it }
 
@@ -126,14 +126,15 @@ internal abstract class FieldStrategyBase(
   // Generates a CALL to the property setter (origin=EQ, dispatch receiver origin=IMPLICIT_ARGUMENT).
   // This matches the IR that Kotlin generates for `property = value` statements.
   private fun addSetterCallStatement(
-    initMethod: IrSimpleFunction,
-    setter: IrSimpleFunction,
+    initMethod: IrFunction,
+    setter: IrFunction,
     value: IrExpression
   ) {
     val dispatchReceiver = initMethod.parameters.first { it.name.asString() == "<this>" }
     val reboundValue = rebindDispatchReceiverReferences(value, dispatchReceiver)
     val call = with(irBuilder(initMethod.symbol)) {
-      irCall(setter.symbol, irBuiltIns.unitType, origin = IrStatementOrigin.EQ).apply {
+      irCall(setter.symbol, irBuiltIns.unitType).apply {
+        origin = IrStatementOrigin.EQ
         arguments[0] = IrGetValueImpl(
           SYNTHETIC_OFFSET,
           SYNTHETIC_OFFSET,
@@ -147,7 +148,7 @@ internal abstract class FieldStrategyBase(
     initMethod.mutableStatements()?.add(call)
   }
 
-  private fun addFieldInitStatement(initMethod: IrSimpleFunction, field: IrField, value: IrExpression) {
+  private fun addFieldInitStatement(initMethod: IrFunction, field: IrField, value: IrExpression) {
     val dispatchReceiver = initMethod.parameters.first { it.name.asString() == "<this>" }
     val reboundValue = rebindDispatchReceiverReferences(value, dispatchReceiver)
     val setFieldStmt = with(irBuilder(initMethod.symbol)) {
