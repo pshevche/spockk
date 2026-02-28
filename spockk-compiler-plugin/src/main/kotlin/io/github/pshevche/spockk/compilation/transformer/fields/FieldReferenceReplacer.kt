@@ -45,7 +45,8 @@ internal class FieldReferenceReplacer(
   override val context: IrGeneratorContext,
   private val spec: IrClass,
   private val state: FieldRewriteState
-) : BaseSpockkIrElementTransformer(), SpockkIrRewriter {
+) : BaseSpockkIrElementTransformer(),
+  SpockkIrRewriter {
 
   fun replace() {
     if (state.isEmpty()) return

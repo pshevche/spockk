@@ -69,11 +69,9 @@ internal class ParentSharedFieldRegistrar(
   private fun findReplacementFor(
     function: IrSimpleFunction?,
     parentAccessors: Map<IrFunctionSymbol, IrFunction>
-  ): IrFunction? {
-    return function?.overriddenSymbols
-      ?.map { parentAccessors[it] }
-      ?.firstOrNull()
-  }
+  ): IrFunction? = function?.overriddenSymbols
+    ?.map { parentAccessors[it] }
+    ?.firstOrNull()
 
   private fun getParentAccessorsForCurrentInheritedFields(): Map<IrFunctionSymbol, IrFunction> {
     val parentAccessorMap = mutableMapOf<IrFunctionSymbol, IrFunction>()
@@ -112,5 +110,4 @@ internal class ParentSharedFieldRegistrar(
     }
     return parentAccessorMap
   }
-
 }

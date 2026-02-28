@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 
-internal interface SingleFieldRewriterStrategy: SpockkIrRewriter {
+internal interface SingleFieldRewriterStrategy : SpockkIrRewriter {
   fun rewrite(property: IrProperty)
 
   companion object {
