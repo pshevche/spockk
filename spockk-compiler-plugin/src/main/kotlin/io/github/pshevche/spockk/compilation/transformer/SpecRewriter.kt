@@ -16,7 +16,7 @@ package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
-import io.github.pshevche.spockk.compilation.transformer.fields.FieldRewriter
+import io.github.pshevche.spockk.compilation.transformer.fields.FieldsRewriter
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
 import io.github.pshevche.spockk.compilation.transformer.parametrization.WhereBlockRewriter
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
@@ -46,7 +46,7 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
     // Always create FieldRewriter even when the spec has no fields of its own,
     // because registerParentSharedFields() needs to run for subclasses that
     // inherit shared fields from parent specs.
-    FieldRewriter(this.context, spec, context.fields).rewrite()
+    FieldsRewriter(this.context, spec, context.fields).rewrite()
   }
 
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {

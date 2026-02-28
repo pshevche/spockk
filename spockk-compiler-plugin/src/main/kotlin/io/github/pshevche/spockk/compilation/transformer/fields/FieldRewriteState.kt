@@ -71,7 +71,9 @@ internal class FieldRewriteState {
   fun isGenerated(symbol: IrSimpleFunctionSymbol): Boolean = symbol in generated
 
   fun isEmpty(): Boolean =
-    fieldGetters.isEmpty() && fieldSetters.isEmpty() &&
-      getterReplacements.isEmpty() && setterReplacements.isEmpty() &&
+    fieldGetters.isEmpty() &&
+      fieldSetters.isEmpty() &&
+      getterReplacements.isEmpty() &&
+      setterReplacements.isEmpty() &&
       getterTypeUpdates.isEmpty()
 }

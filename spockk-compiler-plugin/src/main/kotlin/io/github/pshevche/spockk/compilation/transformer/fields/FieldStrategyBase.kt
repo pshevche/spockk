@@ -23,7 +23,6 @@ import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.makeNullableWithNullDefault
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
-import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
@@ -31,7 +30,6 @@ import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.builders.irString
@@ -60,7 +58,7 @@ internal abstract class FieldStrategyBase(
   override val context: IrGeneratorContext,
   protected val spec: IrClass,
   protected val state: FieldRewriteState
-) : SpockkIrRewriter {
+) : SingleFieldRewriterStrategy {
 
   companion object {
     private const val FIELD_METADATA_FQN = "org.spockframework.runtime.model.FieldMetadata"

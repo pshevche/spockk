@@ -70,7 +70,7 @@ internal class MutableSpockkTransformationContext {
               ctx.fileName,
               ctx.line,
               finalizeFeatures(ctx),
-              ctx.fields
+              ctx.fields.toMap()
             )
           )
         }

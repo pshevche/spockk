@@ -15,19 +15,20 @@
 package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 
-internal interface SingleFieldRewriterStrategy {
-  fun transform(property: IrProperty)
+internal interface SingleFieldRewriterStrategy: SpockkIrRewriter {
+  fun rewrite(property: IrProperty)
 
   companion object {
     fun create(
       fieldCtx: FieldContext,
-      state: FieldRewriteState,
       context: IrGeneratorContext,
-      spec: IrClass
+      spec: IrClass,
+      state: FieldRewriteState
     ): SingleFieldRewriterStrategy = when {
       fieldCtx.isShared -> SharedFieldStrategy(fieldCtx, state, context, spec)
       !fieldCtx.isLateinit && fieldCtx.isVal -> ValFieldStrategy(fieldCtx, state, context, spec)

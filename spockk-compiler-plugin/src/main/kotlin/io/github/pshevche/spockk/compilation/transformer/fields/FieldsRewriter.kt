@@ -20,7 +20,7 @@ import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 
-internal class FieldRewriter(
+internal class FieldsRewriter(
   override val context: IrGeneratorContext,
   private val spec: IrClass,
   private val fields: Map<IrProperty, FieldContext>
@@ -30,7 +30,7 @@ internal class FieldRewriter(
     val state = FieldRewriteState()
 
     fields.forEach { (property, fieldCtx) ->
-      SingleFieldRewriterStrategy.create(fieldCtx, state, context, spec).transform(property)
+      SingleFieldRewriterStrategy.create(fieldCtx, context, spec, state).rewrite(property)
     }
 
     ParentSharedFieldRegistrar(context, spec, state).register()

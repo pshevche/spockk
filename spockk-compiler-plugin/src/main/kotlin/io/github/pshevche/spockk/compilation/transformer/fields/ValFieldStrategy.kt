@@ -51,10 +51,9 @@ internal class ValFieldStrategy(
   state: FieldRewriteState,
   context: IrGeneratorContext,
   spec: IrClass
-) : FieldStrategyBase(context, spec, state),
-  SingleFieldRewriterStrategy {
+) : FieldStrategyBase(context, spec, state) {
 
-  override fun transform(property: IrProperty) {
+  override fun rewrite(property: IrProperty) {
     val field = property.backingField ?: return
     val originalFieldSymbol = field.symbol
     val originalGetter = property.getter
