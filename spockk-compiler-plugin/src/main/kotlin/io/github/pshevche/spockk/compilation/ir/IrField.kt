@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 
+@file:OptIn(UnsafeDuringIrConstructionAPI::class)
 package io.github.pshevche.spockk.compilation.ir
 
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -19,6 +20,10 @@ import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.builders.irExprBody
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.declarations.IrField
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrGetField
+import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 
@@ -43,7 +48,7 @@ internal fun IrField.makeNullableWithNullDefault(builder: DeclarationIrBuilder) 
     getter.returnType = nullableType
     getter.body?.transform(
       object : IrElementTransformerVoid() {
-        override fun visitGetField(expression: org.jetbrains.kotlin.ir.expressions.IrGetField): org.jetbrains.kotlin.ir.expressions.IrExpression {
+        override fun visitGetField(expression: IrGetField): IrExpression {
           if (expression.symbol == this@makeNullableWithNullDefault.symbol) {
             expression.type = nullableType
           }
@@ -61,7 +66,7 @@ internal fun IrField.makeNullableWithNullDefault(builder: DeclarationIrBuilder) 
       valueParam.type = nullableType
       setter.body?.transform(
         object : IrElementTransformerVoid() {
-          override fun visitGetValue(expression: org.jetbrains.kotlin.ir.expressions.IrGetValue): org.jetbrains.kotlin.ir.expressions.IrExpression {
+          override fun visitGetValue(expression: IrGetValue): IrExpression {
             if (expression.symbol == valueParam.symbol) {
               expression.type = nullableType
             }

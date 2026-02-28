@@ -24,3 +24,7 @@ internal fun IrFunction.mutableStatements(): MutableList<IrStatement>? =
 
 internal fun IrFunction.assignableParameters(): List<IrValueParameter> =
   parameters.filter { it.name.asString() != "<this>" }
+
+internal fun IrFunction.requiredThisParameter() = requireNotNull(dispatchReceiverParameter) {
+  "Missing required <this> parameter on the member function: $this"
+}

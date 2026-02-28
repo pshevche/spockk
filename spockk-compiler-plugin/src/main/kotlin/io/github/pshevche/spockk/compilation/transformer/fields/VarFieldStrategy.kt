@@ -41,7 +41,7 @@ internal class VarFieldStrategy(
     property.makePrivate()
 
     if (fieldCtx.hasInitializer && !fieldCtx.isLateinit) {
-      moveInitializerToInstanceInit(field, property)
+      moveFieldInitializerForInstanceField(field, property)
       makeFieldNullableWithNullDefault(field)
       // Track getter so CALL expressions in feature methods get their type updated
       property.getter?.let { state.onGetterTypeUpdated(it.symbol, it.returnType) }

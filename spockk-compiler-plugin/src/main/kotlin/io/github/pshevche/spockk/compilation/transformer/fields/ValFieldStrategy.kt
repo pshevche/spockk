@@ -80,7 +80,7 @@ internal class ValFieldStrategy(
       // Create DEFAULT_PROPERTY_ACCESSOR setter before moving initializer so
       // moveInitializerToInstanceInit can use a setter CALL (matching expected IR)
       createValFieldSetter(property, field, newName)
-      moveInitializerToInstanceInit(field, property)
+      moveFieldInitializerForInstanceField(field, property)
       makeFieldNullableWithNullDefault(field)
     }
 

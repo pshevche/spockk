@@ -20,14 +20,17 @@ import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
+import io.github.pshevche.spockk.compilation.ir.irGetThis
 import io.github.pshevche.spockk.compilation.ir.makeNullableWithNullDefault
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irBlockBody
+import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irInt
@@ -50,7 +53,6 @@ import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
-import org.jetbrains.kotlin.ir.util.toIrConst
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.Name
 
@@ -74,7 +76,7 @@ internal abstract class FieldStrategyBase(
         irString(fieldCtx.name),
         irInt(fieldCtx.ordinal),
         irInt(fieldCtx.line),
-        fieldCtx.hasInitializer.toIrConst(irBuiltIns.booleanType)
+        irBoolean(fieldCtx.hasInitializer)
       )
     }
   }
@@ -99,62 +101,38 @@ internal abstract class FieldStrategyBase(
 
   // --- Initializer movement ---
 
-  protected fun moveInitializerToInstanceInit(field: IrField, property: IrProperty) {
-    val initExpr = field.initializer?.expression ?: return
-    val initMethod = getOrCreateInstanceFieldsInit()
-    val setter = property.setter
-    if (setter != null) {
-      addSetterCallStatement(initMethod, setter, initExpr)
-    } else {
-      addFieldInitStatement(initMethod, field, initExpr)
-    }
-    field.initializer = null
+  protected fun moveFieldInitializerForInstanceField(field: IrField, property: IrProperty) {
+    moveFieldInitializerToInitializeFieldMethod(field, property, getOrCreateInstanceFieldsInit())
   }
 
   protected fun moveInitializerToSharedInit(field: IrField, property: IrProperty) {
-    val initExpr = field.initializer?.expression ?: return
-    val initMethod = getOrCreateSharedFieldsInit()
-    val setter = property.setter
-    if (setter != null) {
-      addSetterCallStatement(initMethod, setter, initExpr)
-    } else {
-      addFieldInitStatement(initMethod, field, initExpr)
-    }
-    field.initializer = null
+    moveFieldInitializerToInitializeFieldMethod(field, property, getOrCreateSharedFieldsInit())
   }
 
-  // Generates a CALL to the property setter (origin=EQ, dispatch receiver origin=IMPLICIT_ARGUMENT).
-  // This matches the IR that Kotlin generates for `property = value` statements.
-  private fun addSetterCallStatement(
-    initMethod: IrFunction,
-    setter: IrFunction,
-    value: IrExpression
+  private fun moveFieldInitializerToInitializeFieldMethod(
+    field: IrField,
+    property: IrProperty,
+    initializeFieldsMethod: IrFunction
   ) {
-    val dispatchReceiver = initMethod.parameters.first { it.name.asString() == "<this>" }
-    val reboundValue = rebindDispatchReceiverReferences(value, dispatchReceiver)
-    val call = with(irBuilder(initMethod.symbol)) {
-      irCall(setter.symbol, irBuiltIns.unitType).apply {
-        origin = IrStatementOrigin.EQ
-        arguments[0] = IrGetValueImpl(
-          SYNTHETIC_OFFSET,
-          SYNTHETIC_OFFSET,
-          dispatchReceiver.type,
-          dispatchReceiver.symbol,
-          IrStatementOrigin.IMPLICIT_ARGUMENT
-        )
-        arguments[1] = reboundValue
+    val initExpr = field.initializer?.expression ?: return
+    val dispatchReceiver = initializeFieldsMethod.requiredThisParameter()
+    val reboundValue = rebindDispatchReceiverReferences(initExpr, dispatchReceiver)
+    val initializeFieldsStat = with(irBuilder(initializeFieldsMethod.symbol)) {
+      val setter = property.setter
+      if (setter == null) {
+        irSetField(receiver = irGet(dispatchReceiver), field = field, value = reboundValue)
+      } else {
+        // Generates a CALL to the property setter (origin=EQ, dispatch receiver origin=IMPLICIT_ARGUMENT).
+        // This matches the IR that Kotlin generates for `property = value` statements.
+        irCall(setter.symbol, irBuiltIns.unitType).apply {
+          origin = IrStatementOrigin.EQ
+          arguments[0] = irGetThis(dispatchReceiver)
+          arguments[1] = reboundValue
+        }
       }
     }
-    initMethod.mutableStatements()?.add(call)
-  }
-
-  private fun addFieldInitStatement(initMethod: IrFunction, field: IrField, value: IrExpression) {
-    val dispatchReceiver = initMethod.parameters.first { it.name.asString() == "<this>" }
-    val reboundValue = rebindDispatchReceiverReferences(value, dispatchReceiver)
-    val setFieldStmt = with(irBuilder(initMethod.symbol)) {
-      irSetField(receiver = irGet(dispatchReceiver), field = field, value = reboundValue)
-    }
-    initMethod.mutableStatements()?.add(setFieldStmt)
+    initializeFieldsMethod.mutableStatements()?.add(initializeFieldsStat)
+    field.initializer = null
   }
 
   // Replaces IrGetValue references to any dispatch receiver '<this>' that is not targetParam
