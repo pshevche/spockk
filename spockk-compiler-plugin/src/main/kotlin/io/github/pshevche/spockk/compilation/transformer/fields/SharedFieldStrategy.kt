@@ -18,7 +18,9 @@ package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
+import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
+import io.github.pshevche.spockk.compilation.ir.irGetThis
 import io.github.pshevche.spockk.compilation.ir.makeMutable
 import io.github.pshevche.spockk.compilation.ir.makeProtected
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
@@ -33,11 +35,17 @@ import org.jetbrains.kotlin.ir.builders.irReturn
 import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
+import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.defaultType
+import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.Name
 
 /**
@@ -60,47 +68,25 @@ internal class SharedFieldStrategy(
 
   companion object {
     private const val VOLATILE_FQN = "kotlin.jvm.Volatile"
+    private const val SPECIFICATION_CONTEXT_FQN = "org.spockframework.runtime.SpecificationContext"
   }
 
   override fun rewrite(property: IrProperty) {
     val field = property.backingField ?: return
-    val originalFieldSymbol = field.symbol
-    val originalGetter = property.getter
-    val originalSetter = property.setter
     val isOverride = property.overriddenSymbols.isNotEmpty()
 
     annotateField(field, fieldCtx)
 
-    // Rename backing field (always)
     val newName = InternalIdentifiers.getSharedFieldName(fieldCtx.name)
-    field.name = newName
+    rename(field, property, newName, isOverride)
+    updateModifiers(field, property)
 
-    if (!isOverride) {
-      // For non-override properties: also rename the property and its accessors
-      property.name = newName
-      property.getter?.name = Name.special("<get-${newName.asString()}>")
-      property.setter?.name = Name.special("<set-${newName.asString()}>")
-    }
-
-    // Make protected volatile mutable
-    property.makeProtected()
-    field.makeMutable()
-    property.makeMutable()
-    addVolatileAnnotation(field)
+    val originalFieldSymbol = field.symbol
+    val originalGetter = property.getter
+    val originalSetter = property.setter
 
     if (isOverride) {
-      // For override properties: update existing getter/setter bodies to route through
-      // specificationContext.sharedInstance, preserving the interface-declared signatures.
-      // Uses direct GET_FIELD/SET_FIELD to avoid infinite recursion (we are replacing
-      // the body of the same accessor being transformed).
-      if (originalGetter != null) {
-        updateSharedGetterBody(originalGetter, field)
-        state.onFunctionGenerated(originalGetter.symbol)
-      }
-      if (!fieldCtx.isVal && originalSetter != null) {
-        updateSharedSetterBody(originalSetter, field)
-        state.onFunctionGenerated(originalSetter.symbol)
-      }
+      routeAccessorsThroughSpecContext(originalGetter, field, originalSetter)
     } else {
       // Preserve DEFAULT getter/setter bodies (GET_FIELD/SET_FIELD) by skipping them
       // during reference replacement. Feature method references are redirected to the
@@ -125,23 +111,78 @@ internal class SharedFieldStrategy(
     }
 
     if (!isOverride) {
-      // Generate new getter/setter functions for non-override shared fields
-      val getter = createSharedGetter(
-        Name.identifier("get${fieldCtx.name.replaceFirstChar { it.uppercaseChar() }}"),
-        field
-      )
-      originalGetter?.let { state.onGetterReplaced(it.symbol, getter) }
-      state.onFieldGetterCreated(originalFieldSymbol, getter)
-
+      createOrReplaceGetter(field, originalGetter, originalFieldSymbol)
       if (!fieldCtx.isVal) {
-        val setter = createSharedSetter(
-          Name.identifier("set${fieldCtx.name.replaceFirstChar { it.uppercaseChar() }}"),
-          field
-        )
-        originalSetter?.let { state.onSetterReplaced(it.symbol, setter) }
-        state.onFieldSetterCreated(originalFieldSymbol, setter)
+        createOrReplaceSetter(field, originalSetter, originalFieldSymbol)
       }
     }
+  }
+
+  // For override properties: update existing getter/setter bodies to route through
+  // specificationContext.sharedInstance, preserving the interface-declared signatures.
+  private fun routeAccessorsThroughSpecContext(
+    originalGetter: IrSimpleFunction?,
+    field: IrField,
+    originalSetter: IrSimpleFunction?
+  ) {
+    if (originalGetter != null) {
+      updateSharedGetterBody(originalGetter, field)
+      state.onFunctionGenerated(originalGetter.symbol)
+    }
+    if (!fieldCtx.isVal && originalSetter != null) {
+      updateSharedSetterBody(originalSetter, field)
+      state.onFunctionGenerated(originalSetter.symbol)
+    }
+  }
+
+  private fun createOrReplaceSetter(
+    field: IrField,
+    originalSetter: IrSimpleFunction?,
+    originalFieldSymbol: IrFieldSymbol
+  ) {
+    val setter = createSharedSetter(
+      Name.identifier("set${fieldCtx.name.replaceFirstChar { it.uppercaseChar() }}"),
+      field
+    )
+    originalSetter?.let { state.onSetterReplaced(it.symbol, setter) }
+    state.onFieldSetterCreated(originalFieldSymbol, setter)
+  }
+
+  private fun createOrReplaceGetter(
+    field: IrField,
+    originalGetter: IrSimpleFunction?,
+    originalFieldSymbol: IrFieldSymbol
+  ) {
+    val getter = createSharedGetter(
+      Name.identifier("get${fieldCtx.name.replaceFirstChar { it.uppercaseChar() }}"),
+      field
+    )
+    originalGetter?.let { state.onGetterReplaced(it.symbol, getter) }
+    state.onFieldGetterCreated(originalFieldSymbol, getter)
+  }
+
+  private fun rename(
+    field: IrField,
+    property: IrProperty,
+    newName: Name,
+    isOverride: Boolean
+  ) {
+    field.name = newName
+
+    if (!isOverride) {
+      // For non-override properties: also rename the property and its accessors
+      property.name = newName
+      property.getter?.name = Name.special("<get-${newName.asString()}>")
+      property.setter?.name = Name.special("<set-${newName.asString()}>")
+    }
+  }
+
+  // Make protected volatile mutable
+  private fun updateModifiers(field: IrField, property: IrProperty) {
+    property.makeProtected()
+    field.makeMutable()
+    property.makeMutable()
+    addVolatileAnnotation(field)
   }
 
   private fun addVolatileAnnotation(field: IrField) {
@@ -151,12 +192,12 @@ internal class SharedFieldStrategy(
   // Creates getXxx() that delegates to the DEFAULT getter on the shared instance via GET_PROPERTY.
   // The DEFAULT getter body (GET_FIELD) is not modified for non-override fields, so calling
   // it on the shared instance reads the field from the shared instance without recursion.
-  private fun createSharedGetter(name: Name, field: IrField): IrSimpleFunction {
+  private fun createSharedGetter(name: Name, field: IrField): IrFunction {
     val property = field.correspondingPropertySymbol?.owner
       ?: error("Shared field ${field.name} has no backing property")
     val defaultGetter = property.getter
       ?: error("Shared field ${field.name} has no DEFAULT getter")
-    val getter = spec.addMemberFunction(name, field.type) as IrSimpleFunction
+    val getter = spec.addMemberFunction(name, field.type)
     getter.body = with(irBuilder(getter.symbol)) {
       irBlockBody {
         +irReturn(
@@ -171,12 +212,12 @@ internal class SharedFieldStrategy(
   }
 
   // Creates setXxx(value) that delegates to the DEFAULT setter on the shared instance via EQ.
-  private fun createSharedSetter(name: Name, field: IrField): IrSimpleFunction {
+  private fun createSharedSetter(name: Name, field: IrField): IrFunction {
     val property = field.correspondingPropertySymbol?.owner
       ?: error("Shared field ${field.name} has no backing property")
     val defaultSetter = property.setter
       ?: error("Shared field ${field.name} has no DEFAULT setter")
-    val setter = spec.addMemberFunction(name, irBuiltIns.unitType) as IrSimpleFunction
+    val setter = spec.addMemberFunction(name, irBuiltIns.unitType)
     val valueParam = setter.addValueParameter("value", field.type)
     setter.body = with(irBuilder(setter.symbol)) {
       irBlockBody {
@@ -215,5 +256,49 @@ internal class SharedFieldStrategy(
         )
       }
     }
+  }
+
+  private fun irGetSharedInstance(fn: IrFunction): IrExpression {
+    val specContextGetter = findSpecificationContextGetter()
+    val sharedInstanceGetter = findSharedInstanceGetter()
+    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+
+    return with(irBuilder(fn.symbol)) {
+      val thisParam = fn.parameters.first { it.name.asString() == "<this>" }
+      val specContextCall =
+        irCall(specContextGetter.symbol, specContextGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY)
+          .apply { dispatchReceiver = irGetThis(thisParam) }
+      val castSpecContext = irAs(specContextCall, specContextClass.defaultType)
+      irCall(sharedInstanceGetter.symbol, sharedInstanceGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY)
+        .apply { dispatchReceiver = castSpecContext }
+    }
+  }
+
+  private fun findSpecificationContextGetter(): IrSimpleFunction {
+    var clazz: IrClass? = spec
+    while (clazz != null) {
+      val getter = clazz.declarations
+        .filterIsInstance<IrSimpleFunction>()
+        .find { it.name.asString() == "getSpecificationContext" }
+      if (getter != null) return getter
+      clazz = clazz.superTypes.firstOrNull()?.let {
+        val fqn = (it as? IrSimpleType)
+          ?.classifier
+          ?.let { c -> (c as? IrClassSymbol)?.owner?.fqNameWhenAvailable?.asString() }
+          ?: return@let null
+        context.findRequiredClassSymbol(fqn).owner
+      }
+    }
+    val specInternalsClass = context.findRequiredClassSymbol("org.spockframework.runtime.SpecInternals")
+    return specInternalsClass.owner.declarations
+      .filterIsInstance<IrSimpleFunction>()
+      .first { it.name.asString() == "getSpecificationContext" }
+  }
+
+  private fun findSharedInstanceGetter(): IrSimpleFunction {
+    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    return specContextClass.owner.declarations
+      .filterIsInstance<IrSimpleFunction>()
+      .first { it.name.asString() == "getSharedInstance" }
   }
 }

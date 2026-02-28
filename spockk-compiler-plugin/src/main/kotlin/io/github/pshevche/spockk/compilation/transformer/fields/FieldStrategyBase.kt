@@ -64,7 +64,6 @@ internal abstract class FieldStrategyBase(
 
   companion object {
     private const val FIELD_METADATA_FQN = "org.spockframework.runtime.model.FieldMetadata"
-    private const val SPECIFICATION_CONTEXT_FQN = "org.spockframework.runtime.SpecificationContext"
   }
 
   // --- Annotation ---
@@ -191,59 +190,5 @@ internal abstract class FieldStrategyBase(
     }
     state.onFunctionGenerated(setter.symbol)
     return setter
-  }
-
-  // --- Shared instance access ---
-
-  protected fun irGetSharedInstance(fn: IrFunction): IrExpression {
-    val specContextGetter = findSpecificationContextGetter()
-    val sharedInstanceGetter = findSharedInstanceGetter()
-    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
-
-    return with(irBuilder(fn.symbol)) {
-      val thisParam = fn.parameters.first { it.name.asString() == "<this>" }
-      val specContextCall =
-        irCall(specContextGetter.symbol, specContextGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY)
-          .apply {
-            dispatchReceiver = IrGetValueImpl(
-              SYNTHETIC_OFFSET,
-              SYNTHETIC_OFFSET,
-              thisParam.type,
-              thisParam.symbol,
-              IrStatementOrigin.IMPLICIT_ARGUMENT
-            )
-          }
-      val castSpecContext = irAs(specContextCall, specContextClass.defaultType)
-      irCall(sharedInstanceGetter.symbol, sharedInstanceGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY)
-        .apply { dispatchReceiver = castSpecContext }
-    }
-  }
-
-  private fun findSpecificationContextGetter(): IrSimpleFunction {
-    var clazz: IrClass? = spec
-    while (clazz != null) {
-      val getter = clazz.declarations
-        .filterIsInstance<IrSimpleFunction>()
-        .find { it.name.asString() == "getSpecificationContext" }
-      if (getter != null) return getter
-      clazz = clazz.superTypes.firstOrNull()?.let {
-        val fqn = (it as? IrSimpleType)
-          ?.classifier
-          ?.let { c -> (c as? IrClassSymbol)?.owner?.fqNameWhenAvailable?.asString() }
-          ?: return@let null
-        context.findRequiredClassSymbol(fqn).owner
-      }
-    }
-    val specInternalsClass = context.findRequiredClassSymbol("org.spockframework.runtime.SpecInternals")
-    return specInternalsClass.owner.declarations
-      .filterIsInstance<IrSimpleFunction>()
-      .first { it.name.asString() == "getSpecificationContext" }
-  }
-
-  private fun findSharedInstanceGetter(): IrSimpleFunction {
-    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
-    return specContextClass.owner.declarations
-      .filterIsInstance<IrSimpleFunction>()
-      .first { it.name.asString() == "getSharedInstance" }
   }
 }
