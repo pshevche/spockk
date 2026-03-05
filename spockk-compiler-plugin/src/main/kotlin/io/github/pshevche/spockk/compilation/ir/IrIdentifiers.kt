@@ -50,12 +50,14 @@ internal object IrIdentifiers {
     // FqName
     private val LANG_PKG_FQN = FqName("io.github.pshevche.spockk.lang")
 
+    val SETUP_BLOCK_FQN = LANG_PKG_FQN.child("setup")
     val GIVEN_BLOCK_FQN = LANG_PKG_FQN.child("given")
     val WHEN_BLOCK_FQN = LANG_PKG_FQN.child("when")
     val THEN_BLOCK_FQN = LANG_PKG_FQN.child("then")
     val EXPECT_BLOCK_FQN = LANG_PKG_FQN.child("expect")
     val AND_BLOCK_FQN = LANG_PKG_FQN.child("and")
     val WHERE_BLOCK_FQN = LANG_PKG_FQN.child("where")
+    val CLEANUP_BLOCK_FQN = LANG_PKG_FQN.child("cleanup")
 
     val SINGLE_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variable")
     val MULTI_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variables")

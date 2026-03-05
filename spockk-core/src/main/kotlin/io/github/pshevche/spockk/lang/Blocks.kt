@@ -17,8 +17,18 @@
 package io.github.pshevche.spockk.lang
 
 private fun throwIllegalLabelUsageException(label: String): Nothing = throw UnsupportedOperationException(
-  "The 'given' label should not be used outside of Spockk feature methods"
+  "The '$label' label should not be used outside of Spockk feature methods"
 )
+
+object setup {
+  init {
+    throwIllegalLabelUsageException("setup")
+  }
+}
+
+fun setup(description: String) {
+  throwIllegalLabelUsageException("setup")
+}
 
 object given {
   init {
@@ -78,4 +88,14 @@ object where {
 
 fun where(description: String) {
   throwIllegalLabelUsageException("where")
+}
+
+object cleanup {
+  init {
+    throwIllegalLabelUsageException("cleanup")
+  }
+}
+
+fun cleanup(description: String) {
+  throwIllegalLabelUsageException("cleanup")
 }
