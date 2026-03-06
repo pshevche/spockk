@@ -15,7 +15,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.36.0" }
 plugin-publish = { id = "com.gradle.plugin-publish", version = "2.1.0" }
-spotless = { id = "com.diffplug.spotless", version = "8.2.1" }
+spotless = { id = "com.diffplug.spotless", version = "8.3.0" }
 
 [libraries]
 google-autoservice = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
