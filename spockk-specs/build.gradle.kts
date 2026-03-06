@@ -37,7 +37,6 @@ tasks.test {
     layout.buildDirectory.dir("spockk-specs-workspaces").get().asFile.absolutePath
   )
   systemProperty("spockk.junitPlatformVersion", libs.versions.junit.platform.get())
-  systemProperty("spockk.kotlinVersion", libs.versions.kotlin.get())
   systemProperty("spockk.spockVersion", libs.versions.spock.get())
 
   jvmArgs(

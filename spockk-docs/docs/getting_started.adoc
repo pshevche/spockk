@@ -5,6 +5,12 @@
 To try Spockk in your local environment, clone the https://github.com/pshevche/spockk-example[Spockk Example Project].
 ====
 
+=== Prerequisites
+
+* JDK 21 or newer
+* Kotlin 2.0.0 or newer
+
+=== Configuration
 Spockk consists of four core modules that must be applied to your project to start using its expressive specification syntax.
 
 The **Spockk Core** module defines the specification syntax that allows definining Spock-like specifications in Kotlin.
