@@ -14,15 +14,18 @@
 
 package io.github.pshevche.spockk.fixtures.e2e
 
+import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import org.gradle.util.GradleVersion
 import org.intellij.lang.annotations.Language
 import spock.util.environment.OperatingSystem
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 
 class Workspace {
 
-  val projectDir =
+  private val projectDir: Path =
     Files.createDirectories(
       Paths.get(
         System.getProperty("spockk.workspaceDir"),
@@ -33,18 +36,32 @@ class Workspace {
   private val buildFile = projectDir.resolve("build.gradle.kts").toFile()
   private val sourcesDir = projectDir.resolve("src/test/kotlin").toFile()
 
-  fun setup(kotlinVersion: String = System.getProperty("spockk.kotlinVersion")) {
+  private var kotlinVersion: KotlinVersion = KotlinVersion.CURRENT
+  private var gradleVersion: GradleVersion = GradleVersion.current()
+
+  fun setup() {
     configureRepositories()
-    applyPlugins(kotlinVersion)
+    applyPlugins()
     configureTestTasks()
   }
 
-  fun build(vararg args: String) = runner(args.toList()).build()
+  fun kotlinVersion(kotlinVersion: KotlinVersion) = apply {
+    this.kotlinVersion = kotlinVersion
+  }
 
-  fun buildAndFail(vararg args: String) = runner(args.toList()).buildAndFail()
+  fun gradleVersion(gradleVersion: GradleVersion) = apply {
+    this.gradleVersion = gradleVersion
+  }
 
-  private fun runner(args: List<String>): GradleRunner =
-    GradleRunner.create().withProjectDir(projectDir.toFile()).withArguments(args).forwardOutput()
+  fun build(vararg args: String): BuildResult = runner(args.toList()).build()
+
+  fun buildAndFail(vararg args: String): BuildResult = runner(args.toList()).buildAndFail()
+
+  private fun runner(args: List<String>) = GradleRunner.create()
+    .withProjectDir(projectDir.toFile())
+    .withArguments(args)
+    .forwardOutput()
+    .withGradleVersion(gradleVersion.version)
 
   private fun configureRepositories() {
     settingsFile.writeText(
@@ -83,7 +100,7 @@ class Workspace {
       .trimIndent()
   }
 
-  private fun applyPlugins(kotlinVersion: String) {
+  private fun applyPlugins() {
     buildFile.appendText(
       """
 

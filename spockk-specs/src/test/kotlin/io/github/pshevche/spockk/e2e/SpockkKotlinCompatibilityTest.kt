@@ -14,13 +14,15 @@
 
 package io.github.pshevche.spockk.e2e
 
+import io.github.pshevche.spockk.fixtures.e2e.GradleVersions
+import io.github.pshevche.spockk.fixtures.e2e.KotlinVersions
 import io.github.pshevche.spockk.fixtures.e2e.Workspace
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
-import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.gradle.testkit.runner.TaskOutcome
+import org.gradle.util.GradleVersion
 import spock.lang.Specification
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
@@ -29,13 +31,20 @@ class SpockkKotlinCompatibilityTest : Specification() {
 
   val workspace = Workspace()
 
-  fun `supports Kotlin #kotlinVersion`(kotlinVersion: String) {
+  /**
+   * The Kotlin Gradle plugin publishes Gradle-version-specific variants. When a workspace build
+   * runs under a newer Gradle than the Kotlin version supports, resolution fails because Gradle
+   * requests a capability that the old Kotlin version never published.
+   *
+   * Compatibility table: https://kotlinlang.org/docs/gradle-configure-project.html
+   */
+  fun `supports Kotlin #kotlinVersion`(kotlinVersion: KotlinVersion, gradleVersion: GradleVersion) {
     given
-    workspace.setup(kotlinVersion)
+    workspace.kotlinVersion(kotlinVersion).gradleVersion(gradleVersion).setup()
     workspace.addSuccessfulSpec()
 
     `when`
-    val result = workspace.build("test")
+    val result = workspace.build("test", "--stacktrace")
 
     then
     assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
@@ -45,12 +54,9 @@ class SpockkKotlinCompatibilityTest : Specification() {
     }
 
     where
-    variable(kotlinVersion).from(
-      "1.8.22",
-      "1.9.25",
-      "2.0.21",
-      "2.1.21",
-      "2.2.21"
-    )
+    kotlinVersion          ; gradleVersion
+    KotlinVersions.V2_0_21 ; GradleVersions.V8_8
+    KotlinVersions.V2_1_21 ; GradleVersions.V8_12_1
+    KotlinVersions.V2_2_21 ; GradleVersions.V8_14_4
   }
 }
