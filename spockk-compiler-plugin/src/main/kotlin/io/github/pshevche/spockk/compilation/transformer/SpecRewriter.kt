@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.transformer.fields.FieldsRewriter
+import io.github.pshevche.spockk.compilation.transformer.fixture.FixtureMethodRewriter
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
 import io.github.pshevche.spockk.compilation.transformer.parametrization.WhereBlockRewriter
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
@@ -32,6 +33,7 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
     annotateSpec(spec, context)
     rewriteFields(spec, context)
     rewriteWhereBlocks(spec, context)
+    rewriteFixtureMethods(spec, context)
     rewriteMockingApi(spec)
   }
 
@@ -54,6 +56,10 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
       }
       rewriter.finalizeRewrite()
     }
+  }
+
+  private fun rewriteFixtureMethods(spec: IrClass, context: SpecContext) {
+    FixtureMethodRewriter(this.context, spec, context.fixtureMethods).rewrite()
   }
 
   private fun specMetadataAnnotation(

@@ -76,6 +76,10 @@ When writing or modifying Kotlin IR transformations in `spockk-compiler-plugin`:
 - **Commit messages**: Use [Conventional Commits](https://www.conventionalcommits.org/) — e.g., `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 - **Branch naming**: `<username>/<short-description>` where `<username>` is the `$USER` environment variable (e.g., `pshevche/configure-claude`)
 
+## Code Review Workflow
+
+When presenting changes for review, always refresh the in-app diff by running `git diff HEAD` so the user sees the current uncommitted changes.
+
 ## CI
 
 - GitHub Actions: `verify.yml` (push/PR to main), `publish.yml` (manual dispatch)

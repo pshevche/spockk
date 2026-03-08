@@ -110,4 +110,36 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     where
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
   }
+
+  fun `discards spec-scoped fixture method accessing instance field`(fixtureMethodName: String) {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                var instanceField = "hello"
+
+                fun $fixtureMethodName() {
+                    println(instanceField)
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(
+      result.compilation.messages,
+      "Only companion object members and @Shared fields may be accessed from here"
+    )
+
+    where
+    variable(fixtureMethodName).from("setupSpec", "cleanupSpec")
+  }
 }
