@@ -57,6 +57,12 @@ internal class MutableSpockkTransformationContext {
   fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlockStatements>) =
     specs[spec]?.addFeature(feature, blocks)
 
+  fun addFixtureMethod(
+    spec: IrClass,
+    function: IrFunction,
+    kind: SpockkTransformationContext.FixtureMethodKind
+  ) = specs[spec]?.addFixtureMethod(function, kind)
+
   fun addPotentialFeature(spec: IrClass, function: IrFunction) =
     specs[spec]?.addPotentialFeature(function)
 
@@ -70,7 +76,8 @@ internal class MutableSpockkTransformationContext {
               ctx.fileName,
               ctx.line,
               finalizeFeatures(ctx),
-              ctx.fields.toMap()
+              ctx.fields.toMap(),
+              ctx.fixtureMethods.toMap()
             )
           )
         }
@@ -102,6 +109,8 @@ internal class MutableSpockkTransformationContext {
       mutableMapOf()
     val potentialFeatures: MutableSet<IrFunction> = mutableSetOf()
     val fields: LinkedHashMap<IrProperty, SpockkTransformationContext.FieldContext> = linkedMapOf()
+    val fixtureMethods:
+      MutableMap<IrFunction, SpockkTransformationContext.FixtureMethodKind> = mutableMapOf()
 
     fun addField(property: IrProperty) {
       val fileEntry = property.fileEntry
@@ -135,6 +144,10 @@ internal class MutableSpockkTransformationContext {
         )
           .also { featureOrdinal += 1 }
       }
+    }
+
+    fun addFixtureMethod(function: IrFunction, kind: SpockkTransformationContext.FixtureMethodKind) {
+      fixtureMethods[function] = kind
     }
 
     fun addPotentialFeature(function: IrFunction) {

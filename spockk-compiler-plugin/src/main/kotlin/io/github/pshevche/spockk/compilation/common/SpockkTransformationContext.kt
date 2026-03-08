@@ -27,7 +27,8 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
     val fileName: String,
     val line: Int,
     val features: Map<IrFunction, FeatureContext>,
-    val fields: Map<IrProperty, FieldContext>
+    val fields: Map<IrProperty, FieldContext>,
+    val fixtureMethods: Map<IrFunction, FixtureMethodKind>
   )
 
   internal data class FeatureContext(
@@ -55,4 +56,11 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
     val isVal: Boolean,
     val isLateinit: Boolean
   )
+
+  internal enum class FixtureMethodKind {
+    SETUP,
+    CLEANUP,
+    SETUP_SPEC,
+    CLEANUP_SPEC
+  }
 }

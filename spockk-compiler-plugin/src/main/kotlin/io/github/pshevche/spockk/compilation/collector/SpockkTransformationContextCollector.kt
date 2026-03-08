@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
+import io.github.pshevche.spockk.compilation.collector.FixtureMethodIdentifiers.fixtureMethodKind
 import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.common.MutableSpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_FQN
@@ -58,6 +59,12 @@ internal class SpockkTransformationContextCollector(
   override fun visitFunctionNew(declaration: IrFunction): IrStatement {
     if (declaration.isFakeOverride) {
       context.addPotentialFeature(currentIrClass, declaration)
+    } else {
+      fixtureMethodKind(declaration)?.let { kind ->
+        maybeCurrentIrClass?.let { spec ->
+          context.addFixtureMethod(spec, declaration, kind)
+        }
+      }
     }
 
     return super.visitFunctionNew(declaration)
@@ -65,11 +72,15 @@ internal class SpockkTransformationContextCollector(
 
   override fun visitBlockBody(body: IrBlockBody): IrBody =
     body.transformPostfix {
-      val blockCollector = createBlockCollector(currentFile)
-      body.statements.forEach { blockCollector.consume(it) }
-      val blocks = blockCollector.getBlockStatements()
-      if (blocks.isNotEmpty()) {
-        context.addFeature(currentIrClass, currentIrFunction, blocks)
+      if (fixtureMethodKind(currentIrFunction) != null) {
+        FixtureMethodBodyValidator(currentFile, currentIrFunction).validate(body)
+      } else {
+        val blockCollector = createBlockCollector(currentFile)
+        body.statements.forEach { blockCollector.consume(it) }
+        val blocks = blockCollector.getBlockStatements()
+        if (blocks.isNotEmpty()) {
+          context.addFeature(currentIrClass, currentIrFunction, blocks)
+        }
       }
     }
 
