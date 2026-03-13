@@ -39,12 +39,20 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
     val parameterNames: List<String>,
     val blocks: List<FeatureBlockStatements>
   ) {
-    // where blocks are transformed in the context of the spec rather than feature
     val featureBlocks: List<FeatureBlockStatements>
-      get() = blocks.takeWhile { it.element.label != FeatureBlockLabel.WHERE }
+      get() = blocks.takeWhile { it.element.label !in SEPARATOR_LABELS }
+
+    val cleanupBlocks: List<FeatureBlockStatements>
+      get() = blocks
+        .dropWhile { it.element.label != FeatureBlockLabel.CLEANUP }
+        .takeWhile { it.element.label != FeatureBlockLabel.WHERE }
 
     val dataProviderBlocks: List<FeatureBlockStatements>
       get() = blocks.dropWhile { it.element.label != FeatureBlockLabel.WHERE }
+
+    companion object {
+      private val SEPARATOR_LABELS = setOf(FeatureBlockLabel.CLEANUP, FeatureBlockLabel.WHERE)
+    }
   }
 
   internal data class FieldContext(

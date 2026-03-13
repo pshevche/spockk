@@ -135,6 +135,19 @@ internal fun irVar(name: Name, type: IrType): IrVariable = irVariable(name, type
 
 internal fun irVal(name: Name, type: IrType): IrVariable = irVariable(name, type, false)
 
+internal fun irCatchParameter(name: Name, type: IrType): IrVariable =
+  IrVariableImpl(
+    SYNTHETIC_OFFSET,
+    SYNTHETIC_OFFSET,
+    IrDeclarationOrigin.CATCH_PARAMETER,
+    IrVariableSymbolImpl(),
+    name,
+    type,
+    isVar = false,
+    isConst = false,
+    isLateinit = false
+  )
+
 private fun irVariable(name: Name, type: IrType, isVar: Boolean): IrVariable =
   IrVariableImpl(
     SYNTHETIC_OFFSET,

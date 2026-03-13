@@ -508,7 +508,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     assertFalse(result.isSuccess())
     assertContains(
       result.compilation.messages,
-      "Expected to find one of spockk blocks ['and'], but encountered 'expect'"
+      "Expected to find one of spockk blocks ['and', 'where'], but encountered 'expect'"
     )
   }
 
@@ -536,6 +536,60 @@ class FeatureBlockStructureValidationTest : Specification() {
     assertContains(
       result.compilation.messages,
       "Expected to find one of spockk blocks ['and', 'when', 'expect'], but encountered 'setup'"
+    )
+  }
+
+  fun `accepts valid block sequences (cleanup followed by data definition)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun `parameterized feature`(a: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a > 0)
+
+                    io.github.pshevche.spockk.lang.cleanup
+                    println("cleanup")
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(1, 2, 3)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `discards invalid block sequences (data definition followed by cleanup)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun `parameterized feature`(a: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a > 0)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(1, 2, 3)
+
+                    io.github.pshevche.spockk.lang.cleanup
+                    println("cleanup")
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(
+      result.compilation.messages,
+      "Expected to find one of spockk blocks ['and'], but encountered 'cleanup'"
     )
   }
 

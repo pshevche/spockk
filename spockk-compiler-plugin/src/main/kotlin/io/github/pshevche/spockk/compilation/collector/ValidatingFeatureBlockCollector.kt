@@ -118,7 +118,7 @@ internal class ValidatingFeatureBlockCollector(
     },
     CLEANUP {
       override val validBlocks: List<FeatureBlockLabel>
-        get() = listOf(FeatureBlockLabel.AND)
+        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHERE)
 
       override val isTerminal: Boolean
         get() = true
@@ -126,6 +126,7 @@ internal class ValidatingFeatureBlockCollector(
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
           is FeatureBlockLabelIrElement.And -> this
+          is FeatureBlockLabelIrElement.Where -> DATA_DEFINITION
           else -> failOnInvalidBlock(block)
         }
     },
