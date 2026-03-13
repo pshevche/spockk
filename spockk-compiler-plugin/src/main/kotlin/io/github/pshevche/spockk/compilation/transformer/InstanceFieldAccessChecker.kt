@@ -34,7 +34,7 @@ import org.jetbrains.kotlin.ir.util.isStatic
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class InstanceFieldAccessChecker(
   private val spec: IrClass,
-  private val whereBlockIr: IrElement
+  private val contextIr: IrElement
 ) : BaseSpockkIrElementTransformer() {
   fun check(expression: IrExpression) {
     expression.transform(this, null)
@@ -67,7 +67,7 @@ internal class InstanceFieldAccessChecker(
   private fun throwIllegalMemberAccessException(): Nothing = throw CompilationException(
     "Only companion object members and @Shared fields may be accessed from here",
     spec.file,
-    whereBlockIr
+    contextIr
   )
 
   private fun IrExpression.isCurrentSpec(): Boolean =

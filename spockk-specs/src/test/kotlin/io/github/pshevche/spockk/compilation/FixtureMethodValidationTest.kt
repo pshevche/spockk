@@ -111,6 +111,27 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
   }
 
+  fun `accepts methods with fixture names but with parameters as regular methods`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun setup(x: Int) { println(x) }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
   fun `discards spec-scoped fixture method accessing instance field`(fixtureMethodName: String) {
     `when`
     val result =
