@@ -29,11 +29,13 @@ import org.jetbrains.kotlin.psi.KtFunction
 private val SPOCKK_BLOCKS_FQN =
   setOf(
     "io.github.pshevche.spockk.lang.given",
+    "io.github.pshevche.spockk.lang.setup",
     "io.github.pshevche.spockk.lang.expect",
     "io.github.pshevche.spockk.lang.`when`",
     "io.github.pshevche.spockk.lang.then",
     "io.github.pshevche.spockk.lang.and",
-    "io.github.pshevche.spockk.lang.where"
+    "io.github.pshevche.spockk.lang.where",
+    "io.github.pshevche.spockk.lang.cleanup"
   )
 
 private val DATA_PROVIDER_BLOCK_IDX_KEY =
