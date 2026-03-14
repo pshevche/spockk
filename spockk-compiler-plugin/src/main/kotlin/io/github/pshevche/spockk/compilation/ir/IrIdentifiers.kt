@@ -77,5 +77,6 @@ internal object IrIdentifiers {
     val KCLASS_JAVA_CALLABLE_ID = CallableId(JVM_PKG_FQN, "java".asName())
     val LIST_OF_CALLABLE_ID = CallableId(COLLECTIONS_PACKAGE_FQ_NAME, "listOf".asName())
     val ARRAY_OF_CALLABLE_ID = CallableId(BUILT_INS_PACKAGE_FQ_NAME, "arrayOf".asName())
+    val ADD_SUPPRESSED_CALLABLE_ID = CallableId(BUILT_INS_PACKAGE_FQ_NAME, "addSuppressed".asName())
   }
 }

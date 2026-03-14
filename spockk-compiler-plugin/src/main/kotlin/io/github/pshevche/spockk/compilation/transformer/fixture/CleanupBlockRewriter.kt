@@ -15,6 +15,7 @@
 package io.github.pshevche.spockk.compilation.transformer.fixture
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.ADD_SUPPRESSED_CALLABLE_ID
 import io.github.pshevche.spockk.compilation.ir.findFunctionSymbols
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
 import io.github.pshevche.spockk.compilation.ir.irStatementBlock
@@ -42,8 +43,6 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.makeNullable
-import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -166,8 +165,7 @@ internal class CleanupBlockRewriter(
     receiver: IrExpression,
     exception: IrExpression
   ): IrExpression {
-    val addSuppressedCallableId = CallableId(FqName("kotlin"), Name.identifier("addSuppressed"))
-    val addSuppressedFun = context.findFunctionSymbols(addSuppressedCallableId).single()
+    val addSuppressedFun = context.findFunctionSymbols(ADD_SUPPRESSED_CALLABLE_ID).single()
     return irBlock {
       +irCall(addSuppressedFun, irBuiltIns.unitType).apply {
         arguments[0] = irImplicitCastToThrowable(receiver)
