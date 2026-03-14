@@ -16,6 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.ir
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.ADD_SUPPRESSED_CALLABLE_ID
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.LIST_FQN
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
@@ -38,9 +39,12 @@ import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
@@ -193,3 +197,33 @@ internal fun IrBuilderWithScope.irStatementBlock(statements: List<IrStatement>):
   irBlock {
     statements.forEach { +it }
   }
+
+internal fun IrBuilderWithScope.irAddSuppressed(
+  receiver: IrExpression,
+  exception: IrExpression
+): IrExpression {
+  val addSuppressedFun = context.findFunctionSymbols(ADD_SUPPRESSED_CALLABLE_ID).single()
+  return irBlock {
+    +irCall(addSuppressedFun, context.irBuiltIns.unitType).apply {
+      arguments[0] = irImplicitCastTo(receiver, context.irBuiltIns.throwableType)
+      arguments[1] = exception
+    }
+  }
+}
+
+private fun IrBuilderWithScope.irImplicitCastTo(value: IrExpression, type: IrType): IrExpression =
+  IrTypeOperatorCallImpl(
+    startOffset,
+    endOffset,
+    type,
+    IrTypeOperator.IMPLICIT_CAST,
+    type,
+    value
+  )
+
+internal fun IrBuilder.irThrow(value: IrExpression): IrExpression = IrThrowImpl(
+  startOffset,
+  endOffset,
+  context.irBuiltIns.nothingType,
+  value
+)

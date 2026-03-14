@@ -15,17 +15,17 @@
 package io.github.pshevche.spockk.compilation.transformer.fixture
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
-import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.ADD_SUPPRESSED_CALLABLE_ID
-import io.github.pshevche.spockk.compilation.ir.findFunctionSymbols
+import io.github.pshevche.spockk.compilation.ir.irAddSuppressed
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
 import io.github.pshevche.spockk.compilation.ir.irStatementBlock
+import io.github.pshevche.spockk.compilation.ir.irThrow
 import io.github.pshevche.spockk.compilation.ir.irVar
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.common.lower.irCatch
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irBlock
-import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irIfThenElse
 import org.jetbrains.kotlin.ir.builders.irNotEquals
@@ -35,12 +35,7 @@ import org.jetbrains.kotlin.ir.builders.irTry
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCatch
-import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
-import org.jetbrains.kotlin.ir.expressions.impl.IrCatchImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.name.Name
@@ -64,7 +59,7 @@ internal class CleanupBlockRewriter(
     val nullableThrowableType = throwableType.makeNullable()
 
     val featureThrowableVar = irVar(
-      Name.identifier("\$spock_feature_throwable"),
+      Name.identifier($$"$spock_feature_throwable"),
       nullableThrowableType
     ).apply {
       parent = feature
@@ -76,14 +71,14 @@ internal class CleanupBlockRewriter(
         type = irBuiltIns.unitType,
         tryResult = irStatementBlock(featureStatements),
         catches = listOf(
-          outerCatch(featureThrowableVar)
+          outerCatch(builder, featureThrowableVar)
         ),
         finallyExpression = irBlock {
           +irTry(
             type = irBuiltIns.unitType,
             tryResult = irStatementBlock(cleanupStatements),
             catches = listOf(
-              innerCatch(featureThrowableVar)
+              innerCatch(builder, featureThrowableVar)
             ),
             finallyExpression = null
           )
@@ -94,10 +89,9 @@ internal class CleanupBlockRewriter(
     return listOf(featureThrowableVar, tryCatchFinally)
   }
 
-  private fun outerCatch(featureThrowableVar: IrVariable): IrCatch {
-    val builder = irBuilder(feature.symbol)
+  private fun outerCatch(builder: DeclarationIrBuilder, featureThrowableVar: IrVariable): IrCatch {
     val catchVar = irCatchParameter(
-      Name.identifier("\$spock_tmp_throwable"),
+      Name.identifier($$"$spock_tmp_throwable"),
       irBuiltIns.throwableType
     ).apply { parent = feature }
     val catchResult = with(builder) {
@@ -106,18 +100,12 @@ internal class CleanupBlockRewriter(
         +irThrow(irGet(catchVar))
       }
     }
-    return IrCatchImpl(
-      builder.startOffset,
-      builder.endOffset,
-      catchVar,
-      catchResult
-    )
+    return builder.irCatch(catchVar, catchResult)
   }
 
-  private fun innerCatch(featureThrowableVar: IrVariable): IrCatch {
-    val builder = irBuilder(feature.symbol)
+  private fun innerCatch(builder: DeclarationIrBuilder, featureThrowableVar: IrVariable): IrCatch {
     val catchVar = irCatchParameter(
-      Name.identifier("\$spock_tmp_throwable"),
+      Name.identifier($$"$spock_tmp_throwable"),
       irBuiltIns.throwableType
     ).apply { parent = feature }
     val catchResult = with(builder) {
@@ -125,52 +113,12 @@ internal class CleanupBlockRewriter(
         +irIfThenElse(
           type = irBuiltIns.unitType,
           condition = irNotEquals(irGet(featureThrowableVar), irNull()),
-          thenPart = irAddSuppressed(irGet(featureThrowableVar), irGet(catchVar)),
-          elsePart = irBlock(resultType = irBuiltIns.unitType) { +irThrow(irGet(catchVar)) },
-          origin = IrStatementOrigin.Companion.IF
+          thenPart = builder.irAddSuppressed(irGet(featureThrowableVar), irGet(catchVar)),
+          elsePart = irBlock(resultType = irBuiltIns.unitType) { +builder.irThrow(irGet(catchVar)) },
+          origin = IrStatementOrigin.IF
         )
       }
     }
-    return IrCatchImpl(
-      builder.startOffset,
-      builder.endOffset,
-      catchVar,
-      catchResult
-    )
-  }
-
-  private fun irThrow(value: IrExpression): IrExpression {
-    val builder = irBuilder(feature.symbol)
-    return IrThrowImpl(
-      builder.startOffset,
-      builder.endOffset,
-      irBuiltIns.nothingType,
-      value
-    )
-  }
-
-  private fun IrBuilderWithScope.irImplicitCastToThrowable(value: IrExpression): IrExpression {
-    val throwableType = irBuiltIns.throwableType
-    return IrTypeOperatorCallImpl(
-      startOffset,
-      endOffset,
-      throwableType,
-      IrTypeOperator.IMPLICIT_CAST,
-      throwableType,
-      value
-    )
-  }
-
-  private fun IrBuilderWithScope.irAddSuppressed(
-    receiver: IrExpression,
-    exception: IrExpression
-  ): IrExpression {
-    val addSuppressedFun = context.findFunctionSymbols(ADD_SUPPRESSED_CALLABLE_ID).single()
-    return irBlock {
-      +irCall(addSuppressedFun, irBuiltIns.unitType).apply {
-        arguments[0] = irImplicitCastToThrowable(receiver)
-        arguments[1] = exception
-      }
-    }
+    return builder.irCatch(catchVar, catchResult)
   }
 }
