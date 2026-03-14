@@ -23,6 +23,7 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
 
@@ -93,48 +94,38 @@ internal fun PsiElement.isPartOfCleanupBlock(): Boolean {
 
 internal fun PsiElement.getParentFeature(): KtFunction? = PsiTreeUtil.getParentOfType(this, KtFunction::class.java)
 
-private fun getCleanupBlockPosition(feature: KtFunction): Int? {
-  val cleanupBlockPosition =
-    feature.getUserData(CLEANUP_BLOCK_IDX_KEY)
-      ?: run {
-        val cached =
-          CachedValuesManager.getManager(feature.project).createCachedValue {
-            val index = feature.bodyBlockExpression
-              ?.statements
-              ?.firstOrNull { it.isCleanupBlock() }
-              ?.textRange
-              ?.endOffset
-              ?: -1
-            CachedValueProvider.Result(index, PsiModificationTracker.MODIFICATION_COUNT)
-          }
-
-        feature.putUserData(CLEANUP_BLOCK_IDX_KEY, cached)
-        cached
-      }
-
-  return cleanupBlockPosition.value.takeIf { it > -1 }
+private fun getCleanupBlockPosition(feature: KtFunction): Int? = getBlockPosition(feature, CLEANUP_BLOCK_IDX_KEY) {
+  it.isCleanupBlock()
 }
 
-private fun getDataProviderBlockPosition(feature: KtFunction): Int? {
-  val dataProviderBlockPosition =
-    feature.getUserData(DATA_PROVIDER_BLOCK_IDX_KEY)
+private fun getDataProviderBlockPosition(feature: KtFunction) = getBlockPosition(feature, DATA_PROVIDER_BLOCK_IDX_KEY) {
+  it.isDataProviderBlock()
+}
+
+private fun getBlockPosition(
+  feature: KtFunction,
+  userDataKey: Key<CachedValue<Int>>,
+  blockPredicate: (KtExpression) -> Boolean
+): Int? {
+  val blockPosition =
+    feature.getUserData(userDataKey)
       ?: run {
         val cached =
           CachedValuesManager.getManager(feature.project).createCachedValue {
             val index = feature.bodyBlockExpression
               ?.statements
-              ?.firstOrNull { it.isDataProviderBlock() }
+              ?.firstOrNull(blockPredicate)
               ?.textRange
               ?.endOffset
               ?: -1
             CachedValueProvider.Result(index, PsiModificationTracker.MODIFICATION_COUNT)
           }
 
-        feature.putUserData(DATA_PROVIDER_BLOCK_IDX_KEY, cached)
+        feature.putUserData(userDataKey, cached)
         cached
       }
 
-  return dataProviderBlockPosition.value.takeIf { it > -1 }
+  return blockPosition.value.takeIf { it > -1 }
 }
 
 internal fun PsiElement.getLineNumber(): Int = PsiDocumentManager.getInstance(project)

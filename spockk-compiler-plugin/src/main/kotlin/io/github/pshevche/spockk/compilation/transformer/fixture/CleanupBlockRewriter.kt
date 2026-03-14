@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.transformer.cleanup
+package io.github.pshevche.spockk.compilation.transformer.fixture
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
+import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.findFunctionSymbols
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
 import io.github.pshevche.spockk.compilation.ir.irStatementBlock
@@ -50,7 +50,7 @@ import org.jetbrains.kotlin.name.Name
 internal class CleanupBlockRewriter(
   override val context: IrGeneratorContext,
   private val feature: IrFunction,
-  private val featureContext: FeatureContext
+  private val featureContext: SpockkTransformationContext.FeatureContext
 ) : SpockkIrRewriter {
 
   fun rewrite(): List<IrStatement> {
@@ -128,7 +128,7 @@ internal class CleanupBlockRewriter(
           condition = irNotEquals(irGet(featureThrowableVar), irNull()),
           thenPart = irAddSuppressed(irGet(featureThrowableVar), irGet(catchVar)),
           elsePart = irBlock(resultType = irBuiltIns.unitType) { +irThrow(irGet(catchVar)) },
-          origin = IrStatementOrigin.IF
+          origin = IrStatementOrigin.Companion.IF
         )
       }
     }
