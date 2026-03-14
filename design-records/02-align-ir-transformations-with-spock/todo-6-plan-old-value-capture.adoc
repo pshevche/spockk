@@ -1,0 +1,253 @@
+= TODO-6: Support `old()` Value Capture in `then:` Blocks
+:toc:
+:toc-title: Contents
+
+*Parent*: link:specification.adoc[DR-02: Align Spockk IR Transformations with Spock AST Transformations] +
+*Status*: Proposed
+
+---
+
+== Goal
+
+`old(expr)` in a `then:` block evaluates `expr` **before** the `when:` block executes and makes the captured value available for assertion in `then:`.
+
+---
+
+== Context and Motivation
+
+=== Spock's Behaviour
+
+`old()` is a Spock-specific compile-time transformation. In Groovy source it looks like a normal method call, but the compiler replaces it. From `SpecRewriter.captureOldValue()`:
+
+[source,groovy]
+----
+// Developer writes:
+when:
+list.add("item")
+
+then:
+list.size() == old(list.size()) + 1
+
+// Spock transforms into:
+// Before the when: block:
+def $spock_old0 = list.size()
+
+// In then: block, old(list.size()) is replaced with:
+$spock_old0
+----
+
+Key behaviour:
+* `old(expr)` is inserted **before** the `when:` block (in the preceding block's statement list, typically `given:`/`setup:` or at method start).
+* Multiple `old()` calls get incrementing variable names: `$spock_old0`, `$spock_old1`, etc.
+* The original `old(expr)` call in `then:` is replaced by the variable reference.
+
+=== Spockk's Current Behaviour
+
+There is no `old` function in `spockk-core`. If a user writes `old(expr)`, it will not compile (no such symbol) or they would need to import Spock's own `old()` which is a Groovy marker with no Kotlin equivalent.
+
+---
+
+== Relevant Code Locations
+
+=== `spockk-core` language declarations
+`spockk-core/src/main/kotlin/io/github/pshevche/spockk/lang/`
+
+Block labels like `given`, `when`, `then`, `expect` are declared here. A new `old()` function needs to be added here as a compile-time marker.
+
+=== `ValidatingFeatureBlockCollector.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/common/ValidatingFeatureBlockCollector.kt`
+
+Detection of `old()` calls in `then:` blocks can happen here or in a separate scanner.
+
+=== `FeatureRewriter.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/transformer/FeatureRewriter.kt`
+
+The transformer must:
+1. Walk `then:` block statements to find `old(expr)` calls.
+2. For each found, create a `val $spock_old_N = expr` variable before the `when:` block.
+3. Replace the `old(expr)` call with a reference to `$spock_old_N`.
+
+=== `IrIdentifiers.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/ir/IrIdentifiers.kt`
+
+New constant:
+
+[source,kotlin]
+----
+const val OLD_FQN = "io.github.pshevche.spockk.lang.old"
+const val SPOCK_OLD_VALUE_PREFIX = "\$spock_old"
+----
+
+=== `DeclarationIrBuilder.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/ir/DeclarationIrBuilder.kt`
+
+May need a helper `irLocalVal(name, initializer)` if not already available.
+
+---
+
+== Planned Changes
+
+=== 1. Add `old()` function to `spockk-core`
+
+In `spockk-core/src/main/kotlin/io/github/pshevche/spockk/lang/`:
+
+[source,kotlin]
+----
+/**
+ * Captures the value of [value] before the when: block executes.
+ * This is a compile-time marker — the compiler replaces calls to this
+ * function with a variable holding the captured value.
+ *
+ * Must only be used inside a then: block.
+ */
+fun <T> old(value: T): T = value
+----
+
+This is a pure identity function at runtime. The compiler replaces calls to it before execution.
+
+=== 2. Detect `old()` calls in `then:` blocks
+
+Create a helper scanner `OldValueExtractor` that walks the IR of `then:` block statements, finds `IrCall` nodes to `old()`, and returns them:
+
+[source,kotlin]
+----
+class OldValueExtractor {
+  data class OldValueCapture(
+    val callSite: IrCall,           // the old(expr) call
+    val capturedExpr: IrExpression, // the argument to old()
+    val variableName: String        // $spock_old0, $spock_old1, ...
+  )
+
+  fun extract(thenBlockStatements: List<IrStatement>): List<OldValueCapture> {
+    val captures = mutableListOf<OldValueCapture>()
+    var counter = 0
+    // Walk each statement, find IrCall to old()
+    thenBlockStatements.forEach { stmt ->
+      stmt.accept(object : IrVisitor<Unit, Unit>() {
+        override fun visitCall(expression: IrCall, data: Unit) {
+          if (expression.symbol.owner.fqNameForIrSerialization.asString() == OLD_FQN) {
+            captures += OldValueCapture(
+              callSite = expression,
+              capturedExpr = expression.getValueArgument(0)!!,
+              variableName = "$SPOCK_OLD_VALUE_PREFIX$counter"
+            )
+            counter++
+          }
+          super.visitCall(expression, data)
+        }
+      }, Unit)
+    }
+    return captures
+  }
+}
+----
+
+=== 3. Rewrite `then:` blocks and insert capture variables
+
+In `FeatureRewriter`, for each pair of `(when:, then:)` blocks:
+
+[source,kotlin]
+----
+val oldValueExtractor = OldValueExtractor()
+val captures = oldValueExtractor.extract(thenBlock.statements)
+
+if (captures.isNotEmpty()) {
+  // Step 1: Insert $spock_old_N = expr before the when: block
+  captures.forEach { capture ->
+    val captureVar = irVal(capture.variableName, capture.capturedExpr.type).apply {
+      initializer = capture.capturedExpr
+    }
+    // Insert before the when: block's statements in the method body
+    insertBeforeWhenBlock(captureVar)
+  }
+
+  // Step 2: Replace old(expr) calls in then: block with references to captured vars
+  val rewrittenThenStatements = thenBlock.statements.map { stmt ->
+    stmt.transform(OldValueReplacer(captures), null)
+  }
+  // Use rewrittenThenStatements instead of thenBlock.statements
+}
+----
+
+The `OldValueReplacer` is an `IrElementTransformerVoid` that replaces `IrCall` to `old()` with `IrGetValue` for the captured variable.
+
+=== 4. Store captures in `FeatureContext` (optional)
+
+Alternatively, perform the extraction during collection and store capture info in `FeatureContext`. This depends on how the collector handles IR references.
+
+=== 5. Update snapshot tests
+
+Add source/transformed pairs for `old()` usage.
+
+---
+
+== Test Plan
+
+=== Compilation Snapshot Tests
+
+1. **`OldValueCapture.kt`** — basic `old()` usage:
++
+[source,kotlin]
+----
+// Source
+class OldValueSpec : Specification() {
+  fun `list grows by one`() {
+    val list = mutableListOf(1, 2, 3)
+    io.github.pshevche.spockk.lang.`when`
+    list.add(4)
+    io.github.pshevche.spockk.lang.then
+    list.size == old(list.size) + 1
+  }
+}
+----
++
+Expected transformed output includes:
++
+[source,kotlin]
+----
+val `$spock_old0` = list.size  // inserted before when: block
+// when: block: list.add(4)
+// then: block: assert(list.size == `$spock_old0` + 1)
+----
+
+2. **`MultipleOldValues.kt`** — two `old()` calls in the same then block → `$spock_old0` and `$spock_old1`.
+
+=== Compilation Error Tests
+
+* Verify that `old()` used outside a `then:` block (e.g., in `expect:` or `given:`) produces a compilation error.
+
+=== Smoke Tests
+
+[source,kotlin]
+----
+class OldValueSmokeSpec : Specification() {
+  fun `old captures value before when block`() {
+    val list = mutableListOf(1, 2, 3)
+    io.github.pshevche.spockk.lang.`when`
+    list.add(4)
+    io.github.pshevche.spockk.lang.then
+    assert(list.size == old(list.size) + 1)
+  }
+}
+----
+
+=== Engine Tests
+
+Run the smoke spec and verify it passes. Add a variant that fails (old value changes unexpectedly) and verify the failure message includes both the old and new values.
+
+---
+
+== Commit Message
+
+[source]
+----
+feat: support old() value capture for pre-when expression snapshots in then: blocks
+----
+
+---
+
+== Dependencies
+
+* **TODO-1**, **TODO-2** should be done first for stable block indices.
+* **TODO-4** (implicit conditions) is independent but useful to have first for the test assertions to work without explicit `assert`.
+* **TODO-5** (exception conditions) is independent.

@@ -1,81 +1,115 @@
-= DR-01: Align Spockk IR Transformations with Spock AST Transformations
-
-*Status*: Proposed +
-*Date*: 2026-03-08 +
-*Author*: pshevche
-
----
+= DR-02: Align Spockk IR Transformations with Spock AST Transformations
+:toc:
+:toc-title: Contents
 
 == Context
 
-Spockk is a Kotlin compiler plugin that replicates Spock's BDD testing syntax in Kotlin. It transforms Kotlin specs into executable JUnit Platform tests by producing IR (Intermediate Representation) that Spock's runtime (`spockframework/spock`) can interpret via its standard metadata annotations.
+Spockk is a Kotlin compiler plugin that replicates Spock's BDD testing syntax in Kotlin.
+It transforms Kotlin specs into executable JUnit Platform tests by producing IR (Intermediate Representation) that Spock's runtime (`spockframework/spock`) can interpret via its standard metadata annotations.
 
-Spock itself performs its transformations as Groovy AST transformations at compile time via `SpockTransform`, orchestrating `SpecParser`, `SpecRewriter`, `SpecAnnotator`, `DeepBlockRewriter`, `ConditionRewriter`, and `WhereBlockRewriter`. Because Spockk reuses Spock's runtime (`spock.lang.Specification`, `org.spockframework.runtime.*`), its IR output must match what Spock's runtime expects.
+Spock itself performs its transformations as Groovy AST transformations at compile time via `SpockTransform`, orchestrating `SpecParser`, `SpecRewriter`, `SpecAnnotator`, `DeepBlockRewriter`, `ConditionRewriter`, and `WhereBlockRewriter`.
+Because Spockk reuses Spock's runtime (`spock.lang.Specification`, `org.spockframework.runtime.*`), its IR output must match what Spock's runtime expects.
 
-This document captures the differences found between Spockk's current IR transformations and Spock's AST transformations, and defines an implementation plan to close those gaps.
+This document compares Spockk's current IR transformations against Spock's AST transformations, identifies the differences, and defines a concrete implementation plan to close the gaps.
 
 ---
 
-== Research: Spock's AST Transformations
+== How Spock Transforms Specs
 
 === Transformation Pipeline
 
-Spock's `SpockTransform` operates in the `SEMANTIC_ANALYSIS` compile phase:
+Spock's `SpockTransform` runs during Groovy's `SEMANTIC_ANALYSIS` compile phase in four sequential passes:
 
-1. *SpecParser* — Parses `ClassNode`s that extend `Specification`, building a typed model (Spec → Feature → Block structure). Recognizes block labels: `given:` / `setup:`, `when:`, `then:`, `expect:`, `cleanup:`, `where:`, `and:`, `filter:`.
-2. *SpecRewriter* — Performs structural rewrites: renames feature methods, moves field initializers, wraps cleanup blocks in try-finally, rewrites `when:` blocks for exception conditions, inserts block entry/exit calls, handles `old()` capture.
-3. *SpecAnnotator* — Adds metadata annotations: `@SpecMetadata`, `@FeatureMetadata`, `@BlockMetadata`, `@FieldMetadata`, `@DataProviderMetadata`, `@DataProcessorMetadata`.
-4. *DeepBlockRewriter* + *ConditionRewriter* — Rewrite implicit boolean conditions in `then:` and `expect:` blocks into `SpockRuntime.verifyCondition()` calls with `ValueRecorder` instrumentation.
-5. *WhereBlockRewriter* — Transforms `<<` data pipes and data table syntax into data provider/processor methods.
+1. **`SpecParser`** — Parses `ClassNode`s extending `Specification`. Builds a typed model: `Spec → Method → Block → Statement`. Recognises block labels and fixture method names.
+2. **`SpecRewriter`** — Applies structural rewrites: renames feature methods, moves field initializers to `$spock_initializeFields()`, wraps cleanup blocks in try-catch-finally, rewrites `when:` blocks for exception conditions, inserts `SpockRuntime.callBlockEntered/Exited()` calls, handles `old()` expression capture.
+3. **`SpecAnnotator`** — Adds metadata annotations: `@SpecMetadata`, `@FeatureMetadata`, `@BlockMetadata`, `@FieldMetadata`, `@DataProviderMetadata`, `@DataProcessorMetadata`.
+4. **`DeepBlockRewriter` + `ConditionRewriter`** — Rewrites implicit boolean expressions in `then:` and `expect:` blocks into `SpockRuntime.verifyCondition()` calls instrumented with `ValueRecorder`.
+5. **`WhereBlockRewriter`** — Transforms `<<` data pipes and data table syntax into data provider/processor/filter methods.
 
-=== Block Label Recognition
+=== Feature Method Transformation
 
-Spock's `BlockParseInfo` enum recognises:
+==== Renaming
+
+Feature methods are renamed using `$spock_feature_<specDepth>_<ordinal>`:
+
+* `specDepth` — depth of the spec class in the inheritance chain above `Specification` (0 for a direct subclass).
+* `ordinal` — 0-based index of the feature within the spec class (source order).
+
+The return type is changed to `void`.
+
+.Example
+[source,groovy]
+----
+// Before
+def "aFeature"() { ... }
+
+// After
+public void $spock_feature_0_0() { ... }
+----
+
+Source: https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/compiler/SpecRewriter.java[`SpecRewriter.java#createInternalName()`]
+
+==== `@FeatureMetadata` Annotation
+
+Added by `SpecAnnotator.addFeatureMetadata()`:
+
+[source,java]
+----
+@FeatureMetadata(
+  name    = "aFeature",          // original method name
+  ordinal = 0,                   // 0-based index within spec
+  line    = 5,                   // source line
+  blocks  = [ @BlockMetadata(kind=SETUP, texts=["description"]), ... ],
+  parameterNames = ["a", "b"]   // parameter names for parametrised features
+)
+----
+
+==== `@BlockMetadata` Entries
+
+Added for every block whose `BlockParseInfo` is marked as supporting block listeners (all except `where:` and `filter:`). Each block maps to a `BlockKind`:
 
 [cols="1,1,2"]
 |===
 | Label | `BlockKind` | Notes
 
-| `given:`
+| `given:` / `setup:`
 | `SETUP`
-| Canonical setup block
-
-| `setup:`
-| `SETUP`
-| Alias for `given:`
+| `setup:` is an alias for `given:`
 
 | `when:`
 | `WHEN`
-| Action block
+|
 
 | `then:`
 | `THEN`
-| Assertion block; triggers implicit condition rewriting
+|
 
 | `expect:`
 | `EXPECT`
-| Combined action+assertion; triggers implicit condition rewriting
+|
 
 | `cleanup:`
 | `CLEANUP`
-| Cleanup block; wrapped in try-finally
-
-| `where:`
-| `WHERE`
-| Parameterization block
+| Triggers try-catch-finally wrapping
 
 | `and:`
 | _(inherits predecessor)_
-| Continuation; inherits `BlockKind` from preceding block
+| Continuation block; adopts the `BlockKind` of the block it follows
+
+| `where:`
+| `WHERE`
+| Listed in metadata but does NOT get block entry/exit calls
 
 | `filter:`
-| _(internal)_
-| Filters parameterized test iterations
+| `FILTER`
+| Listed in metadata; generates a filter method
 |===
 
-=== Block Entry/Exit Notifications
+The `texts` array contains block descriptions (string literals immediately following a label, e.g., `given: "initial state"`); it may be empty.
 
-For every block that supports listeners (all except `where:` and `filter:`), Spock inserts:
+==== Block Entry/Exit Notification Calls
+
+For every block that supports listeners (all except `where:` and `filter:`), `SpecRewriter.addBlockListeners()` inserts:
 
 [source,java]
 ----
@@ -84,22 +118,31 @@ SpockRuntime.callBlockEntered(this, blockIndex);
 SpockRuntime.callBlockExited(this, blockIndex);
 ----
 
-The `blockIndex` is the 0-based position of the block in the feature's block list (matching the `@BlockMetadata` array). These calls fire events to registered Spock extensions and update the current block in `SpecificationContext`.
+The `blockIndex` is the 0-based position of the block within `@FeatureMetadata.blocks`, matching array order.
+These calls enable Spock extensions to observe block transitions and update `SpecificationContext.getCurrentBlock()`.
 
-=== Implicit Condition Rewriting
+At the end of every feature method, `MockController.leaveScope()` is called:
 
-In `then:` and `expect:` blocks, Spock's `ConditionRewriter` transforms every boolean expression (without explicit `assert`) into a verified condition:
+[source,java]
+----
+this.getSpecificationContext().getMockController().leaveScope()
+----
+
+==== Implicit Condition Rewriting
+
+In `then:` and `expect:` blocks, `ConditionRewriter` transforms every bare boolean expression (without explicit `assert`) into a verified condition:
 
 [source,groovy]
 ----
-// Source:
+// Developer writes:
 then:
 result == expected
 
-// Transformed:
+// Spock transforms into:
 SpockRuntime.verifyCondition(
-  $spock_errorCollector, $spock_valueRecorder.reset(),
-  "result == expected", 1, 1, null,
+  $spock_errorCollector,
+  $spock_valueRecorder.reset(),
+  "result == expected", line, col, null,
   $spock_valueRecorder.record(
     $spock_valueRecorder.startRecordingValue(0),
     result == expected
@@ -107,405 +150,390 @@ SpockRuntime.verifyCondition(
 )
 ----
 
-The `ValueRecorder` captures sub-expression values for rich failure messages. Explicit `assert` statements go through `ConditionRewriter.rewriteExplicitCondition()`.
+This requires `ValueRecorder` and `ErrorCollector` instances to be declared at the top of the feature method.
 
 === Cleanup Block Transformation
 
-When a `cleanup:` block exists, Spock wraps the rest of the feature body in try-catch-finally:
+When a `cleanup:` block is present, `SpecRewriter.visitCleanupBlock()` wraps all preceding block statements in try-catch-finally:
 
 [source,java]
 ----
 Throwable $spock_feature_throwable = null;
 try {
-  // setup/when/then/expect statements
+  // setup/when/then/expect block statements
+  // (with SpockRuntime.callBlockEntered/Exited around each)
 } catch (Throwable $spock_tmp_throwable) {
   $spock_feature_throwable = $spock_tmp_throwable;
   throw $spock_tmp_throwable;
 } finally {
+  BlockInfo $spock_failedBlock = null;
   try {
+    if ($spock_feature_throwable != null) {
+      $spock_failedBlock = this.getSpecificationContext().getCurrentBlock();
+    }
+    SpockRuntime.callBlockEntered(this, cleanupBlockIndex);
     // cleanup statements
+    SpockRuntime.callBlockExited(this, cleanupBlockIndex);
   } catch (Throwable $spock_tmp_throwable) {
     if ($spock_feature_throwable != null) {
       $spock_feature_throwable.addSuppressed($spock_tmp_throwable);
     } else {
       throw $spock_tmp_throwable;
     }
+  } finally {
+    if ($spock_feature_throwable != null) {
+      ((SpecificationContext) this.getSpecificationContext())
+        .setCurrentBlock($spock_failedBlock);
+    }
   }
 }
 ----
 
-=== Exception Condition Handling
+Key points:
 
-When `thrown()` / `notThrown()` appears in a `then:` block, Spock rewrites the preceding `when:` block:
+* `$spock_feature_throwable` starts `null` (not `EmptyExpression`): `null` means no exception was thrown.
+* The `$spock_failedBlock` variable preserves the `BlockInfo` of the currently executing block when an exception occurs, so extensions can report the correct failed block even after cleanup transitions to the cleanup block.
+* `addSuppressed()` is used to chain cleanup exceptions onto feature exceptions.
+* `setCurrentBlock($spock_failedBlock)` is restored in a `finally` inside the cleanup try-catch.
+
+=== Exception Condition Handling (`thrown()` / `notThrown()`)
+
+When `thrown()` or `notThrown()` appears in a `then:` block, `SpecRewriter.rewriteWhenBlockForExceptionCondition()` wraps the preceding `when:` block:
 
 [source,java]
 ----
-// Inserted at the start of when:
+// Inserted at start of when:
 setThrownException(null);
 
-// when statements are wrapped:
+// when statements become:
 try {
-  // when statements
+  // when statements (variable declarations hoisted before try)
 } catch (Throwable $spock_ex) {
   setThrownException($spock_ex);
 }
 ----
 
-The `then:` block's `thrown(ExceptionType)` call then reads from `thrownException`.
+The `thrown(Type)` / `notThrown()` call in `then:` reads from `thrownException` via `Specification.getThrownException()` at runtime.
 
 === `old()` Value Capture
 
-In `then:` blocks, `old(expr)` is rewritten to capture the expression value _before_ the `when:` block executes:
+`old(expr)` in a `then:` block captures `expr` **before** the `when:` block executes.
+`ConditionRewriter` / `DeepBlockRewriter` detects `old()` calls and emits:
 
 [source,java]
 ----
 // Inserted before the when: block:
 def $spock_old_value0 = <expr>
 
-// In then: block, old(expr) is replaced with:
+// old(expr) in then: block replaced by:
 $spock_old_value0
 ----
 
-=== Data Provider / Processor (Where Block)
+=== Spec Field Transformation
 
-Data tables and data pipes (`<<`) are transformed similarly in both Spock and Spockk (this area is largely aligned). Spock's method naming:
+`SpecRewriter.visitField()` applies different strategies based on field type:
 
-* Provider: `$spock_feature_N_Mprov<index>` — identical to Spockk
-* Processor: `$spock_feature_N_Mproc` — identical to Spockk
-* Filter: `$spock_feature_N_Mfilter` — not present in Spockk
+==== Instance Non-Final Fields
 
-=== `@Unroll` / Iteration Naming
+* **No renaming** — field name is unchanged.
+* Field initializer is moved to `$spock_initializeFields()` via `FieldInitializationExpression`.
+* Field itself gets `@FieldMetadata(name, ordinal, line, initializer=true/false)`.
 
-Spock uses `@Unroll` (default in Spock 2+) to report each parameterized iteration separately. Feature names can use `#paramName` interpolation, which the runtime resolves during iteration. This is handled by the runtime, not the compiler transform.
+==== Instance Final Fields
+
+* **Renamed** to `$spock_finalField_<name>`.
+* `final` modifier removed.
+* Field initializer moved to `$spock_initializeFields()`.
+* A **getter method** is generated with the field's original name (e.g., `getAnswer()`).
+* Field is annotated with `@FieldMetadata`.
+
+==== `@Shared` Fields
+
+* **Renamed** to `$spock_sharedField_<name>`.
+* Visibility changed to `protected` (not private — required for cross-instance access, see `SpecRewriter` comment lines 230-270).
+* `volatile` modifier added (`ACC_VOLATILE`).
+* `final` modifier removed (if present).
+* Field initializer moved to `$spock_initializeSharedFields()`.
+* A **getter** is generated that reads from `getSpecificationContext().getSharedInstance()`.
+* For non-final `@Shared` fields, a **setter** is also generated that writes to the shared instance.
+* Field is annotated with `@FieldMetadata`.
+
+.`$spock_initializeFields()` method
+[source,java]
+----
+// Created lazily by SpecRewriter.getInitializerMethod()
+private Object $spock_initializeFields() {
+  // one FieldInitializationExpression per field with an initializer
+  foo = 'bar'
+}
+----
+
+The method is `private` so that multiple initializer methods along the hierarchy can be called independently via reflection.
+
+=== Fixture Method Transformation
+
+`SpecRewriter.visitMethod()` handles `FixtureMethod` instances:
+
+1. **De-virtualization**: Changes visibility to `private` (`ACC_PRIVATE`). This ensures that if both `Base` and `Derived` declare `setup()`, both can be invoked independently via reflection without virtual dispatch hiding the parent.
+2. **Field access validation** (for `setupSpec` / `cleanupSpec` only): `InstanceFieldAccessChecker` verifies that the method body does not access instance fields — only `@Shared` and static members are permitted.
+
+Fixture methods do **not** receive any metadata annotation (`@FeatureMetadata` is only for feature methods).
+Fixture methods keep their original names after transformation.
+
+=== Data Parametrization (Where Block)
+
+`WhereBlockRewriter` transforms `where:` block content:
+
+* **Data pipes** (`x << [1,2,3]`) and **data tables** (`x | y \n 1 | 2`) are both normalised into data providers.
+* **Data tables** are transposed column-by-column; each column becomes a separate data provider.
+* **Data provider methods** are named `$spock_feature_N_Mprov<index>` (public, synthetic).
+* **Data processor method** is named `$spock_feature_N_Mproc` (public, synthetic).
+* **Filter method** (if a `filter:` block exists) is named `$spock_feature_N_Mfilter` (public, synthetic).
+* Provider methods accept `List` parameters for columns that reference previous data table variables.
+* Processor method accepts one parameter per provider and returns `Object[]` of the data variables.
+
+For a multi-parameterization `[x, y] << list`:
+
+[source,groovy]
+----
+// Generated processor:
+a = ($spock_p0 instanceof Map ? $spock_p0.getAt('a') : $spock_p0.getAt(0)) as Object
+b = ($spock_p0 instanceof Map ? $spock_p0.getAt('b') : $spock_p0.getAt(1)) as Object
+----
 
 ---
 
-== Gaps: Spockk vs. Spock
+== How Spockk Currently Transforms Specs
 
-The following gaps were identified between Spockk's current IR transformations and Spock's expected behaviour.
+=== What Spockk Does Well
 
-=== Gap 1: `given:` maps to `null` BlockKind instead of `BlockKind.SETUP`
+Spockk correctly implements the following transformations that match Spock:
 
-*Spock*: `given:` / `setup:` → `BlockKind.SETUP` +
-*Spockk*: `given` → `null` (omitted from `@FeatureMetadata.blocks`)
+* **Feature method renaming**: `$spock_feature_<specDepth>_<ordinal>` format is identical.
+* **`@FeatureMetadata` annotation**: `name`, `ordinal`, `line`, `parameterNames` fields are correct.
+* **`@FieldMetadata` annotation**: All four fields (`name`, `ordinal`, `line`, `initializer`) are correct.
+* **`@SpecMetadata` annotation**: `filename` and `line` are correct.
+* **Instance final field transformation**: Renamed to `$spock_finalField_<name>`, getter generated, initializer moved to `$spock_initializeFields()`.
+* **Instance non-final field transformation**: Initializer moved to `$spock_initializeFields()`, made nullable.
+* **`@Shared` field transformation**: Renamed to `$spock_sharedField_<name>`, protected volatile, getter routing through `sharedInstance`, initializer moved to `$spock_initializeSharedFields()`.
+* **Fixture method de-virtualization**: Made `private`.
+* **`setupSpec` / `cleanupSpec` field access validation**: Instance fields rejected.
+* **Data provider / processor naming**: Identical to Spock.
+* **Data table transposition into simple pipes**: Matches Spock logic.
+* **Mock API transformation**: `Mock()`, `Stub()`, `Spy()` augmented with name and type metadata.
+* **Cleanup block try-catch-finally structure**: Core exception-chaining logic matches Spock.
 
-In `FeatureBlockLabel.kt`, `GIVEN` has `blockKind = null`. Blocks with `null` blockKind are filtered out of the `@FeatureMetadata` annotation (see `FeatureRewriter.kt`, line 81: `blocks.filter { it.element.label.blockKind != null }`). This means `given:` blocks are invisible to Spock's runtime and any extension querying block metadata.
+=== Gaps Identified
 
-=== Gap 2: `setup:` block label is not recognised
+The following differences were found between Spockk's current IR output and what Spock produces.
 
-*Spock*: `setup:` is a valid block label, equivalent to `given:`. +
-*Spockk*: Only `given` is recognised; `setup:` would cause a compilation error or be ignored.
+==== Gap 1: `given:` maps to `null` BlockKind instead of `BlockKind.SETUP`
 
-=== Gap 3: Block entry/exit notification calls are not inserted
+*Spock*: `given:` → `BlockKind.SETUP` (appears in `@FeatureMetadata.blocks`) +
+*Spockk*: `GIVEN` has `blockKind = null` in `FeatureBlockLabel.kt` → omitted from `@FeatureMetadata.blocks`
 
-*Spock*: Every block (except `where:` and `filter:`) is wrapped with `SpockRuntime.callBlockEntered(this, i)` / `callBlockExited(this, i)`. +
-*Spockk*: No block lifecycle calls are emitted.
+Blocks with `null` blockKind are filtered out in `FeatureRewriter.kt`.
+This means `given:` blocks are invisible to Spock extensions and the runtime's block metadata.
 
-This is the most impactful gap: Spock extensions that listen to block events (e.g., for reporting, timeouts, or custom logic) receive no notifications. `SpecificationContext.getCurrentBlock()` is never set, which can cause `NullPointerException`s in extensions that rely on it.
+==== Gap 2: `and:` does not inherit its predecessor's `BlockKind`
 
-=== Gap 4: `cleanup:` block is not supported
+*Spock*: `and:` inherits the `BlockKind` of the preceding block (e.g., `and:` after `then:` becomes `THEN`). +
+*Spockk*: `AND` has `blockKind = null` → omitted from `@FeatureMetadata.blocks`
 
-*Spock*: `cleanup:` triggers try-catch-finally wrapping of the feature body. +
-*Spockk*: `cleanup` is not a recognised block label.
+Every block in a feature except `where:` / `filter:` should appear in `@FeatureMetadata.blocks` with the correct kind and descriptions.
+This is confirmed by Spock's snapshot: `all_observable_blocks_with_labels_and_blocks.groovy` shows `and:` after `then:` produces `BlockKind.THEN`.
 
-Without `cleanup:`, Spockk users cannot guarantee resource teardown if an earlier block throws. They must resort to `try/finally` in the feature body manually.
+==== Gap 3: No block entry/exit notification calls
 
-=== Gap 5: Implicit conditions in `then:` / `expect:` are not rewritten
+*Spock*: Every block (except `where:` and `filter:`) gets `SpockRuntime.callBlockEntered(this, i)` / `callBlockExited(this, i)` around its statements. +
+*Spockk*: No such calls are emitted.
 
-*Spock*: Boolean expressions without `assert` in `then:` and `expect:` blocks are implicit conditions — they are wrapped in `SpockRuntime.verifyCondition()` with `ValueRecorder` instrumentation. +
-*Spockk*: Requires explicit `assert` keywords; boolean expressions without `assert` are executed but failures produce no assertion error. Kotlin power-assert enhances explicit `assert` messages but does not make bare boolean expressions into conditions.
+This is the highest-impact gap. Spock extensions that observe block transitions receive no events.
+`SpecificationContext.getCurrentBlock()` is never updated, causing `NullPointerException`s in extensions that read it.
+The cleanup block transformation in Spockk also omits the `$spock_failedBlock` pattern needed for proper block context restoration.
 
-This is a *semantic difference*: writing `result == expected` in a `then:` block currently does nothing in Spockk. Users must write `assert result == expected`, which is a departure from Spock idiom.
+==== Gap 4: `MockController.leaveScope()` is not called
 
-=== Gap 6: Exception conditions (`thrown()` / `notThrown()`) are not supported
+*Spock*: Every feature method ends with `this.getSpecificationContext().getMockController().leaveScope()`. +
+*Spockk*: This call is absent.
 
-*Spock*: `thrown(SomeException)` in a `then:` block causes the preceding `when:` block to be wrapped in try-catch, storing the thrown exception for assertion. +
-*Spockk*: No `thrown()` / `notThrown()` support.
+Without it, mock scopes created during `when:` blocks are never closed, leaking mock state between features.
 
-=== Gap 7: `old()` value capture is not supported
+==== Gap 5: Implicit conditions in `then:` / `expect:` are not rewritten
 
-*Spock*: `old(expr)` in `then:` blocks captures `expr` before the `when:` block runs. +
-*Spockk*: No `old()` support.
+*Spock*: Bare boolean expressions in `then:` and `expect:` are wrapped in `SpockRuntime.verifyCondition()` with `ValueRecorder` instrumentation. +
+*Spockk*: Bare boolean expressions produce no assertion error when false; users must write explicit `assert`.
 
-=== Gap 8: `and:` block does not inherit predecessor's `BlockKind`
+This is a core Spock idiom difference.
+Spockk does use Kotlin power-assert for explicit `assert` statements, which provides rich output, but bare booleans are silently ignored.
 
-*Spock*: An `and:` block inherits the `BlockKind` of the preceding block (e.g., `and:` after `then:` becomes `THEN`, after `when:` becomes `WHEN`). This means it appears in block metadata with the right kind and description. +
-*Spockk*: `and` has `blockKind = null`, so it is also omitted from `@FeatureMetadata.blocks`.
+==== Gap 6: No exception condition support (`thrown()` / `notThrown()`)
 
-=== Gap 9: `filter:` block in `where:` is not supported
+*Spock*: `thrown(Type)` in `then:` causes the `when:` block to be wrapped in try-catch, capturing thrown exceptions. +
+*Spockk*: `thrown()` / `notThrown()` are not detected at compile time; the `when:` block is not rewritten.
 
-*Spock*: After a `where:` block, a `filter:` block generates a `$spock_feature_N_Mfilter` method used to conditionally skip iterations. +
-*Spockk*: No `filter:` support.
+==== Gap 7: No `old()` value capture
+
+*Spock*: `old(expr)` in `then:` is replaced with a variable capturing `expr` before the `when:` block runs. +
+*Spockk*: `old()` is not supported.
+
+==== Gap 8: Cleanup block missing `$spock_failedBlock` / `setCurrentBlock()` pattern
+
+*Spock*: The cleanup block's finally structure includes a `$spock_failedBlock` variable and a nested `finally { setCurrentBlock($spock_failedBlock) }` to restore block context after cleanup. +
+*Spockk*: The current `CleanupBlockRewriter` generates a simpler try-catch-finally that omits this context restoration. This prevents Spock extensions from correctly identifying which block failed.
+
+==== Gap 9: `filter:` block is not supported
+
+*Spock*: A `filter:` block after `where:` generates a `$spock_feature_N_Mfilter(dataVars...)` method and appears in `@FeatureMetadata.blocks` as `BlockKind.FILTER`. +
+*Spockk*: No `filter:` support; the block label is not recognised.
+
+==== Gap 10: Data processor uses separate providers per data table column; Spock uses per-provider method
+
+Both Spock and Spockk generate one provider method per data variable (column).
+However, Spock's `@DataProviderMetadata` does not set `previousDataTableVariables` for data pipes — only for data tables where earlier column values are referenced.
+Spockk currently always sets `previousDataTableVariables` for all but the first column of a data table, even when no cross-column references exist.
+This is a minor annotation difference that does not affect runtime correctness today but diverges from Spock's intent.
 
 ---
 
 == Implementation Plan
 
-The following increments are ordered by impact and interdependency. Each increment is independently committable.
+The following increments are ordered by impact and interdependency.
+Each increment is independently committable and has its own detailed implementation plan document.
+
+=== TODO-1: Fix `given:` and `and:` BlockKind mapping
+
+*Goal*: `given:` maps to `BlockKind.SETUP`; `and:` inherits its predecessor's `BlockKind` (e.g., `and:` after `then:` → `THEN`).
+
+*Affected modules*: `spockk-compiler-plugin`, `spockk-specs`
+
+*Detailed plan*: link:todo-1-plan-fix-given-and-blockkind.adoc[todo-1-plan-fix-given-and-blockkind.adoc]
 
 ---
 
-=== Increment 1 — Fix `given:` and `and:` BlockKind mapping
+=== TODO-2: Insert block entry/exit notification calls and `MockController.leaveScope()`
 
-*Goal*: `given:` maps to `BlockKind.SETUP`; `and:` inherits its predecessor's `BlockKind`.
+*Goal*: Every block (except `where:` / `filter:`) emits `SpockRuntime.callBlockEntered(this, i)` and `callBlockExited(this, i)`. Every feature method ends with `MockController.leaveScope()`.
 
-*Scope*: `spockk-compiler-plugin`, `spockk-core` (if `BlockKind.SETUP` is not already present), `spockk-specs`.
+*Affected modules*: `spockk-compiler-plugin`, `spockk-specs`
 
-*Changes*:
-
-1. In `FeatureBlockLabel.kt`, change `GIVEN` to use `"SETUP"` as its `blockKind`:
-+
-[source,kotlin]
-----
-GIVEN("given", GIVEN_BLOCK_FQN, "SETUP"),
-----
-2. In `FeatureBlockLabel.kt`, remove the fixed `null` from `AND` and make it dynamically inherit its predecessor. This requires propagating predecessor label info through `FeatureBlockStatements` or the collector.
-3. In `FeatureRewriter.kt`, update the filter predicate to also emit `and` blocks (since they now have a resolved kind).
-4. In `ValidatingFeatureBlockCollector.kt` or collector infrastructure, thread predecessor label through `AND` blocks so it can resolve its `blockKind` at collection time.
-5. Update snapshot tests: add `given:` block to `@FeatureMetadata.blocks` in all affected transformed snapshots.
-6. Add a new smoke test that verifies `given:` appears in block metadata with kind `SETUP`.
-
-*Commit message*: `feat: map given: to BlockKind.SETUP and and: to predecessor block kind`
+*Detailed plan*: link:todo-2-plan-block-entry-exit-calls.adoc[todo-2-plan-block-entry-exit-calls.adoc]
 
 ---
 
-=== Increment 2 — Add `setup:` as an alias for `given:`
+=== TODO-3: Fix cleanup block to include `$spock_failedBlock` / `setCurrentBlock()` pattern
 
-*Goal*: `setup:` is recognised as a valid block label, equivalent to `given:` / `BlockKind.SETUP`.
+*Goal*: The cleanup block's try-catch-finally matches Spock's full structure, including block context preservation via `$spock_failedBlock`.
 
-*Scope*: `spockk-core`, `spockk-compiler-plugin`, `spockk-specs`.
+*Affected modules*: `spockk-compiler-plugin`, `spockk-specs`
 
-*Changes*:
+*Detailed plan*: link:todo-3-plan-cleanup-block-context.adoc[todo-3-plan-cleanup-block-context.adoc]
 
-1. In `spockk-core`, add a `setup` block label object (analogous to `given`):
-+
-[source,kotlin]
-----
-object setup : FeatureBlockLabel("setup")
-----
-2. In `IrIdentifiers.kt`, add `SETUP_BLOCK_FQN`.
-3. In `FeatureBlockLabel.kt`, add `SETUP("setup", SETUP_BLOCK_FQN, "SETUP")`.
-4. Update `ValidatingFeatureBlockCollector` to accept `setup:` in the same positions as `given:`.
-5. Add compilation and smoke tests for `setup:` blocks.
-
-*Commit message*: `feat: add setup: block label as alias for given:`
+NOTE: This increment depends on TODO-2 (block entry/exit calls) because `callBlockEntered/Exited` for the cleanup block must be emitted inside the `finally`, and the `$spock_failedBlock` pattern references `getSpecificationContext().getCurrentBlock()` which is only meaningful after block entry calls are in place.
 
 ---
 
-=== Increment 3 — Insert block entry/exit notification calls
+=== TODO-4: Support implicit conditions in `then:` / `expect:` blocks
 
-*Goal*: Each block's statements are wrapped by `SpockRuntime.callBlockEntered(this, index)` / `callBlockExited(this, index)`, enabling Spock extensions to observe block transitions.
+*Goal*: Bare boolean expressions in `then:` and `expect:` blocks cause test failures when false, matching Spock semantics.
 
-*Scope*: `spockk-compiler-plugin`, `spockk-specs`.
+*Affected modules*: `spockk-compiler-plugin`, `spockk-specs`
 
-*Changes*:
+*Detailed plan*: link:todo-4-plan-implicit-conditions.adoc[todo-4-plan-implicit-conditions.adoc]
 
-1. In `IrIdentifiers.kt`, add the `SpockRuntime` FQN and `callBlockEntered` / `callBlockExited` callable IDs.
-2. In `FeatureRewriter.kt`, update `rewriteFeatureStatements()` to wrap each block's statements between `callBlockEntered` and `callBlockExited` calls, passing the spec instance (`this`) and the 0-based block index from the `@FeatureMetadata.blocks` array. Only blocks with a non-null `blockKind` (i.e., blocks that appear in `@FeatureMetadata.blocks`) get wrapped.
-3. Update snapshot tests to include the inserted calls.
-4. Add a runtime test that verifies block entry/exit events are fired (using a Spock extension stub).
+NOTE: Two options exist:
 
-*Notes*:
-
-* The `blockIndex` passed to these calls must match the index within the `blocks` array in `@FeatureMetadata`, not the raw statement index in the feature body.
-* `where:` and `filter:` blocks never get these calls.
-
-*Commit message*: `feat: insert SpockRuntime.callBlockEntered/Exited around each block's statements`
+* *Option A (recommended initially)*: Wrap bare booleans with `assert`, delegating to Kotlin power-assert for rich messages. Simpler IR transformation.
+* *Option B (future)*: Full `SpockRuntime.verifyCondition()` + `ValueRecorder` instrumentation matching Spock exactly. Deferred to a separate design record.
 
 ---
 
-=== Increment 4 — Support `cleanup:` block with try-finally wrapping
+=== TODO-5: Support exception conditions (`thrown()` / `notThrown()`)
 
-*Goal*: A `cleanup:` block generates a try-catch-finally around the rest of the feature body, ensuring cleanup always runs and suppressed exceptions are properly chained.
+*Goal*: When `thrown()` or `notThrown()` is detected in a `then:` block, the preceding `when:` block is wrapped in try-catch to capture thrown exceptions.
 
-*Scope*: `spockk-core`, `spockk-compiler-plugin`, `spockk-specs`.
+*Affected modules*: `spockk-compiler-plugin`, `spockk-specs`
 
-*Changes*:
-
-1. In `spockk-core`, add a `cleanup` block label object.
-2. In `IrIdentifiers.kt`, add `CLEANUP_BLOCK_FQN` and `BlockKind.CLEANUP` reference.
-3. In `FeatureBlockLabel.kt`, add `CLEANUP("cleanup", CLEANUP_BLOCK_FQN, "CLEANUP")`.
-4. Update `ValidatingFeatureBlockCollector` to validate `cleanup:` block placement (must appear after `then:` / `expect:` and before `where:`).
-5. In `FeatureRewriter.kt`, detect when a feature has a `cleanup:` block. If present, generate the try-catch-finally wrapping:
-+
-[source,kotlin]
-----
-var $spock_feature_throwable: Throwable? = null
-try {
-  // non-cleanup blocks
-} catch ($spock_tmp_throwable: Throwable) {
-  $spock_feature_throwable = $spock_tmp_throwable
-  throw $spock_tmp_throwable
-} finally {
-  try {
-    // cleanup statements
-  } catch ($spock_tmp_throwable: Throwable) {
-    if ($spock_feature_throwable != null) {
-      $spock_feature_throwable!!.addSuppressed($spock_tmp_throwable)
-    } else {
-      throw $spock_tmp_throwable
-    }
-  }
-}
-----
-6. Add transformation snapshot tests and smoke tests.
-
-*Commit message*: `feat: support cleanup: block with try-finally wrapping`
+*Detailed plan*: link:todo-5-plan-exception-conditions.adoc[todo-5-plan-exception-conditions.adoc]
 
 ---
 
-=== Increment 5 — Rewrite implicit conditions in `then:` and `expect:` blocks
+=== TODO-6: Support `old()` value capture in `then:` blocks
 
-*Goal*: Boolean expressions without `assert` in `then:` and `expect:` blocks are implicitly treated as conditions, matching Spock semantics. A failed bare boolean expression produces an assertion error.
+*Goal*: `old(expr)` in `then:` blocks captures the value of `expr` before the `when:` block executes.
 
-*Design decision*: This increment introduces a fundamental semantic change. Two options exist:
+*Affected modules*: `spockk-core`, `spockk-compiler-plugin`, `spockk-specs`
 
-*Option A* — Match Spock exactly: wrap bare boolean expressions in `SpockRuntime.verifyCondition()` with a `ValueRecorder`. This reproduces Spock's rich failure output but requires implementing the full `ValueRecorder` wiring in IR.
-
-*Option B* — Lightweight: insert an `assert` around bare boolean expressions in `then:`/`expect:` blocks, deferring rich output to Kotlin power-assert. Simpler IR transformation, but failure messages are power-assert style rather than Spock-style.
-
-*Recommendation*: Start with Option B (assertion insertion) to close the semantic gap. Defer Option A (full condition rewriting with ValueRecorder) as a separate design record if needed.
-
-*Scope*: `spockk-compiler-plugin`, `spockk-specs`.
-
-*Changes* (Option B):
-
-1. In `FeatureRewriter.kt` (or a new `ImplicitConditionRewriter`), walk statements in `then:` and `expect:` blocks. For each statement that is a bare boolean expression (not already an `assert`/`throw`/assignment/call-with-side-effects), wrap it in an `IrCall` to `assert(expr)`.
-2. Ensure that assignment expressions, void calls, `throw`, `return`, and variable declarations are not wrapped.
-3. Update snapshot tests.
-4. Add smoke tests that verify bare boolean conditions without `assert` in `then:` / `expect:` blocks cause test failures when false.
-
-*Commit message*: `feat: treat bare boolean expressions in then:/expect: as implicit conditions`
+*Detailed plan*: link:todo-6-plan-old-value-capture.adoc[todo-6-plan-old-value-capture.adoc]
 
 ---
 
-=== Increment 6 — Support exception conditions (`thrown()` / `notThrown()`)
+=== TODO-7: Support `filter:` block for parameterized test filtering
 
-*Goal*: When a `then:` block contains a `thrown(ExceptionType)` call, the preceding `when:` block is wrapped in try-catch that stores the thrown exception.
+*Goal*: A `filter:` block after `where:` generates a `$spock_feature_N_Mfilter` method and appears in block metadata as `BlockKind.FILTER`.
 
-*Scope*: `spockk-core` (if `thrown` / `notThrown` / `setThrownException` / `getThrownException` are not already exposed), `spockk-compiler-plugin`, `spockk-specs`.
+*Affected modules*: `spockk-core`, `spockk-compiler-plugin`, `spockk-specs`
 
-*Changes*:
-
-1. Check whether `Specification.thrown()`, `Specification.notThrown()`, `Specification.setThrownException()` are available from Spock's runtime jar. If so, no core changes needed.
-2. In the collector or `FeatureRewriter`, detect calls to `thrown()` / `notThrown()` in `then:` block statements.
-3. When detected, wrap the statements of the preceding `when:` block:
-+
-[source,kotlin]
-----
-setThrownException(null)
-try {
-  // when statements
-} catch ($spock_ex: Throwable) {
-  setThrownException($spock_ex)
-}
-----
-4. Update snapshot and smoke tests to cover both `thrown()` matching and `notThrown()`.
-
-*Commit message*: `feat: support exception conditions with thrown() and notThrown()`
-
----
-
-=== Increment 7 — Support `old()` value capture in `then:` blocks
-
-*Goal*: `old(expr)` in `then:` blocks evaluates `expr` _before_ the `when:` block runs.
-
-*Scope*: `spockk-core` (expose `old()` shim if not present), `spockk-compiler-plugin`, `spockk-specs`.
-
-*Changes*:
-
-1. Check whether `Specification.old()` is available from Spock's runtime. Spock's Groovy `old(expr)` is a no-op at runtime (the compiler replaces the call); Spockk needs an equivalent marker.
-2. In `spockk-core`, expose an `old` function that serves as a marker:
-+
-[source,kotlin]
-----
-fun <T> old(value: T): T = value  // marker; compiler replaces this
-----
-3. In the collector, scan `then:` blocks for calls to `old(...)`.
-4. In `FeatureRewriter`, for each `old(expr)` found: create a synthetic `val $spock_old_N = expr` statement, insert it before the `when:` block statements, and replace the `old(expr)` call in the `then:` block with a reference to `$spock_old_N`.
-5. Update snapshot and smoke tests.
-
-*Commit message*: `feat: support old() value capture for pre-when expression snapshots`
-
----
-
-=== Increment 8 — Support `filter:` block for parameterized test filtering
-
-*Goal*: A `filter:` block after `where:` generates a `$spock_feature_N_Mfilter` method that the runtime calls to skip iterations.
-
-*Scope*: `spockk-core`, `spockk-compiler-plugin`, `spockk-specs`.
-
-*Changes*:
-
-1. In `spockk-core`, add a `filter` block label.
-2. In `IrIdentifiers.kt`, add `FILTER_BLOCK_FQN`.
-3. In `FeatureBlockLabel.kt`, add `FILTER("filter", FILTER_BLOCK_FQN, null)` (no BlockKind — filter is internal).
-4. In `ValidatingFeatureBlockCollector`, validate `filter:` may only appear after `where:`.
-5. In `InternalIdentifiers`, add `getDataFilterName()` (returns `$spock_feature_N_Mfilter`).
-6. In `WhereBlockRewriter`, generate a `filter` method that contains the `filter:` block statements and returns `Boolean`.
-7. Update snapshot and smoke tests.
-
-*Commit message*: `feat: support filter: block for conditional iteration skipping in where:`
+*Detailed plan*: link:todo-7-plan-filter-block.adoc[todo-7-plan-filter-block.adoc]
 
 ---
 
 == Summary Table
 
-[cols="2,1,1,1"]
+[cols="3,1,1,1"]
 |===
-| Gap | Increment | Effort | Impact
+| Gap | TODO | Effort | Impact
 
-| `given:` has null BlockKind
+| `given:` has `null` BlockKind; omitted from `@FeatureMetadata.blocks`
 | 1
 | Low
-| Medium — affects block metadata, extensions
+| Medium
 
-| `and:` does not inherit BlockKind
+| `and:` does not inherit predecessor's `BlockKind`; omitted from blocks
 | 1
 | Low
-| Medium — affects block metadata
+| Medium
 
-| `setup:` not recognised
+| No `SpockRuntime.callBlockEntered/Exited()` calls in feature methods
+| 2
+| Medium
+| *High*
+
+| `MockController.leaveScope()` not called at end of feature methods
 | 2
 | Low
-| Low — alias for `given:`
+| *High*
 
-| No block entry/exit notifications
+| Cleanup block missing `$spock_failedBlock` / `setCurrentBlock()` pattern
 | 3
+| Low
 | Medium
-| *High* — extensions, reporting, `getCurrentBlock()`
 
-| No `cleanup:` block
+| Implicit conditions in `then:`/`expect:` silently pass when false
 | 4
 | Medium
-| *High* — guaranteed teardown
+| *High*
 
-| No implicit conditions
+| No exception condition support (`thrown()` / `notThrown()`)
 | 5
 | Medium
-| *High* — core Spock idiom
+| *High*
 
-| No exception conditions
+| No `old()` value capture
 | 6
 | Medium
-| *High* — common test pattern
-
-| No `old()` capture
-| 7
 | Medium
-| Medium — needed for before/after assertions
 
-| No `filter:` block
-| 8
+| No `filter:` block support
+| 7
 | Low
-| Low — niche feature
+| Low
 |===
 
 ---
 
 == Out of Scope
 
-* *Full Spock ValueRecorder / condition rewriting* (Option A for Increment 5): Rich sub-expression recording matching Spock's exact output is complex and deferred. Kotlin power-assert covers the majority of the use case.
-* *Mock interaction wiring in `then:` blocks*: Spock moves mock interactions to the preceding `when:` scope and inserts mock controller calls. This is tracked separately.
-* *`@Unroll` iteration naming templates*: The `#paramName` interpolation in feature names is a runtime feature concern handled by Spock's iteration runner. No compiler changes are needed unless Spockk adds its own naming templates.
-* *`setupSpec` / `cleanupSpec` lifecycle method handling*: These are `@BeforeAll` / `@AfterAll` equivalents, managed by the runtime. No IR transformation is required.
+* **Full `ValueRecorder` condition instrumentation**: Rich sub-expression recording matching Spock's exact output requires significant IR work. Kotlin power-assert covers the primary use case and is already integrated. Full instrumentation is deferred to a separate design record.
+* **Mock interaction wiring in `then:` blocks**: Moving mock interactions before the `when:` block and wrapping with `MockController.enterScope()` / `leaveScope()` is partially covered by the `MockController.leaveScope()` fix in TODO-2 but the full mock interaction rewriting is a separate concern.
+* **`@Unroll` iteration naming**: `#paramName` interpolation in feature names is handled by Spock's runtime iteration runner. No IR changes are needed unless Spockk adds its own naming templates.

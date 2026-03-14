@@ -1,0 +1,226 @@
+= TODO-1: Fix `given:` and `and:` BlockKind Mapping
+:toc:
+:toc-title: Contents
+
+*Parent*: link:specification.adoc[DR-02: Align Spockk IR Transformations with Spock AST Transformations] +
+*Status*: Proposed
+
+'''
+
+== Goal
+
+* `given:` block maps to `BlockKind.SETUP` and appears in `@FeatureMetadata.blocks`.
+* `and:` block inherits its predecessor's `BlockKind` (e.g., `and:` after `then:` → `THEN`, after `given:` → `SETUP`, after `when:` → `WHEN`).
+
+'''
+
+== Context and Motivation
+
+=== Current Behaviour
+
+In `FeatureBlockLabel.kt`, both `GIVEN` and `AND` are assigned `blockKind = null`:
+
+[source,kotlin]
+----
+// spockk-compiler-plugin/.../common/FeatureBlockLabel.kt
+GIVEN("given", GIVEN_BLOCK_FQN, null),
+AND("and",   AND_BLOCK_FQN,   null),
+----
+
+In `FeatureRewriter.kt`, blocks with `null` blockKind are filtered out when constructing the `@FeatureMetadata.blocks` array:
+
+[source,kotlin]
+----
+// spockk-compiler-plugin/.../transformer/FeatureRewriter.kt (~line 81)
+blocks.filter { it.element.label.blockKind != null }
+----
+
+This means both `given:` and `and:` blocks are completely absent from `@FeatureMetadata.blocks`, which is incorrect.
+
+=== Expected Behaviour (from Spock)
+
+From `all_observable_blocks_with_labels_and_blocks.groovy` (Spock AST snapshot):
+
+[source,groovy]
+----
+@FeatureMetadata(blocks = [
+  @BlockMetadata(kind = SETUP,   texts = ['given', 'and given']),
+  @BlockMetadata(kind = EXPECT,  texts = ['expect', 'and expect']),
+  @BlockMetadata(kind = WHEN,    texts = ['when', 'and when']),
+  @BlockMetadata(kind = THEN,    texts = ['then', 'and then']),
+  @BlockMetadata(kind = THEN,    texts = ['then2', 'and then2']),
+  @BlockMetadata(kind = CLEANUP, texts = ['cleanup', 'and cleanup']),
+  @BlockMetadata(kind = WHERE,   texts = ['where', 'combine']),
+  @BlockMetadata(kind = FILTER,  texts = ['only one execution'])
+])
+----
+
+Observations:
+
+1. `given:` → `SETUP` (appears in blocks list).
+2. `and: 'and given'` following `given:` → merged into the same `SETUP` block's `texts` array (not a separate block entry).
+3. `and: 'and when'` following `when:` → merged into `WHEN` block's `texts`.
+4. `and: 'and then'` following `then:` → merged into `THEN` block's `texts`.
+
+So `and:` does **not** create a new `BlockMetadata` entry in Spock.
+Instead, `and:` **extends the descriptions array** of the preceding block.
+The Spock `SpecParser` accumulates `and:` block descriptions into the current block's `getDescriptions()` list.
+
+This is also how Spockk currently handles `and:` statement grouping — the statements from `and:` are already merged into the preceding block's statement list.
+The missing piece is only the description capture: Spockk must include `and:` descriptions in the preceding block's `@BlockMetadata.texts`.
+
+'''
+
+== Relevant Code Locations
+
+=== `FeatureBlockLabel.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/common/FeatureBlockLabel.kt`
+
+The enum containing `GIVEN` and `AND`.
+
+=== `FeatureBlockStatements.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/common/FeatureBlockStatements.kt`
+
+Data class holding block statements and the label. Currently holds `element: FeatureBlockLabel` and the list of statements.
+
+=== `ValidatingFeatureBlockCollector.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/common/ValidatingFeatureBlockCollector.kt`
+
+Validates and collects blocks from a feature method's statements. Uses a state machine. This is where `and:` is recognized as a continuation of the previous block.
+
+=== `FeatureRewriter.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/transformer/FeatureRewriter.kt`
+
+Generates `@FeatureMetadata` annotation from `FeatureContext`. The filter `blocks.filter { it.element.label.blockKind != null }` must be updated.
+
+=== Block Label FQN Constants
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/ir/IrIdentifiers.kt`
+
+'''
+
+== Planned Changes
+
+=== 1. Fix `GIVEN` in `FeatureBlockLabel.kt`
+
+Change `GIVEN` to use `"SETUP"` as its `blockKind`:
+
+[source,kotlin]
+----
+// Before:
+GIVEN("given", GIVEN_BLOCK_FQN, null),
+
+// After:
+GIVEN("given", GIVEN_BLOCK_FQN, "SETUP"),
+----
+
+=== 2. Understand `and:` block handling
+
+`and:` should NOT create a new block metadata entry. Instead it should merge its description into the preceding block.
+
+Current Spockk handling: the collector groups `and:` statements into the preceding block's `FeatureBlockStatements`. So statements are already correctly merged.
+
+The issue is purely about descriptions — when a block label is called with a string argument (e.g., `given("description")` or `then("description")`), that string becomes part of `texts` in `@BlockMetadata`. When `and:` is used, its description should be appended to the preceding block's `texts`.
+
+Step 1: Understand how descriptions are currently captured in Spockk.
+The block labels in Spockk-core are Kotlin objects/functions (e.g., `io.github.pshevche.spockk.lang.given`, `io.github.pshevche.spockk.lang.then("desc")`). These are expression statements in the feature method body. The collector recognizes these expressions and extracts descriptions.
+
+Step 2: Check `ValidatingFeatureBlockCollector` to see how descriptions are currently extracted and stored.
+
+Step 3: Ensure that when `and:` appears (as `io.github.pshevche.spockk.lang.and` or `io.github.pshevche.spockk.lang.and("desc")`), its description is appended to the description list of the most recently opened block.
+
+=== 3. Update `FeatureBlockStatements.kt` to store descriptions
+
+If descriptions are not already stored per block, add a `descriptions: List<String>` field to `FeatureBlockStatements`:
+
+[source,kotlin]
+----
+data class FeatureBlockStatements(
+  val label: FeatureBlockLabel,
+  val statements: List<IrStatement>,
+  val descriptions: List<String> = emptyList()
+)
+----
+
+=== 4. Update `FeatureRewriter.kt` to emit correct `BlockMetadata`
+
+Change the block filter to use the resolved `blockKind` (which now includes `GIVEN`):
+
+[source,kotlin]
+----
+// Before:
+blocks.filter { it.element.label.blockKind != null }
+
+// After: no change needed once GIVEN has a non-null blockKind
+----
+
+Update `@BlockMetadata` construction to include the `descriptions` list:
+
+[source,kotlin]
+----
+irAnnotation(
+  BLOCK_METADATA_FQN,
+  irEnumValue("kind", BlockKind.${block.label.blockKind}),
+  irStringArray(block.descriptions)  // was hardcoded to [""]
+)
+----
+
+=== 5. Update snapshot tests
+
+The following transformed snapshot files must be updated to add `SETUP` block metadata for features that use `given:`:
+
+* `transformed/FeatureWithMultipleBlocksAndDescriptions.kt` — currently omits the `given:` block from `blocks`
+* All other transformed snapshots that have `given:` blocks
+
+'''
+
+== Test Plan
+
+=== Compilation Snapshot Tests
+
+Add or update `TransformationSample` pairs in `spockk-specs/src/test/resources/samples/compilation/`:
+
+1. **`source/GivenBlockSpec.kt`** — feature using `given:` only → verify `blocks = [BlockMetadata(SETUP, [""])]` in transformed output.
+2. **`source/GivenAndAndBlockSpec.kt`** — feature using `given: "desc"` followed by `and: "more desc"` → verify `blocks = [BlockMetadata(SETUP, ["desc", "more desc"])]`.
+3. **`source/WhenAndThenWithAndSpec.kt`** — feature using `when:`, `then:`, and `and:` after each → verify blocks include descriptions correctly.
+4. Update **`FeatureWithMultipleBlocksAndDescriptions`** snapshot to include the `given:` block.
+
+=== Compilation Error Tests
+
+No error cases are added — `given:` and `and:` are already accepted by the collector.
+
+=== Smoke Tests
+
+Add smoke tests in `spockk-specs/src/test/kotlin/smoke/`:
+
+[source,kotlin]
+----
+class GivenBlockSmokeSpec : Specification() {
+  fun `given block appears in feature metadata`() {
+    io.github.pshevche.spockk.lang.given
+    val metadata = this.javaClass.getDeclaredMethod("\$spock_feature_0_0")
+      .getAnnotation(FeatureMetadata::class.java)
+    io.github.pshevche.spockk.lang.expect
+    assert(metadata.blocks.any { it.kind == BlockKind.SETUP })
+  }
+}
+----
+
+=== Runtime / Engine Tests
+
+Verify that a Spock extension observing block events receives `SETUP` block events for `given:` blocks (requires TODO-2 to be completed for full coverage).
+
+'''
+
+== Commit Message
+
+[source]
+----
+feat: map given: to BlockKind.SETUP and propagate and: descriptions to predecessor block
+----
+
+'''
+
+== Dependencies
+
+* No blockers — this increment is self-contained.
+* TODO-2 (block entry/exit calls) will exercise these block indices; this fix should be done first so indices are correct.
