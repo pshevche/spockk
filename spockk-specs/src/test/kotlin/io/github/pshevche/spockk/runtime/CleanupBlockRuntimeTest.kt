@@ -20,10 +20,12 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.cleanup.CleanupBlockOn
 import io.github.pshevche.spockk.fixtures.runtime.samples.cleanup.CleanupBlockTracker
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
+import org.junit.jupiter.api.assertInstanceOf
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 import spock.lang.Specification
+import kotlin.test.assertTrue
 
 class CleanupBlockRuntimeTest : Specification() {
 
@@ -34,7 +36,7 @@ class CleanupBlockRuntimeTest : Specification() {
 
     then
     events.assertStatistics { it.started(1).failed(1) }
-    assert(CleanupBlockTracker.cleanupExecuted)
+    assertTrue(CleanupBlockTracker.cleanupExecuted)
   }
 
   fun `cleanup exception is suppressed when feature also fails`() {
@@ -50,8 +52,8 @@ class CleanupBlockRuntimeTest : Specification() {
     events.assertStatistics { it.started(1).failed(1) }
     val throwable = events.failed().list().single()
       .getRequiredPayload(TestExecutionResult::class.java).throwable.orElseThrow()
-    assert(throwable is IllegalStateException)
-    assert(throwable.suppressed.any { it is IllegalArgumentException })
+    assertInstanceOf<IllegalStateException>(throwable)
+    assertInstanceOf<IllegalArgumentException>(throwable.suppressed.single())
   }
 
   fun `cleanup exception propagates when feature succeeds`() {
