@@ -38,7 +38,7 @@ class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
   }
 
   fun testSuppressUnreachableCodeWarningsForCleanupBlockStatements() {
-    assertTrue(isSuppressedFor("resource.close()"))
+    assertTrue(isSuppressedFor("println"))
   }
 
   fun testDoesNotSuppressUnreachableCodeOutsideSpecialBlocks() {

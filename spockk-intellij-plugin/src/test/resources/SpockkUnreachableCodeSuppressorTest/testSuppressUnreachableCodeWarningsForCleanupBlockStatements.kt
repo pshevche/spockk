@@ -1,10 +1,13 @@
 import io.github.pshevche.spockk.lang.cleanup
+import io.github.pshevche.spockk.lang.expect
 
 class Spec {
 
   fun `feature with cleanup`() {
-    val resource = AutoCloseable {}
+    expect
+    throw RuntimeException("Boom!")
+
     cleanup
-    resource.close()
+    println("cleanup")
   }
 }
