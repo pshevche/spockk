@@ -294,7 +294,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     assert(result.isSuccess())
   }
 
-  fun `discards invalid block sequences (precondition with missing expectation)`() {
+  fun `rejects invalid block sequences (precondition with missing expectation)`() {
     `when`
     val result =
       transform(
@@ -320,7 +320,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (action with missing expectation)`() {
+  fun `rejects invalid block sequences (action with missing expectation)`() {
     `when`
     val result =
       transform(
@@ -346,7 +346,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (invalid block order)`() {
+  fun `rejects invalid block sequences (invalid block order)`() {
     `when`
     val result =
       transform(
@@ -375,7 +375,225 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (data definition is not the last block)`() {
+  fun `accepts valid block sequences (expectation with cleanup)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.expect
+                assert(true)
+
+                io.github.pshevche.spockk.lang.cleanup
+                println("cleanup")
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `accepts valid block sequences (action with cleanup)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.`when`
+                val a = 1
+
+                io.github.pshevche.spockk.lang.then
+                assert(a == 1)
+
+                io.github.pshevche.spockk.lang.cleanup
+                println("cleanup")
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `accepts valid block sequences (cleanup with and)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.expect
+                assert(true)
+
+                io.github.pshevche.spockk.lang.cleanup
+                println("cleanup 1")
+
+                io.github.pshevche.spockk.lang.and
+                println("cleanup 2")
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `accepts valid block sequences (setup as alias for given)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.setup
+                val a = 1
+
+                io.github.pshevche.spockk.lang.expect
+                assert(a == 1)
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `rejects invalid block sequences (cleanup before expectation)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.`when`
+                val a = 1
+
+                io.github.pshevche.spockk.lang.cleanup
+                println("cleanup")
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(
+      result.compilation.messages,
+      "Expected to find one of spockk blocks ['and', 'then'], but encountered 'cleanup'"
+    )
+  }
+
+  fun `rejects invalid block sequences (cleanup followed by non-and block)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.expect
+                assert(true)
+
+                io.github.pshevche.spockk.lang.cleanup
+                println("cleanup")
+
+                io.github.pshevche.spockk.lang.expect
+                assert(true)
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(
+      result.compilation.messages,
+      "Expected to find one of spockk blocks ['and', 'where'], but encountered 'expect'"
+    )
+  }
+
+  fun `rejects invalid block sequences (consecutive setup blocks)`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.setup
+                val a = 1
+
+                io.github.pshevche.spockk.lang.setup
+                val b = 2
+
+                io.github.pshevche.spockk.lang.expect
+                assert(a + b == 3)
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(
+      result.compilation.messages,
+      "Expected to find one of spockk blocks ['and', 'when', 'expect'], but encountered 'setup'"
+    )
+  }
+
+  fun `accepts valid block sequences (cleanup followed by data definition)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun `parameterized feature`(a: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a > 0)
+
+                    io.github.pshevche.spockk.lang.cleanup
+                    println("cleanup")
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(1, 2, 3)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `rejects invalid block sequences (data definition followed by cleanup)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun `parameterized feature`(a: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a > 0)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(1, 2, 3)
+
+                    io.github.pshevche.spockk.lang.cleanup
+                    println("cleanup")
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(
+      result.compilation.messages,
+      "Expected to find one of spockk blocks ['and'], but encountered 'cleanup'"
+    )
+  }
+
+  fun `rejects invalid block sequences (data definition is not the last block)`() {
     `when`
     val result =
       transform(

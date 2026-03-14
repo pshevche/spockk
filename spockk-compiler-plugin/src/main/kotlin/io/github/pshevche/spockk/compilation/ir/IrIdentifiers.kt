@@ -50,12 +50,14 @@ internal object IrIdentifiers {
     // FqName
     private val LANG_PKG_FQN = FqName("io.github.pshevche.spockk.lang")
 
+    val SETUP_BLOCK_FQN = LANG_PKG_FQN.child("setup")
     val GIVEN_BLOCK_FQN = LANG_PKG_FQN.child("given")
     val WHEN_BLOCK_FQN = LANG_PKG_FQN.child("when")
     val THEN_BLOCK_FQN = LANG_PKG_FQN.child("then")
     val EXPECT_BLOCK_FQN = LANG_PKG_FQN.child("expect")
     val AND_BLOCK_FQN = LANG_PKG_FQN.child("and")
     val WHERE_BLOCK_FQN = LANG_PKG_FQN.child("where")
+    val CLEANUP_BLOCK_FQN = LANG_PKG_FQN.child("cleanup")
 
     val SINGLE_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variable")
     val MULTI_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variables")
@@ -75,5 +77,6 @@ internal object IrIdentifiers {
     val KCLASS_JAVA_CALLABLE_ID = CallableId(JVM_PKG_FQN, "java".asName())
     val LIST_OF_CALLABLE_ID = CallableId(COLLECTIONS_PACKAGE_FQ_NAME, "listOf".asName())
     val ARRAY_OF_CALLABLE_ID = CallableId(BUILT_INS_PACKAGE_FQ_NAME, "arrayOf".asName())
+    val ADD_SUPPRESSED_CALLABLE_ID = CallableId(BUILT_INS_PACKAGE_FQ_NAME, "addSuppressed".asName())
   }
 }

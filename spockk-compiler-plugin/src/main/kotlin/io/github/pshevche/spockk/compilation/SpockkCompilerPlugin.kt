@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 @AutoService(CompilerPluginRegistrar::class)
 @OptIn(ExperimentalCompilerApi::class)
@@ -41,7 +42,7 @@ class SpockkCompilerPlugin : CompilerPluginRegistrar() {
   private class SpockkIrGenerationExtension : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
       val context = MutableSpockkTransformationContext()
-      moduleFragment.transform(SpockkTransformationContextCollector(context), null)
+      moduleFragment.acceptVoid(SpockkTransformationContextCollector(context))
       moduleFragment.transform(SpockkIrTransformer(pluginContext, context.finalized()), null)
     }
   }

@@ -23,21 +23,27 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
 
 private val SPOCKK_BLOCKS_FQN =
   setOf(
     "io.github.pshevche.spockk.lang.given",
+    "io.github.pshevche.spockk.lang.setup",
     "io.github.pshevche.spockk.lang.expect",
     "io.github.pshevche.spockk.lang.`when`",
     "io.github.pshevche.spockk.lang.then",
     "io.github.pshevche.spockk.lang.and",
-    "io.github.pshevche.spockk.lang.where"
+    "io.github.pshevche.spockk.lang.where",
+    "io.github.pshevche.spockk.lang.cleanup"
   )
 
 private val DATA_PROVIDER_BLOCK_IDX_KEY =
   Key.create<CachedValue<Int>>("spockk.data.provider.block.idx")
+
+private val CLEANUP_BLOCK_IDX_KEY =
+  Key.create<CachedValue<Int>>("spockk.cleanup.block.idx")
 
 internal fun PsiElement.isSpockkBlock(): Boolean {
   val firstBrace = text.indexOf("(")
@@ -48,6 +54,9 @@ internal fun PsiElement.isSpockkBlock(): Boolean {
 
 internal fun PsiElement.isDataProviderBlock(): Boolean =
   text.contains("where") && isSpockkBlock()
+
+internal fun PsiElement.isCleanupBlock(): Boolean =
+  text.contains("cleanup") && isSpockkBlock()
 
 private fun getSpockkImportDirectives(file: PsiFile): List<String> {
   if (file is KtFile) {
@@ -71,28 +80,52 @@ internal fun PsiElement.isPartOfDataProviderBlock(): Boolean {
   return elementPositionInFeature > whereBlockPosition
 }
 
+/**
+ * This is a very rough estimation of whether the statement is used in the cleanup block. The
+ * method simply checks that the statement comes after the `cleanup` block label reference. At this
+ * point, I don't think it makes sense to overthink it, and we can address false positives later.
+ */
+internal fun PsiElement.isPartOfCleanupBlock(): Boolean {
+  val feature = getParentFeature() ?: return false
+  val cleanupBlockPosition = getCleanupBlockPosition(feature) ?: return false
+  val elementPositionInFeature = textRange.startOffset
+  return elementPositionInFeature > cleanupBlockPosition
+}
+
 internal fun PsiElement.getParentFeature(): KtFunction? = PsiTreeUtil.getParentOfType(this, KtFunction::class.java)
 
-private fun getDataProviderBlockPosition(feature: KtFunction): Int? {
-  val dataProviderBlockPosition =
-    feature.getUserData(DATA_PROVIDER_BLOCK_IDX_KEY)
+private fun getCleanupBlockPosition(feature: KtFunction): Int? = getBlockPosition(feature, CLEANUP_BLOCK_IDX_KEY) {
+  it.isCleanupBlock()
+}
+
+private fun getDataProviderBlockPosition(feature: KtFunction) = getBlockPosition(feature, DATA_PROVIDER_BLOCK_IDX_KEY) {
+  it.isDataProviderBlock()
+}
+
+private fun getBlockPosition(
+  feature: KtFunction,
+  userDataKey: Key<CachedValue<Int>>,
+  blockPredicate: (KtExpression) -> Boolean
+): Int? {
+  val blockPosition =
+    feature.getUserData(userDataKey)
       ?: run {
         val cached =
           CachedValuesManager.getManager(feature.project).createCachedValue {
             val index = feature.bodyBlockExpression
               ?.statements
-              ?.firstOrNull { it.isDataProviderBlock() }
+              ?.firstOrNull(blockPredicate)
               ?.textRange
               ?.endOffset
               ?: -1
             CachedValueProvider.Result(index, PsiModificationTracker.MODIFICATION_COUNT)
           }
 
-        feature.putUserData(DATA_PROVIDER_BLOCK_IDX_KEY, cached)
+        feature.putUserData(userDataKey, cached)
         cached
       }
 
-  return dataProviderBlockPosition.value.takeIf { it > -1 }
+  return blockPosition.value.takeIf { it > -1 }
 }
 
 internal fun PsiElement.getLineNumber(): Int = PsiDocumentManager.getInstance(project)

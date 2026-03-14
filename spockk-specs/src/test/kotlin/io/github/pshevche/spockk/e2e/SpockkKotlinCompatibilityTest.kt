@@ -17,7 +17,7 @@ package io.github.pshevche.spockk.e2e
 import io.github.pshevche.spockk.fixtures.e2e.GradleVersions
 import io.github.pshevche.spockk.fixtures.e2e.KotlinVersions
 import io.github.pshevche.spockk.fixtures.e2e.Workspace
-import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.setup
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 
 class SpockkKotlinCompatibilityTest : Specification() {
 
-  val workspace = Workspace()
+  private val workspace = Workspace()
 
   /**
    * The Kotlin Gradle plugin publishes Gradle-version-specific variants. When a workspace build
@@ -39,7 +39,7 @@ class SpockkKotlinCompatibilityTest : Specification() {
    * Compatibility table: https://kotlinlang.org/docs/gradle-configure-project.html
    */
   fun `supports Kotlin #kotlinVersion`(kotlinVersion: KotlinVersion, gradleVersion: GradleVersion) {
-    given
+    setup
     workspace.kotlinVersion(kotlinVersion).gradleVersion(gradleVersion).setup()
     workspace.addSuccessfulSpec()
 

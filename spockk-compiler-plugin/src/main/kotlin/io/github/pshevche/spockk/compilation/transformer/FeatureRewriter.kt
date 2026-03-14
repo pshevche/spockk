@@ -24,6 +24,7 @@ import io.github.pshevche.spockk.compilation.ir.irEnumValue
 import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irInt
@@ -60,7 +61,9 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
 
   private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
     feature.mutableStatements()?.clear()
-    feature.mutableStatements()?.addAll(context.featureBlocks.flatMap { it.statements })
+    feature.mutableStatements()?.addAll(
+      CleanupBlockRewriter(this.context, feature, context).rewrite()
+    )
   }
 
   private fun featureMetadataAnnotation(

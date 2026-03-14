@@ -15,8 +15,10 @@
 package io.github.pshevche.spockk.compilation.common
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.AND_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.CLEANUP_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.EXPECT_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.GIVEN_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.SETUP_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.THEN_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.WHEN_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.WHERE_BLOCK_FQN
@@ -27,12 +29,14 @@ internal enum class FeatureBlockLabel(
   val fqn: FqName,
   val blockKind: String?
 ) {
+  SETUP("setup", SETUP_BLOCK_FQN, null),
   GIVEN("given", GIVEN_BLOCK_FQN, null),
   WHEN("when", WHEN_BLOCK_FQN, "WHEN"),
   THEN("then", THEN_BLOCK_FQN, "THEN"),
   EXPECT("expect", EXPECT_BLOCK_FQN, "EXPECT"),
   AND("and", AND_BLOCK_FQN, null),
-  WHERE("where", WHERE_BLOCK_FQN, "WHERE");
+  WHERE("where", WHERE_BLOCK_FQN, "WHERE"),
+  CLEANUP("cleanup", CLEANUP_BLOCK_FQN, "CLEANUP");
 
   companion object {
     fun from(fqn: FqName) = entries.find { fqn == it.fqn }

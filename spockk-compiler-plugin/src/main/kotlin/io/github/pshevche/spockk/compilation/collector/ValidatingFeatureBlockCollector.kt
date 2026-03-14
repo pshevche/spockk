@@ -29,10 +29,20 @@ internal class ValidatingFeatureBlockCollector(
   enum class State {
     INIT {
       override val validBlocks: List<FeatureBlockLabel>
-        get() = listOf(FeatureBlockLabel.GIVEN, FeatureBlockLabel.EXPECT, FeatureBlockLabel.WHEN)
+        get() =
+          listOf(
+            FeatureBlockLabel.SETUP,
+            FeatureBlockLabel.GIVEN,
+            FeatureBlockLabel.EXPECT,
+            FeatureBlockLabel.WHEN
+          )
+
+      override val isTerminal: Boolean
+        get() = false
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
+          is FeatureBlockLabelIrElement.Setup -> PRECONDITION
           is FeatureBlockLabelIrElement.Given -> PRECONDITION
           is FeatureBlockLabelIrElement.Expect -> EXPECTATION_EXPECT
           is FeatureBlockLabelIrElement.When -> ACTION
@@ -42,6 +52,9 @@ internal class ValidatingFeatureBlockCollector(
     PRECONDITION {
       override val validBlocks: List<FeatureBlockLabel>
         get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN, FeatureBlockLabel.EXPECT)
+
+      override val isTerminal: Boolean
+        get() = false
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
@@ -55,6 +68,9 @@ internal class ValidatingFeatureBlockCollector(
       override val validBlocks: List<FeatureBlockLabel>
         get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.THEN)
 
+      override val isTerminal: Boolean
+        get() = false
+
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
           is FeatureBlockLabelIrElement.And -> this
@@ -64,23 +80,52 @@ internal class ValidatingFeatureBlockCollector(
     },
     EXPECTATION_EXPECT {
       override val validBlocks: List<FeatureBlockLabel>
-        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHERE)
+        get() =
+          listOf(FeatureBlockLabel.AND, FeatureBlockLabel.CLEANUP, FeatureBlockLabel.WHERE)
+
+      override val isTerminal: Boolean
+        get() = true
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
           is FeatureBlockLabelIrElement.And -> this
+          is FeatureBlockLabelIrElement.Cleanup -> CLEANUP
           is FeatureBlockLabelIrElement.Where -> DATA_DEFINITION
           else -> failOnInvalidBlock(block)
         }
     },
     EXPECTATION_THEN {
       override val validBlocks: List<FeatureBlockLabel>
-        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHEN, FeatureBlockLabel.WHERE)
+        get() =
+          listOf(
+            FeatureBlockLabel.AND,
+            FeatureBlockLabel.WHEN,
+            FeatureBlockLabel.CLEANUP,
+            FeatureBlockLabel.WHERE
+          )
+
+      override val isTerminal: Boolean
+        get() = true
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
           is FeatureBlockLabelIrElement.And -> this
           is FeatureBlockLabelIrElement.When -> ACTION
+          is FeatureBlockLabelIrElement.Cleanup -> CLEANUP
+          is FeatureBlockLabelIrElement.Where -> DATA_DEFINITION
+          else -> failOnInvalidBlock(block)
+        }
+    },
+    CLEANUP {
+      override val validBlocks: List<FeatureBlockLabel>
+        get() = listOf(FeatureBlockLabel.AND, FeatureBlockLabel.WHERE)
+
+      override val isTerminal: Boolean
+        get() = true
+
+      override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
+        when (block) {
+          is FeatureBlockLabelIrElement.And -> this
           is FeatureBlockLabelIrElement.Where -> DATA_DEFINITION
           else -> failOnInvalidBlock(block)
         }
@@ -88,6 +133,9 @@ internal class ValidatingFeatureBlockCollector(
     DATA_DEFINITION {
       override val validBlocks: List<FeatureBlockLabel>
         get() = listOf(FeatureBlockLabel.AND)
+
+      override val isTerminal: Boolean
+        get() = true
 
       override fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State =
         when (block) {
@@ -97,6 +145,8 @@ internal class ValidatingFeatureBlockCollector(
     };
 
     abstract val validBlocks: List<FeatureBlockLabel>
+
+    abstract val isTerminal: Boolean
 
     abstract fun nextOrFailIfInvalid(block: FeatureBlockLabelIrElement): State
 
@@ -110,9 +160,6 @@ internal class ValidatingFeatureBlockCollector(
         }
       throw CompilationException(message, currentBlock.file, currentBlock.ir)
     }
-
-    fun isTerminal() =
-      this == EXPECTATION_EXPECT || this == EXPECTATION_THEN || this == DATA_DEFINITION
   }
 
   private var currentState: State = State.INIT
@@ -132,7 +179,7 @@ internal class ValidatingFeatureBlockCollector(
   }
 
   private fun assertBlockStructureIsComplete() {
-    if (currentState != State.INIT && !currentState.isTerminal()) {
+    if (currentState != State.INIT && !currentState.isTerminal) {
       val displayNames = currentState.validBlocks.map { "'${it.displayName}'" }
       throw CompilationException(
         "Expected to find one of spockk blocks $displayNames, but reached the end of the feature method",

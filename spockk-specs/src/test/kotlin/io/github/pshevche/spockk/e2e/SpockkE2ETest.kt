@@ -15,7 +15,6 @@
 package io.github.pshevche.spockk.e2e
 
 import io.github.pshevche.spockk.fixtures.e2e.Workspace
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.gradle.testkit.runner.TaskOutcome
@@ -26,14 +25,17 @@ import kotlin.test.assertEquals
 
 class SpockkE2ETest : Specification() {
 
-  val workspace = Workspace()
+  private lateinit var workspace: Workspace
+
+  fun setup() {
+    workspace = Workspace().apply {
+      setup()
+      addSuccessfulSpec()
+      addFailingSpec()
+    }
+  }
 
   fun `can execute spockk tests as part of the Gradle build`() {
-    given
-    workspace.setup()
-    workspace.addSuccessfulSpec()
-    workspace.addFailingSpec()
-
     `when`
     val result = workspace.buildAndFail("test")
 
@@ -48,11 +50,6 @@ class SpockkE2ETest : Specification() {
   }
 
   fun `respects spec filters`() {
-    given
-    workspace.setup()
-    workspace.addSuccessfulSpec()
-    workspace.addFailingSpec()
-
     `when`
     val result = workspace.build("test", "--tests", "SuccessfulSpec")
 
@@ -67,11 +64,6 @@ class SpockkE2ETest : Specification() {
   }
 
   fun `respects feature filters`() {
-    given
-    workspace.setup()
-    workspace.addSuccessfulSpec()
-    workspace.addFailingSpec()
-
     `when`
     val result = workspace.build("test", "--tests", "SuccessfulSpec.passing feature 1")
 

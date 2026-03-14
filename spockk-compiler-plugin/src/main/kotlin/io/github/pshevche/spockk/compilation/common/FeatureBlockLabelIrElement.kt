@@ -47,15 +47,23 @@ internal sealed class FeatureBlockLabelIrElement(
       element: IrElement
     ): FeatureBlockLabelIrElement? =
       when (FeatureBlockLabel.from(fqn)) {
+        FeatureBlockLabel.SETUP -> Setup(description, file, element)
         FeatureBlockLabel.GIVEN -> Given(description, file, element)
         FeatureBlockLabel.WHEN -> When(description, file, element)
         FeatureBlockLabel.THEN -> Then(description, file, element)
         FeatureBlockLabel.EXPECT -> Expect(description, file, element)
         FeatureBlockLabel.AND -> And(description, file, element)
         FeatureBlockLabel.WHERE -> Where(description, file, element)
+        FeatureBlockLabel.CLEANUP -> Cleanup(description, file, element)
         else -> null
       }
   }
+
+  data class Setup(
+    override val description: String,
+    override val file: IrFile,
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.SETUP, description, file, ir)
 
   data class Given(
     override val description: String,
@@ -92,4 +100,10 @@ internal sealed class FeatureBlockLabelIrElement(
     override val file: IrFile,
     override val ir: IrElement
   ) : FeatureBlockLabelIrElement(FeatureBlockLabel.WHERE, description, file, ir)
+
+  data class Cleanup(
+    override val description: String,
+    override val file: IrFile,
+    override val ir: IrElement
+  ) : FeatureBlockLabelIrElement(FeatureBlockLabel.CLEANUP, description, file, ir)
 }
