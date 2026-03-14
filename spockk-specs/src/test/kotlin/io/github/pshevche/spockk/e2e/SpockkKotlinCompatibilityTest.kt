@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 
 class SpockkKotlinCompatibilityTest : Specification() {
 
-  val workspace = Workspace()
+  private val workspace = Workspace()
 
   /**
    * The Kotlin Gradle plugin publishes Gradle-version-specific variants. When a workspace build
