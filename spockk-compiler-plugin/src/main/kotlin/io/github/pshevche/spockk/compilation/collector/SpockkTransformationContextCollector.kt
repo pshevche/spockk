@@ -69,7 +69,7 @@ internal class SpockkTransformationContextCollector(
   override fun visitBlockBody(body: IrBlockBody) {
     val function = currentIrFunction
     if (fixtureMethodKind(function) != null) {
-      FixtureMethodBodyValidator(function.file, function).validate(body)
+      FixtureMethodValidator(function.file, function, body).validate()
     } else {
       val blockCollector = createBlockCollector(function.file)
       body.statements.forEach { blockCollector.consume(it) }

@@ -12,40 +12,23 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.smoke
+package io.github.pshevche.spockk.compilation.fixture
 
+import io.github.pshevche.spockk.compilation.BaseCompilationTest
+import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.lang.expect
-import spock.lang.Specification
-import kotlin.test.assertTrue
+import io.github.pshevche.spockk.lang.variable
+import io.github.pshevche.spockk.lang.where
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
-abstract class FixtureMethodInheritanceBase : Specification() {
+@OptIn(ExperimentalCompilerApi::class)
+class CleanupBlockCompilationTest : BaseCompilationTest() {
 
-  companion object {
-    val log = mutableListOf<String>()
-  }
-
-  fun setupSpec() {
-    log.add("parent:setupSpec")
-  }
-
-  fun setup() {
-    log.add("parent:setup")
-  }
-
-  fun cleanup() {
-    log.add("parent:cleanup")
-  }
-
-  fun cleanupSpec() {
-    log.add("parent:cleanupSpec")
-  }
-}
-
-class FixtureMethodInheritanceSmokeTest : FixtureMethodInheritanceBase() {
-
-  fun `inherited fixture methods are executed`() {
+  fun `transforms #sampleName`(sampleName: String) {
     expect
-    assertTrue(log.contains("parent:setupSpec"))
-    assertTrue(log.contains("parent:setup"))
+    assertTransformation(sampleFromResource("cleanup/$sampleName"))
+
+    where
+    variable(sampleName).from("CleanupBlock", "CleanupBlockWithWhere")
   }
 }

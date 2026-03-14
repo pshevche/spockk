@@ -294,7 +294,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     assert(result.isSuccess())
   }
 
-  fun `discards invalid block sequences (precondition with missing expectation)`() {
+  fun `rejects invalid block sequences (precondition with missing expectation)`() {
     `when`
     val result =
       transform(
@@ -320,7 +320,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (action with missing expectation)`() {
+  fun `rejects invalid block sequences (action with missing expectation)`() {
     `when`
     val result =
       transform(
@@ -346,7 +346,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (invalid block order)`() {
+  fun `rejects invalid block sequences (invalid block order)`() {
     `when`
     val result =
       transform(
@@ -461,7 +461,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     assertTrue(result.isSuccess())
   }
 
-  fun `discards invalid block sequences (cleanup before expectation)`() {
+  fun `rejects invalid block sequences (cleanup before expectation)`() {
     `when`
     val result =
       transform(
@@ -485,7 +485,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (cleanup followed by non-and block)`() {
+  fun `rejects invalid block sequences (cleanup followed by non-and block)`() {
     `when`
     val result =
       transform(
@@ -512,7 +512,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (consecutive setup blocks)`() {
+  fun `rejects invalid block sequences (consecutive setup blocks)`() {
     `when`
     val result =
       transform(
@@ -564,7 +564,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     assertTrue(result.isSuccess())
   }
 
-  fun `discards invalid block sequences (data definition followed by cleanup)`() {
+  fun `rejects invalid block sequences (data definition followed by cleanup)`() {
     `when`
     val result =
       transform(
@@ -593,7 +593,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  fun `discards invalid block sequences (data definition is not the last block)`() {
+  fun `rejects invalid block sequences (data definition is not the last block)`() {
     `when`
     val result =
       transform(

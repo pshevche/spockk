@@ -12,48 +12,40 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.smoke
+package io.github.pshevche.spockk.smoke.fixture
 
-import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect
 import spock.lang.Specification
-import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
-class FixtureMethodsSmokeTest : Specification() {
+abstract class FixtureMethodInheritanceBase : Specification() {
 
   companion object {
-    private val log = mutableListOf<String>()
+    val log = mutableListOf<String>()
   }
 
   fun setupSpec() {
-    log.add("setupSpec")
+    log.add("parent:setupSpec")
   }
 
   fun setup() {
-    log.add("setup")
+    log.add("parent:setup")
   }
 
   fun cleanup() {
-    log.add("cleanup")
+    log.add("parent:cleanup")
   }
 
   fun cleanupSpec() {
-    log.add("cleanupSpec")
+    log.add("parent:cleanupSpec")
   }
+}
 
-  fun `first feature`() {
+class FixtureMethodInheritanceSmokeTest : FixtureMethodInheritanceBase() {
+
+  fun `inherited fixture methods are executed`() {
     expect
-    assertEquals(listOf("setupSpec", "setup"), log)
-
-    cleanup
-    log.add("feature1")
-  }
-
-  fun `second feature`() {
-    expect
-    assertEquals(listOf("setupSpec", "setup", "feature1", "cleanup", "setup"), log)
-
-    cleanup
-    log.add("feature2")
+    assertTrue(log.contains("parent:setupSpec"))
+    assertTrue(log.contains("parent:setup"))
   }
 }

@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.collector
 
 import io.github.pshevche.spockk.compilation.collector.FixtureMethodIdentifiers.fixtureMethodKind
 import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
+import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -27,17 +28,30 @@ import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
-internal class FixtureMethodBodyValidator(
+internal class FixtureMethodValidator(
   private val file: IrFile,
-  private val function: IrFunction
+  private val function: IrFunction,
+  private val body: IrBlockBody
 ) {
 
-  fun validate(body: IrBlockBody) {
-    validateNoBlockLabels(body)
-    validateNoSuperFixtureMethodCalls(body)
+  fun validate() {
+    validateNoParameters()
+    validateNoBlockLabels()
+    validateNoSuperFixtureMethodCalls()
   }
 
-  private fun validateNoBlockLabels(body: IrBlockBody) {
+  private fun validateNoParameters() {
+    if (function.assignableParameters().isNotEmpty()) {
+      throw CompilationException(
+        "Fixture method '${function.name.asString()}' must not have any parameters, " +
+          "but found '${function.assignableParameters().joinToString { it.name.asString() }}'",
+        file,
+        function
+      )
+    }
+  }
+
+  private fun validateNoBlockLabels() {
     body.statements.forEach { statement ->
       statement.asIrBlockLabel(file)?.let { blockLabel ->
         throw CompilationException(
@@ -50,7 +64,7 @@ internal class FixtureMethodBodyValidator(
     }
   }
 
-  private fun validateNoSuperFixtureMethodCalls(body: IrBlockBody) {
+  private fun validateNoSuperFixtureMethodCalls() {
     body.acceptVoid(object : IrVisitorVoid() {
       override fun visitElement(element: IrElement) {
         element.acceptChildren(this, null)

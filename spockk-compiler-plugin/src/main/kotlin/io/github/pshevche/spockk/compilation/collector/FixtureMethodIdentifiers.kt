@@ -15,7 +15,6 @@
 package io.github.pshevche.spockk.compilation.collector
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FixtureMethodKind
-import io.github.pshevche.spockk.compilation.ir.assignableParameters
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 
 internal object FixtureMethodIdentifiers {
@@ -27,7 +26,7 @@ internal object FixtureMethodIdentifiers {
   )
 
   internal fun fixtureMethodKind(function: IrFunction): FixtureMethodKind? =
-    if (function.assignableParameters().isEmpty()) fixtureMethodKind(function.name.asString()) else null
+    fixtureMethodKind(function.name.asString())
 
   internal fun fixtureMethodKind(functionName: String): FixtureMethodKind? =
     FIXTURE_METHOD_NAMES[functionName]

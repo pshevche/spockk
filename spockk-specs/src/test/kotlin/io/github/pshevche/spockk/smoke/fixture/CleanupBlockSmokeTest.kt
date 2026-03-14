@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.smoke
+package io.github.pshevche.spockk.smoke.fixture
 
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect

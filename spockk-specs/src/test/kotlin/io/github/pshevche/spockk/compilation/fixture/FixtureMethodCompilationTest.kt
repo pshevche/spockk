@@ -12,8 +12,9 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation
+package io.github.pshevche.spockk.compilation.fixture
 
+import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.where

@@ -12,9 +12,10 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation
+package io.github.pshevche.spockk.compilation.fixture
 
 import com.tschuchort.compiletesting.SourceFile
+import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.then
@@ -53,7 +54,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     assertTrue(result.isSuccess())
   }
 
-  fun `discards fixture method with block labels`(fixtureMethodName: String) {
+  fun `rejects fixture method with block labels`(fixtureMethodName: String) {
     `when`
     val result =
       transform(
@@ -79,7 +80,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
   }
 
-  fun `discards fixture method calling super`(fixtureMethodName: String) {
+  fun `rejects fixture method calling super`(fixtureMethodName: String) {
     `when`
     val result =
       transform(
@@ -111,28 +112,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
   }
 
-  fun `accepts methods with fixture names but with parameters as regular methods`() {
-    `when`
-    val result =
-      transform(
-        specWithBody(
-          """
-                fun setup(x: Int) { println(x) }
-
-                fun `some feature`() {
-                    io.github.pshevche.spockk.lang.expect
-                    assert(true)
-                }
-                """
-            .trimIndent()
-        )
-      )
-
-    then
-    assertTrue(result.isSuccess())
-  }
-
-  fun `discards spec-scoped fixture method accessing instance field`(fixtureMethodName: String) {
+  fun `rejects spec-scoped fixture method accessing instance field`(fixtureMethodName: String) {
     `when`
     val result =
       transform(
@@ -162,5 +142,30 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
 
     where
     variable(fixtureMethodName).from("setupSpec", "cleanupSpec")
+  }
+
+  fun `rejects fixture methods with parameters`(fixtureMethodName: String) {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun $fixtureMethodName(param: String) {
+                    println("body")
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertFalse(result.isSuccess())
+    assertContains(
+      result.compilation.messages,
+      "Fixture method '$fixtureMethodName' must not have any parameters, but found 'param'"
+    )
+
+    where
+    variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
   }
 }
