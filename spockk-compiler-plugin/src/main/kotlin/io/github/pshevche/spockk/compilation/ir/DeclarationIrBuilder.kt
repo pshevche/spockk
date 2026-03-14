@@ -19,7 +19,10 @@ package io.github.pshevche.spockk.compilation.ir
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.LIST_FQN
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
+import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irString
@@ -185,3 +188,8 @@ fun IrBuilder.irGetThis(thisValueParam: IrValueParameter): IrGetValue = IrGetVal
   thisValueParam.symbol,
   IrStatementOrigin.IMPLICIT_ARGUMENT
 )
+
+internal fun IrBuilderWithScope.irStatementBlock(statements: List<IrStatement>): IrExpression =
+  irBlock {
+    statements.forEach { +it }
+  }

@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation.transformer.cleanup
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.ir.findFunctionSymbols
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
+import io.github.pshevche.spockk.compilation.ir.irStatementBlock
 import io.github.pshevche.spockk.compilation.ir.irVar
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import org.jetbrains.kotlin.ir.IrStatement
@@ -32,9 +33,12 @@ import org.jetbrains.kotlin.ir.builders.irSet
 import org.jetbrains.kotlin.ir.builders.irTry
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
+import org.jetbrains.kotlin.ir.expressions.impl.IrCatchImpl
+import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.makeNullable
@@ -50,6 +54,12 @@ internal class CleanupBlockRewriter(
 ) : SpockkIrRewriter {
 
   fun rewrite(): List<IrStatement> {
+    val featureStatements = featureContext.featureBlocks.flatMap { it.statements }
+    val cleanupStatements = featureContext.cleanupBlocks.flatMap { it.statements }
+    if (cleanupStatements.isEmpty()) {
+      return featureStatements
+    }
+
     val builder = irBuilder(feature.symbol)
     val throwableType = irBuiltIns.throwableType
     val nullableThrowableType = throwableType.makeNullable()
@@ -62,24 +72,17 @@ internal class CleanupBlockRewriter(
       initializer = builder.irNull()
     }
 
-    val featureStatements = featureContext.featureBlocks.flatMap { it.statements }
-    val cleanupStatements = featureContext.cleanupBlocks.flatMap { it.statements }
-
     val tryCatchFinally = with(builder) {
       irTry(
         type = irBuiltIns.unitType,
-        tryResult = irBlock {
-          featureStatements.forEach { +it }
-        },
+        tryResult = irStatementBlock(featureStatements),
         catches = listOf(
           outerCatch(featureThrowableVar)
         ),
         finallyExpression = irBlock {
           +irTry(
             type = irBuiltIns.unitType,
-            tryResult = irBlock {
-              cleanupStatements.forEach { +it }
-            },
+            tryResult = irStatementBlock(cleanupStatements),
             catches = listOf(
               innerCatch(featureThrowableVar)
             ),
@@ -92,7 +95,7 @@ internal class CleanupBlockRewriter(
     return listOf(featureThrowableVar, tryCatchFinally)
   }
 
-  private fun outerCatch(featureThrowableVar: IrVariable): org.jetbrains.kotlin.ir.expressions.IrCatch {
+  private fun outerCatch(featureThrowableVar: IrVariable): IrCatch {
     val builder = irBuilder(feature.symbol)
     val catchVar = irCatchParameter(
       Name.identifier("\$spock_tmp_throwable"),
@@ -104,7 +107,7 @@ internal class CleanupBlockRewriter(
         +irThrow(irGet(catchVar))
       }
     }
-    return org.jetbrains.kotlin.ir.expressions.impl.IrCatchImpl(
+    return IrCatchImpl(
       builder.startOffset,
       builder.endOffset,
       catchVar,
@@ -112,7 +115,7 @@ internal class CleanupBlockRewriter(
     )
   }
 
-  private fun innerCatch(featureThrowableVar: IrVariable): org.jetbrains.kotlin.ir.expressions.IrCatch {
+  private fun innerCatch(featureThrowableVar: IrVariable): IrCatch {
     val builder = irBuilder(feature.symbol)
     val catchVar = irCatchParameter(
       Name.identifier("\$spock_tmp_throwable"),
@@ -129,7 +132,7 @@ internal class CleanupBlockRewriter(
         )
       }
     }
-    return org.jetbrains.kotlin.ir.expressions.impl.IrCatchImpl(
+    return IrCatchImpl(
       builder.startOffset,
       builder.endOffset,
       catchVar,
@@ -139,7 +142,7 @@ internal class CleanupBlockRewriter(
 
   private fun irThrow(value: IrExpression): IrExpression {
     val builder = irBuilder(feature.symbol)
-    return org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl(
+    return IrThrowImpl(
       builder.startOffset,
       builder.endOffset,
       irBuiltIns.nothingType,

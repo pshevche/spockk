@@ -61,13 +61,9 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
 
   private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
     feature.mutableStatements()?.clear()
-    if (context.cleanupBlocks.isEmpty()) {
-      feature.mutableStatements()?.addAll(context.featureBlocks.flatMap { it.statements })
-    } else {
-      feature.mutableStatements()?.addAll(
-        CleanupBlockRewriter(this.context, feature, context).rewrite()
-      )
-    }
+    feature.mutableStatements()?.addAll(
+      CleanupBlockRewriter(this.context, feature, context).rewrite()
+    )
   }
 
   private fun featureMetadataAnnotation(

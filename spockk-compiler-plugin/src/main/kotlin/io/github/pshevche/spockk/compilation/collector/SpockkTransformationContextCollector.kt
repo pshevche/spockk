@@ -15,32 +15,30 @@
 package io.github.pshevche.spockk.compilation.collector
 
 import io.github.pshevche.spockk.compilation.collector.FixtureMethodIdentifiers.fixtureMethodKind
-import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementVisitor
 import io.github.pshevche.spockk.compilation.common.MutableSpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_FQN
-import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
-import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.isClassWithFqName
+import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.ir.util.isFakeOverride
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkTransformationContextCollector(
   private val context: MutableSpockkTransformationContext
-) : BaseSpockkIrElementTransformer() {
+) : BaseSpockkIrElementVisitor() {
 
-  override fun visitClassNew(declaration: IrClass): IrStatement {
+  override fun visitClassNew(declaration: IrClass) {
     if (isSpecification(declaration)) {
       context.addSpec(declaration)
     }
-
-    return super.visitClassNew(declaration)
+    super.visitClassNew(declaration)
   }
 
   private fun isSpecification(declaration: IrClass): Boolean =
@@ -48,15 +46,14 @@ internal class SpockkTransformationContextCollector(
       it.isClassWithFqName(SPECIFICATION_FQN)
     }
 
-  override fun visitPropertyNew(declaration: IrProperty): IrStatement {
+  override fun visitPropertyNew(declaration: IrProperty) {
     if (!declaration.isFakeOverride) {
       maybeCurrentIrClass?.let { context.addField(it, declaration) }
     }
-
-    return super.visitPropertyNew(declaration)
+    super.visitPropertyNew(declaration)
   }
 
-  override fun visitFunctionNew(declaration: IrFunction): IrStatement {
+  override fun visitFunctionNew(declaration: IrFunction) {
     if (declaration.isFakeOverride) {
       context.addPotentialFeature(currentIrClass, declaration)
     } else {
@@ -66,23 +63,23 @@ internal class SpockkTransformationContextCollector(
         }
       }
     }
-
-    return super.visitFunctionNew(declaration)
+    super.visitFunctionNew(declaration)
   }
 
-  override fun visitBlockBody(body: IrBlockBody): IrBody =
-    body.transformPostfix {
-      if (fixtureMethodKind(currentIrFunction) != null) {
-        FixtureMethodBodyValidator(currentFile, currentIrFunction).validate(body)
-      } else {
-        val blockCollector = createBlockCollector(currentFile)
-        body.statements.forEach { blockCollector.consume(it) }
-        val blocks = blockCollector.getBlockStatements()
-        if (blocks.isNotEmpty()) {
-          context.addFeature(currentIrClass, currentIrFunction, blocks)
-        }
+  override fun visitBlockBody(body: IrBlockBody) {
+    val function = currentIrFunction
+    if (fixtureMethodKind(function) != null) {
+      FixtureMethodBodyValidator(function.file, function).validate(body)
+    } else {
+      val blockCollector = createBlockCollector(function.file)
+      body.statements.forEach { blockCollector.consume(it) }
+      val blocks = blockCollector.getBlockStatements()
+      if (blocks.isNotEmpty()) {
+        context.addFeature(currentIrClass, function, blocks)
       }
     }
+    super.visitBlockBody(body)
+  }
 
   private fun createBlockCollector(file: IrFile) =
     ValidatingFeatureBlockCollector(file, DefaultFeatureBlockCollector(file))
