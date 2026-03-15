@@ -11,7 +11,10 @@ class MultiFeatureSpec : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(true)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   @org.spockframework.runtime.model.FeatureMetadata(
@@ -25,7 +28,10 @@ class MultiFeatureSpec : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_1`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(true)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   @org.spockframework.runtime.model.FeatureMetadata(
@@ -39,6 +45,9 @@ class MultiFeatureSpec : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_2`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(true)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 }

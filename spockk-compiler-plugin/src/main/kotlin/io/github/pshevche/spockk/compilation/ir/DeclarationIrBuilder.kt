@@ -220,6 +220,16 @@ private fun IrBuilderWithScope.irImplicitCastTo(value: IrExpression, type: IrTyp
     value
   )
 
+internal fun IrBuilderWithScope.irImplicitNotNull(value: IrExpression, type: IrType): IrExpression =
+  IrTypeOperatorCallImpl(
+    startOffset,
+    endOffset,
+    type,
+    IrTypeOperator.IMPLICIT_NOTNULL,
+    type,
+    value
+  )
+
 internal fun IrBuilder.irThrow(value: IrExpression): IrExpression = IrThrowImpl(
   startOffset,
   endOffset,

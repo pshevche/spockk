@@ -38,6 +38,7 @@ class CleanupBlockWithWhere : spock.lang.Specification() {
         }
       }
     }
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["a"], previousDataTableVariables = [])

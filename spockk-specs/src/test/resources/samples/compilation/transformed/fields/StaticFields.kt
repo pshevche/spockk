@@ -15,6 +15,9 @@ class StaticField : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(staticField == "static")
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 }

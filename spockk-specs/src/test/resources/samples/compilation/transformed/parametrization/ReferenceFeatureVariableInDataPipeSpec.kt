@@ -18,7 +18,10 @@ class ReferenceFeatureVariableInDataPipeSpec : spock.lang.Specification() {
       )]
   )
   fun `$spock_feature_0_0`(a: Int, b: Int) {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assertEquals(b, a)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0,

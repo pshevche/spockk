@@ -34,5 +34,6 @@ class CleanupBlock : spock.lang.Specification() {
         }
       }
     }
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 }

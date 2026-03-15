@@ -11,7 +11,10 @@ abstract class BaseSpec : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(true)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 }
 
@@ -28,7 +31,10 @@ abstract class IntermediateSpec : BaseSpec() {
     )]
   )
   fun `$spock_feature_1_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(true)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 }
 
@@ -45,6 +51,9 @@ class Spec : IntermediateSpec() {
     )]
   )
   fun `$spock_feature_2_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(true)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
+    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 }
