@@ -23,18 +23,32 @@ class CleanupBlockWithWhere : spock.lang.Specification() {
   fun `$spock_feature_0_0`(a: Int) {
     var `$spock_feature_throwable`: Throwable? = null
     try {
+      org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
       assert(a > 0)
+      org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
     } catch (`$spock_tmp_throwable`: Throwable) {
       `$spock_feature_throwable` = `$spock_tmp_throwable`
       throw `$spock_tmp_throwable`
     } finally {
+      var `$spock_failedBlock`: org.spockframework.runtime.model.BlockInfo? = null
       try {
+        if (`$spock_feature_throwable` != null) {
+          `$spock_failedBlock` = (this.getSpecificationContext() as org.spockframework.runtime.SpecificationContext).getCurrentBlock()
+        } else {
+        }
+        org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 1)
         println("cleanup")
+        org.spockframework.runtime.SpockRuntime.callBlockExited(this, 1)
       } catch (`$spock_tmp_throwable`: Throwable) {
         if (`$spock_feature_throwable` != null) {
           `$spock_feature_throwable`.addSuppressed(`$spock_tmp_throwable`)
         } else {
           throw `$spock_tmp_throwable`
+        }
+      } finally {
+        if (`$spock_feature_throwable` != null) {
+          (this.getSpecificationContext() as org.spockframework.runtime.SpecificationContext).setCurrentBlock(`$spock_failedBlock`)
+        } else {
         }
       }
     }

@@ -41,6 +41,7 @@ internal object IrIdentifiers {
     val MOCK_CONTROLLER_FQN = MOCK_PKG_FQN.child("runtime").child("MockController")
 
     private val RUNTIME_MODEL_PKG_FQN = RUNTIME_PKG_FQN.child("model")
+    val BLOCK_INFO_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockInfo")
     val BLOCK_KIND_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockKind")
     val BLOCK_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockMetadata")
     val DATA_PROVIDER_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("DataProviderMetadata")

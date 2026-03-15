@@ -38,6 +38,7 @@ import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irAs
+import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irInt
@@ -87,8 +88,22 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
       ?: return rewriteFeatureStatementsLegacy(feature, context)
 
     val statements = if (hasCleanup) {
-      // Cleanup path: delegate to CleanupBlockRewriter (block calls added in TODO-3)
-      CleanupBlockRewriter(this.context, feature, context).rewrite()
+      val mergedFeatureBlocks = mergeBlocksWithStatements(context.featureBlocks)
+      val featureStatementsWithCalls = buildBlockStatementsFromMerged(builder, thisParam, mergedFeatureBlocks)
+      val cleanupStatements = context.cleanupBlocks.flatMap { it.statements }
+      val allMergedBlocks = mergeBlocksWithStatements(context.blocks)
+      val cleanupBlockIndex = allMergedBlocks.indexOfFirst { it.blockKind == "CLEANUP" }
+      val blockCallBuilder = CleanupBlockRewriter.BlockCallBuilder { b, entered, idx ->
+        if (entered) irCallBlockEntered(b, thisParam, idx) else irCallBlockExited(b, thisParam, idx)
+      }
+      CleanupBlockRewriter(
+        this.context,
+        feature,
+        featureStatementsWithCalls,
+        cleanupStatements,
+        cleanupBlockIndex,
+        blockCallBuilder
+      ).rewrite()
     } else {
       // Non-cleanup path: wrap each merged block with entry/exit calls
       buildBlockStatementsWithCalls(builder, feature, context, thisParam)
@@ -100,9 +115,21 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
   }
 
   private fun rewriteFeatureStatementsLegacy(feature: IrFunction, context: FeatureContext) {
+    val featureStatements = context.featureBlocks.flatMap { it.statements }
+    val cleanupStatements = context.cleanupBlocks.flatMap { it.statements }
+    val noOpBlockCallBuilder = CleanupBlockRewriter.BlockCallBuilder { builder, _, _ ->
+      with(builder) { irBlock {} }
+    }
     feature.mutableStatements()?.clear()
     feature.mutableStatements()?.addAll(
-      CleanupBlockRewriter(this.context, feature, context).rewrite()
+      CleanupBlockRewriter(
+        this.context,
+        feature,
+        featureStatements,
+        cleanupStatements,
+        0,
+        noOpBlockCallBuilder
+      ).rewrite()
     )
   }
 
@@ -113,6 +140,14 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
     thisParam: IrValueParameter
   ): List<IrStatement> {
     val mergedBlocks = mergeBlocksWithStatements(context.featureBlocks)
+    return buildBlockStatementsFromMerged(builder, thisParam, mergedBlocks)
+  }
+
+  private fun buildBlockStatementsFromMerged(
+    builder: DeclarationIrBuilder,
+    thisParam: IrValueParameter,
+    mergedBlocks: List<MergedBlock>
+  ): List<IrStatement> {
     val result = mutableListOf<IrStatement>()
     mergedBlocks.forEachIndexed { blockIndex, block ->
       result.add(irCallBlockEntered(builder, thisParam, blockIndex))
