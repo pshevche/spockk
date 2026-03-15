@@ -5,14 +5,14 @@
 *Parent*: link:specification.adoc[DR-02: Align Spockk IR Transformations with Spock AST Transformations] +
 *Status*: Proposed
 
----
+'''
 
 == Goal
 
 1. Every block in a feature method (except `where:` and `filter:`) gets `SpockRuntime.callBlockEntered(this, blockIndex)` prepended and `SpockRuntime.callBlockExited(this, blockIndex)` appended to its statements.
 2. Every feature method ends with `this.getSpecificationContext().getMockController().leaveScope()`.
 
----
+'''
 
 == Context and Motivation
 
@@ -48,7 +48,7 @@ Key rules from Spock source (`SpecRewriter.java`):
 
 Spockk's `FeatureRewriter` collects block statements and writes them into the feature method body with block label references stripped, but does **not** emit `callBlockEntered/Exited` or `leaveScope`.
 
----
+'''
 
 == Relevant Code Locations
 
@@ -72,14 +72,14 @@ Contains FQN constants. New constants are needed:
 === `DeclarationIrBuilder.kt`
 `spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/ir/DeclarationIrBuilder.kt`
 
-Provides IR builder helpers. A new helper `irStaticCall(classRef, methodName, vararg args)` may be needed, or reuse existing `IrBuiltIns` call construction.
+Provides shared IR builder helpers. Private call-building helpers for `callBlockEntered/Exited` and `leaveScope` will live in `FeatureRewriter` itself, not here.
 
 === `FeatureContext` / `SpockkTransformationContext.kt`
 `spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/common/SpockkTransformationContext.kt`
 
 `FeatureContext` holds `blocks: List<FeatureBlockStatements>`. The block index (position in `@FeatureMetadata.blocks`) must be computed from this list, considering only blocks with a non-null `blockKind`.
 
----
+'''
 
 == Planned Changes
 
@@ -89,36 +89,29 @@ In `IrIdentifiers.kt`, add:
 
 [source,kotlin]
 ----
-const val SPOCK_RUNTIME_FQN = "org.spockframework.runtime.SpockRuntime"
-const val CALL_BLOCK_ENTERED = "callBlockEntered"
-const val CALL_BLOCK_EXITED = "callBlockExited"
-const val GET_SPECIFICATION_CONTEXT = "getSpecificationContext"
-const val GET_MOCK_CONTROLLER = "getMockController"
-const val LEAVE_SCOPE = "leaveScope"
+val SPOCK_RUNTIME_FQN = FqName("org.spockframework.runtime.SpockRuntime")
+val CALL_BLOCK_ENTERED = CallableId(SPOCK_RUNTIME_FQN, Name.identifier("callBlockEntered"))
+val CALL_BLOCK_EXITED = CallableId(SPOCK_RUNTIME_FQN, Name.identifier("callBlockExited"))
+val GET_SPECIFICATION_CONTEXT = Name.identifier("getSpecificationContext")
+val GET_MOCK_CONTROLLER = Name.identifier("getMockController")
+val LEAVE_SCOPE = Name.identifier("leaveScope")
 ----
 
-=== 2. Add IR builder helpers in `DeclarationIrBuilder.kt`
+=== 2. Add IR builder helpers in `FeatureRewriter`
 
-Add a helper to build a `SpockRuntime.callBlockEntered(this, index)` static call:
+Add private helpers in `FeatureRewriter` (not in `DeclarationIrBuilder` — these are specific to this rewriter, not shared):
 
 [source,kotlin]
 ----
-fun DeclarationIrBuilder.irCallBlockEntered(
-  thisParam: IrValueParameter,
-  blockIndex: Int
-): IrCall {
-  // Builds: SpockRuntime.callBlockEntered(this, blockIndex)
-  val spockRuntime = referenceClass(SPOCK_RUNTIME_FQN)
-  val method = spockRuntime.functions.single { it.name.asString() == CALL_BLOCK_ENTERED }
-  return irCall(method).apply {
-    dispatchReceiver = null  // static call
-    putValueArgument(0, irGetThis(thisParam))
-    putValueArgument(1, irInt(blockIndex))
-  }
-}
-----
+// Builds: SpockRuntime.callBlockEntered(this, blockIndex)
+private fun irCallBlockEntered(thisParam: IrValueParameter, blockIndex: Int): IrCall
 
-Similarly for `callBlockExited` and `leaveScope`.
+// Builds: SpockRuntime.callBlockExited(this, blockIndex)
+private fun irCallBlockExited(thisParam: IrValueParameter, blockIndex: Int): IrCall
+
+// Builds: this.getSpecificationContext().getMockController().leaveScope()
+private fun irMockControllerLeaveScope(thisParam: IrValueParameter): IrCall
+----
 
 === 3. Compute block indices in `FeatureRewriter`
 
@@ -129,21 +122,14 @@ After TODO-1 is applied, only `where:` and `filter:` blocks have `null` blockKin
 [source,kotlin]
 ----
 // In FeatureRewriter, when writing block statements:
-var blockIndex = 0
-for (block in featureContext.blocks) {
-  if (block.label.blockKind == null) continue  // where:/filter: — no calls
-
-  // Emit callBlockEntered
-  functionBody.statements.add(irCallBlockEntered(thisParam, blockIndex))
-
-  // Emit block statements
-  functionBody.statements.addAll(block.statements)
-
-  // Emit callBlockExited
-  functionBody.statements.add(irCallBlockExited(thisParam, blockIndex))
-
-  blockIndex++
-}
+featureContext.blocks
+  .filter { it.label.blockKind != null }  // exclude where:/filter:
+  .withIndex()
+  .forEach { (blockIndex, block) ->
+    functionBody.statements.add(irCallBlockEntered(thisParam, blockIndex))
+    functionBody.statements.addAll(block.statements)
+    functionBody.statements.add(irCallBlockExited(thisParam, blockIndex))
+  }
 
 // Emit MockController.leaveScope() at the end
 functionBody.statements.add(irMockControllerLeaveScope(thisParam))
@@ -178,7 +164,7 @@ fun `$spock_feature_0_0`() {
 }
 ----
 
----
+'''
 
 == Test Plan
 
@@ -199,43 +185,4 @@ Add a new snapshot test:
 
 No new error cases — these are structural insertions.
 
-=== Smoke Tests
-
-[source,kotlin]
-----
-class BlockEntrySmokeSpec : Specification() {
-  val enteredBlocks = mutableListOf<Int>()
-
-  fun `block entry is fired for each block`() {
-    // This test verifies indirectly — if extensions can be registered
-    // and block events are received. For now, verify leaveScope doesn't throw.
-    io.github.pshevche.spockk.lang.given
-    val x = 1
-    io.github.pshevche.spockk.lang.expect
-    assert(x == 1)
-  }
-}
-----
-
-=== Engine / Runtime Tests
-
-Add a JUnit Platform engine test that:
-1. Registers a Spock extension implementing `IRunListener` or `IBlockListener`.
-2. Runs a simple spec with `given:` and `expect:` blocks.
-3. Asserts that `blockEntered` events were fired with the correct block kinds (`SETUP`, `EXPECT`).
-
----
-
-== Commit Message
-
-[source]
-----
-feat: insert SpockRuntime.callBlockEntered/Exited and MockController.leaveScope into feature methods
-----
-
----
-
-== Dependencies
-
-* **TODO-1** should be completed first so that `given:` and `and:` block indices are correct.
-* TODO-3 (cleanup block full structure) depends on this increment.
+'''

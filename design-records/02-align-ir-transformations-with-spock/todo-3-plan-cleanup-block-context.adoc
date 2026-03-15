@@ -5,7 +5,7 @@
 *Parent*: link:specification.adoc[DR-02: Align Spockk IR Transformations with Spock AST Transformations] +
 *Status*: Proposed
 
----
+'''
 
 == Goal
 
@@ -16,7 +16,7 @@ Update the cleanup block try-catch-finally structure to match Spock's full outpu
 3. `SpockRuntime.callBlockEntered/Exited` are emitted for the cleanup block inside the `finally`.
 4. A nested `finally { setCurrentBlock($spock_failedBlock) }` restores the failed block's context after cleanup.
 
----
+'''
 
 == Context and Motivation
 
@@ -94,7 +94,7 @@ Differences from Spock:
 4. No nested `finally { setCurrentBlock($spock_failedBlock) }` inside the cleanup's try-catch.
 5. No `leaveScope()` after the outer try-catch-finally (depends on TODO-2).
 
----
+'''
 
 == Relevant Code Locations
 
@@ -108,10 +108,10 @@ The current implementation generates the try-catch-finally structure. This is th
 
 Delegates to `CleanupBlockRewriter` when a cleanup block is detected. The `featureBlocks` and `cleanupBlocks` are passed separately.
 
-=== `DeclarationIrBuilder.kt`
-`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/ir/DeclarationIrBuilder.kt`
+=== `CleanupBlockRewriter.kt`
+`spockk-compiler-plugin/src/main/kotlin/io/github/pshevche/spockk/compilation/transformer/fixture/CleanupBlockRewriter.kt`
 
-Provides builder helpers. New helpers needed:
+Private helpers for the new pattern will live here (not in `DeclarationIrBuilder`, which is reserved for shareable IR factories):
 
 * `irGetCurrentBlock(thisParam)` — builds `this.getSpecificationContext().getCurrentBlock()`
 * `irSetCurrentBlock(thisParam, block)` — builds `((SpecificationContext) this.getSpecificationContext()).setCurrentBlock(block)`
@@ -126,7 +126,7 @@ New FQN constants needed:
 * `getCurrentBlock` method name
 * `setCurrentBlock` method name
 
----
+'''
 
 == Planned Changes
 
@@ -134,21 +134,23 @@ New FQN constants needed:
 
 [source,kotlin]
 ----
-const val SPECIFICATION_CONTEXT_FQN = "org.spockframework.runtime.SpecificationContext"
-const val BLOCK_INFO_FQN = "org.spockframework.runtime.model.BlockInfo"
-const val GET_CURRENT_BLOCK = "getCurrentBlock"
-const val SET_CURRENT_BLOCK = "setCurrentBlock"
+val SPECIFICATION_CONTEXT_FQN = FqName("org.spockframework.runtime.SpecificationContext")
+val BLOCK_INFO_FQN = FqName("org.spockframework.runtime.model.BlockInfo")
+val GET_CURRENT_BLOCK = Name.identifier("getCurrentBlock")
+val SET_CURRENT_BLOCK = Name.identifier("setCurrentBlock")
 ----
 
-=== 2. Add IR builder helpers in `DeclarationIrBuilder.kt`
+=== 2. Add IR builder helpers in `CleanupBlockRewriter`
+
+Add private helpers directly in `CleanupBlockRewriter` (not in `DeclarationIrBuilder` — these are specific to cleanup and not shared):
 
 [source,kotlin]
 ----
 // Builds: this.getSpecificationContext().getCurrentBlock()
-fun DeclarationIrBuilder.irGetCurrentBlock(thisParam: IrValueParameter): IrExpression
+private fun irGetCurrentBlock(thisParam: IrValueParameter): IrExpression
 
 // Builds: ((SpecificationContext) this.getSpecificationContext()).setCurrentBlock(failedBlock)
-fun DeclarationIrBuilder.irSetCurrentBlock(
+private fun irSetCurrentBlock(
   thisParam: IrValueParameter,
   failedBlockVar: IrVariable
 ): IrExpression
@@ -229,7 +231,7 @@ Update cleanup-related transformed snapshots to include the full structure.
 
 Example: `transformed/cleanup/CleanupBlock.kt` should match the full Spock output pattern.
 
----
+'''
 
 == Test Plan
 
@@ -248,51 +250,4 @@ The expected output must now include:
 3. `SpockRuntime.callBlockEntered(this, N)` / `callBlockExited(this, N)` inside cleanup try
 4. Nested `finally { if (...) setCurrentBlock($spock_failedBlock) }`
 
-=== Smoke Tests
-
-[source,kotlin]
-----
-class CleanupBlockSmokeSpec : Specification() {
-  fun `cleanup runs even when feature throws`() {
-    io.github.pshevche.spockk.lang.expect
-    throw RuntimeException("feature error")
-    io.github.pshevche.spockk.lang.cleanup
-    // This should execute; its exception should be suppressed
-    println("cleanup ran")
-  }
-
-  fun `cleanup exception is suppressed when feature also throws`() {
-    io.github.pshevche.spockk.lang.expect
-    throw RuntimeException("feature error")
-    io.github.pshevche.spockk.lang.cleanup
-    throw IllegalStateException("cleanup error")
-  }
-}
-----
-
-For the suppression test, verify that the thrown exception is a `RuntimeException` with `IllegalStateException` as a suppressed exception.
-
-=== Engine / Runtime Tests
-
-Verify that when a cleanup block throws after a feature throws:
-
-1. The original feature exception is propagated.
-2. The cleanup exception is attached as suppressed.
-3. Any Spock extension observing block events receives `CLEANUP` block events.
-
----
-
-== Commit Message
-
-[source]
-----
-feat: add $spock_failedBlock context preservation to cleanup block transformation
-----
-
----
-
-== Dependencies
-
-* **TODO-1** must be done first (correct `blockKind` for all blocks).
-* **TODO-2** must be done first (block entry/exit calls; `leaveScope()`).
-* `BlockInfo` and `SpecificationContext` types must be accessible from Spock's runtime jar on the classpath.
+'''

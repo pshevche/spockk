@@ -188,39 +188,4 @@ Add or update `TransformationSample` pairs in `spockk-specs/src/test/resources/s
 
 No error cases are added — `given:` and `and:` are already accepted by the collector.
 
-=== Smoke Tests
-
-Add smoke tests in `spockk-specs/src/test/kotlin/smoke/`:
-
-[source,kotlin]
-----
-class GivenBlockSmokeSpec : Specification() {
-  fun `given block appears in feature metadata`() {
-    io.github.pshevche.spockk.lang.given
-    val metadata = this.javaClass.getDeclaredMethod("\$spock_feature_0_0")
-      .getAnnotation(FeatureMetadata::class.java)
-    io.github.pshevche.spockk.lang.expect
-    assert(metadata.blocks.any { it.kind == BlockKind.SETUP })
-  }
-}
-----
-
-=== Runtime / Engine Tests
-
-Verify that a Spock extension observing block events receives `SETUP` block events for `given:` blocks (requires TODO-2 to be completed for full coverage).
-
 '''
-
-== Commit Message
-
-[source]
-----
-feat: map given: to BlockKind.SETUP and propagate and: descriptions to predecessor block
-----
-
-'''
-
-== Dependencies
-
-* No blockers — this increment is self-contained.
-* TODO-2 (block entry/exit calls) will exercise these block indices; this fix should be done first so indices are correct.
