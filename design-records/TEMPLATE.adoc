@@ -1,0 +1,55 @@
+= Feature Name: Short Tagline
+:toc:
+:toc-title: Contents
+:issue: <GH issue number, e.g. 42>
+:date: <ISO date, e.g. 2026-03-15>
+
+// Replace the title with: = <Feature Name>: <Short tagline>
+// Set :issue: to the GitHub issue number and :date: to today's date.
+// Example:
+//   = @Shared Fields: Sharing State Across Features
+//   :issue: 57
+//   :date: 2026-03-15
+
+== Context
+
+// What is this feature?
+// - What does Spockk currently lack?
+// - What user-facing value does this feature deliver?
+// - Optionally: a short motivating code example showing what developers will be able to write
+
+== Functional Design
+
+// Everything needed to understand the proposed implementation.
+// Typical subsections — adjust as needed for the feature:
+
+=== How Spock Does It
+
+// Summarize the spock-expert research:
+// - What does the developer write, and what does Spock transform it into? (before/after snippets)
+// - Which compiler classes handle this transformation and what do they do?
+// - How does the runtime discover and execute the result?
+// - Links to relevant Spock source and test files on GitHub
+
+=== Gap to Spockk
+
+// What does Spockk currently do (or not do) for this feature?
+// Which parts of the Spock approach map directly to Spockk, and which need new work?
+
+=== Proposed Approach
+
+// How will Spockk implement this feature?
+// - Affected modules (spockk-core, spockk-compiler-plugin, spockk-intellij-plugin, spockk-specs)
+// - Key IR transformations with code snippets for non-obvious parts
+// - Any design decisions or tradeoffs
+
+== Implementation Plan
+
+// An ordered list of independently committable increments.
+// Each item links to its plan document in this folder.
+// Example:
+//
+// . link:01-plan-block-labels.adoc[Add setup and cleanup block labels]
+// . link:02-plan-cleanup-transform.adoc[Implement cleanup block IR transformation]
+//
+// Keep increments small enough to be reviewed and merged independently.

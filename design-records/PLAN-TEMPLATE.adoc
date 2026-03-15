@@ -1,0 +1,62 @@
+= Plan: Short Description
+:toc:
+:toc-title: Contents
+
+// Replace the title with: = Plan: <Short description of this increment>
+// Example: = Plan: Add setup and cleanup block labels
+
+// This document covers one independently committable increment of a larger feature.
+// See main.adoc for the full feature context and implementation plan.
+
+== Overview
+
+// One paragraph describing what this increment does and why it comes at this point in the sequence.
+// Reference the acceptance criteria or plan items from main.adoc that this increment addresses.
+
+== Changes
+
+// List each file that will be modified or created, with a description of what changes and why.
+// Include code snippets for non-obvious transformations.
+
+=== `<module>/<path/to/File.kt>`
+
+// Describe the change.
+
+[source,kotlin]
+----
+// Key code snippet
+----
+
+== Test Plan
+
+=== Compilation Tests (Snapshot-Based)
+
+// Create source/transformed pairs under spockk-specs/src/test/resources/samples/compilation/.
+
+[cols="1,2"]
+|===
+|Test Resource |What it verifies
+
+|`samples/compilation/source/<feature>/Foo.kt` / `transformed/...`
+|Description
+
+|===
+
+=== Error Scenario Tests (Inline Specs)
+
+// Use TestDataFactory.specWithFeatureBody() or specWithBody() and assert compilation fails
+// with a specific message.
+
+* `<TestClassName>` — `<scenario>` → error containing `"<expected message fragment>"`
+
+=== Smoke Tests (End-to-End)
+
+// Write actual Spockk specs in smoke/ that exercise the feature at runtime.
+
+* `<SmokeTestClassName>` — verifies <runtime behavior>
+
+=== Runtime Tests (Engine Tests)
+
+// Use EngineTestKitUtils.execute() with JUnit Platform selectors.
+
+* `<RuntimeTestClassName>` — verifies <discovery/execution behavior>

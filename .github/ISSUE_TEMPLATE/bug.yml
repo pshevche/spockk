@@ -1,0 +1,87 @@
+name: Bug
+description: Something isn't working as documented or expected.
+labels: ["type::bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! The more detail you provide, the faster this can be fixed.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What's wrong?
+      description: A clear description of what isn't working. Include error messages or stack traces verbatim.
+      placeholder: |
+        Compilation fails with:
+        error: Spockk: 'cleanup' block must follow 'then' or 'expect'
+        But I have a valid 'then:' block before my 'cleanup:' block.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen instead?
+      placeholder: "The spec should compile and the cleanup block should run after the feature."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: "Optional: The smallest Kotlin spec that triggers the bug. Claude will use this to reproduce and fix the issue."
+      placeholder: |
+        ```kotlin
+        class MySpec : Spec() {
+          fun "some feature"() {
+            when:
+            val result = doSomething()
+
+            then:
+            result == expected
+
+            cleanup:
+            teardown()
+          }
+        }
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context for Claude
+      description: "Optional: any hints about where in the codebase this might be, related features, or recent changes that could be relevant."
+      placeholder: |
+        This started happening after upgrading to 0.2.0.
+        I suspect it's in ValidatingFeatureBlockCollector — the state machine might not allow CLEANUP after THEN.
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Spockk version
+      placeholder: "0.2.0"
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Kotlin version
+      placeholder: "2.2.0"
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Gradle version
+      placeholder: "9.4.0"
+    validations:
+      required: false

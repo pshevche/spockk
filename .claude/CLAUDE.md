@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to Kotlin. It transforms concise specification syntax (block labels like `given`, `when`, `then`, `expect`, `where`) into executable JUnit Platform tests.
+Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to Kotlin. It transforms concise specification syntax (block labels like `given`, `when`, `then`, `expect`, `where`, `setup`, `cleanup`) into executable JUnit Platform tests.
 
 ## Modules
 
@@ -16,9 +16,9 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 ## Tech Stack
 
 - Kotlin 2.3.10, JDK 21 (toolchain)
-- Gradle 9.3.1 with version catalog (`gradle/libs.versions.toml`)
+- Gradle 9.4.0 with version catalog (`gradle/libs.versions.toml`)
 - Convention plugins in `gradle/plugins/`
-- JUnit Platform 6.0.2, Spock 2.4-groovy-5.0
+- JUnit Platform 6.0.3, Spock 2.4-groovy-5.0
 
 ## Build Commands
 
@@ -39,6 +39,14 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 - **Indent**: 2 spaces for Kotlin/Kts files
 - **License headers**: Apache 2.0 on all source files (`gradle/config/licenseHeader.txt`)
 - **Line endings**: LF, with final newline
+
+## Off-Limits
+
+Never modify these without explicit instruction:
+- `gradle/wrapper/` — Gradle wrapper files
+- `gradle/config/licenseHeader.txt` — license header template
+- `.github/workflows/` — CI/CD pipeline definitions
+- `gradle.properties` (version field) — version bumps are deliberate releases
 
 ## IR Transformations
 
@@ -62,6 +70,28 @@ When writing or modifying Kotlin IR transformations in `spockk-compiler-plugin`:
 - **Error scenarios → inline specs**: Use `TestDataFactory.specWithFeatureBody()` or `specWithBody()` to define the spec inline in the test. Call `transform()` and assert `result.isSuccess()` is false and `result.compilation.messages` contains expected error text.
 - **Runtime behavior → smoke tests**: Write actual Spockk specs in `smoke/` that exercise the feature end-to-end. These are real specs that run via the Spock test engine.
 - **Test discovery/execution → engine tests**: Use `EngineTestKitUtils.execute()` with JUnit Platform selectors in `runtime/` tests.
+
+## Issue-Based Workflow
+
+Use the `/assign-issue-to-claude` skill to hand off a GitHub issue to Claude:
+
+```
+/assign-issue-to-claude 42
+```
+
+The skill fetches the issue, creates a worktree, and routes based on the issue label:
+- **`type::task`** — Claude implements directly, submits a PR when done
+- **`type::story`** — Claude writes a design record first (see below); implementation starts only after you approve it
+
+## Design Records
+
+For larger features (`type::story` issues), Claude writes a design record before coding. Design records live in `design-records/<NN>-<slug>/` as numbered folders, each containing:
+- `main.adoc` — context, functional design, and implementation plan
+- `NN-plan-<short-desc>.adoc` — one file per independently committable increment
+
+Use the `/write-design-record` skill manually, or it is invoked automatically by `/assign-issue-to-claude` for `type::story` issues.
+
+Design records follow the templates in `design-records/TEMPLATE.adoc` (main) and `design-records/PLAN-TEMPLATE.adoc` (plan docs). Review and approve the design before Claude proceeds to implementation.
 
 ## Publishing
 
