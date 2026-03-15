@@ -1,0 +1,44 @@
+= Plan: Update IntelliJ plugin
+:toc:
+:toc-title: Contents
+
+== Overview
+
+The IntelliJ plugin suppresses "unused expression" warnings for Spockk block label references by checking their fully qualified names against an allowlist. Without this change, using `setup:` or `cleanup:` in a feature method causes the IDE to flag the reference as an unused expression.
+
+== Changes
+
+=== `spockk-intellij-plugin/.../Psi.kt`
+
+Add the new block label FQNs to `SPOCKK_BLOCKS_FQN`:
+
+[source,kotlin]
+----
+private val SPOCKK_BLOCKS_FQN =
+  setOf(
+    // ... existing entries ...
+    "io.github.pshevche.spockk.lang.setup",
+    "io.github.pshevche.spockk.lang.cleanup"
+  )
+----
+
+== Test Plan
+
+=== Compilation Tests (Snapshot-Based)
+
+None — the IntelliJ plugin is not tested via IR snapshots.
+
+=== Error Scenario Tests (Inline Specs)
+
+None.
+
+=== Smoke Tests (End-to-End)
+
+None — IDE plugin changes are verified manually in IntelliJ IDEA:
+
+* Open a spec with `setup:` and `cleanup:` blocks; verify no "unused expression" warning appears
+* Verify existing block labels (`given:`, `when:`, etc.) are still suppressed
+
+=== Runtime Tests (Engine Tests)
+
+None.
