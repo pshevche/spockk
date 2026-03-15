@@ -12,7 +12,7 @@ Because Spockk reuses Spock's runtime (`spock.lang.Specification`, `org.spockfra
 
 This document compares Spockk's current IR transformations against Spock's AST transformations, identifies the differences, and defines a concrete implementation plan to close the gaps.
 
----
+'''
 
 == How Spock Transforms Specs
 
@@ -301,7 +301,7 @@ a = ($spock_p0 instanceof Map ? $spock_p0.getAt('a') : $spock_p0.getAt(0)) as Ob
 b = ($spock_p0 instanceof Map ? $spock_p0.getAt('b') : $spock_p0.getAt(1)) as Object
 ----
 
----
+'''
 
 == How Spockk Currently Transforms Specs
 
@@ -394,7 +394,7 @@ However, Spock's `@DataProviderMetadata` does not set `previousDataTableVariable
 Spockk currently always sets `previousDataTableVariables` for all but the first column of a data table, even when no cross-column references exist.
 This is a minor annotation difference that does not affect runtime correctness today but diverges from Spock's intent.
 
----
+'''
 
 == Implementation Plan
 
@@ -409,7 +409,7 @@ Each increment is independently committable and has its own detailed implementat
 
 *Detailed plan*: link:todo-1-plan-fix-given-and-blockkind.adoc[todo-1-plan-fix-given-and-blockkind.adoc]
 
----
+'''
 
 === TODO-2: Insert block entry/exit notification calls and `MockController.leaveScope()`
 
@@ -419,7 +419,7 @@ Each increment is independently committable and has its own detailed implementat
 
 *Detailed plan*: link:todo-2-plan-block-entry-exit-calls.adoc[todo-2-plan-block-entry-exit-calls.adoc]
 
----
+'''
 
 === TODO-3: Fix cleanup block to include `$spock_failedBlock` / `setCurrentBlock()` pattern
 
@@ -431,52 +431,7 @@ Each increment is independently committable and has its own detailed implementat
 
 NOTE: This increment depends on TODO-2 (block entry/exit calls) because `callBlockEntered/Exited` for the cleanup block must be emitted inside the `finally`, and the `$spock_failedBlock` pattern references `getSpecificationContext().getCurrentBlock()` which is only meaningful after block entry calls are in place.
 
----
-
-=== TODO-4: Support implicit conditions in `then:` / `expect:` blocks
-
-*Goal*: Bare boolean expressions in `then:` and `expect:` blocks cause test failures when false, matching Spock semantics.
-
-*Affected modules*: `spockk-compiler-plugin`, `spockk-specs`
-
-*Detailed plan*: link:todo-4-plan-implicit-conditions.adoc[todo-4-plan-implicit-conditions.adoc]
-
-NOTE: Two options exist:
-
-* *Option A (recommended initially)*: Wrap bare booleans with `assert`, delegating to Kotlin power-assert for rich messages. Simpler IR transformation.
-* *Option B (future)*: Full `SpockRuntime.verifyCondition()` + `ValueRecorder` instrumentation matching Spock exactly. Deferred to a separate design record.
-
----
-
-=== TODO-5: Support exception conditions (`thrown()` / `notThrown()`)
-
-*Goal*: When `thrown()` or `notThrown()` is detected in a `then:` block, the preceding `when:` block is wrapped in try-catch to capture thrown exceptions.
-
-*Affected modules*: `spockk-compiler-plugin`, `spockk-specs`
-
-*Detailed plan*: link:todo-5-plan-exception-conditions.adoc[todo-5-plan-exception-conditions.adoc]
-
----
-
-=== TODO-6: Support `old()` value capture in `then:` blocks
-
-*Goal*: `old(expr)` in `then:` blocks captures the value of `expr` before the `when:` block executes.
-
-*Affected modules*: `spockk-core`, `spockk-compiler-plugin`, `spockk-specs`
-
-*Detailed plan*: link:todo-6-plan-old-value-capture.adoc[todo-6-plan-old-value-capture.adoc]
-
----
-
-=== TODO-7: Support `filter:` block for parameterized test filtering
-
-*Goal*: A `filter:` block after `where:` generates a `$spock_feature_N_Mfilter` method and appears in block metadata as `BlockKind.FILTER`.
-
-*Affected modules*: `spockk-core`, `spockk-compiler-plugin`, `spockk-specs`
-
-*Detailed plan*: link:todo-7-plan-filter-block.adoc[todo-7-plan-filter-block.adoc]
-
----
+'''
 
 == Summary Table
 
@@ -508,32 +463,16 @@ NOTE: Two options exist:
 | 3
 | Low
 | Medium
-
-| Implicit conditions in `then:`/`expect:` silently pass when false
-| 4
-| Medium
-| *High*
-
-| No exception condition support (`thrown()` / `notThrown()`)
-| 5
-| Medium
-| *High*
-
-| No `old()` value capture
-| 6
-| Medium
-| Medium
-
-| No `filter:` block support
-| 7
-| Low
-| Low
 |===
 
----
+'''
 
 == Out of Scope
 
+* **Implicit conditions in `then:` / `expect:` blocks**: Bare boolean expressions currently require an explicit `assert`. Making them implicit conditions is deferred to a future release. When implemented, the recommendation is to wrap bare booleans with `assert` first (delegating to Kotlin power-assert), with full `SpockRuntime.verifyCondition()` + `ValueRecorder` instrumentation as a later follow-up.
+* **Exception conditions (`thrown()` / `notThrown()`)**: Wrapping `when:` blocks in try-catch when `thrown()` / `notThrown()` is detected in `then:` is deferred to a future release.
+* **`old()` value capture**: Capturing pre-`when:` expression snapshots via `old(expr)` is deferred to a future release. `old()` is not required for mock interaction testing.
+* **`filter:` block**: Generating a `$spock_feature_N_Mfilter` method from a `filter:` block after `where:` is deferred to future work.
 * **Full `ValueRecorder` condition instrumentation**: Rich sub-expression recording matching Spock's exact output requires significant IR work. Kotlin power-assert covers the primary use case and is already integrated. Full instrumentation is deferred to a separate design record.
 * **Mock interaction wiring in `then:` blocks**: Moving mock interactions before the `when:` block and wrapping with `MockController.enterScope()` / `leaveScope()` is partially covered by the `MockController.leaveScope()` fix in TODO-2 but the full mock interaction rewriting is a separate concern.
 * **`@Unroll` iteration naming**: `#paramName` interpolation in feature names is handled by Spock's runtime iteration runner. No IR changes are needed unless Spockk adds its own naming templates.
