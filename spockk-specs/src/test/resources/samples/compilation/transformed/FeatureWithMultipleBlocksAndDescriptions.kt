@@ -7,6 +7,10 @@ class FeatureWithMultipleBlocksAndDescriptions : spock.lang.Specification() {
     parameterNames = [],
     blocks = [
       org.spockframework.runtime.model.BlockMetadata(
+        org.spockframework.runtime.model.BlockKind.SETUP,
+        [""]
+      ),
+      org.spockframework.runtime.model.BlockMetadata(
         org.spockframework.runtime.model.BlockKind.WHEN,
         [""]
       ),

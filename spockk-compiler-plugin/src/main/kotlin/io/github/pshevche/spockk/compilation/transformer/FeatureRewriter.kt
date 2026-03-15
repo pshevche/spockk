@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
+import io.github.pshevche.spockk.compilation.common.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_KIND_FQN
@@ -81,13 +82,13 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         irString(name),
         irInt(line),
         irStringArray(parameterNames),
-        blockMetadataArray(this, blocks.filter { it.element.label.blockKind != null })
+        blockMetadataArray(this, mergeBlocks(blocks))
       )
     }
 
   private fun blockMetadataArray(
     builder: DeclarationIrBuilder,
-    blocks: List<FeatureBlockStatements>
+    blocks: List<MergedBlock>
   ): IrExpression =
     with(builder) {
       irVararg(
@@ -95,10 +96,36 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         blocks.map { block ->
           irAnnotation(
             BLOCK_METADATA_FQN,
-            irEnumValue(block.element.label.blockKind!!, BLOCK_KIND_FQN),
-            irStringArray(listOf(block.element.description))
+            irEnumValue(block.blockKind, BLOCK_KIND_FQN),
+            irStringArray(block.descriptions)
           )
         }
       )
     }
+
+  private data class MergedBlock(
+    val blockKind: String,
+    val descriptions: List<String>
+  )
+
+  private fun mergeBlocks(blocks: List<FeatureBlockStatements>): List<MergedBlock> {
+    val result = mutableListOf<MergedBlock>()
+    for (block in blocks) {
+      val label = block.element.label
+      if (label == FeatureBlockLabel.AND && result.isNotEmpty()) {
+        val last = result.last()
+        result[result.lastIndex] = last.copy(
+          descriptions = last.descriptions + block.element.description
+        )
+      } else if (label.blockKind != null) {
+        result.add(
+          MergedBlock(
+            blockKind = label.blockKind!!,
+            descriptions = listOf(block.element.description)
+          )
+        )
+      }
+    }
+    return result
+  }
 }
