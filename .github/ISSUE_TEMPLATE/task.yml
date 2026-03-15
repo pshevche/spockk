@@ -1,0 +1,53 @@
+name: Task
+description: A small, well-scoped improvement that can be implemented directly without a design record.
+labels: ["type::task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for small, self-contained work. For larger features with user-facing value, use **Story** instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What needs to be done?
+      description: Be specific enough that Claude can implement without guessing. Include a usage example if it helps.
+      placeholder: |
+        Add support for `@Ignore` on individual feature methods. An ignored feature should be skipped
+        (not executed) and appear as "skipped" in the test report.
+
+        ```kotlin
+        class MySpec : Spec() {
+          @Ignore
+          fun "this feature is skipped"() {
+            expect: 1 == 1
+          }
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: Testable conditions that define "done". Claude will implement against these.
+      placeholder: |
+        - [ ] `@Ignore` on a feature method causes that feature to be skipped
+        - [ ] Skipped features appear as "skipped" in the JUnit Platform test report
+        - [ ] A smoke test covers the basic case
+        - [ ] `@Ignore` on a spec class skips all features in that spec
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context for Claude
+      description: "Optional: relevant files, related issues, Spock reference, or anything that helps narrow the scope."
+      placeholder: |
+        Spock handles @Ignore in SpecAnnotator.java. In Spockk the equivalent is likely in
+        spockk-compiler-plugin under the annotation rewriting step.
+        Related: the IntelliJ plugin may also need updating to not flag @Ignore as unused.
+    validations:
+      required: false

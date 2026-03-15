@@ -1,0 +1,85 @@
+name: Story
+description: A larger feature with user-facing value that requires a design record before implementation.
+labels: ["type::story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for features complex enough to need upfront design.
+        Claude will write a design record first — implementation starts only after you approve it.
+        For smaller self-contained work, use **Task** instead.
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why does this matter?
+      description: What problem does this solve? What is the user-facing value?
+      placeholder: |
+        Spockk has no way to share state across features in a spec. Users must repeat expensive
+        setup in every feature, making test suites slow and verbose. `@Shared` fields would let
+        users initialize once and reuse across the whole spec.
+    validations:
+      required: true
+
+  - type: textarea
+    id: desired-behavior
+    attributes:
+      label: What should developers be able to write?
+      description: Show a concrete usage example. This is the primary input Claude uses to design the feature.
+      placeholder: |
+        ```kotlin
+        class DatabaseSpec : Spec() {
+          @Shared val db = Database.connect()  // initialized once, shared across features
+
+          fun "can read data"() {
+            expect: db.query("SELECT 1").isNotEmpty()
+          }
+
+          fun "can write data"() {
+            when:
+            db.insert(record)
+
+            then:
+            db.query("SELECT ...").contains(record)
+          }
+        }
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: High-level conditions that must hold when the feature is complete. Claude implements against these.
+      placeholder: |
+        - [ ] `@Shared` fields are initialized once before any feature runs
+        - [ ] `@Shared` fields are accessible from all feature methods
+        - [ ] `setupSpec()` and `cleanupSpec()` can access `@Shared` fields; `setup()` and `cleanup()` cannot
+        - [ ] Accessing instance fields from `setupSpec()`/`cleanupSpec()` is a compile error
+        - [ ] IDE (IntelliJ plugin) does not flag `@Shared` as an unused annotation
+        - [ ] User guide documents the feature
+    validations:
+      required: true
+
+  - type: textarea
+    id: spock-reference
+    attributes:
+      label: How does Spock implement this?
+      description: "Optional but valuable: relevant Spock source files, documentation links, or a brief description of Spock's approach. This seeds the spock-expert research step."
+      placeholder: |
+        Spock's @Shared handling is in:
+        - SpecAnnotator.java (adds @Shared metadata annotation)
+        - SharedFieldAccessTransformer.java (validates field access in setupSpec/cleanupSpec)
+        - SpecInfoBuilder.java (runtime discovery of shared fields)
+        Docs: https://spockframework.org/spock/docs/current/all_in_one.html#_shared_fields
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: "Optional: constraints, related issues, open questions, out-of-scope items."
+    validations:
+      required: false
