@@ -28,7 +28,6 @@ import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrEnumEntry
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
@@ -146,7 +145,7 @@ internal fun irCatchParameter(name: Name, type: IrType): IrVariable =
   IrVariableImpl(
     SYNTHETIC_OFFSET,
     SYNTHETIC_OFFSET,
-    IrDeclarationOrigin.CATCH_PARAMETER,
+    IrDeclarationOriginWrapper.CATCH_PARAMETER,
     IrVariableSymbolImpl(),
     name,
     type,
@@ -159,7 +158,7 @@ private fun irVariable(name: Name, type: IrType, isVar: Boolean): IrVariable =
   IrVariableImpl(
     SYNTHETIC_OFFSET,
     SYNTHETIC_OFFSET,
-    IrDeclarationOrigin.DEFINED,
+    IrDeclarationOriginWrapper.DEFINED,
     IrVariableSymbolImpl(),
     name,
     type,
