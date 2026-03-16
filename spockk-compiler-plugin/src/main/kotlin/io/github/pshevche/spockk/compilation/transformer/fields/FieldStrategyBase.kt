@@ -17,6 +17,7 @@
 package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import io.github.pshevche.spockk.compilation.ir.IrDeclarationOriginWrapper
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FIELD_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
@@ -37,7 +38,6 @@ import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irSetField
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -141,7 +141,7 @@ internal abstract class FieldStrategyBase(
       irBuiltIns.unitType
     ) as IrSimpleFunction
     spec.declarations.remove(setter)
-    setter.origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
+    setter.origin = IrDeclarationOriginWrapper.DEFAULT_PROPERTY_ACCESSOR
     setter.visibility = property.visibility
     setter.correspondingPropertySymbol = property.symbol
     property.setter = setter
