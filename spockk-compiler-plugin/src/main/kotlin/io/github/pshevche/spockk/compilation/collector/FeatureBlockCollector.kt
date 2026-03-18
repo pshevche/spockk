@@ -14,11 +14,11 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
+import io.github.pshevche.spockk.compilation.common.FeatureBlock
 import org.jetbrains.kotlin.ir.IrStatement
 
 internal interface FeatureBlockCollector {
   fun consume(statement: IrStatement)
 
-  fun getBlockStatements(): List<FeatureBlockStatements>
+  fun getBlocks(): List<FeatureBlock>
 }

@@ -37,17 +37,17 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
     val name: String,
     val line: Int,
     val parameterNames: List<String>,
-    val blocks: List<FeatureBlockStatements>
+    val blocks: List<FeatureBlock>
   ) {
-    val featureBlocks: List<FeatureBlockStatements>
+    val featureBlocks: List<FeatureBlock>
       get() = blocks.takeWhile { it.element.label !in SEPARATOR_LABELS }
 
-    val cleanupBlocks: List<FeatureBlockStatements>
+    val cleanupBlocks: List<FeatureBlock>
       get() = blocks
         .dropWhile { it.element.label != FeatureBlockLabel.CLEANUP }
         .takeWhile { it.element.label != FeatureBlockLabel.WHERE }
 
-    val dataProviderBlocks: List<FeatureBlockStatements>
+    val dataProviderBlocks: List<FeatureBlock>
       get() = blocks.dropWhile { it.element.label != FeatureBlockLabel.WHERE }
 
     companion object {

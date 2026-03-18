@@ -54,7 +54,7 @@ internal class MutableSpockkTransformationContext {
   fun addField(spec: IrClass, property: IrProperty) =
     specs[spec]?.addField(property)
 
-  fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlockStatements>) =
+  fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlock>) =
     specs[spec]?.addFeature(feature, blocks)
 
   fun addFixtureMethod(
@@ -130,7 +130,7 @@ internal class MutableSpockkTransformationContext {
       )
     }
 
-    fun addFeature(feature: IrFunction, blocks: List<FeatureBlockStatements>) {
+    fun addFeature(feature: IrFunction, blocks: List<FeatureBlock>) {
       features.computeIfAbsent(feature) {
         val file = feature.file
         val line = file.fileEntry.getLineNumber(feature.startOffset) + 1

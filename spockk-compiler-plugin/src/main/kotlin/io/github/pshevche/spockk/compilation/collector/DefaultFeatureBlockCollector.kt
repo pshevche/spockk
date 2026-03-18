@@ -14,8 +14,9 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
+import io.github.pshevche.spockk.compilation.common.FeatureBlock
+import io.github.pshevche.spockk.compilation.common.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.common.FeatureBlockLabelIrElement
-import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -23,7 +24,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFile
 internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureBlockCollector {
   private var currentLabel: FeatureBlockLabelIrElement? = null
   private val currentBlockStatements = mutableListOf<IrStatement>()
-  private val featureBlockStatements = mutableListOf<FeatureBlockStatements>()
+  private val collectedBlocks = mutableListOf<FeatureBlock>()
 
   override fun consume(statement: IrStatement) {
     val blockLabel = statement.asIrBlockLabel(file)
@@ -36,14 +37,30 @@ internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureB
   }
 
   private fun completeCurrentBlock() {
-    currentLabel?.let {
-      featureBlockStatements.add(FeatureBlockStatements(it, currentBlockStatements.toList()))
-      currentBlockStatements.clear()
+    val label = currentLabel ?: return
+    val statements = currentBlockStatements.toList()
+    currentBlockStatements.clear()
+
+    if (label.label == FeatureBlockLabel.AND && collectedBlocks.isNotEmpty()) {
+      val last = collectedBlocks.last()
+      collectedBlocks[collectedBlocks.lastIndex] = last.copy(
+        descriptions = last.descriptions + label.description,
+        statements = last.statements + statements
+      )
+    } else {
+      collectedBlocks.add(
+        FeatureBlock(
+          element = label,
+          descriptions = listOf(label.description),
+          ordinal = collectedBlocks.size,
+          statements = statements
+        )
+      )
     }
   }
 
-  override fun getBlockStatements(): List<FeatureBlockStatements> {
+  override fun getBlocks(): List<FeatureBlock> {
     completeCurrentBlock()
-    return featureBlockStatements.toList()
+    return collectedBlocks.toList()
   }
 }

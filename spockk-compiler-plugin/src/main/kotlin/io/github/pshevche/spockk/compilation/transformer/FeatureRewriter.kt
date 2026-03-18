@@ -16,8 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlockLabel
-import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
+import io.github.pshevche.spockk.compilation.common.FeatureBlock
 import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_KIND_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_METADATA_FQN
@@ -88,11 +87,9 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
       ?: return rewriteFeatureStatementsLegacy(feature, context)
 
     val statements = if (hasCleanup) {
-      val mergedFeatureBlocks = mergeBlocksWithStatements(context.featureBlocks)
-      val featureStatementsWithCalls = buildBlockStatementsFromMerged(builder, thisParam, mergedFeatureBlocks)
+      val featureStatementsWithCalls = buildBlockStatements(builder, thisParam, context.featureBlocks)
       val cleanupStatements = context.cleanupBlocks.flatMap { it.statements }
-      val allMergedBlocks = mergeBlocksWithStatements(context.blocks)
-      val cleanupBlockIndex = allMergedBlocks.indexOfFirst { it.blockKind == "CLEANUP" }
+      val cleanupBlockOrdinal = context.cleanupBlocks.first().ordinal
       val blockCallBuilder = CleanupBlockRewriter.BlockCallBuilder { b, entered, idx ->
         if (entered) irCallBlockEntered(b, thisParam, idx) else irCallBlockExited(b, thisParam, idx)
       }
@@ -101,12 +98,11 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         feature,
         featureStatementsWithCalls,
         cleanupStatements,
-        cleanupBlockIndex,
+        cleanupBlockOrdinal,
         blockCallBuilder
       ).rewrite()
     } else {
-      // Non-cleanup path: wrap each merged block with entry/exit calls
-      buildBlockStatementsWithCalls(builder, feature, context, thisParam)
+      buildBlockStatements(builder, thisParam, context.featureBlocks)
     }
 
     feature.mutableStatements()?.clear()
@@ -133,26 +129,16 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
     )
   }
 
-  private fun buildBlockStatementsWithCalls(
-    builder: DeclarationIrBuilder,
-    feature: IrFunction,
-    context: FeatureContext,
-    thisParam: IrValueParameter
-  ): List<IrStatement> {
-    val mergedBlocks = mergeBlocksWithStatements(context.featureBlocks)
-    return buildBlockStatementsFromMerged(builder, thisParam, mergedBlocks)
-  }
-
-  private fun buildBlockStatementsFromMerged(
+  private fun buildBlockStatements(
     builder: DeclarationIrBuilder,
     thisParam: IrValueParameter,
-    mergedBlocks: List<MergedBlock>
+    blocks: List<FeatureBlock>
   ): List<IrStatement> {
     val result = mutableListOf<IrStatement>()
-    mergedBlocks.forEachIndexed { blockIndex, block ->
-      result.add(irCallBlockEntered(builder, thisParam, blockIndex))
+    for (block in blocks) {
+      result.add(irCallBlockEntered(builder, thisParam, block.ordinal))
       result.addAll(block.statements)
-      result.add(irCallBlockExited(builder, thisParam, blockIndex))
+      result.add(irCallBlockExited(builder, thisParam, block.ordinal))
     }
     return result
   }
@@ -279,7 +265,7 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
     name: String,
     line: Int,
     parameterNames: List<String>,
-    blocks: List<FeatureBlockStatements>
+    blocks: List<FeatureBlock>
   ): IrConstructorCall =
     with(irBuilder(feature.symbol)) {
       irAnnotation(
@@ -288,13 +274,13 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         irString(name),
         irInt(line),
         irStringArray(parameterNames),
-        blockMetadataArray(this, mergeBlocks(blocks))
+        blockMetadataArray(this, blocks)
       )
     }
 
   private fun blockMetadataArray(
     builder: DeclarationIrBuilder,
-    blocks: List<MergedBlock>
+    blocks: List<FeatureBlock>
   ): IrExpression =
     with(builder) {
       irVararg(
@@ -302,50 +288,10 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         blocks.map { block ->
           irAnnotation(
             BLOCK_METADATA_FQN,
-            irEnumValue(block.blockKind, BLOCK_KIND_FQN),
+            irEnumValue(block.element.label.blockKind!!, BLOCK_KIND_FQN),
             irStringArray(block.descriptions)
           )
         }
       )
     }
-
-  // --- Block merging ---
-
-  private data class MergedBlock(
-    val blockKind: String,
-    val descriptions: List<String>,
-    val statements: List<IrStatement> = emptyList()
-  )
-
-  private fun mergeBlocks(blocks: List<FeatureBlockStatements>): List<MergedBlock> =
-    doMergeBlocks(blocks, includeStatements = false)
-
-  private fun mergeBlocksWithStatements(blocks: List<FeatureBlockStatements>): List<MergedBlock> =
-    doMergeBlocks(blocks, includeStatements = true)
-
-  private fun doMergeBlocks(
-    blocks: List<FeatureBlockStatements>,
-    includeStatements: Boolean
-  ): List<MergedBlock> {
-    val result = mutableListOf<MergedBlock>()
-    for (block in blocks) {
-      val label = block.element.label
-      if (label == FeatureBlockLabel.AND && result.isNotEmpty()) {
-        val last = result.last()
-        result[result.lastIndex] = last.copy(
-          descriptions = last.descriptions + block.element.description,
-          statements = if (includeStatements) last.statements + block.statements else emptyList()
-        )
-      } else if (label.blockKind != null) {
-        result.add(
-          MergedBlock(
-            blockKind = label.blockKind!!,
-            descriptions = listOf(block.element.description),
-            statements = if (includeStatements) block.statements else emptyList()
-          )
-        )
-      }
-    }
-    return result
-  }
 }

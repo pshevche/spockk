@@ -16,7 +16,9 @@ package io.github.pshevche.spockk.compilation.common
 
 import org.jetbrains.kotlin.ir.IrStatement
 
-internal data class FeatureBlockStatements(
+internal data class FeatureBlock(
   val element: FeatureBlockLabelIrElement,
+  val descriptions: List<String>,
+  val ordinal: Int,
   val statements: List<IrStatement>
 )
