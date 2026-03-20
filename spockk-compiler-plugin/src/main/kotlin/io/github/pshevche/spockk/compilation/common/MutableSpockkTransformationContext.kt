@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.common
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -54,8 +55,13 @@ internal class MutableSpockkTransformationContext {
   fun addField(spec: IrClass, property: IrProperty) =
     specs[spec]?.addField(property)
 
-  fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlock>) =
-    specs[spec]?.addFeature(feature, blocks)
+  fun addFeature(
+    spec: IrClass,
+    feature: IrFunction,
+    anonymousStatements: List<IrStatement>,
+    blocks: List<FeatureBlock>
+  ) =
+    specs[spec]?.addFeature(feature, anonymousStatements, blocks)
 
   fun addFixtureMethod(
     spec: IrClass,
@@ -130,7 +136,11 @@ internal class MutableSpockkTransformationContext {
       )
     }
 
-    fun addFeature(feature: IrFunction, blocks: List<FeatureBlock>) {
+    fun addFeature(
+      feature: IrFunction,
+      anonymousStatements: List<IrStatement>,
+      blocks: List<FeatureBlock>
+    ) {
       features.computeIfAbsent(feature) {
         val file = feature.file
         val line = file.fileEntry.getLineNumber(feature.startOffset) + 1
@@ -140,6 +150,7 @@ internal class MutableSpockkTransformationContext {
           feature.name.asString(),
           line,
           feature.assignableParameters().map { it.name.asString() },
+          anonymousStatements,
           blocks
         )
           .also { featureOrdinal += 1 }

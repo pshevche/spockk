@@ -37,7 +37,6 @@ import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irAs
-import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irInt
@@ -83,11 +82,12 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
   private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
     val hasCleanup = context.cleanupBlocks.isNotEmpty()
     val builder = irBuilder(feature.symbol)
-    val thisParam = feature.parameters.firstOrNull { it.name.asString() == "<this>" }
-      ?: return rewriteFeatureStatementsLegacy(feature, context)
+    val thisParam = feature.parameters.first { it.name.asString() == "<this>" }
+
+    val blockStatements = buildBlockStatements(builder, thisParam, context.featureBlocks)
+    val allFeatureStatements = context.anonymousStatements + blockStatements
 
     val statements = if (hasCleanup) {
-      val featureStatementsWithCalls = buildBlockStatements(builder, thisParam, context.featureBlocks)
       val cleanupStatements = context.cleanupBlocks.flatMap { it.statements }
       val cleanupBlockOrdinal = context.cleanupBlocks.first().ordinal
       val blockCallBuilder = CleanupBlockRewriter.BlockCallBuilder { b, entered, idx ->
@@ -96,37 +96,18 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
       CleanupBlockRewriter(
         this.context,
         feature,
-        featureStatementsWithCalls,
+        allFeatureStatements,
         cleanupStatements,
         cleanupBlockOrdinal,
         blockCallBuilder
       ).rewrite()
     } else {
-      buildBlockStatements(builder, thisParam, context.featureBlocks)
+      allFeatureStatements
     }
 
     feature.mutableStatements()?.clear()
     feature.mutableStatements()?.addAll(statements)
     feature.mutableStatements()?.add(irMockControllerLeaveScope(builder, feature, thisParam))
-  }
-
-  private fun rewriteFeatureStatementsLegacy(feature: IrFunction, context: FeatureContext) {
-    val featureStatements = context.featureBlocks.flatMap { it.statements }
-    val cleanupStatements = context.cleanupBlocks.flatMap { it.statements }
-    val noOpBlockCallBuilder = CleanupBlockRewriter.BlockCallBuilder { builder, _, _ ->
-      with(builder) { irBlock {} }
-    }
-    feature.mutableStatements()?.clear()
-    feature.mutableStatements()?.addAll(
-      CleanupBlockRewriter(
-        this.context,
-        feature,
-        featureStatements,
-        cleanupStatements,
-        0,
-        noOpBlockCallBuilder
-      ).rewrite()
-    )
   }
 
   private fun buildBlockStatements(

@@ -173,6 +173,8 @@ internal class ValidatingFeatureBlockCollector(
     delegate.consume(statement)
   }
 
+  override fun getAnonymousStatements(): List<IrStatement> = delegate.getAnonymousStatements()
+
   override fun getBlocks(): List<FeatureBlock> {
     assertBlockStructureIsComplete()
     return delegate.getBlocks()

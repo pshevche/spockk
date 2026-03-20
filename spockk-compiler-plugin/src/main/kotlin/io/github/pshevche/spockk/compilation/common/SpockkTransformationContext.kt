@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.common
 
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -37,6 +38,7 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
     val name: String,
     val line: Int,
     val parameterNames: List<String>,
+    val anonymousStatements: List<IrStatement>,
     val blocks: List<FeatureBlock>
   ) {
     val featureBlocks: List<FeatureBlock>

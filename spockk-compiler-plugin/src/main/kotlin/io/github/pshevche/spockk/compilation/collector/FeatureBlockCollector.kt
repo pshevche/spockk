@@ -20,5 +20,7 @@ import org.jetbrains.kotlin.ir.IrStatement
 internal interface FeatureBlockCollector {
   fun consume(statement: IrStatement)
 
+  fun getAnonymousStatements(): List<IrStatement>
+
   fun getBlocks(): List<FeatureBlock>
 }

@@ -55,4 +55,9 @@ class SpockkAnnotationCompilationTest : BaseCompilationTest() {
     expect
     assertTransformation(sampleFromResource("FeatureWithMultipleBlocksAndDescriptions"))
   }
+
+  fun `preserves anonymous statements before first block without block metadata`() {
+    expect
+    assertTransformation(sampleFromResource("AnonymousBlockSpec"))
+  }
 }

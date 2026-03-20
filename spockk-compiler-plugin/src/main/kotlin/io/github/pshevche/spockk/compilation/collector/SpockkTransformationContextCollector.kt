@@ -73,9 +73,10 @@ internal class SpockkTransformationContextCollector(
     } else {
       val blockCollector = createBlockCollector(function.file)
       body.statements.forEach { blockCollector.consume(it) }
+      val anonymousStatements = blockCollector.getAnonymousStatements()
       val blocks = blockCollector.getBlocks()
-      if (blocks.isNotEmpty()) {
-        context.addFeature(currentIrClass, function, blocks)
+      if (blocks.isNotEmpty() || anonymousStatements.isNotEmpty()) {
+        context.addFeature(currentIrClass, function, anonymousStatements, blocks)
       }
     }
     super.visitBlockBody(body)

@@ -294,6 +294,48 @@ class FeatureBlockStructureValidationTest : Specification() {
     assert(result.isSuccess())
   }
 
+  fun `accepts statements before first block label as implicit given`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                val a = 1
+                val b = 2
+
+                io.github.pshevche.spockk.lang.expect
+                assert(a + b == 3)
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
+  fun `accepts statements before first block label with when-then`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                val a = 1
+
+                io.github.pshevche.spockk.lang.`when`
+                val b = a + 1
+
+                io.github.pshevche.spockk.lang.then
+                assert(b == 2)
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+  }
+
   fun `rejects invalid block sequences (precondition with missing expectation)`() {
     `when`
     val result =

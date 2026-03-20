@@ -25,6 +25,7 @@ internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureB
   private var currentLabel: FeatureBlockLabelIrElement? = null
   private val currentBlockStatements = mutableListOf<IrStatement>()
   private val collectedBlocks = mutableListOf<FeatureBlock>()
+  private val anonymousStatements = mutableListOf<IrStatement>()
 
   override fun consume(statement: IrStatement) {
     val blockLabel = statement.asIrBlockLabel(file)
@@ -36,10 +37,17 @@ internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureB
     }
   }
 
+  override fun getAnonymousStatements(): List<IrStatement> = anonymousStatements.toList()
+
   private fun completeCurrentBlock() {
-    val label = currentLabel ?: return
+    val label = currentLabel
     val statements = currentBlockStatements.toList()
     currentBlockStatements.clear()
+
+    if (label == null) {
+      anonymousStatements.addAll(statements)
+      return
+    }
 
     if (label.label == FeatureBlockLabel.AND && collectedBlocks.isNotEmpty()) {
       val last = collectedBlocks.last()
