@@ -14,8 +14,8 @@
 
 package io.github.pshevche.spockk.compilation.transformer.parametrization
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlock
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROCESSOR_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROVIDER_METADATA_FQN

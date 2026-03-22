@@ -14,9 +14,9 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlock
-import io.github.pshevche.spockk.compilation.common.FeatureBlockLabel
-import io.github.pshevche.spockk.compilation.common.FeatureBlockLabelIrElement
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
+import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabelIrElement
 import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrStatement

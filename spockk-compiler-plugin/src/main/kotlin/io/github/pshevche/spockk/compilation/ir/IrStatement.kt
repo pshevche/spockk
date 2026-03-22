@@ -16,7 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.ir
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlockLabelIrElement
+import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabelIrElement
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irGet

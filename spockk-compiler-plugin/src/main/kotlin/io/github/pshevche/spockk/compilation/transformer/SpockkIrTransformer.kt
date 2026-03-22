@@ -14,8 +14,8 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrClass

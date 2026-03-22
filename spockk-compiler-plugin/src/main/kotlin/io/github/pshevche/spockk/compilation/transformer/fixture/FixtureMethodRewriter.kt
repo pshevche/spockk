@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fixture
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FixtureMethodKind
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FixtureMethodKind
 import io.github.pshevche.spockk.compilation.ir.makePrivate
 import io.github.pshevche.spockk.compilation.transformer.InstanceFieldAccessChecker
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter

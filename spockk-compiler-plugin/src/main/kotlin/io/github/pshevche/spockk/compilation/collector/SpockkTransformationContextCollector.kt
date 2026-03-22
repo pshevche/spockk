@@ -15,8 +15,8 @@
 package io.github.pshevche.spockk.compilation.collector
 
 import io.github.pshevche.spockk.compilation.collector.FixtureMethodIdentifiers.fixtureMethodKind
-import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementVisitor
-import io.github.pshevche.spockk.compilation.common.MutableSpockkTransformationContext
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementVisitor
+import io.github.pshevche.spockk.compilation.shared.MutableSpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_FQN
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile

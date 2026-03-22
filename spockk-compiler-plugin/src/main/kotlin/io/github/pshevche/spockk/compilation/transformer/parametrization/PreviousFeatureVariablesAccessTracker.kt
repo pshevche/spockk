@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.parametrization
 
-import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter

@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fields
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrClass

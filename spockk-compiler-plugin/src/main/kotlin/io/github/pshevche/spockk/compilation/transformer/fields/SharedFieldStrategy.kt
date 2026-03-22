@@ -16,7 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fields
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.VOLATILE_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_CONTEXT_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_INTERNALS_FQN

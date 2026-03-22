@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import org.jetbrains.kotlin.name.Name
 
 internal object InternalIdentifiers {

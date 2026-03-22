@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.SpecContext
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.SpecContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.transformer.fields.FieldsRewriter

@@ -16,7 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.mock
 
-import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol

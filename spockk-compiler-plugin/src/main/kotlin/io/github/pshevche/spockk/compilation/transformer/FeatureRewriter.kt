@@ -16,13 +16,12 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlock
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_KIND_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FEATURE_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.MOCK_CONTROLLER_FQN
-import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_CONTEXT_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_INTERNALS_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPOCK_RUNTIME_FQN
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol

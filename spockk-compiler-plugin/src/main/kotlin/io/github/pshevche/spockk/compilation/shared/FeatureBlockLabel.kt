@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.shared
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.AND_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.CLEANUP_BLOCK_FQN

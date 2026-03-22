@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import org.jetbrains.kotlin.ir.IrStatement
 
 internal interface FeatureBlockCollector {

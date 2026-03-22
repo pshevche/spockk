@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FixtureMethodKind
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FixtureMethodKind
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 
 internal object FixtureMethodIdentifiers {

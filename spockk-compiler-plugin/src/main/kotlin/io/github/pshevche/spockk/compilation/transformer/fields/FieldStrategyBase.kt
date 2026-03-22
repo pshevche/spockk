@@ -16,7 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fields
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.ir.IrDeclarationOriginWrapper
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FIELD_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
