@@ -12,17 +12,14 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.transformer
+package io.github.pshevche.spockk.compilation.transformer.ir
 
-import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
-import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.ir.IrBuiltIns
-import org.jetbrains.kotlin.ir.symbols.IrSymbol
+import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 
-internal interface SpockkIrRewriter {
-  val rewriterContext: SpockkIrRewriterContext
-  val irBuiltIns: IrBuiltIns
-    get() = rewriterContext.irBuiltIns
-
-  fun irBuilder(owner: IrSymbol): DeclarationIrBuilder = DeclarationIrBuilder(rewriterContext, owner)
-}
+/**
+ * Wraps default IR generator context and provides abstractions for accessing IRs in Spock classes, such as SpockRuntime.
+ */
+internal class SpockkIrRewriterContext(
+  private val defaultGenerator: IrGeneratorContext,
+  private val spockRuntime: IrSpockRuntime = IrSpockRuntime.create(defaultGenerator)
+) : IrGeneratorContext by defaultGenerator

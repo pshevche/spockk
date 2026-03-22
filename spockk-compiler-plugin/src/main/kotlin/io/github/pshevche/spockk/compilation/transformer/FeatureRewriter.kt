@@ -32,9 +32,9 @@ import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -54,7 +54,7 @@ import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.Name
 
-internal class FeatureRewriter(override val generatorContext: IrGeneratorContext) : SpockkIrRewriter {
+internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterContext) : SpockkIrRewriter {
 
   fun rewrite(feature: IrFunction, context: FeatureContext) {
     annotateFeature(feature, context)
@@ -130,7 +130,7 @@ internal class FeatureRewriter(override val generatorContext: IrGeneratorContext
         if (entered) irCallBlockEntered(b, thisParam, idx) else irCallBlockExited(b, thisParam, idx)
       }
       CleanupBlockRewriter(
-        this.generatorContext,
+        this.rewriterContext,
         feature,
         allFeatureStatements,
         cleanupStatements,
@@ -214,7 +214,7 @@ internal class FeatureRewriter(override val generatorContext: IrGeneratorContext
       }
     }
 
-    val mockControllerClass = generatorContext.findRequiredClassSymbol(MOCK_CONTROLLER_FQN)
+    val mockControllerClass = rewriterContext.findRequiredClassSymbol(MOCK_CONTROLLER_FQN)
     val castMockController = with(builder) {
       irAs(mockControllerCall, mockControllerClass.defaultType)
     }
@@ -246,7 +246,7 @@ internal class FeatureRewriter(override val generatorContext: IrGeneratorContext
   }
 
   private fun findSpockRuntimeFunction(name: String): IrSimpleFunction {
-    val spockRuntimeClass = generatorContext.findRequiredClassSymbol(SPOCK_RUNTIME_FQN)
+    val spockRuntimeClass = rewriterContext.findRequiredClassSymbol(SPOCK_RUNTIME_FQN)
     return spockRuntimeClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { fn -> fn.name.asString() == name }
@@ -265,10 +265,10 @@ internal class FeatureRewriter(override val generatorContext: IrGeneratorContext
           ?.classifier
           ?.let { classifier -> (classifier as? IrClassSymbol)?.owner?.fqNameWhenAvailable }
           ?: return@let null
-        generatorContext.findRequiredClassSymbol(fqn).owner
+        rewriterContext.findRequiredClassSymbol(fqn).owner
       }
     }
-    val specInternalsClass = generatorContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
+    val specInternalsClass = rewriterContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
     return specInternalsClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { fn -> fn.name.asString() == "getSpecificationContext" }

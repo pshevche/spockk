@@ -1,0 +1,4 @@
+== io.github.pshevche.spockk.compilation.transformer.ir
+
+Package contains classes representing Spock-specific IR elements (e.g., `IrClass` corresponding to `SpockRuntime`).
+The goal of the package is to provide abstraction to construct IRs for interacting with Spock classes as if a user called them directly.

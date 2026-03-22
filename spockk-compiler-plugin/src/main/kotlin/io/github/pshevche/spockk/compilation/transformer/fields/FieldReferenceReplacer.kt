@@ -16,7 +16,7 @@ package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class FieldReferenceReplacer(
-  override val generatorContext: IrGeneratorContext,
+  override val rewriterContext: SpockkIrRewriterContext,
   private val spec: IrClass,
   private val state: FieldRewriteState
 ) : BaseSpockkIrElementTransformer(),

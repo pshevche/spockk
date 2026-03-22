@@ -27,7 +27,7 @@ import io.github.pshevche.spockk.compilation.ir.makeMutable
 import io.github.pshevche.spockk.compilation.ir.makeProtected
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irBlockBody
@@ -65,7 +65,7 @@ import org.jetbrains.kotlin.name.Name
 internal class SharedFieldStrategy(
   private val fieldCtx: FieldContext,
   state: FieldRewriteState,
-  context: IrGeneratorContext,
+  context: SpockkIrRewriterContext,
   spec: IrClass
 ) : FieldStrategyBase(context, spec, state) {
 
@@ -259,7 +259,7 @@ internal class SharedFieldStrategy(
   private fun irGetSharedInstance(fn: IrFunction): IrExpression {
     val specContextGetter = findSpecificationContextGetter()
     val sharedInstanceGetter = findSharedInstanceGetter()
-    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
 
     return with(irBuilder(fn.symbol)) {
       val thisParam = fn.parameters.first { it.name.asString() == "<this>" }
@@ -284,17 +284,17 @@ internal class SharedFieldStrategy(
           ?.classifier
           ?.let { c -> (c as? IrClassSymbol)?.owner?.fqNameWhenAvailable }
           ?: return@let null
-        generatorContext.findRequiredClassSymbol(fqn).owner
+        rewriterContext.findRequiredClassSymbol(fqn).owner
       }
     }
-    val specInternalsClass = generatorContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
+    val specInternalsClass = rewriterContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
     return specInternalsClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { it.name.asString() == "getSpecificationContext" }
   }
 
   private fun findSharedInstanceGetter(): IrSimpleFunction {
-    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
     return specContextClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { it.name.asString() == "getSharedInstance" }

@@ -24,10 +24,10 @@ import io.github.pshevche.spockk.compilation.ir.irStatementBlock
 import io.github.pshevche.spockk.compilation.ir.irThrow
 import io.github.pshevche.spockk.compilation.ir.irVar
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irCatch
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -54,7 +54,7 @@ import org.jetbrains.kotlin.name.Name
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class CleanupBlockRewriter(
-  override val generatorContext: IrGeneratorContext,
+  override val rewriterContext: SpockkIrRewriterContext,
   private val feature: IrFunction,
   private val featureStatements: List<IrStatement>,
   private val cleanupStatements: List<IrStatement>,
@@ -83,7 +83,7 @@ internal class CleanupBlockRewriter(
       initializer = builder.irNull()
     }
 
-    val blockInfoType = generatorContext.findRequiredClassSymbol(BLOCK_INFO_FQN).defaultType
+    val blockInfoType = rewriterContext.findRequiredClassSymbol(BLOCK_INFO_FQN).defaultType
     val nullableBlockInfoType = blockInfoType.makeNullable()
 
     val failedBlockVar = irVar(
@@ -192,7 +192,7 @@ internal class CleanupBlockRewriter(
 
   private fun irGetCurrentBlock(builder: DeclarationIrBuilder): IrExpression {
     val thisParam = feature.parameters.first { it.name.asString() == "<this>" }
-    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
     val getSpecCtx = findGetSpecificationContext()
     val specCtxCall = with(builder) {
       irCall(getSpecCtx.symbol, getSpecCtx.returnType).apply {
@@ -217,7 +217,7 @@ internal class CleanupBlockRewriter(
     failedBlockVar: IrVariable
   ): IrExpression {
     val thisParam = feature.parameters.first { it.name.asString() == "<this>" }
-    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
     val getSpecCtx = findGetSpecificationContext()
     val specCtxCall = with(builder) {
       irCall(getSpecCtx.symbol, getSpecCtx.returnType).apply {
@@ -254,10 +254,10 @@ internal class CleanupBlockRewriter(
               ?.owner?.fqNameWhenAvailable
           }
           ?: return@let null
-        generatorContext.findRequiredClassSymbol(fqn).owner
+        rewriterContext.findRequiredClassSymbol(fqn).owner
       }
     }
-    val specInternalsClass = generatorContext.findRequiredClassSymbol(
+    val specInternalsClass = rewriterContext.findRequiredClassSymbol(
       SPEC_INTERNALS_FQN
     )
     return specInternalsClass.owner.declarations

@@ -19,15 +19,15 @@ import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.SpecContext
 import io.github.pshevche.spockk.compilation.transformer.fields.FieldsRewriter
 import io.github.pshevche.spockk.compilation.transformer.fixture.FixtureMethodRewriter
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
 import io.github.pshevche.spockk.compilation.transformer.parametrization.WhereBlockRewriter
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 
-internal class SpecRewriter(override val generatorContext: IrGeneratorContext) : SpockkIrRewriter {
+internal class SpecRewriter(override val rewriterContext: SpockkIrRewriterContext) : SpockkIrRewriter {
 
   fun rewrite(spec: IrClass, context: SpecContext) {
     annotateSpec(spec, context)
@@ -45,12 +45,12 @@ internal class SpecRewriter(override val generatorContext: IrGeneratorContext) :
     // Always create FieldRewriter even when the spec has no fields of its own,
     // because registerParentSharedFields() needs to run for subclasses that
     // inherit shared fields from parent specs.
-    FieldsRewriter(this.generatorContext, spec, context.fields).rewrite()
+    FieldsRewriter(rewriterContext, spec, context.fields).rewrite()
   }
 
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {
     context.features.forEach { (feature, featureContext) ->
-      val rewriter = WhereBlockRewriter(this.generatorContext, spec, feature, featureContext)
+      val rewriter = WhereBlockRewriter(rewriterContext, spec, feature, featureContext)
       featureContext.body.dataProviderBlocks.forEach {
         rewriter.rewrite(it)
       }
@@ -59,7 +59,7 @@ internal class SpecRewriter(override val generatorContext: IrGeneratorContext) :
   }
 
   private fun rewriteFixtureMethods(spec: IrClass, context: SpecContext) {
-    FixtureMethodRewriter(this.generatorContext, spec, context.fixtureMethods).rewrite()
+    FixtureMethodRewriter(rewriterContext, spec, context.fixtureMethods).rewrite()
   }
 
   private fun specMetadataAnnotation(
@@ -72,6 +72,6 @@ internal class SpecRewriter(override val generatorContext: IrGeneratorContext) :
     }
 
   private fun rewriteMockingApi(spec: IrClass) {
-    MockingApiTransformer(generatorContext, spec).rewrite()
+    MockingApiTransformer(rewriterContext, spec).rewrite()
   }
 }

@@ -22,7 +22,7 @@ import io.github.pshevche.spockk.compilation.ir.makeMutable
 import io.github.pshevche.spockk.compilation.ir.makePrivate
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
@@ -48,7 +48,7 @@ import org.jetbrains.kotlin.name.Name
 internal class ValFieldStrategy(
   private val fieldCtx: FieldContext,
   state: FieldRewriteState,
-  context: IrGeneratorContext,
+  context: SpockkIrRewriterContext,
   spec: IrClass
 ) : FieldStrategyBase(context, spec, state) {
 
