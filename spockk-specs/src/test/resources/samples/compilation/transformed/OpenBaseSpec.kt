@@ -11,6 +11,8 @@ open class OpenBaseSpec : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(true)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 }

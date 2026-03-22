@@ -16,7 +16,6 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fields
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.ir.IrDeclarationOriginWrapper
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FIELD_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
@@ -26,9 +25,10 @@ import io.github.pshevche.spockk.compilation.ir.makeNullableWithNullDefault
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.irBlockBody
 import org.jetbrains.kotlin.ir.builders.irBoolean
@@ -47,7 +47,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.name.Name
 
 internal abstract class FieldStrategyBase(
-  override val context: IrGeneratorContext,
+  override val rewriterContext: SpockkIrRewriterContext,
   protected val spec: IrClass,
   protected val state: FieldRewriteState
 ) : SingleFieldRewriterStrategy {
@@ -147,7 +147,7 @@ internal abstract class FieldStrategyBase(
     property.setter = setter
 
     val valueParam = setter.addValueParameter(Name.special("<set-?>"), field.type)
-    val thisParam = setter.parameters.first { it.name.asString() == "<this>" }
+    val thisParam = setter.requiredThisParameter()
     setter.body = with(irBuilder(setter.symbol)) {
       irBlockBody {
         +irSetField(receiver = irGet(thisParam), field = field, value = irGet(valueParam))

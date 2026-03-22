@@ -14,17 +14,17 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fixture
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FixtureMethodKind
 import io.github.pshevche.spockk.compilation.ir.makePrivate
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FixtureMethodKind
 import io.github.pshevche.spockk.compilation.transformer.InstanceFieldAccessChecker
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 
 internal class FixtureMethodRewriter(
-  override val context: IrGeneratorContext,
+  override val rewriterContext: SpockkIrRewriterContext,
   private val spec: IrClass,
   private val fixtureMethods: Map<IrFunction, FixtureMethodKind>
 ) : SpockkIrRewriter {

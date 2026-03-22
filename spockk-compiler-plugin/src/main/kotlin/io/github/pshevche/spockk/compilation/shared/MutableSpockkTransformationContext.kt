@@ -12,10 +12,11 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.shared
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -54,8 +55,12 @@ internal class MutableSpockkTransformationContext {
   fun addField(spec: IrClass, property: IrProperty) =
     specs[spec]?.addField(property)
 
-  fun addFeature(spec: IrClass, feature: IrFunction, blocks: List<FeatureBlockStatements>) =
-    specs[spec]?.addFeature(feature, blocks)
+  fun addFeature(
+    spec: IrClass,
+    feature: IrFunction,
+    body: FeatureBody
+  ) =
+    specs[spec]?.addFeature(feature, body)
 
   fun addFixtureMethod(
     spec: IrClass,
@@ -130,7 +135,10 @@ internal class MutableSpockkTransformationContext {
       )
     }
 
-    fun addFeature(feature: IrFunction, blocks: List<FeatureBlockStatements>) {
+    fun addFeature(
+      feature: IrFunction,
+      body: FeatureBody
+    ) {
       features.computeIfAbsent(feature) {
         val file = feature.file
         val line = file.fileEntry.getLineNumber(feature.startOffset) + 1
@@ -140,7 +148,7 @@ internal class MutableSpockkTransformationContext {
           feature.name.asString(),
           line,
           feature.assignableParameters().map { it.name.asString() },
-          blocks
+          body
         )
           .also { featureOrdinal += 1 }
       }

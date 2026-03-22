@@ -14,15 +14,15 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrBuiltIns
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 
-interface SpockkIrRewriter {
-  val context: IrGeneratorContext
+internal interface SpockkIrRewriter {
+  val rewriterContext: SpockkIrRewriterContext
   val irBuiltIns: IrBuiltIns
-    get() = context.irBuiltIns
+    get() = rewriterContext.irBuiltIns
 
-  fun irBuilder(owner: IrSymbol): DeclarationIrBuilder = DeclarationIrBuilder(context, owner)
+  fun irBuilder(owner: IrSymbol): DeclarationIrBuilder = DeclarationIrBuilder(rewriterContext, owner)
 }

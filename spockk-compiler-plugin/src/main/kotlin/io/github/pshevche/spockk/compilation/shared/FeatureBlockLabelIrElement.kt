@@ -14,7 +14,7 @@
 
 @file:OptIn(UnsafeDuringIrConstructionAPI::class)
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.shared
 
 import io.github.pshevche.spockk.compilation.ir.requiredFqn
 import org.jetbrains.kotlin.ir.IrElement

@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.shared
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.AND_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.CLEANUP_BLOCK_FQN
@@ -29,8 +29,8 @@ internal enum class FeatureBlockLabel(
   val fqn: FqName,
   val blockKind: String?
 ) {
-  SETUP("setup", SETUP_BLOCK_FQN, null),
-  GIVEN("given", GIVEN_BLOCK_FQN, null),
+  SETUP("setup", SETUP_BLOCK_FQN, "SETUP"),
+  GIVEN("given", GIVEN_BLOCK_FQN, "SETUP"),
   WHEN("when", WHEN_BLOCK_FQN, "WHEN"),
   THEN("then", THEN_BLOCK_FQN, "THEN"),
   EXPECT("expect", EXPECT_BLOCK_FQN, "EXPECT"),

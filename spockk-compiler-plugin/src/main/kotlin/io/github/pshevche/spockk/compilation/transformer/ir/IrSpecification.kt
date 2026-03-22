@@ -12,11 +12,13 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.transformer.ir
 
-import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.declarations.IrClass
 
-internal data class FeatureBlockStatements(
-  val element: FeatureBlockLabelIrElement,
-  val statements: List<IrStatement>
+// contains extensions for IrClass with an assumption that "this" IrClass is a Spock specification
+
+internal fun IrClass.getSpecificationContext(rewriterContext: SpockkIrRewriterContext) = IrSpecificationContext(
+  rewriterContext,
+  this
 )

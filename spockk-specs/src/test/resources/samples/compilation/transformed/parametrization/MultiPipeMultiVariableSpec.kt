@@ -18,7 +18,9 @@ class MultiPipeMultiVariableSpec : spock.lang.Specification() {
       )]
   )
   fun `$spock_feature_0_0`(a: Int, b: Int, c: Int) {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assertEquals(c, a + b)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["a"], previousDataTableVariables = [])

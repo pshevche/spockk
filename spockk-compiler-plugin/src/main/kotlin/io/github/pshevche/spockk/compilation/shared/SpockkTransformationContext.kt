@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.common
+package io.github.pshevche.spockk.compilation.shared
 
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -37,23 +37,8 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
     val name: String,
     val line: Int,
     val parameterNames: List<String>,
-    val blocks: List<FeatureBlockStatements>
-  ) {
-    val featureBlocks: List<FeatureBlockStatements>
-      get() = blocks.takeWhile { it.element.label !in SEPARATOR_LABELS }
-
-    val cleanupBlocks: List<FeatureBlockStatements>
-      get() = blocks
-        .dropWhile { it.element.label != FeatureBlockLabel.CLEANUP }
-        .takeWhile { it.element.label != FeatureBlockLabel.WHERE }
-
-    val dataProviderBlocks: List<FeatureBlockStatements>
-      get() = blocks.dropWhile { it.element.label != FeatureBlockLabel.WHERE }
-
-    companion object {
-      private val SEPARATOR_LABELS = setOf(FeatureBlockLabel.CLEANUP, FeatureBlockLabel.WHERE)
-    }
-  }
+    val body: FeatureBody
+  )
 
   internal data class FieldContext(
     val name: String,

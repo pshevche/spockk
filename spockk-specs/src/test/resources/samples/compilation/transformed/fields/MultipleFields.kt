@@ -37,9 +37,11 @@ class MultipleFields : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(getAnswer() == 42)
     assert(instanceField == "hello")
     assert(getSharedField() == 24)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 
   private fun `$spock_initializeFields`() {

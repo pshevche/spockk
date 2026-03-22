@@ -14,14 +14,14 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fields
 
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FieldContext
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 
 internal class FieldsRewriter(
-  override val context: IrGeneratorContext,
+  override val rewriterContext: SpockkIrRewriterContext,
   private val spec: IrClass,
   private val fields: Map<IrProperty, FieldContext>
 ) : SpockkIrRewriter {
@@ -30,10 +30,10 @@ internal class FieldsRewriter(
     val state = FieldRewriteState()
 
     fields.forEach { (property, fieldCtx) ->
-      SingleFieldRewriterStrategy.create(fieldCtx, context, spec, state).rewrite(property)
+      SingleFieldRewriterStrategy.create(fieldCtx, rewriterContext, spec, state).rewrite(property)
     }
 
     ParentSharedFieldRegistrar(spec, state).register()
-    FieldReferenceReplacer(context, spec, state).replace()
+    FieldReferenceReplacer(rewriterContext, spec, state).replace()
   }
 }

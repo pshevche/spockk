@@ -14,21 +14,21 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkIrTransformer(
-  generationContext: IrGeneratorContext,
+  rewriterContext: SpockkIrRewriterContext,
   private val context: SpockkTransformationContext
 ) : BaseSpockkIrElementTransformer() {
-  private val specRewriter = SpecRewriter(generationContext)
-  private val featureRewriter = FeatureRewriter(generationContext)
+  private val specRewriter = SpecRewriter(rewriterContext)
+  private val featureRewriter = FeatureRewriter(rewriterContext)
 
   override fun visitClassNew(declaration: IrClass): IrStatement =
     declaration.transformPostfix {

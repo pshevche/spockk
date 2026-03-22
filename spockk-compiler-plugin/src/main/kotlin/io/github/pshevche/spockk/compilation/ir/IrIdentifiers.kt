@@ -33,10 +33,12 @@ internal object IrIdentifiers {
     val SHARED_ANNOTATION_FQN = LANG_PKG_FQN.child("Shared")
 
     private val RUNTIME_PKG_FQN = FqName("org.spockframework.runtime")
+    val SPOCK_RUNTIME_FQN = RUNTIME_PKG_FQN.child("SpockRuntime")
     val SPECIFICATION_CONTEXT_FQN = RUNTIME_PKG_FQN.child("SpecificationContext")
     val SPEC_INTERNALS_FQN = RUNTIME_PKG_FQN.child("SpecInternals")
 
     private val RUNTIME_MODEL_PKG_FQN = RUNTIME_PKG_FQN.child("model")
+    val BLOCK_INFO_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockInfo")
     val BLOCK_KIND_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockKind")
     val BLOCK_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockMetadata")
     val DATA_PROVIDER_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("DataProviderMetadata")

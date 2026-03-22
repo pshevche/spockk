@@ -12,13 +12,13 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.collector
+package io.github.pshevche.spockk.compilation.shared
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
 import org.jetbrains.kotlin.ir.IrStatement
 
-internal interface FeatureBlockCollector {
-  fun consume(statement: IrStatement)
-
-  fun getBlockStatements(): List<FeatureBlockStatements>
-}
+internal data class FeatureBlock(
+  val element: FeatureBlockLabelIrElement,
+  val descriptions: List<String>,
+  val ordinal: Int,
+  val statements: List<IrStatement>
+)

@@ -16,16 +16,16 @@
 
 package io.github.pshevche.spockk.compilation.transformer.mock
 
-import io.github.pshevche.spockk.compilation.common.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.jvm.ir.kClassReference
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irString
@@ -49,15 +49,15 @@ import org.jetbrains.kotlin.name.Name
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class MockingApiTransformer(
-  override val context: IrGeneratorContext,
+  override val rewriterContext: SpockkIrRewriterContext,
   private val spec: IrClass
 ) : BaseSpockkIrElementTransformer(),
   SpockkIrRewriter {
 
   private val specInternalsClass =
-    context.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
+    rewriterContext.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
   private val kClassJavaPropGetter =
-    context.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
+    rewriterContext.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
 
   companion object {
 
@@ -65,7 +65,7 @@ internal class MockingApiTransformer(
       .associate { Name.identifier(it) to Name.identifier(it + "Impl") }
   }
 
-  fun rewriteMockingApi() {
+  fun rewrite() {
     spec.declarations.forEach { declaration ->
       if (declaration is IrFunction || declaration is IrProperty) {
         declaration.accept(this, null)
@@ -159,7 +159,7 @@ internal class MockingApiTransformer(
     implArgCount: Int,
     call: IrCall
   ): IrSimpleFunction? {
-    val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(context.irBuiltIns)
+    val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(rewriterContext.irBuiltIns)
     val mockImplMethod: IrSimpleFunction? =
       specInternalsClass.owner.findDeclaration { m: IrSimpleFunction ->
         if (m.name == mockMethodImplName && m.parameters.size == implArgCount) {

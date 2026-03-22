@@ -16,8 +16,9 @@ package io.github.pshevche.spockk.compilation
 
 import com.google.auto.service.AutoService
 import io.github.pshevche.spockk.compilation.collector.SpockkTransformationContextCollector
-import io.github.pshevche.spockk.compilation.common.MutableSpockkTransformationContext
+import io.github.pshevche.spockk.compilation.shared.MutableSpockkTransformationContext
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrTransformer
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
@@ -43,7 +44,7 @@ class SpockkCompilerPlugin : CompilerPluginRegistrar() {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
       val context = MutableSpockkTransformationContext()
       moduleFragment.acceptVoid(SpockkTransformationContextCollector(context))
-      moduleFragment.transform(SpockkIrTransformer(pluginContext, context.finalized()), null)
+      moduleFragment.transform(SpockkIrTransformer(SpockkIrRewriterContext(pluginContext), context.finalized()), null)
     }
   }
 }

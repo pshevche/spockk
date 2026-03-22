@@ -14,8 +14,6 @@
 
 package io.github.pshevche.spockk.compilation.transformer.parametrization
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROCESSOR_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROVIDER_METADATA_FQN
@@ -35,14 +33,16 @@ import io.github.pshevche.spockk.compilation.ir.isSingleVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.transformer.InstanceFieldAccessChecker
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.fir.lazy.Fir2IrLazyPropertyForPureField
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilder
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.builders.irBlockBody
@@ -83,7 +83,7 @@ import org.jetbrains.kotlin.name.Name
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class WhereBlockRewriter(
-  override val context: IrGeneratorContext,
+  override val rewriterContext: SpockkIrRewriterContext,
   private val spec: IrClass,
   private val feature: IrFunction,
   private val featureContext: SpockkTransformationContext.FeatureContext
@@ -97,10 +97,11 @@ internal class WhereBlockRewriter(
   private data class SingleBlockRewriteResources(
     val exceptionFactory: InvalidParametrizationExceptionFactory,
     val instanceFieldAccessChecker: InstanceFieldAccessChecker,
-    val dataProcessorVars: MutableList<IrVariable>
+    val dataProcessorVars: MutableList<IrVariable>,
+    val dataTableVars: MutableSet<IrVariable> = mutableSetOf()
   )
 
-  fun rewrite(dataProviderBlock: FeatureBlockStatements) {
+  fun rewrite(dataProviderBlock: FeatureBlock) {
     if (!::dataProcessorMethod.isInitialized) {
       dataProcessorMethod = initializeDataProcessorMethod()
     }
@@ -117,7 +118,7 @@ internal class WhereBlockRewriter(
     }
   }
 
-  private fun createRewriteResources(block: FeatureBlockStatements): SingleBlockRewriteResources =
+  private fun createRewriteResources(block: FeatureBlock): SingleBlockRewriteResources =
     SingleBlockRewriteResources(
       InvalidParametrizationExceptionFactory(spec.file, block.element.ir),
       InstanceFieldAccessChecker(spec, block.element.ir),
@@ -294,6 +295,10 @@ internal class WhereBlockRewriter(
     return rewriteResources.dataProcessorVars.subList(0, nextDataVariableIndex - 1)
   }
 
+  private fun getPreviousDataTableVariables(nextDataVariableIndex: Int): List<IrVariable> =
+    getPreviousDataProcessorVariables(nextDataVariableIndex)
+      .filter { it in rewriteResources.dataTableVars }
+
   private fun getReferencedPreviousFeatureVariables(
     referenceableVariables: List<IrVariable>,
     expression: IrExpression
@@ -308,6 +313,7 @@ internal class WhereBlockRewriter(
     val nextDataVariableIndex = rewriteResources.dataProcessorVars.size
     val dataProcessorParameter = createDataProcessorParameter(nextDataVariableIndex)
     val dataProcessorVar = createDataProcessorVariable(featureVariable)
+    rewriteResources.dataTableVars.add(dataProcessorVar)
     createDataProcessorStatement(
       dataProcessorVar,
       irBuilder(dataProcessorMethod.symbol).irGet(dataProcessorParameter)
@@ -371,7 +377,7 @@ internal class WhereBlockRewriter(
     variableValues: List<IrExpression>,
     nextDataVariableIndex: Int
   ) {
-    val previousVariables = getPreviousDataProcessorVariables(rewriteResources.dataProcessorVars.size)
+    val previousVariables = getPreviousDataTableVariables(rewriteResources.dataProcessorVars.size)
     spec
       .addMemberFunction(
         InternalIdentifiers.getDataProviderName(featureContext, dataProviderCount++),

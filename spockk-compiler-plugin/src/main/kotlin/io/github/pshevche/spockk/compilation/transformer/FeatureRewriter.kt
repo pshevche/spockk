@@ -12,10 +12,10 @@
  * limitations under the License.
  */
 
+@file:OptIn(UnsafeDuringIrConstructionAPI::class)
+
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.common.FeatureBlockStatements
-import io.github.pshevche.spockk.compilation.common.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_KIND_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FEATURE_METADATA_FQN
@@ -24,18 +24,24 @@ import io.github.pshevche.spockk.compilation.ir.irEnumValue
 import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.FeatureBody
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
+import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.name.Name
 
-internal class FeatureRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
+internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterContext) : SpockkIrRewriter {
 
   fun rewrite(feature: IrFunction, context: FeatureContext) {
     annotateFeature(feature, context)
@@ -51,19 +57,8 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         context.name,
         context.line,
         context.parameterNames,
-        context.blocks
+        context.body.allBlocks
       )
-  }
-
-  private fun renameFeature(feature: IrFunction, context: FeatureContext) {
-    feature.name = Name.identifier(InternalIdentifiers.getFeatureName(context))
-  }
-
-  private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
-    feature.mutableStatements()?.clear()
-    feature.mutableStatements()?.addAll(
-      CleanupBlockRewriter(this.context, feature, context).rewrite()
-    )
   }
 
   private fun featureMetadataAnnotation(
@@ -72,7 +67,7 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
     name: String,
     line: Int,
     parameterNames: List<String>,
-    blocks: List<FeatureBlockStatements>
+    blocks: List<FeatureBlock>
   ): IrConstructorCall =
     with(irBuilder(feature.symbol)) {
       irAnnotation(
@@ -81,13 +76,13 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         irString(name),
         irInt(line),
         irStringArray(parameterNames),
-        blockMetadataArray(this, blocks.filter { it.element.label.blockKind != null })
+        blockMetadataArray(this, blocks)
       )
     }
 
   private fun blockMetadataArray(
     builder: DeclarationIrBuilder,
-    blocks: List<FeatureBlockStatements>
+    blocks: List<FeatureBlock>
   ): IrExpression =
     with(builder) {
       irVararg(
@@ -96,9 +91,45 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
           irAnnotation(
             BLOCK_METADATA_FQN,
             irEnumValue(block.element.label.blockKind!!, BLOCK_KIND_FQN),
-            irStringArray(listOf(block.element.description))
+            irStringArray(block.descriptions)
           )
         }
       )
     }
+
+  private fun renameFeature(feature: IrFunction, context: FeatureContext) {
+    feature.name = Name.identifier(InternalIdentifiers.getFeatureName(context))
+  }
+
+  private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
+    val builder = irBuilder(feature.symbol)
+    val featureBody = context.body
+
+    val featureStatements = feature.mutableStatements()
+    featureStatements?.clear()
+
+    val behaviorStatements = rewriteBehaviorStatements(builder, feature, featureBody)
+    val newFeatureStatements = featureBody.cleanupBlock?.let {
+      CleanupBlockRewriter(rewriterContext, feature, it, behaviorStatements).rewrite()
+    } ?: behaviorStatements
+
+    feature.mutableStatements()?.addAll(newFeatureStatements)
+  }
+
+  private fun rewriteBehaviorStatements(
+    builder: DeclarationIrBuilder,
+    feature: IrFunction,
+    featureBody: FeatureBody
+  ): List<IrStatement> {
+    val result = mutableListOf<IrStatement>()
+
+    result.addAll(featureBody.anonymousStatements)
+    featureBody.behaviorBlocks.forEach {
+      result.add(rewriterContext.spockRuntime.irCallBlockEntered(builder, feature.requiredThisParameter(), it.ordinal))
+      result.addAll(it.statements)
+      result.add(rewriterContext.spockRuntime.irCallBlockExited(builder, feature.requiredThisParameter(), it.ordinal))
+    }
+
+    return result
+  }
 }

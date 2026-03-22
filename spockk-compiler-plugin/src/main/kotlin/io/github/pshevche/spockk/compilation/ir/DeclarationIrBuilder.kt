@@ -27,17 +27,20 @@ import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irString
+import org.jetbrains.kotlin.ir.builders.irTry
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrEnumEntry
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
+import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
+import org.jetbrains.kotlin.ir.expressions.IrTry
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
@@ -192,11 +195,6 @@ fun IrBuilder.irGetThis(thisValueParam: IrValueParameter): IrGetValue = IrGetVal
   IrStatementOrigin.IMPLICIT_ARGUMENT
 )
 
-internal fun IrBuilderWithScope.irStatementBlock(statements: List<IrStatement>): IrExpression =
-  irBlock {
-    statements.forEach { +it }
-  }
-
 internal fun IrBuilderWithScope.irAddSuppressed(
   receiver: IrExpression,
   exception: IrExpression
@@ -220,9 +218,30 @@ private fun IrBuilderWithScope.irImplicitCastTo(value: IrExpression, type: IrTyp
     value
   )
 
+internal fun IrBuilderWithScope.irImplicitNotNull(value: IrExpression, type: IrType): IrExpression =
+  IrTypeOperatorCallImpl(
+    startOffset,
+    endOffset,
+    type,
+    IrTypeOperator.IMPLICIT_NOTNULL,
+    type,
+    value
+  )
+
 internal fun IrBuilder.irThrow(value: IrExpression): IrExpression = IrThrowImpl(
   startOffset,
   endOffset,
   context.irBuiltIns.nothingType,
   value
+)
+
+internal fun DeclarationIrBuilder.irTry(
+  tryExpressions: List<IrStatement>,
+  catchExpressions: List<IrCatch>,
+  finallyExpressions: List<IrStatement>
+): IrTry = irTry(
+  type = context.irBuiltIns.unitType,
+  tryResult = irBlock { +tryExpressions },
+  catches = catchExpressions,
+  finallyExpression = irBlock { +finallyExpressions }
 )

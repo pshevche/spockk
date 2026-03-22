@@ -21,7 +21,9 @@ class SharedValField : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assert(getSharedAnswer() == 42)
+    org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 
   private fun `$spock_initializeSharedFields`() {
