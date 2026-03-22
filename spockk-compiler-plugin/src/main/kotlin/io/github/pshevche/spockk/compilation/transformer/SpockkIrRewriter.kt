@@ -20,9 +20,9 @@ import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.symbols.IrSymbol
 
 interface SpockkIrRewriter {
-  val context: IrGeneratorContext
+  val generatorContext: IrGeneratorContext
   val irBuiltIns: IrBuiltIns
-    get() = context.irBuiltIns
+    get() = generatorContext.irBuiltIns
 
-  fun irBuilder(owner: IrSymbol): DeclarationIrBuilder = DeclarationIrBuilder(context, owner)
+  fun irBuilder(owner: IrSymbol): DeclarationIrBuilder = DeclarationIrBuilder(generatorContext, owner)
 }

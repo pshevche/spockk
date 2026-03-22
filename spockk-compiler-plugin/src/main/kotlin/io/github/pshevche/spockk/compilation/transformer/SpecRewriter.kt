@@ -27,7 +27,7 @@ import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 
-internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
+internal class SpecRewriter(override val generatorContext: IrGeneratorContext) : SpockkIrRewriter {
 
   fun rewrite(spec: IrClass, context: SpecContext) {
     annotateSpec(spec, context)
@@ -45,12 +45,12 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
     // Always create FieldRewriter even when the spec has no fields of its own,
     // because registerParentSharedFields() needs to run for subclasses that
     // inherit shared fields from parent specs.
-    FieldsRewriter(this.context, spec, context.fields).rewrite()
+    FieldsRewriter(this.generatorContext, spec, context.fields).rewrite()
   }
 
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {
     context.features.forEach { (feature, featureContext) ->
-      val rewriter = WhereBlockRewriter(this.context, spec, feature, featureContext)
+      val rewriter = WhereBlockRewriter(this.generatorContext, spec, feature, featureContext)
       featureContext.body.dataProviderBlocks.forEach {
         rewriter.rewrite(it)
       }
@@ -59,7 +59,7 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
   }
 
   private fun rewriteFixtureMethods(spec: IrClass, context: SpecContext) {
-    FixtureMethodRewriter(this.context, spec, context.fixtureMethods).rewrite()
+    FixtureMethodRewriter(this.generatorContext, spec, context.fixtureMethods).rewrite()
   }
 
   private fun specMetadataAnnotation(
@@ -72,6 +72,6 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
     }
 
   private fun rewriteMockingApi(spec: IrClass) {
-    MockingApiTransformer(context, spec).rewriteMockingApi()
+    MockingApiTransformer(generatorContext, spec).rewrite()
   }
 }

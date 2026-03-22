@@ -24,7 +24,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 
 internal class FixtureMethodRewriter(
-  override val context: IrGeneratorContext,
+  override val generatorContext: IrGeneratorContext,
   private val spec: IrClass,
   private val fixtureMethods: Map<IrFunction, FixtureMethodKind>
 ) : SpockkIrRewriter {

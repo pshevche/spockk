@@ -54,7 +54,7 @@ import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.Name
 
-internal class FeatureRewriter(override val context: IrGeneratorContext) : SpockkIrRewriter {
+internal class FeatureRewriter(override val generatorContext: IrGeneratorContext) : SpockkIrRewriter {
 
   fun rewrite(feature: IrFunction, context: FeatureContext) {
     annotateFeature(feature, context)
@@ -73,6 +73,42 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         context.body.allBlocks
       )
   }
+
+  private fun featureMetadataAnnotation(
+    feature: IrFunction,
+    ordinal: Int,
+    name: String,
+    line: Int,
+    parameterNames: List<String>,
+    blocks: List<FeatureBlock>
+  ): IrConstructorCall =
+    with(irBuilder(feature.symbol)) {
+      irAnnotation(
+        FEATURE_METADATA_FQN,
+        irInt(ordinal),
+        irString(name),
+        irInt(line),
+        irStringArray(parameterNames),
+        blockMetadataArray(this, blocks)
+      )
+    }
+
+  private fun blockMetadataArray(
+    builder: DeclarationIrBuilder,
+    blocks: List<FeatureBlock>
+  ): IrExpression =
+    with(builder) {
+      irVararg(
+        irType(BLOCK_METADATA_FQN),
+        blocks.map { block ->
+          irAnnotation(
+            BLOCK_METADATA_FQN,
+            irEnumValue(block.element.label.blockKind!!, BLOCK_KIND_FQN),
+            irStringArray(block.descriptions)
+          )
+        }
+      )
+    }
 
   private fun renameFeature(feature: IrFunction, context: FeatureContext) {
     feature.name = Name.identifier(InternalIdentifiers.getFeatureName(context))
@@ -94,7 +130,7 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         if (entered) irCallBlockEntered(b, thisParam, idx) else irCallBlockExited(b, thisParam, idx)
       }
       CleanupBlockRewriter(
-        this.context,
+        this.generatorContext,
         feature,
         allFeatureStatements,
         cleanupStatements,
@@ -178,7 +214,7 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
       }
     }
 
-    val mockControllerClass = context.findRequiredClassSymbol(MOCK_CONTROLLER_FQN)
+    val mockControllerClass = generatorContext.findRequiredClassSymbol(MOCK_CONTROLLER_FQN)
     val castMockController = with(builder) {
       irAs(mockControllerCall, mockControllerClass.defaultType)
     }
@@ -210,7 +246,7 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
   }
 
   private fun findSpockRuntimeFunction(name: String): IrSimpleFunction {
-    val spockRuntimeClass = context.findRequiredClassSymbol(SPOCK_RUNTIME_FQN)
+    val spockRuntimeClass = generatorContext.findRequiredClassSymbol(SPOCK_RUNTIME_FQN)
     return spockRuntimeClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { fn -> fn.name.asString() == name }
@@ -229,48 +265,12 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
           ?.classifier
           ?.let { classifier -> (classifier as? IrClassSymbol)?.owner?.fqNameWhenAvailable }
           ?: return@let null
-        context.findRequiredClassSymbol(fqn).owner
+        generatorContext.findRequiredClassSymbol(fqn).owner
       }
     }
-    val specInternalsClass = context.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
+    val specInternalsClass = generatorContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
     return specInternalsClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { fn -> fn.name.asString() == "getSpecificationContext" }
   }
-
-  private fun featureMetadataAnnotation(
-    feature: IrFunction,
-    ordinal: Int,
-    name: String,
-    line: Int,
-    parameterNames: List<String>,
-    blocks: List<FeatureBlock>
-  ): IrConstructorCall =
-    with(irBuilder(feature.symbol)) {
-      irAnnotation(
-        FEATURE_METADATA_FQN,
-        irInt(ordinal),
-        irString(name),
-        irInt(line),
-        irStringArray(parameterNames),
-        blockMetadataArray(this, blocks)
-      )
-    }
-
-  private fun blockMetadataArray(
-    builder: DeclarationIrBuilder,
-    blocks: List<FeatureBlock>
-  ): IrExpression =
-    with(builder) {
-      irVararg(
-        irType(BLOCK_METADATA_FQN),
-        blocks.map { block ->
-          irAnnotation(
-            BLOCK_METADATA_FQN,
-            irEnumValue(block.element.label.blockKind!!, BLOCK_KIND_FQN),
-            irStringArray(block.descriptions)
-          )
-        }
-      )
-    }
 }

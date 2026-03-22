@@ -83,7 +83,7 @@ import org.jetbrains.kotlin.name.Name
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class WhereBlockRewriter(
-  override val context: IrGeneratorContext,
+  override val generatorContext: IrGeneratorContext,
   private val spec: IrClass,
   private val feature: IrFunction,
   private val featureContext: SpockkTransformationContext.FeatureContext

@@ -42,7 +42,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class FieldReferenceReplacer(
-  override val context: IrGeneratorContext,
+  override val generatorContext: IrGeneratorContext,
   private val spec: IrClass,
   private val state: FieldRewriteState
 ) : BaseSpockkIrElementTransformer(),

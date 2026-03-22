@@ -259,7 +259,7 @@ internal class SharedFieldStrategy(
   private fun irGetSharedInstance(fn: IrFunction): IrExpression {
     val specContextGetter = findSpecificationContextGetter()
     val sharedInstanceGetter = findSharedInstanceGetter()
-    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
 
     return with(irBuilder(fn.symbol)) {
       val thisParam = fn.parameters.first { it.name.asString() == "<this>" }
@@ -284,17 +284,17 @@ internal class SharedFieldStrategy(
           ?.classifier
           ?.let { c -> (c as? IrClassSymbol)?.owner?.fqNameWhenAvailable }
           ?: return@let null
-        context.findRequiredClassSymbol(fqn).owner
+        generatorContext.findRequiredClassSymbol(fqn).owner
       }
     }
-    val specInternalsClass = context.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
+    val specInternalsClass = generatorContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
     return specInternalsClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { it.name.asString() == "getSpecificationContext" }
   }
 
   private fun findSharedInstanceGetter(): IrSimpleFunction {
-    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
     return specContextClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
       .first { it.name.asString() == "getSharedInstance" }

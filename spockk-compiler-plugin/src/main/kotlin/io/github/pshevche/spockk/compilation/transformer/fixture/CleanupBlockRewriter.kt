@@ -54,7 +54,7 @@ import org.jetbrains.kotlin.name.Name
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class CleanupBlockRewriter(
-  override val context: IrGeneratorContext,
+  override val generatorContext: IrGeneratorContext,
   private val feature: IrFunction,
   private val featureStatements: List<IrStatement>,
   private val cleanupStatements: List<IrStatement>,
@@ -83,7 +83,7 @@ internal class CleanupBlockRewriter(
       initializer = builder.irNull()
     }
 
-    val blockInfoType = context.findRequiredClassSymbol(BLOCK_INFO_FQN).defaultType
+    val blockInfoType = generatorContext.findRequiredClassSymbol(BLOCK_INFO_FQN).defaultType
     val nullableBlockInfoType = blockInfoType.makeNullable()
 
     val failedBlockVar = irVar(
@@ -192,7 +192,7 @@ internal class CleanupBlockRewriter(
 
   private fun irGetCurrentBlock(builder: DeclarationIrBuilder): IrExpression {
     val thisParam = feature.parameters.first { it.name.asString() == "<this>" }
-    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
     val getSpecCtx = findGetSpecificationContext()
     val specCtxCall = with(builder) {
       irCall(getSpecCtx.symbol, getSpecCtx.returnType).apply {
@@ -217,7 +217,7 @@ internal class CleanupBlockRewriter(
     failedBlockVar: IrVariable
   ): IrExpression {
     val thisParam = feature.parameters.first { it.name.asString() == "<this>" }
-    val specContextClass = context.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+    val specContextClass = generatorContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
     val getSpecCtx = findGetSpecificationContext()
     val specCtxCall = with(builder) {
       irCall(getSpecCtx.symbol, getSpecCtx.returnType).apply {
@@ -254,10 +254,10 @@ internal class CleanupBlockRewriter(
               ?.owner?.fqNameWhenAvailable
           }
           ?: return@let null
-        context.findRequiredClassSymbol(fqn).owner
+        generatorContext.findRequiredClassSymbol(fqn).owner
       }
     }
-    val specInternalsClass = context.findRequiredClassSymbol(
+    val specInternalsClass = generatorContext.findRequiredClassSymbol(
       SPEC_INTERNALS_FQN
     )
     return specInternalsClass.owner.declarations

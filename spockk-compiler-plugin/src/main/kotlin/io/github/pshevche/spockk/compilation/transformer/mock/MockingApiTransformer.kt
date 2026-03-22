@@ -49,15 +49,15 @@ import org.jetbrains.kotlin.name.Name
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class MockingApiTransformer(
-  override val context: IrGeneratorContext,
+  override val generatorContext: IrGeneratorContext,
   private val spec: IrClass
 ) : BaseSpockkIrElementTransformer(),
   SpockkIrRewriter {
 
   private val specInternalsClass =
-    context.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
+    generatorContext.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
   private val kClassJavaPropGetter =
-    context.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
+    generatorContext.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
 
   companion object {
 
@@ -65,7 +65,7 @@ internal class MockingApiTransformer(
       .associate { Name.identifier(it) to Name.identifier(it + "Impl") }
   }
 
-  fun rewriteMockingApi() {
+  fun rewrite() {
     spec.declarations.forEach { declaration ->
       if (declaration is IrFunction || declaration is IrProperty) {
         declaration.accept(this, null)
@@ -159,7 +159,7 @@ internal class MockingApiTransformer(
     implArgCount: Int,
     call: IrCall
   ): IrSimpleFunction? {
-    val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(context.irBuiltIns)
+    val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(generatorContext.irBuiltIns)
     val mockImplMethod: IrSimpleFunction? =
       specInternalsClass.owner.findDeclaration { m: IrSimpleFunction ->
         if (m.name == mockMethodImplName && m.parameters.size == implArgCount) {

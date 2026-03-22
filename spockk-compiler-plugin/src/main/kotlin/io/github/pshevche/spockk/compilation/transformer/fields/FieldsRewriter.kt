@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 
 internal class FieldsRewriter(
-  override val context: IrGeneratorContext,
+  override val generatorContext: IrGeneratorContext,
   private val spec: IrClass,
   private val fields: Map<IrProperty, FieldContext>
 ) : SpockkIrRewriter {
@@ -30,10 +30,10 @@ internal class FieldsRewriter(
     val state = FieldRewriteState()
 
     fields.forEach { (property, fieldCtx) ->
-      SingleFieldRewriterStrategy.create(fieldCtx, context, spec, state).rewrite(property)
+      SingleFieldRewriterStrategy.create(fieldCtx, generatorContext, spec, state).rewrite(property)
     }
 
     ParentSharedFieldRegistrar(spec, state).register()
-    FieldReferenceReplacer(context, spec, state).replace()
+    FieldReferenceReplacer(generatorContext, spec, state).replace()
   }
 }

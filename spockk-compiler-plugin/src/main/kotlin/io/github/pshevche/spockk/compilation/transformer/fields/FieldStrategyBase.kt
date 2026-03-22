@@ -47,7 +47,7 @@ import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.name.Name
 
 internal abstract class FieldStrategyBase(
-  override val context: IrGeneratorContext,
+  override val generatorContext: IrGeneratorContext,
   protected val spec: IrClass,
   protected val state: FieldRewriteState
 ) : SingleFieldRewriterStrategy {
