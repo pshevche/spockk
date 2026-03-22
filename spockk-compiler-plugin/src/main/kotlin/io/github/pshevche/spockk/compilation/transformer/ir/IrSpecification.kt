@@ -14,12 +14,11 @@
 
 package io.github.pshevche.spockk.compilation.transformer.ir
 
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.declarations.IrClass
 
-/**
- * Wraps default IR generator context and provides abstractions for accessing IRs in Spock classes, such as SpockRuntime.
- */
-internal class SpockkIrRewriterContext(
-  private val defaultGenerator: IrGeneratorContext,
-  val spockRuntime: IrSpockRuntime = IrSpockRuntime.create(defaultGenerator)
-) : IrGeneratorContext by defaultGenerator
+// contains extensions for IrClass with an assumption that "this" IrClass is a Spock specification
+
+internal fun IrClass.getSpecificationContext(rewriterContext: SpockkIrRewriterContext) = IrSpecificationContext(
+  rewriterContext,
+  this
+)

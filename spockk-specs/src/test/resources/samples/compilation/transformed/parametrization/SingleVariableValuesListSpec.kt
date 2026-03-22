@@ -21,7 +21,6 @@ class SingleVariableValuesListSpec : spock.lang.Specification() {
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assertEquals(0, a % 2)
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
-    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0,

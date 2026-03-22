@@ -19,6 +19,7 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
+import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 
 internal fun IrFunction.makePrivate() {
   visibility = DescriptorVisibilities.PRIVATE
@@ -31,5 +32,5 @@ internal fun IrFunction.assignableParameters(): List<IrValueParameter> =
   parameters.filter { it.name.asString() != "<this>" }
 
 internal fun IrFunction.requiredThisParameter() = requireNotNull(dispatchReceiverParameter) {
-  "Missing required <this> parameter on the member function: $this"
+  "Missing required <this> parameter on the member function: ${this.fqNameWhenAvailable}"
 }

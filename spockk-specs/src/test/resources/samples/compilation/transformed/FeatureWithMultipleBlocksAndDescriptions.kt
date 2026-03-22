@@ -44,6 +44,5 @@ class FeatureWithMultipleBlocksAndDescriptions : spock.lang.Specification() {
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 4)
     assert(a == 3)
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 4)
-    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 }

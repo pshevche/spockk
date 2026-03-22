@@ -25,7 +25,6 @@ class SharedLateinitVarField : spock.lang.Specification() {
     setUninitializedSharedField("initialized")
     assert(getUninitializedSharedField() == "initialized")
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
-    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   fun getUninitializedSharedField(): String =

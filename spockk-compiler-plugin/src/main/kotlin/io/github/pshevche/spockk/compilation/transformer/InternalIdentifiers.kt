@@ -21,6 +21,9 @@ internal object InternalIdentifiers {
 
   val INITIALIZE_FIELDS_METHOD: Name = Name.identifier($$"$spock_initializeFields")
   val INITIALIZE_SHARED_FIELDS_METHOD: Name = Name.identifier($$"$spock_initializeSharedFields")
+  val FEATURE_THROWABLE_VAR = Name.identifier($$"$spock_feature_throwable")
+  val FAILED_BLOCK_VAR = Name.identifier($$"$spock_failedBlock")
+  val TMP_THROWABLE_VAR = Name.identifier($$"$spock_tmp_throwable")
 
   fun getFeatureName(context: FeatureContext): String =
     $$"$spock_feature_$${context.specDepth}_$${context.ordinal}"

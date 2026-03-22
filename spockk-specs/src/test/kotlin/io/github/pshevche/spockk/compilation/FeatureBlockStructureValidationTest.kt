@@ -239,7 +239,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     `when`
     val result =
       transform(
-        specWithFeatureBody(
+        specWithBody(
           """
                 fun `parameterized feature`(a: Int, b: Int, c: Int) {
                     io.github.pshevche.spockk.lang.`when`

@@ -21,7 +21,6 @@ class SinglePipeMultiVariableSpec : spock.lang.Specification() {
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     assertEquals(c, a + b)
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
-    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["a"], previousDataTableVariables = [])

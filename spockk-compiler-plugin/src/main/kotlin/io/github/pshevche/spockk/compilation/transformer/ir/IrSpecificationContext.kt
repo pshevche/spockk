@@ -1,0 +1,70 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.pshevche.spockk.compilation.transformer.ir
+
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_CONTEXT_FQN
+import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
+import org.jetbrains.kotlin.backend.jvm.functionByName
+import org.jetbrains.kotlin.ir.builders.IrBuilder
+import org.jetbrains.kotlin.ir.builders.irAs
+import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irGet
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.defaultType
+import org.jetbrains.kotlin.ir.util.getSimpleFunction
+
+@OptIn(UnsafeDuringIrConstructionAPI::class)
+internal class IrSpecificationContext(
+  rewriterContext: SpockkIrRewriterContext,
+  private val spec: IrClass
+) {
+  private val specificationContextClass: IrClassSymbol =
+    rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+
+  fun irGetCurrentBlock(builder: IrBuilder, specAccessor: IrValueParameter): IrCall {
+    val specificationContextInstance = getSpecificationContextInstance(builder, specAccessor)
+    val getCurrentBlock = specificationContextClass.functionByName("getCurrentBlock")
+    return with(builder) {
+      irCall(getCurrentBlock).apply {
+        dispatchReceiver = specificationContextInstance
+      }
+    }
+  }
+
+  fun irSetCurrentBlock(builder: IrBuilder, specAccessor: IrValueParameter, failedBlockVar: IrVariable): IrExpression {
+    val specificationContextInstance = getSpecificationContextInstance(builder, specAccessor)
+    val setCurrentBlock = specificationContextClass.functionByName("setCurrentBlock")
+    return with(builder) {
+      irCall(setCurrentBlock).apply {
+        dispatchReceiver = specificationContextInstance
+        arguments[1] = irGet(failedBlockVar)
+      }
+    }
+  }
+
+  private fun getSpecificationContextInstance(builder: IrBuilder, specAccessor: IrValueParameter): IrExpression =
+    with(builder) {
+      val getSpecificationContextInstanceCall = irCall(spec.getSimpleFunction("getSpecificationContext")!!).apply {
+        dispatchReceiver = irGet(specAccessor)
+      }
+      return irAs(getSpecificationContextInstanceCall, specificationContextClass.defaultType)
+    }
+}

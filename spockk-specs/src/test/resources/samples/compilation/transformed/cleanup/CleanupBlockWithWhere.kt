@@ -34,7 +34,6 @@ class CleanupBlockWithWhere : spock.lang.Specification() {
       try {
         if (`$spock_feature_throwable` != null) {
           `$spock_failedBlock` = (this.getSpecificationContext() as org.spockframework.runtime.SpecificationContext).getCurrentBlock()
-        } else {
         }
         org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 1)
         println("cleanup")
@@ -48,11 +47,9 @@ class CleanupBlockWithWhere : spock.lang.Specification() {
       } finally {
         if (`$spock_feature_throwable` != null) {
           (this.getSpecificationContext() as org.spockframework.runtime.SpecificationContext).setCurrentBlock(`$spock_failedBlock`)
-        } else {
         }
       }
     }
-    (this.getSpecificationContext().getMockController() as org.spockframework.mock.runtime.MockController).leaveScope()
   }
 
   @org.spockframework.runtime.model.DataProviderMetadata(line = 0, dataVariables = ["a"], previousDataTableVariables = [])
