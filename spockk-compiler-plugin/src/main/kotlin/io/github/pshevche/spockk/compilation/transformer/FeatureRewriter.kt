@@ -16,8 +16,6 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.shared.FeatureBlock
-import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_KIND_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FEATURE_METADATA_FQN
@@ -31,6 +29,8 @@ import io.github.pshevche.spockk.compilation.ir.irImplicitNotNull
 import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
@@ -70,7 +70,7 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
         context.name,
         context.line,
         context.parameterNames,
-        context.blocks
+        context.body.allBlocks
       )
   }
 
@@ -79,16 +79,17 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
   }
 
   private fun rewriteFeatureStatements(feature: IrFunction, context: FeatureContext) {
-    val hasCleanup = context.cleanupBlocks.isNotEmpty()
+    val featureBody = context.body
+    val hasCleanup = featureBody.cleanupBlock != null
     val builder = irBuilder(feature.symbol)
     val thisParam = feature.parameters.first { it.name.asString() == "<this>" }
 
-    val blockStatements = buildBlockStatements(builder, thisParam, context.featureBlocks)
-    val allFeatureStatements = context.anonymousStatements + blockStatements
+    val blockStatements = buildBlockStatements(builder, thisParam, featureBody.behaviorBlocks)
+    val allFeatureStatements = featureBody.anonymousStatements + blockStatements
 
     val statements = if (hasCleanup) {
-      val cleanupStatements = context.cleanupBlocks.flatMap { it.statements }
-      val cleanupBlockOrdinal = context.cleanupBlocks.first().ordinal
+      val cleanupStatements = featureBody.cleanupBlock.statements
+      val cleanupBlockOrdinal = featureBody.cleanupBlock.ordinal
       val blockCallBuilder = CleanupBlockRewriter.BlockCallBuilder { b, entered, idx ->
         if (entered) irCallBlockEntered(b, thisParam, idx) else irCallBlockExited(b, thisParam, idx)
       }
@@ -236,8 +237,6 @@ internal class FeatureRewriter(override val context: IrGeneratorContext) : Spock
       .filterIsInstance<IrSimpleFunction>()
       .first { fn -> fn.name.asString() == "getSpecificationContext" }
   }
-
-  // --- Metadata annotation ---
 
   private fun featureMetadataAnnotation(
     feature: IrFunction,

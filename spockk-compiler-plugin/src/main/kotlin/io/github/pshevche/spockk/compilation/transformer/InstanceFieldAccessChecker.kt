@@ -14,8 +14,8 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SHARED_ANNOTATION_FQN
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement

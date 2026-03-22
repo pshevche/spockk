@@ -58,10 +58,9 @@ internal class MutableSpockkTransformationContext {
   fun addFeature(
     spec: IrClass,
     feature: IrFunction,
-    anonymousStatements: List<IrStatement>,
-    blocks: List<FeatureBlock>
+    body: FeatureBody
   ) =
-    specs[spec]?.addFeature(feature, anonymousStatements, blocks)
+    specs[spec]?.addFeature(feature, body)
 
   fun addFixtureMethod(
     spec: IrClass,
@@ -138,8 +137,7 @@ internal class MutableSpockkTransformationContext {
 
     fun addFeature(
       feature: IrFunction,
-      anonymousStatements: List<IrStatement>,
-      blocks: List<FeatureBlock>
+      body: FeatureBody
     ) {
       features.computeIfAbsent(feature) {
         val file = feature.file
@@ -150,8 +148,7 @@ internal class MutableSpockkTransformationContext {
           feature.name.asString(),
           line,
           feature.assignableParameters().map { it.name.asString() },
-          anonymousStatements,
-          blocks
+          body
         )
           .also { featureOrdinal += 1 }
       }

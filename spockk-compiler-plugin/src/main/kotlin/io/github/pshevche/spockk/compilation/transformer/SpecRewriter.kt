@@ -14,9 +14,9 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.SpecContext
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.SpecContext
 import io.github.pshevche.spockk.compilation.transformer.fields.FieldsRewriter
 import io.github.pshevche.spockk.compilation.transformer.fixture.FixtureMethodRewriter
 import io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer
@@ -51,7 +51,7 @@ internal class SpecRewriter(override val context: IrGeneratorContext) : SpockkIr
   private fun rewriteWhereBlocks(spec: IrClass, context: SpecContext) {
     context.features.forEach { (feature, featureContext) ->
       val rewriter = WhereBlockRewriter(this.context, spec, feature, featureContext)
-      featureContext.dataProviderBlocks.forEach {
+      featureContext.body.dataProviderBlocks.forEach {
         rewriter.rewrite(it)
       }
       rewriter.finalizeRewrite()

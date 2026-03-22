@@ -14,18 +14,18 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
-import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabelIrElement
-import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
+import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 
-internal class ValidatingFeatureBlockCollector(
+internal class ValidatingFeatureStatementsCollector(
   private val file: IrFile,
-  private val delegate: FeatureBlockCollector
-) : FeatureBlockCollector {
+  private val delegate: FeatureStatementsCollector
+) : FeatureStatementsCollector {
   enum class State {
     INIT {
       override val validBlocks: List<FeatureBlockLabel>
@@ -173,11 +173,9 @@ internal class ValidatingFeatureBlockCollector(
     delegate.consume(statement)
   }
 
-  override fun getAnonymousStatements(): List<IrStatement> = delegate.getAnonymousStatements()
-
-  override fun getBlocks(): List<FeatureBlock> {
+  override fun getFeatureBody(): FeatureBody? {
     assertBlockStructureIsComplete()
-    return delegate.getBlocks()
+    return delegate.getFeatureBody()
   }
 
   private fun assertBlockStructureIsComplete() {

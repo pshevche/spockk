@@ -14,14 +14,20 @@
 
 package io.github.pshevche.spockk.compilation.collector
 
+import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabelIrElement
-import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
+import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 
-internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureBlockCollector {
+internal class DefaultFeatureStatementsCollector(private val file: IrFile) : FeatureStatementsCollector {
+
+  companion object {
+    private val SEPARATOR_LABELS = setOf(FeatureBlockLabel.CLEANUP, FeatureBlockLabel.WHERE)
+  }
+
   private var currentLabel: FeatureBlockLabelIrElement? = null
   private val currentBlockStatements = mutableListOf<IrStatement>()
   private val collectedBlocks = mutableListOf<FeatureBlock>()
@@ -37,7 +43,23 @@ internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureB
     }
   }
 
-  override fun getAnonymousStatements(): List<IrStatement> = anonymousStatements.toList()
+  override fun getFeatureBody(): FeatureBody? {
+    completeCurrentBlock()
+    if (collectedBlocks.isEmpty()) {
+      return null
+    }
+
+    val behaviorBlocks = collectedBlocks.takeWhile { it.element.label !in SEPARATOR_LABELS }
+    val cleanupBlock = collectedBlocks.singleOrNull { it.element.label == FeatureBlockLabel.CLEANUP }
+    val dataProviderBlocks = collectedBlocks.dropWhile { it.element.label != FeatureBlockLabel.WHERE }
+
+    return FeatureBody(
+      anonymousStatements.toList(),
+      behaviorBlocks,
+      dataProviderBlocks,
+      cleanupBlock
+    )
+  }
 
   private fun completeCurrentBlock() {
     val label = currentLabel
@@ -65,10 +87,5 @@ internal class DefaultFeatureBlockCollector(private val file: IrFile) : FeatureB
         )
       )
     }
-  }
-
-  override fun getBlocks(): List<FeatureBlock> {
-    completeCurrentBlock()
-    return collectedBlocks.toList()
   }
 }
