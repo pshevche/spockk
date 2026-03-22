@@ -17,16 +17,14 @@
 package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.VOLATILE_FQN
-import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_CONTEXT_FQN
-import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_INTERNALS_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
-import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
-import io.github.pshevche.spockk.compilation.ir.irGetThis
 import io.github.pshevche.spockk.compilation.ir.makeMutable
 import io.github.pshevche.spockk.compilation.ir.makeProtected
+import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FieldContext
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
+import io.github.pshevche.spockk.compilation.transformer.ir.IrSpecificationContext
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.builders.irAs
@@ -41,14 +39,10 @@ import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrFieldSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.name.Name
 
 /**
@@ -195,12 +189,20 @@ internal class SharedFieldStrategy(
       ?: error("Shared field ${field.name} has no backing property")
     val defaultGetter = property.getter
       ?: error("Shared field ${field.name} has no DEFAULT getter")
+    val specificationContext = IrSpecificationContext(rewriterContext, spec)
     val getter = spec.addMemberFunction(name, field.type)
-    getter.body = with(irBuilder(getter.symbol)) {
+    val builder = irBuilder(getter.symbol)
+    getter.body = with(builder) {
       irBlockBody {
         +irReturn(
           irCall(defaultGetter.symbol, field.type, origin = IrStatementOrigin.GET_PROPERTY).apply {
-            arguments[0] = irAs(irGetSharedInstance(getter), spec.symbol.defaultType)
+            arguments[0] = irAs(
+              specificationContext.irGetSharedInstance(
+                builder,
+                getter.requiredThisParameter()
+              ),
+              spec.symbol.defaultType
+            )
           }
         )
       }
@@ -217,10 +219,18 @@ internal class SharedFieldStrategy(
       ?: error("Shared field ${field.name} has no DEFAULT setter")
     val setter = spec.addMemberFunction(name, irBuiltIns.unitType)
     val valueParam = setter.addValueParameter("value", field.type)
-    setter.body = with(irBuilder(setter.symbol)) {
+    val specificationContext = IrSpecificationContext(rewriterContext, spec)
+    val builder = irBuilder(setter.symbol)
+    setter.body = with(builder) {
       irBlockBody {
         +irCall(defaultSetter.symbol, irBuiltIns.unitType, origin = IrStatementOrigin.EQ).apply {
-          arguments[0] = irAs(irGetSharedInstance(setter), spec.symbol.defaultType)
+          arguments[0] = irAs(
+            specificationContext.irGetSharedInstance(
+              builder,
+              setter.requiredThisParameter()
+            ),
+            spec.symbol.defaultType
+          )
           arguments[1] = irGet(valueParam)
         }
       }
@@ -232,10 +242,22 @@ internal class SharedFieldStrategy(
   // Update the body of an existing getter to route through specificationContext.sharedInstance.
   // Uses direct GET_FIELD (not CALL to DEFAULT getter) to avoid infinite recursion.
   private fun updateSharedGetterBody(getter: IrSimpleFunction, field: IrField) {
-    getter.body = with(irBuilder(getter.symbol)) {
+    val specificationContext = IrSpecificationContext(rewriterContext, spec)
+    val builder = irBuilder(getter.symbol)
+    getter.body = with(builder) {
       irBlockBody {
         +irReturn(
-          irGetField(irAs(irGetSharedInstance(getter), spec.symbol.defaultType), field, type = getter.returnType)
+          irGetField(
+            irAs(
+              specificationContext.irGetSharedInstance(
+                builder,
+                getter.requiredThisParameter()
+              ),
+              spec.symbol.defaultType
+            ),
+            field,
+            type = getter.returnType
+          )
         )
       }
     }
@@ -244,59 +266,24 @@ internal class SharedFieldStrategy(
   // Update the body of an existing setter to route through specificationContext.sharedInstance.
   // Uses direct SET_FIELD (not CALL to DEFAULT setter) to avoid infinite recursion.
   private fun updateSharedSetterBody(setter: IrSimpleFunction, field: IrField) {
+    val specAccessor = setter.requiredThisParameter()
     val valueParam = setter.parameters.first { it.name.asString() != "<this>" }
-    setter.body = with(irBuilder(setter.symbol)) {
+    val specificationContext = IrSpecificationContext(rewriterContext, spec)
+    val builder = irBuilder(setter.symbol)
+    setter.body = with(builder) {
       irBlockBody {
         +irSetField(
-          receiver = irAs(irGetSharedInstance(setter), spec.symbol.defaultType),
+          receiver = irAs(
+            specificationContext.irGetSharedInstance(
+              builder,
+              specAccessor
+            ),
+            spec.symbol.defaultType
+          ),
           field = field,
           value = irGet(valueParam)
         )
       }
     }
-  }
-
-  private fun irGetSharedInstance(fn: IrFunction): IrExpression {
-    val specContextGetter = findSpecificationContextGetter()
-    val sharedInstanceGetter = findSharedInstanceGetter()
-    val specContextClass = rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
-
-    return with(irBuilder(fn.symbol)) {
-      val thisParam = fn.parameters.first { it.name.asString() == "<this>" }
-      val specContextCall =
-        irCall(specContextGetter.symbol, specContextGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY)
-          .apply { dispatchReceiver = irGetThis(thisParam) }
-      val castSpecContext = irAs(specContextCall, specContextClass.defaultType)
-      irCall(sharedInstanceGetter.symbol, sharedInstanceGetter.returnType, origin = IrStatementOrigin.GET_PROPERTY)
-        .apply { dispatchReceiver = castSpecContext }
-    }
-  }
-
-  private fun findSpecificationContextGetter(): IrSimpleFunction {
-    var clazz: IrClass? = spec
-    while (clazz != null) {
-      val getter = clazz.declarations
-        .filterIsInstance<IrSimpleFunction>()
-        .find { it.name.asString() == "getSpecificationContext" }
-      if (getter != null) return getter
-      clazz = clazz.superTypes.firstOrNull()?.let {
-        val fqn = (it as? IrSimpleType)
-          ?.classifier
-          ?.let { c -> (c as? IrClassSymbol)?.owner?.fqNameWhenAvailable }
-          ?: return@let null
-        rewriterContext.findRequiredClassSymbol(fqn).owner
-      }
-    }
-    val specInternalsClass = rewriterContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
-    return specInternalsClass.owner.declarations
-      .filterIsInstance<IrSimpleFunction>()
-      .first { it.name.asString() == "getSpecificationContext" }
-  }
-
-  private fun findSharedInstanceGetter(): IrSimpleFunction {
-    val specContextClass = rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
-    return specContextClass.owner.declarations
-      .filterIsInstance<IrSimpleFunction>()
-      .first { it.name.asString() == "getSharedInstance" }
   }
 }

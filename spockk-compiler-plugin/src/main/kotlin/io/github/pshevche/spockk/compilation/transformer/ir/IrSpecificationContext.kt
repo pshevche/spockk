@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.defaultType
@@ -60,10 +61,38 @@ internal class IrSpecificationContext(
     }
   }
 
-  private fun getSpecificationContextInstance(builder: IrBuilder, specAccessor: IrValueParameter): IrExpression =
+  fun irGetSharedInstance(
+    builder: IrBuilder,
+    specAccessor: IrValueParameter
+  ): IrExpression {
+    val specificationContextInstance =
+      getSpecificationContextInstance(
+        builder,
+        specAccessor,
+        IrStatementOrigin.IMPLICIT_ARGUMENT,
+        IrStatementOrigin.GET_PROPERTY
+      )
+    val getSharedInstance = specificationContextClass.functionByName("getSharedInstance")
+    return with(builder) {
+      irCall(getSharedInstance).apply {
+        dispatchReceiver = specificationContextInstance
+        origin = IrStatementOrigin.GET_PROPERTY
+      }
+    }
+  }
+
+  private fun getSpecificationContextInstance(
+    builder: IrBuilder,
+    specAccessor: IrValueParameter,
+    dispatchReceiverOrigin: IrStatementOrigin? = null,
+    callOrigin: IrStatementOrigin? = null
+  ): IrExpression =
     with(builder) {
       val getSpecificationContextInstanceCall = irCall(spec.getSimpleFunction("getSpecificationContext")!!).apply {
-        dispatchReceiver = irGet(specAccessor)
+        dispatchReceiver = irGet(specAccessor).apply {
+          origin = dispatchReceiverOrigin
+        }
+        origin = callOrigin
       }
       return irAs(getSpecificationContextInstanceCall, specificationContextClass.defaultType)
     }

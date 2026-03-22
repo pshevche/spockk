@@ -162,7 +162,7 @@ internal class CleanupBlockRewriter(
         condition = irNotEquals(irGet(featureThrowableVar), irNull()),
         thenPart = irBlock {
           +irSet(failedBlockVar, specificationContext.irGetCurrentBlock(builder, feature.requiredThisParameter()))
-        },
+        }
       ).apply {
         origin = IrStatementOrigin.IF
       }
