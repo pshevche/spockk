@@ -33,7 +33,7 @@ internal class SpecRewriter(override val rewriterContext: SpockkIrRewriterContex
     annotateSpec(spec, context)
     rewriteFields(spec, context)
     rewriteWhereBlocks(spec, context)
-    rewriteFixtureMethods(spec, context)
+    rewriteFixtureMethods(context)
     rewriteMockingApi(spec)
   }
 
@@ -58,8 +58,8 @@ internal class SpecRewriter(override val rewriterContext: SpockkIrRewriterContex
     }
   }
 
-  private fun rewriteFixtureMethods(spec: IrClass, context: SpecContext) {
-    FixtureMethodRewriter(rewriterContext, spec, context.fixtureMethods).rewrite()
+  private fun rewriteFixtureMethods(context: SpecContext) {
+    FixtureMethodRewriter(rewriterContext, context.fixtureMethods).rewrite()
   }
 
   private fun specMetadataAnnotation(

@@ -35,7 +35,6 @@ import io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext
-import io.github.pshevche.spockk.compilation.transformer.InstanceFieldAccessChecker
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
@@ -96,7 +95,6 @@ internal class WhereBlockRewriter(
 
   private data class SingleBlockRewriteResources(
     val exceptionFactory: InvalidParametrizationExceptionFactory,
-    val instanceFieldAccessChecker: InstanceFieldAccessChecker,
     val dataProcessorVars: MutableList<IrVariable>,
     val dataTableVars: MutableSet<IrVariable> = mutableSetOf()
   )
@@ -121,7 +119,6 @@ internal class WhereBlockRewriter(
   private fun createRewriteResources(block: FeatureBlock): SingleBlockRewriteResources =
     SingleBlockRewriteResources(
       InvalidParametrizationExceptionFactory(spec.file, block.element.ir),
-      InstanceFieldAccessChecker(spec, block.element.ir),
       mutableListOf()
     )
 
@@ -365,8 +362,6 @@ internal class WhereBlockRewriter(
       val dataProcessorStats = buildList<IrStatement> {
         add(dataProcessorVar)
         add(irSet(dataProcessorVar.symbol, irAs(dataProcessorVarValue, dataProcessorVar.type)))
-      }.also {
-        rewriteResources.instanceFieldAccessChecker.check(it)
       }
       dataProcessorMethod.mutableStatements()?.addAll(dataProcessorStats)
     }
@@ -430,7 +425,6 @@ internal class WhereBlockRewriter(
   ): IrBody = with(irBuilder(dataProviderMethod.symbol)) {
     val dataProviderStatements =
       createDataProviderReturnStatement(this, dataProviderMethod, featureVariable, variableValues, previousVariables)
-        .also { rewriteResources.instanceFieldAccessChecker.check(it) }
     irBlockBody {
       +irReturn(dataProviderStatements)
     }

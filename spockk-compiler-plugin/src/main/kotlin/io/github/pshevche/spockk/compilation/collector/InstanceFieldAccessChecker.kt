@@ -12,9 +12,9 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.transformer
+package io.github.pshevche.spockk.compilation.collector
 
-import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SHARED_ANNOTATION_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementVisitor
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrElement
@@ -37,10 +37,6 @@ internal class InstanceFieldAccessChecker(
   private val spec: IrClass,
   private val contextIr: IrElement
 ) : BaseSpockkIrElementVisitor() {
-  fun check(expression: IrExpression) {
-    expression.acceptVoid(this)
-  }
-
   fun check(statements: Collection<IrStatement>) {
     statements.forEach { it.acceptVoid(this) }
   }
@@ -53,7 +49,7 @@ internal class InstanceFieldAccessChecker(
       when {
         owner.isGetter || owner.isSetter -> {
           val backingField = owner.correspondingPropertySymbol?.owner?.backingField
-          if (backingField?.hasAnnotation(SHARED_ANNOTATION_FQN) != true) {
+          if (backingField?.hasAnnotation(IrIdentifiers.Spock.SHARED_ANNOTATION_FQN) != true) {
             throwIllegalMemberAccessException()
           }
         }

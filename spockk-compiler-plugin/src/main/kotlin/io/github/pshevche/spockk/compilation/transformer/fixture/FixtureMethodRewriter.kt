@@ -15,27 +15,18 @@
 package io.github.pshevche.spockk.compilation.transformer.fixture
 
 import io.github.pshevche.spockk.compilation.ir.makePrivate
-import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FixtureMethodKind
-import io.github.pshevche.spockk.compilation.transformer.InstanceFieldAccessChecker
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
-import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 
 internal class FixtureMethodRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
-  private val spec: IrClass,
-  private val fixtureMethods: Map<IrFunction, FixtureMethodKind>
+  private val fixtureMethods: List<IrFunction>
 ) : SpockkIrRewriter {
 
   fun rewrite() {
-    fixtureMethods.forEach { (function, kind) ->
-      function.makePrivate()
-      if (kind == FixtureMethodKind.SETUP_SPEC || kind == FixtureMethodKind.CLEANUP_SPEC) {
-        val body = function.body as IrBlockBody
-        InstanceFieldAccessChecker(spec, function).check(body.statements)
-      }
+    fixtureMethods.forEach {
+      it.makePrivate()
     }
   }
 }

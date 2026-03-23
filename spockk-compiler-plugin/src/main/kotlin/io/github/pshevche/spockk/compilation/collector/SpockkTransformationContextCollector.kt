@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation.collector
 import io.github.pshevche.spockk.compilation.collector.FixtureMethodIdentifiers.fixtureMethodKind
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_FQN
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementVisitor
+import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.MutableSpockkTransformationContext
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -28,6 +29,7 @@ import org.jetbrains.kotlin.ir.types.isClassWithFqName
 import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.ir.util.isFakeOverride
+import org.jetbrains.kotlin.ir.util.parentAsClass
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkTransformationContextCollector(
@@ -59,7 +61,7 @@ internal class SpockkTransformationContextCollector(
     } else {
       fixtureMethodKind(declaration)?.let { kind ->
         maybeCurrentIrClass?.let { spec ->
-          context.addFixtureMethod(spec, declaration, kind)
+          context.addFixtureMethod(spec, declaration)
         }
       }
     }
@@ -74,10 +76,17 @@ internal class SpockkTransformationContextCollector(
       val bodyParser = createFeatureStatementsCollector(function.file)
       body.statements.forEach { bodyParser.consume(it) }
       bodyParser.getFeatureBody()?.let {
+        validateFieldAccessInDataProviders(function.parentAsClass, it.dataProviderBlocks)
         context.addFeature(currentIrClass, function, it)
       }
     }
     super.visitBlockBody(body)
+  }
+
+  private fun validateFieldAccessInDataProviders(spec: IrClass, dataProviderBlocks: List<FeatureBlock>) {
+    dataProviderBlocks.forEach {
+      InstanceFieldAccessChecker(spec, it.element.ir).check(it.statements)
+    }
   }
 
   private fun createFeatureStatementsCollector(file: IrFile) =
