@@ -15,6 +15,8 @@
 package io.github.pshevche.spockk.e2e
 
 import io.github.pshevche.spockk.fixtures.e2e.Workspace
+import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.gradle.testkit.runner.TaskOutcome
@@ -75,5 +77,22 @@ class SpockkE2ETest : Specification() {
       assertFalse(it.contains("FailingSpec > failing feature 1 FAILED"))
       assertFalse(it.contains("FailingSpec > failing feature 2 FAILED"))
     }
+  }
+
+  fun `compiler plugin does not fail if there are no specs to transform`() {
+    given
+    workspace = Workspace().apply {
+      configureRepositories()
+      applyPlugins()
+      writeSource(
+        "Foo",
+        """
+        data class Foo(val irrelevant: String)
+        """.trimIndent()
+      )
+    }
+
+    expect
+    workspace.build("test")
   }
 }

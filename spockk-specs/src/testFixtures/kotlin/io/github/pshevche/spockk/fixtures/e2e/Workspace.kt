@@ -34,7 +34,8 @@ class Workspace {
     )
   private val settingsFile = projectDir.resolve("settings.gradle.kts").toFile()
   private val buildFile = projectDir.resolve("build.gradle.kts").toFile()
-  private val sourcesDir = projectDir.resolve("src/test/kotlin").toFile()
+  private val mainSourcesDir = projectDir.resolve("src/main/kotlin").toFile()
+  private val testSourcesDir = projectDir.resolve("src/test/kotlin").toFile()
 
   private var kotlinVersion: KotlinVersion = KotlinVersion.CURRENT
   private var gradleVersion: GradleVersion = GradleVersion.current()
@@ -63,7 +64,7 @@ class Workspace {
     .forwardOutput()
     .withGradleVersion(gradleVersion.version)
 
-  private fun configureRepositories() {
+  fun configureRepositories() {
     settingsFile.writeText(
       """
             pluginManagement {
@@ -100,7 +101,7 @@ class Workspace {
       .trimIndent()
   }
 
-  private fun applyPlugins() {
+  fun applyPlugins() {
     buildFile.appendText(
       """
 
@@ -183,7 +184,12 @@ class Workspace {
   }
 
   private fun writeSpec(name: String, @Language("kotlin") content: String) {
-    Files.createDirectories(sourcesDir.toPath())
-    sourcesDir.resolve("$name.kt").writeText(content)
+    Files.createDirectories(testSourcesDir.toPath())
+    testSourcesDir.resolve("$name.kt").writeText(content)
+  }
+
+  fun writeSource(name: String, @Language("kotlin") content: String) {
+    Files.createDirectories(mainSourcesDir.toPath())
+    mainSourcesDir.resolve("$name.kt").writeText(content)
   }
 }

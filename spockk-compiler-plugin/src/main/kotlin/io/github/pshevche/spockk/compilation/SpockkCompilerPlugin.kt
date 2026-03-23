@@ -44,7 +44,9 @@ class SpockkCompilerPlugin : CompilerPluginRegistrar() {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
       val context = MutableSpockkTransformationContext()
       moduleFragment.acceptVoid(SpockkTransformationContextCollector(context))
-      moduleFragment.transform(SpockkIrTransformer(SpockkIrRewriterContext(pluginContext), context.finalized()), null)
+      if (context.hasSpecs()) {
+        moduleFragment.transform(SpockkIrTransformer(SpockkIrRewriterContext(pluginContext), context.finalized()), null)
+      }
     }
   }
 }
