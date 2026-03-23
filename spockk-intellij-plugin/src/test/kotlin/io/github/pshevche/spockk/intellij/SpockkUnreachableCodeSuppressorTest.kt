@@ -29,7 +29,7 @@ class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
   private fun isSuppressedFor(elementText: String): Boolean =
     suppressor.isSuppressedFor(
       findRequiredElementByTextAndType(elementText, PsiElement::class.java),
-      "UnreachableCode"
+      "KotlinUnreachableCode"
     )
 
   fun testSuppressUnreachableCodeWarningsForWhereBlockStatements() {
