@@ -118,10 +118,15 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       transform(
         specWithBody(
           """
-                var instanceField = "hello"
+                class Resource {
+                  fun reset() {
+                  }
+                }
+
+                val resource = Resource()
 
                 fun $fixtureMethodName() {
-                    println(instanceField)
+                    resource.reset()
                 }
 
                 fun `some feature`() {
@@ -142,6 +147,40 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
 
     where
     variable(fixtureMethodName).from("setupSpec", "cleanupSpec")
+  }
+
+  fun `supports feature-scoped fixture method accessing instance field`(fixtureMethodName: String) {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                class Resource {
+                  fun reset() {
+                  }
+                }
+
+                val resource = Resource()
+
+                fun $fixtureMethodName() {
+                    println(resource)
+                    resource.reset()
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+
+    where
+    variable(fixtureMethodName).from("setup", "cleanup")
   }
 
   fun `rejects fixture methods with parameters`(fixtureMethodName: String) {
@@ -167,5 +206,40 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
 
     where
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
+  }
+
+  fun `supports @Shared fields accessed in #fixtureMethodName`(fixtureMethodName: String) {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                class Resource {
+                  fun reset() {
+                  }
+                }
+
+                @spock.lang.Shared
+                val resource = Resource()
+
+                fun $fixtureMethodName() {
+                    println(resource)
+                    resource.reset()
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    assertTrue(result.isSuccess())
+
+    where
+    variable(fixtureMethodName).from("setupSpec", "setup", "cleanup", "cleanupSpec")
   }
 }
