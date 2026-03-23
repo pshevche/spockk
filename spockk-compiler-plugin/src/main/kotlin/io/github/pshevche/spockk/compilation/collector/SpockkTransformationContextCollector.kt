@@ -81,5 +81,5 @@ internal class SpockkTransformationContextCollector(
   }
 
   private fun createFeatureStatementsCollector(file: IrFile) =
-    ValidatingFeatureStatementsCollector(file, DefaultFeatureStatementsCollector(file))
+    BlockOrderValidatingFeatureStatementsCollector(file, DefaultFeatureStatementsCollector(file))
 }
