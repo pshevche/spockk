@@ -1,5 +1,9 @@
 == Changelog
 
+=== v0.3.1
+
+- [Core] Do not fail the build if the source set has no specifications to transform
+
 === v0.3.0
 
 - [Core] Added support for fixture methods (`setup()`, `cleanup()`, `setupSpec()`, `cleanupSpec()`)
