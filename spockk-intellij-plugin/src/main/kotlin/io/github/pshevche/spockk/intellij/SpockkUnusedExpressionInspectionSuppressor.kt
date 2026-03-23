@@ -30,8 +30,8 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
       return element.isPartOfDataProviderBlock()
     }
 
-    if (toolId == "UnreachableCode") {
-      return element.isPartOfDataProviderBlock() || element.isPartOfCleanupBlock()
+    if (toolId == "KotlinUnreachableCode") {
+      return element.isSpockkBlock() || element.isPartOfDataProviderBlock() || element.isPartOfCleanupBlock()
     }
 
     return false
