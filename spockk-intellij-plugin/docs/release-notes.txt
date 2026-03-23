@@ -1,3 +1,4 @@
 <ul>
-    <li>[FIX] Maintenance release with dependency upgrades</li>
+    <li>[NEW] Added syntax support for setup and cleanup block labels</li>
+    <li>[FIX] Suppressed false-positive unreachable code warnings in cleanup and where blocks</li>
 </ul>

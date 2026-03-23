@@ -1,5 +1,15 @@
 == Changelog
 
+=== v0.3.0
+
+- [Core] Added support for fixture methods (`setup()`, `cleanup()`, `setupSpec()`, `cleanupSpec()`)
+- [Core] Added support for `setup` and `cleanup` block labels in feature methods
+- [Core] Fixed field behavior in fixture methods and data providers to match Spock semantics
+- [Core] Enabled reliable block information access for Spock extensions
+- [Core] Added support for Kotlin 2.3.20
+- [IntelliJ Plugin] Added syntax support for `setup` and `cleanup` block labels
+- [IntelliJ Plugin] Suppressed false-positive unreachable code warnings in `cleanup` and `where` blocks
+
 === v0.2.1
 
 - [Core] Fixed the transformation of extension functions in test fixtures

@@ -18,12 +18,13 @@ class MyFirstSpecification : Specification() {
 
 Spockk expects features to be structured into so-called _blocks_.
 The framework provides built-in elements that help you define such blocks using the https://en.wikipedia.org/wiki/Behavior-driven_development[Behavior-Driven Development] style.
-Currently, the framework supports five types of blocks:
+Currently, the framework supports the following types of blocks:
 
-- `given`: defines feature setup and preconditions;
+- `setup` / `given`: defines feature setup and preconditions;
 - `when`: defines actions applied to the system under specification;
 - `then`: declares the expected state of the fixture after applying actions;
 - `expect`: defines a standalone condition block;
+- `cleanup`: defines cleanup logic that always runs, even if the feature fails;
 - `and`: allows combining multiple precondition, action, and condition blocks.
 
 A feature method must have at least one block to be eligible for execution.
@@ -73,15 +74,3 @@ then("the account's balance is $10")
 // ...
 ----
 
-=== Defining Conditions
-
-Spockk does not yet provide built-in fixtures for defining conditions (assertions).
-However, it works seamlessly with Kotlin’s native assertion framework, as well as popular libraries such as AssertJ and Hamcrest.
-A more ergonomic way to define conditions is planned for a future release.
-
-=== Limitations
-
-Spockk is still in active development and currently lacks several features typically expected from an enterprise-level testing framework.
-For example, it does not yet support lifecycle methods (e.g. setup), data-driven features, or built-in fixtures for interaction-based testing.
-These and other enhancements are on the https://github.com/users/pshevche/projects/4/views/1[roadmap].
-Stay tuned for future releases!

@@ -9,6 +9,10 @@ include::getting_started.adoc[]
 
 include::writing_tests.adoc[]
 
+include::fixture_methods.adoc[]
+
 include::data_driven_testing.adoc[]
+
+include::limitations.adoc[]
 
 include::changelog.adoc[]
