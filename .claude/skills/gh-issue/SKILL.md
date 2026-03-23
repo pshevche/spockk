@@ -1,6 +1,6 @@
 ---
 name: gh-issue
-description: Hand off a GitHub issue to Claude for implementation. Fetches the issue, creates a worktree, then either writes a design record (type::story) or starts implementation immediately (type::task).
+description: Hand off a GitHub issue to Claude for implementation. Fetches the issue, creates a worktree, then either brainstorms a design spec (type::story) or starts implementation immediately (type::task).
 allowed-tools: Bash, Read, Glob, Grep, WebFetch, Agent, TodoWrite, Skill, EnterWorktree
 user-invocable: true
 ---
@@ -61,15 +61,14 @@ Proceed directly to implementation:
 
 ### If labeled `type::story`
 
-A design record is required before implementation. Invoke the write-design-record skill:
+A design spec and implementation plan are required before coding. Use the superpowers brainstorming and planning skills:
 
-```
-/write-design-record <number>
-```
+1. Invoke `/superpowers:brainstorming` — this will explore the design space, write a spec to `docs/superpowers/specs/`, and then invoke the writing-plans skill automatically.
+2. The writing-plans skill writes an implementation plan to `docs/superpowers/plans/`.
 
-Tell the user: "This is a `type::story` issue. I've started a design record — please review and approve it before I proceed to implementation."
+Tell the user: "This is a `type::story` issue. I've started a design spec — please review and approve it before I proceed to implementation."
 
-**Do not start coding until the user explicitly approves the design record.**
+**Do not start coding until the user explicitly approves the design spec and plan.**
 
 ### If labeled `type::chore`
 
@@ -77,7 +76,7 @@ Follow the same flow as `type::task` but use a `chore:` commit prefix.
 
 ### If no matching label
 
-Ask the user: "This issue has no `type::` label. Should I treat it as a task (implement now) or a story (design record first)?"
+Ask the user: "This issue has no `type::` label. Should I treat it as a task (implement now) or a story (design spec first)?"
 
 ## Conventions reminder
 

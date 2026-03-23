@@ -81,17 +81,17 @@ Use the `/gh-issue` skill to hand off a GitHub issue to Claude:
 
 The skill fetches the issue, creates a worktree, and routes based on the issue label:
 - **`type::task`** — Claude implements directly, submits a PR when done
-- **`type::story`** — Claude writes a design record first (see below); implementation starts only after you approve it
+- **`type::story`** — Claude brainstorms a design spec and implementation plan first; implementation starts only after you approve them
 
-## Design Records
+## Design Specs & Plans
 
-For larger features (`type::story` issues), Claude writes a design record before coding. Design records live in `design-records/<NN>-<slug>/` as numbered folders, each containing:
-- `main.adoc` — context, functional design, and implementation plan
-- `NN-plan-<short-desc>.adoc` — one file per independently committable increment
+For larger features (`type::story` issues), Claude uses the superpowers plugin to design before coding:
+- **Design specs** live in `_docs/specs/` (written by the brainstorming skill)
+- **Implementation plans** live in `_docs/plans/` (written by the writing-plans skill)
 
-Use the `/write-design-record` skill manually, or it is invoked automatically by `/assign-issue-to-claude` for `type::story` issues.
+**Superpowers plugin directory override:** Write specs to `_docs/specs/` and plans to `_docs/plans/` instead of the default `docs/superpowers/` paths.
 
-Design records follow the templates in `design-records/TEMPLATE.adoc` (main) and `design-records/PLAN-TEMPLATE.adoc` (plan docs). Review and approve the design before Claude proceeds to implementation.
+The `/gh-issue` skill invokes brainstorming automatically for `type::story` issues. Review and approve the spec and plan before Claude proceeds to implementation.
 
 ## Publishing
 
