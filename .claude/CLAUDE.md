@@ -15,8 +15,8 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 
 ## Tech Stack
 
-- Kotlin 2.3.10, JDK 21 (toolchain)
-- Gradle 9.4.0 with version catalog (`gradle/libs.versions.toml`)
+- Kotlin 2.3.20, JDK 21 (toolchain)
+- Gradle 9.4.1 with version catalog (`gradle/libs.versions.toml`)
 - Convention plugins in `gradle/plugins/`
 - JUnit Platform 6.0.3, Spock 2.4-groovy-5.0
 
@@ -73,10 +73,10 @@ When writing or modifying Kotlin IR transformations in `spockk-compiler-plugin`:
 
 ## Issue-Based Workflow
 
-Use the `/assign-issue-to-claude` skill to hand off a GitHub issue to Claude:
+Use the `/gh-issue` skill to hand off a GitHub issue to Claude:
 
 ```
-/assign-issue-to-claude 42
+/gh-issue 42
 ```
 
 The skill fetches the issue, creates a worktree, and routes based on the issue label:
@@ -99,7 +99,7 @@ Design records follow the templates in `design-records/TEMPLATE.adoc` (main) and
 - **Gradle Plugin Portal**: spockk-gradle-plugin (ID: `io.github.pshevche.spockk`)
 - **JetBrains Marketplace**: spockk-intellij-plugin
 - **GitHub Pages**: spockk-docs
-- Version defined in `gradle.properties` (currently `0.2.0`)
+- Version defined in `gradle.properties` (currently `0.3.0`)
 
 ## Git Conventions
 

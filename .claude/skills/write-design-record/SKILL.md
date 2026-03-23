@@ -8,7 +8,7 @@ user-invocable: true
 You are being asked to write a design record for a Spockk feature before implementation begins.
 
 The user will invoke this skill with an optional issue number, e.g. `/write-design-record 42`.
-It may also be invoked automatically by the `assign-issue-to-claude` skill for `type::story` issues.
+It may also be invoked automatically by the `gh-issue` skill for `type::story` issues.
 
 ## Step 1 — Gather context
 

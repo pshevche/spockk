@@ -1,5 +1,5 @@
 ---
-name: assign-issue-to-claude
+name: gh-issue
 description: Hand off a GitHub issue to Claude for implementation. Fetches the issue, creates a worktree, then either writes a design record (type::story) or starts implementation immediately (type::task).
 allowed-tools: Bash, Read, Glob, Grep, WebFetch, Agent, TodoWrite, Skill, EnterWorktree
 user-invocable: true
@@ -7,7 +7,7 @@ user-invocable: true
 
 You are being asked to take ownership of a GitHub issue in the Spockk project and drive it to completion.
 
-The user will invoke this skill with an issue number, e.g. `/assign-issue-to-claude 42`.
+The user will invoke this skill with an issue number, e.g. `/gh-issue 42`.
 
 ## Step 1 — Fetch the issue
 
