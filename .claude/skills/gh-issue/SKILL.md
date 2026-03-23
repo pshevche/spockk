@@ -63,8 +63,8 @@ Proceed directly to implementation:
 
 A design spec and implementation plan are required before coding. Use the superpowers brainstorming and planning skills:
 
-1. Invoke `/superpowers:brainstorming` — this will explore the design space, write a spec to `docs/superpowers/specs/`, and then invoke the writing-plans skill automatically.
-2. The writing-plans skill writes an implementation plan to `docs/superpowers/plans/`.
+1. Invoke `/superpowers:brainstorming` — this will explore the design space, write a spec to `_docs/specs/`, and then invoke the writing-plans skill automatically.
+2. The writing-plans skill writes an implementation plan to `_docs/plans/`.
 
 Tell the user: "This is a `type::story` issue. I've started a design spec — please review and approve it before I proceed to implementation."
 
