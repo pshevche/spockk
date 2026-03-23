@@ -16,7 +16,6 @@ package io.github.pshevche.spockk.compilation.shared
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
-import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrProperty
@@ -42,6 +41,8 @@ internal class MutableSpockkTransformationContext {
       MutableSpecContext(file.name, specLine, specDepth)
     }
   }
+
+  fun hasSpecs() = specs.isNotEmpty()
 
   private fun computeSpecDepth(spec: IrClass): Int {
     val parentSpec = spec.superClass!!
