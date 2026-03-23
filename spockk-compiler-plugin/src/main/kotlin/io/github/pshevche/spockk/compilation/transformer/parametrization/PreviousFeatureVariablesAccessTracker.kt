@@ -15,27 +15,28 @@
 package io.github.pshevche.spockk.compilation.transformer.parametrization
 
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
-import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementVisitor
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class PreviousFeatureVariablesAccessTracker(
   private val feature: IrFunction,
   private val referenceableVariables: Set<String>
-) : BaseSpockkIrElementTransformer() {
+) : BaseSpockkIrElementVisitor() {
 
   private val referencedFeatureVariables: MutableSet<IrValueParameter> = mutableSetOf()
 
   fun check(expression: IrExpression): Set<IrValueParameter> {
-    expression.transform(this, null)
+    expression.acceptVoid(this)
     return referencedFeatureVariables.toSet()
   }
 
-  override fun visitGetValue(expression: IrGetValue): IrExpression = super.visitGetValue(expression).also {
+  override fun visitGetValue(expression: IrGetValue) = super.visitGetValue(expression).also {
     expression.asFeatureVariable(feature)
       ?.takeIf { referenceableVariables.contains(it.name.asString()) }
       ?.let { referencedFeatureVariables.add(it) }

@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation
 
 import com.google.auto.service.AutoService
 import io.github.pshevche.spockk.compilation.collector.SpockkTransformationContextCollector
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_FQN
 import io.github.pshevche.spockk.compilation.shared.MutableSpockkTransformationContext
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrTransformer
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
@@ -24,8 +25,10 @@ import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
+import org.jetbrains.kotlin.name.ClassId
 
 @AutoService(CompilerPluginRegistrar::class)
 @OptIn(ExperimentalCompilerApi::class)
@@ -40,13 +43,22 @@ class SpockkCompilerPlugin : CompilerPluginRegistrar() {
     IrGenerationExtension.registerExtension(SpockkIrGenerationExtension())
   }
 
+  @OptIn(InternalSymbolFinderAPI::class)
   private class SpockkIrGenerationExtension : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-      val context = MutableSpockkTransformationContext()
-      moduleFragment.acceptVoid(SpockkTransformationContextCollector(context))
-      if (context.hasSpecs()) {
-        moduleFragment.transform(SpockkIrTransformer(SpockkIrRewriterContext(pluginContext), context.finalized()), null)
+      if (hasSpockClasses(pluginContext)) {
+        val context = MutableSpockkTransformationContext()
+        moduleFragment.acceptVoid(SpockkTransformationContextCollector(context))
+        if (context.hasSpecs()) {
+          moduleFragment.transform(
+            SpockkIrTransformer(SpockkIrRewriterContext(pluginContext), context.finalized()),
+            null
+          )
+        }
       }
     }
+
+    private fun hasSpockClasses(pluginContext: IrPluginContext): Boolean =
+      pluginContext.irBuiltIns.symbolFinder.findClass(ClassId.topLevel(SPECIFICATION_FQN)) != null
   }
 }

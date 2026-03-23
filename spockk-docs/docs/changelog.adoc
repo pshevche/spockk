@@ -1,5 +1,9 @@
 == Changelog
 
+=== v0.3.2
+
+- [Core] Allow accessing `@Shared` fields from `setupSpec` and `cleanupSpec` methods
+
 === v0.3.1
 
 - [Core] Do not fail the build if the source set has no specifications to transform

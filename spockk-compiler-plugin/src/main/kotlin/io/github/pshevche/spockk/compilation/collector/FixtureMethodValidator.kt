@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation.collector
 import io.github.pshevche.spockk.compilation.collector.FixtureMethodIdentifiers.fixtureMethodKind
 import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
 import io.github.pshevche.spockk.compilation.ir.assignableParameters
+import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FixtureMethodKind
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -24,6 +25,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrBlockBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
@@ -38,6 +40,7 @@ internal class FixtureMethodValidator(
     validateNoParameters()
     validateNoBlockLabels()
     validateNoSuperFixtureMethodCalls()
+    validateFieldAccess()
   }
 
   private fun validateNoParameters() {
@@ -85,5 +88,13 @@ internal class FixtureMethodValidator(
         super.visitCall(expression)
       }
     })
+  }
+
+  private fun validateFieldAccess() {
+    val kind = fixtureMethodKind(function)
+    if (kind == FixtureMethodKind.SETUP_SPEC || kind == FixtureMethodKind.CLEANUP_SPEC) {
+      val body = function.body as IrBlockBody
+      InstanceFieldAccessChecker(function.parentAsClass, function).check(body.statements)
+    }
   }
 }

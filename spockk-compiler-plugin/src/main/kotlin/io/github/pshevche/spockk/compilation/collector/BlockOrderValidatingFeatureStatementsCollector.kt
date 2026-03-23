@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 
-internal class ValidatingFeatureStatementsCollector(
+internal class BlockOrderValidatingFeatureStatementsCollector(
   private val file: IrFile,
   private val delegate: FeatureStatementsCollector
 ) : FeatureStatementsCollector {
