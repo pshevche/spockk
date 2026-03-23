@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SHARED_ANNOTATION_FQN
-import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
+import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementVisitor
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
@@ -30,21 +30,22 @@ import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.isSetter
 import org.jetbrains.kotlin.ir.util.isStatic
+import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class InstanceFieldAccessChecker(
   private val spec: IrClass,
   private val contextIr: IrElement
-) : BaseSpockkIrElementTransformer() {
+) : BaseSpockkIrElementVisitor() {
   fun check(expression: IrExpression) {
-    expression.transform(this, null)
+    expression.acceptVoid(this)
   }
 
   fun check(statements: Collection<IrStatement>) {
-    statements.forEach { it.transform(this, null) }
+    statements.forEach { it.acceptVoid(this) }
   }
 
-  override fun visitCall(expression: IrCall): IrExpression {
+  override fun visitCall(expression: IrCall) {
     val owner = expression.symbol.owner
     val receiver = expression.dispatchReceiver
 
@@ -61,7 +62,7 @@ internal class InstanceFieldAccessChecker(
       }
     }
 
-    return super.visitCall(expression)
+    super.visitCall(expression)
   }
 
   private fun throwIllegalMemberAccessException(): Nothing = throw CompilationException(
