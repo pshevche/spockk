@@ -10,7 +10,7 @@ runs:
         distribution: temurin
         java-version: 21
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v5
+      uses: gradle/actions/setup-gradle@v6
     - name: Detect whether running on a PR from a fork
       shell: bash
       run: |
