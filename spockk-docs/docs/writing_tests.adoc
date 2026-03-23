@@ -18,12 +18,13 @@ class MyFirstSpecification : Specification() {
 
 Spockk expects features to be structured into so-called _blocks_.
 The framework provides built-in elements that help you define such blocks using the https://en.wikipedia.org/wiki/Behavior-driven_development[Behavior-Driven Development] style.
-Currently, the framework supports five types of blocks:
+Currently, the framework supports the following types of blocks:
 
-- `given`: defines feature setup and preconditions;
+- `setup` / `given`: defines feature setup and preconditions;
 - `when`: defines actions applied to the system under specification;
 - `then`: declares the expected state of the fixture after applying actions;
 - `expect`: defines a standalone condition block;
+- `cleanup`: defines cleanup logic that always runs, even if the feature fails;
 - `and`: allows combining multiple precondition, action, and condition blocks.
 
 A feature method must have at least one block to be eligible for execution.
@@ -33,6 +34,7 @@ A block consists of all statements between two block labels, or between a block 
 ----
 
 import io.github.pshevche.spockk.lang.and
+import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.then
@@ -73,6 +75,67 @@ then("the account's balance is $10")
 // ...
 ----
 
+=== Fixture Methods
+
+Spockk supports Spock's fixture methods for managing test lifecycle.
+For general information about fixture methods and their runtime behavior, consult Spock's https://spockframework.org/spock/docs/2.4/spock_primer.html#_fixture_methods[reference documentation].
+
+[source,kotlin]
+----
+import io.github.pshevche.spockk.lang.expect
+import spock.lang.Specification
+
+class DatabaseSpec : Specification() {
+    fun setupSpec() {
+        // runs once before the first feature method
+    }
+
+    fun setup() {
+        // runs before every feature method
+    }
+
+    fun cleanup() {
+        // runs after every feature method
+    }
+
+    fun cleanupSpec() {
+        // runs once after all feature methods
+    }
+
+    fun `insert a record`() {
+        expect
+        // ...
+    }
+}
+----
+
+=== Cleanup Blocks
+
+A `cleanup` block within a feature method is used to free any resources used by a feature method and is run even if the feature method has produced an exception.
+For general information about cleanup blocks and their runtime behavior, consult Spock's https://spockframework.org/spock/docs/2.4/spock_primer.html#_cleanup_blocks[reference documentation].
+
+[source,kotlin]
+----
+import io.github.pshevche.spockk.lang.cleanup
+import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.expect
+
+import spock.lang.Specification
+
+class ResourceSpec : Specification() {
+    fun `read file contents`() {
+        given
+        val stream = openResourceStream()
+
+        expect
+        assert(stream.available() > 0)
+
+        cleanup
+        stream.close()
+    }
+}
+----
+
 === Defining Conditions
 
 Spockk does not yet provide built-in fixtures for defining conditions (assertions).
@@ -82,6 +145,6 @@ A more ergonomic way to define conditions is planned for a future release.
 === Limitations
 
 Spockk is still in active development and currently lacks several features typically expected from an enterprise-level testing framework.
-For example, it does not yet support lifecycle methods (e.g. setup), data-driven features, or built-in fixtures for interaction-based testing.
+For example, it does not yet provide built-in fixtures for interaction-based testing.
 These and other enhancements are on the https://github.com/users/pshevche/projects/4/views/1[roadmap].
 Stay tuned for future releases!
