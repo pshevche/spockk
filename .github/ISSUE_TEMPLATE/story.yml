@@ -1,12 +1,12 @@
 name: Story
-description: A larger feature with user-facing value that requires a design record before implementation.
+description: A larger feature with user-facing value that requires a design spec before implementation.
 labels: ["type::story"]
 body:
   - type: markdown
     attributes:
       value: |
         Use this for features complex enough to need upfront design.
-        Claude will write a design record first — implementation starts only after you approve it.
+        Claude will write a design spec and implementation plan first — implementation starts only after you approve them.
         For smaller self-contained work, use **Task** instead.
 
   - type: textarea

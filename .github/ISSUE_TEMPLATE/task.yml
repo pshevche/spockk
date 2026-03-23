@@ -1,5 +1,5 @@
 name: Task
-description: A small, well-scoped improvement that can be implemented directly without a design record.
+description: A small, well-scoped improvement that can be implemented directly without a design spec.
 labels: ["type::task"]
 body:
   - type: markdown

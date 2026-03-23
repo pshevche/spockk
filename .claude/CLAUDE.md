@@ -15,8 +15,8 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 
 ## Tech Stack
 
-- Kotlin 2.3.10, JDK 21 (toolchain)
-- Gradle 9.4.0 with version catalog (`gradle/libs.versions.toml`)
+- Kotlin 2.3.20, JDK 21 (toolchain)
+- Gradle 9.4.1 with version catalog (`gradle/libs.versions.toml`)
 - Convention plugins in `gradle/plugins/`
 - JUnit Platform 6.0.3, Spock 2.4-groovy-5.0
 
@@ -73,25 +73,25 @@ When writing or modifying Kotlin IR transformations in `spockk-compiler-plugin`:
 
 ## Issue-Based Workflow
 
-Use the `/assign-issue-to-claude` skill to hand off a GitHub issue to Claude:
+Use the `/gh-issue` skill to hand off a GitHub issue to Claude:
 
 ```
-/assign-issue-to-claude 42
+/gh-issue 42
 ```
 
 The skill fetches the issue, creates a worktree, and routes based on the issue label:
 - **`type::task`** — Claude implements directly, submits a PR when done
-- **`type::story`** — Claude writes a design record first (see below); implementation starts only after you approve it
+- **`type::story`** — Claude brainstorms a design spec and implementation plan first; implementation starts only after you approve them
 
-## Design Records
+## Design Specs & Plans
 
-For larger features (`type::story` issues), Claude writes a design record before coding. Design records live in `design-records/<NN>-<slug>/` as numbered folders, each containing:
-- `main.adoc` — context, functional design, and implementation plan
-- `NN-plan-<short-desc>.adoc` — one file per independently committable increment
+For larger features (`type::story` issues), Claude uses the superpowers plugin to design before coding:
+- **Design specs** live in `_docs/specs/` (written by the brainstorming skill)
+- **Implementation plans** live in `_docs/plans/` (written by the writing-plans skill)
 
-Use the `/write-design-record` skill manually, or it is invoked automatically by `/assign-issue-to-claude` for `type::story` issues.
+**Superpowers plugin directory override:** Write specs to `_docs/specs/` and plans to `_docs/plans/` instead of the default `docs/superpowers/` paths.
 
-Design records follow the templates in `design-records/TEMPLATE.adoc` (main) and `design-records/PLAN-TEMPLATE.adoc` (plan docs). Review and approve the design before Claude proceeds to implementation.
+The `/gh-issue` skill invokes brainstorming automatically for `type::story` issues. Review and approve the spec and plan before Claude proceeds to implementation.
 
 ## Publishing
 
@@ -99,7 +99,7 @@ Design records follow the templates in `design-records/TEMPLATE.adoc` (main) and
 - **Gradle Plugin Portal**: spockk-gradle-plugin (ID: `io.github.pshevche.spockk`)
 - **JetBrains Marketplace**: spockk-intellij-plugin
 - **GitHub Pages**: spockk-docs
-- Version defined in `gradle.properties` (currently `0.2.0`)
+- Version defined in `gradle.properties` (currently `0.3.0`)
 
 ## Git Conventions
 
