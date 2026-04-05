@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Use this for features complex enough to need upfront design.
-        Claude will write a design spec and implementation plan first — implementation starts only after you approve them.
+        OpenCode will write a design spec and implementation plan first — implementation starts only after you approve them.
         For smaller self-contained work, use **Task** instead.
 
   - type: textarea
@@ -25,7 +25,7 @@ body:
     id: desired-behavior
     attributes:
       label: What should developers be able to write?
-      description: Show a concrete usage example. This is the primary input Claude uses to design the feature.
+      description: Show a concrete usage example. This is the primary input OpenCode uses to design the feature.
       placeholder: |
         ```kotlin
         class DatabaseSpec : Spec() {
@@ -51,7 +51,7 @@ body:
     id: acceptance-criteria
     attributes:
       label: Acceptance criteria
-      description: High-level conditions that must hold when the feature is complete. Claude implements against these.
+      description: High-level conditions that must hold when the feature is complete. OpenCode implements against these.
       placeholder: |
         - [ ] `@Shared` fields are initialized once before any feature runs
         - [ ] `@Shared` fields are accessible from all feature methods

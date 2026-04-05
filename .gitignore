@@ -30,3 +30,4 @@ build
 .intellijPlatform
 
 .claude/worktrees
+.opencode/worktrees

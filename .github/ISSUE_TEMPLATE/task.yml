@@ -11,7 +11,7 @@ body:
     id: summary
     attributes:
       label: What needs to be done?
-      description: Be specific enough that Claude can implement without guessing. Include a usage example if it helps.
+      description: Be specific enough that OpenCode can implement without guessing. Include a usage example if it helps.
       placeholder: |
         Add support for `@Ignore` on individual feature methods. An ignored feature should be skipped
         (not executed) and appear as "skipped" in the test report.
@@ -31,7 +31,7 @@ body:
     id: acceptance-criteria
     attributes:
       label: Acceptance criteria
-      description: Testable conditions that define "done". Claude will implement against these.
+      description: Testable conditions that define "done". OpenCode will implement against these.
       placeholder: |
         - [ ] `@Ignore` on a feature method causes that feature to be skipped
         - [ ] Skipped features appear as "skipped" in the JUnit Platform test report
@@ -43,7 +43,7 @@ body:
   - type: textarea
     id: context
     attributes:
-      label: Context for Claude
+      label: Context for OpenCode
       description: "Optional: relevant files, related issues, Spock reference, or anything that helps narrow the scope."
       placeholder: |
         Spock handles @Ignore in SpecAnnotator.java. In Spockk the equivalent is likely in
