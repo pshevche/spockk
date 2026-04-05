@@ -32,7 +32,7 @@ body:
     id: reproduction
     attributes:
       label: Minimal reproduction
-      description: "Optional: The smallest Kotlin spec that triggers the bug. Claude will use this to reproduce and fix the issue."
+      description: "Optional: The smallest Kotlin spec that triggers the bug. OpenCode will use this to reproduce and fix the issue."
       placeholder: |
         ```kotlin
         class MySpec : Spec() {
@@ -54,7 +54,7 @@ body:
   - type: textarea
     id: context
     attributes:
-      label: Context for Claude
+      label: Context for OpenCode
       description: "Optional: any hints about where in the codebase this might be, related features, or recent changes that could be relevant."
       placeholder: |
         This started happening after upgrading to 0.2.0.
