@@ -77,8 +77,8 @@ EOF
 
 A design spec and implementation plan are required before coding.
 
-1. Write a design spec under `_docs/specs/`.
-2. Write an implementation plan under `_docs/plans/`.
+1. Load and run the `superpowers/brainstorming` skill via OpenCode's native `skill` tool.
+2. The brainstorming workflow should produce a design spec under `_docs/specs/` and an implementation plan under `_docs/plans/`.
 3. Ask the user to review and approve both documents.
 
 Do not start implementation until approval is explicit.

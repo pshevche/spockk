@@ -89,6 +89,8 @@ For larger features (`type::story` issues), design before coding:
 - **Design specs** live in `_docs/specs/`
 - **Implementation plans** live in `_docs/plans/`
 
+The `/gh-issue` skill uses the Superpowers brainstorming workflow for `type::story` issues to generate these documents.
+
 Review and approve the spec and plan before implementation starts.
 
 ## Publishing
