@@ -5,5 +5,14 @@
   ],
   "instructions": [
     "CONTRIBUTING.md"
-  ]
+  ],
+  "lsp": {
+    "kotlin-ls": {
+      "disabled": true
+    },
+    "kotlin-lsp": {
+      "command": ["kotlin-lsp", "--stdio"],
+      "extensions": [".kt", ".kts"]
+    }
+  }
 }
