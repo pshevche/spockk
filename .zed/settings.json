@@ -1,0 +1,15 @@
+{
+  "languages": {
+    "Kotlin": {
+      "language_servers": ["kotlin-lsp", "!kotlin-language-server"]
+    }
+  },
+  "lsp": {
+    "kotlin-lsp": {
+      "binary": {
+        "path": "kotlin-lsp",
+        "arguments": ["--stdio"]
+      }
+    }
+  }
+}
