@@ -11,7 +11,7 @@ runs:
   steps:
     # expects the documentation to be built
     - name: Upload documentation artifacts
-      uses: actions/upload-pages-artifact@v4
+      uses: actions/upload-pages-artifact@v5
       with:
         name: spockk-docs-${{ github.run_id }}
         path: spockk-docs/build/docs/
