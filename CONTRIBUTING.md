@@ -11,7 +11,38 @@ Before starting work on a significant change, please [open an issue](https://git
 ### Prerequisites
 
 - **JDK 21**: Set the `JDK21` environment variable to the JDK path to make it discoverable by Gradle's toolchains.
+- **direnv**: Required to load OpenCode conventions (see OpenCode Setup below)
 - **IntelliJ IDEA**: While any IDE with Kotlin support works, working on Spockk specifications may be tricky, as the IDE support is only provided via the Spockk IntelliJ plugin
+
+### OpenCode Setup
+
+Spockk uses OpenCode with the [pshevche/opencode-conventions-config](https://github.com/pshevche/opencode-conventions-config) shared configuration.
+
+1. Install direnv:
+   ```bash
+   brew install direnv
+   ```
+
+2. Add to your shell (`~/.zshrc`):
+   ```bash
+   eval "$(direnv hook zsh)"
+   ```
+
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/pshevche/spockk.git
+   cd spockk
+   ```
+
+4. Allow direnv to load the configuration:
+   ```bash
+   direnv allow
+   ```
+
+5. Initialize the git submodule:
+   ```bash
+   git submodule update --init --recursive
+   ```
 
 ### Setup Steps
 

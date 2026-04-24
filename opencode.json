@@ -1,11 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "superpowers@git+https://github.com/obra/superpowers.git"
-  ],
-  "instructions": [
-    "CONTRIBUTING.md"
-  ],
   "lsp": {
     "kotlin-ls": {
       "disabled": true
