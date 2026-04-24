@@ -18,32 +18,6 @@ Before starting work on a significant change, please [open an issue](https://git
 
 Spockk uses OpenCode with the [pshevche/opencode-conventions-config](https://github.com/pshevche/opencode-conventions-config) shared configuration.
 
-1. Install direnv:
-   ```bash
-   brew install direnv
-   ```
-
-2. Add to your shell (`~/.zshrc`):
-   ```bash
-   eval "$(direnv hook zsh)"
-   ```
-
-3. Clone the repository:
-   ```bash
-   git clone https://github.com/pshevche/spockk.git
-   cd spockk
-   ```
-
-4. Allow direnv to load the configuration:
-   ```bash
-   direnv allow
-   ```
-
-5. Initialize the git submodule:
-   ```bash
-   git submodule update --init --recursive
-   ```
-
 ### Setup Steps
 
 1. Fork and clone the repository:
