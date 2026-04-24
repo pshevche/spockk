@@ -20,6 +20,7 @@ dependencies {
 
   testImplementation(libs.hamcrest)
   testImplementation(libs.junit4)
+  testImplementation(libs.opentest4j)
 }
 
 val releaseNotesFile: RegularFile = layout.projectDirectory.dir("docs").file("release-notes.txt")
