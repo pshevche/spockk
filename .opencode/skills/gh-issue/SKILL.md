@@ -20,27 +20,7 @@ Read the issue carefully:
 - **Title and body**: understand the requirement
 - **Labels**: determine the workflow (see Step 3)
 
-## Step 2 - Create a worktree
-
-Create an isolated Git worktree for this issue.
-
-1. Build a short slug from the issue title:
-   - lowercase
-   - spaces replaced with `-`
-   - remove non-alphanumeric characters except `-`
-   - truncate to 50 characters
-2. Create branch `<user>/<slug>`.
-3. Create worktree under `.opencode/worktrees/<slug>`.
-
-Example:
-
-```bash
-git worktree add -b <user>/<slug> .opencode/worktrees/<slug> HEAD
-```
-
-Report the worktree path and branch to the user.
-
-## Step 3 - Route based on label
+## Step 2 - Route based on label
 
 Inspect issue labels and choose the workflow.
 
