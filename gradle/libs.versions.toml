@@ -10,7 +10,7 @@ mockito = "5.23.0"
 asciidoctor = { id = "org.asciidoctor.jvm.convert", version = "4.0.5" }
 buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.0.9" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
-intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.15.0" }
+intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.16.0" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.36.0" }
