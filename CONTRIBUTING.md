@@ -11,12 +11,7 @@ Before starting work on a significant change, please [open an issue](https://git
 ### Prerequisites
 
 - **JDK 21**: Set the `JDK21` environment variable to the JDK path to make it discoverable by Gradle's toolchains.
-- **direnv**: Required to load OpenCode conventions (see OpenCode Setup below)
 - **IntelliJ IDEA**: While any IDE with Kotlin support works, working on Spockk specifications may be tricky, as the IDE support is only provided via the Spockk IntelliJ plugin
-
-### OpenCode Setup
-
-Spockk uses OpenCode with the [pshevche/opencode-conventions-config](https://github.com/pshevche/opencode-conventions-config) shared configuration.
 
 ### Setup Steps
 
