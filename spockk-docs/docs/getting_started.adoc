@@ -14,7 +14,7 @@ To try Spockk in your local environment, clone the https://github.com/pshevche/s
 Spockk consists of three core modules that must be applied to your project to start using its expressive specification syntax.
 
 The **Spockk Core** module defines the specification syntax that allows defining Spock-like specifications in Kotlin.
-The core module bundles **Spock Core** module providing a `TestEngine` implementation that allows Spockk tests to run on the JUnit Platform.
+The core module bundles the **Spock Core** module providing a `TestEngine` implementation that allows Spockk tests to run on the JUnit Platform.
 
 .Enable the Spockk test engine in your Gradle project
 [source,kotlin,subs="verbatim,attributes"]
