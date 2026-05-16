@@ -1,12 +1,23 @@
 plugins {
+  alias(libs.plugins.shadow)
   id("spockk.artifact-under-test-producer")
   id("spockk.kotlin-library")
   id("spockk.maven-central-publish")
 }
 
+tasks.shadowJar {
+  archiveClassifier = ""
+  mergeServiceFiles()
+  include("io/github/pshevche/spockk/**")
+  include("org/spockframework/**")
+  include("spock/**")
+  include("META-INF/spockk-core.kotlin_module")
+  include("META-INF/services/org.junit.platform.engine.discovery.DiscoverySelectorIdentifierParser")
+  include("META-INF/services/org.junit.platform.engine.TestEngine")
+}
+
 dependencies {
-  compileOnly(libs.google.autoservice.annotations)
-  implementation(libs.junit.platform.engine)
+  api(libs.spock)
 }
 
 mavenPublishing {

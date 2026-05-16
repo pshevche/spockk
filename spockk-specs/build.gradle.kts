@@ -13,7 +13,6 @@ dependencies {
   testImplementation(projects.spockkCore)
   testImplementation(gradleTestKit())
   testImplementation(kotlin("test"))
-  testImplementation(libs.spock)
   testImplementation(libs.junit.platform.testkit)
   testImplementation(libs.kotlin.compile.testing)
 
@@ -37,7 +36,6 @@ tasks.test {
     layout.buildDirectory.dir("spockk-specs-workspaces").get().asFile.absolutePath
   )
   systemProperty("spockk.junitPlatformVersion", libs.versions.junit.platform.get())
-  systemProperty("spockk.spockVersion", libs.versions.spock.get())
 
   jvmArgs(
     "-XX:+EnableDynamicAgentLoading" // To disable warning about byte-buddy-agent
