@@ -120,13 +120,10 @@ class Workspace {
 
             dependencies {
                 testImplementation("io.github.pshevche.spockk:spockk-core:latest.integration")
-                testImplementation("org.spockframework:spock-core:${System.getProperty("spockk.spockVersion")}")
                 testRuntimeOnly("org.junit.platform:junit-platform-launcher:${System.getProperty("spockk.junitPlatformVersion")}")
             }
             tasks.test {
-                useJUnitPlatform {
-                    includeEngines.add("spock")
-                }
+                useJUnitPlatform()
                 testLogging {
                     events.addAll(listOf(
                         org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
