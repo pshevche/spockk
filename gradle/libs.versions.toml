@@ -1,7 +1,7 @@
 [versions]
 auto-service = "1.1.1"
 junit-platform = "6.1.0"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 
 [plugins]
 asciidoctor = { id = "org.asciidoctor.jvm.convert", version = "4.0.5" }
