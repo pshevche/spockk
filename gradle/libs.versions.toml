@@ -10,7 +10,7 @@ detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.8" }
 intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.16.0" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-power-assert = { id = "org.jetbrains.kotlin.plugin.power-assert", version.ref = "kotlin" }
-maven-publish = { id = "com.vanniktech.maven.publish", version = "0.36.0" }
+maven-publish = { id = "com.vanniktech.maven.publish", version = "0.37.0" }
 plugin-publish = { id = "com.gradle.plugin-publish", version = "2.1.1" }
 shadow = { id = "com.gradleup.shadow", version = "9.4.2" }
 spotless = { id = "com.diffplug.spotless", version = "8.6.0" }
