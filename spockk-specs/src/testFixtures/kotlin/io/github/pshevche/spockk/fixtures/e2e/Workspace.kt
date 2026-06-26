@@ -159,6 +159,24 @@ class Workspace {
     )
   }
 
+  fun addSpecWithDataPipes(name: String = "DataPipeSpec") {
+    writeSpec(
+      name,
+      """
+            class $name : spock.lang.Specification() {
+                fun `data pipe feature`(a: Int) {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(a > 0)
+
+                    io.github.pshevche.spockk.lang.where
+                    io.github.pshevche.spockk.lang.variable(a).from(1, 2, 3)
+                }
+            }
+        """
+        .trimIndent()
+    )
+  }
+
   fun addFailingSpec(name: String = "FailingSpec") {
     writeSpec(
       name,
