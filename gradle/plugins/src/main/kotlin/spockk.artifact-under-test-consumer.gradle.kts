@@ -2,7 +2,7 @@ plugins {
   id("spockk.kotlin-library")
 }
 
-val artifactUnderTest by configurations.creating {
+val artifactUnderTest = configurations.create("artifactUnderTest") {
   isCanBeResolved = true
   isCanBeConsumed = false
   attributes {

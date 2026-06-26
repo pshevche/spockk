@@ -10,8 +10,7 @@ plugins {
 dependencies { implementation(kotlin("gradle-plugin-api")) }
 
 gradlePlugin {
-  val spockk by
-    plugins.creating {
+    plugins.create("spockk") {
       id = "io.github.pshevche.spockk"
       displayName = "Spockk"
       description =
