@@ -3,5 +3,15 @@
   "extends": [
     "config:recommended",
     ":semanticCommits"
+  ],
+  "packageRules": [
+    {
+      "groupName": "Kotlin monorepo, power-assert, and compile-testing",
+      "groupSlug": "kotlin",
+      "matchPackagePrefixes": [
+        "org.jetbrains.kotlin",
+        "dev.zacsweers.kctfork"
+      ]
+    }
   ]
 }
