@@ -23,9 +23,9 @@ import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
+import org.jetbrains.kotlin.ir.builders.irAnnotation
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
-import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irTry
 import org.jetbrains.kotlin.ir.builders.irVararg
@@ -33,8 +33,8 @@ import org.jetbrains.kotlin.ir.declarations.IrEnumEntry
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
+import org.jetbrains.kotlin.ir.expressions.IrAnnotation
 import org.jetbrains.kotlin.ir.expressions.IrCatch
-import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
@@ -71,10 +71,10 @@ import org.jetbrains.kotlin.types.Variance
 internal fun DeclarationIrBuilder.irAnnotation(
   className: FqName,
   vararg args: IrExpression
-): IrConstructorCall {
+): IrAnnotation {
   val classSymbol = context.findRequiredClassSymbol(className)
   val constructorSymbol = classSymbol.constructors.first()
-  return irCallConstructor(constructorSymbol, listOf()).apply {
+  return irAnnotation(constructorSymbol).apply {
     args.withIndex().forEach { arguments[it.index] = it.value }
   }
 }

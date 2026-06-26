@@ -36,7 +36,7 @@ import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+import org.jetbrains.kotlin.ir.expressions.IrAnnotation
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.name.Name
@@ -68,7 +68,7 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     line: Int,
     parameterNames: List<String>,
     blocks: List<FeatureBlock>
-  ): IrConstructorCall =
+  ): IrAnnotation =
     with(irBuilder(feature.symbol)) {
       irAnnotation(
         FEATURE_METADATA_FQN,

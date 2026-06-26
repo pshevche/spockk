@@ -25,7 +25,7 @@ import io.github.pshevche.spockk.compilation.transformer.parametrization.WhereBl
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+import org.jetbrains.kotlin.ir.expressions.IrAnnotation
 
 internal class SpecRewriter(override val rewriterContext: SpockkIrRewriterContext) : SpockkIrRewriter {
 
@@ -66,7 +66,7 @@ internal class SpecRewriter(override val rewriterContext: SpockkIrRewriterContex
     spec: IrClass,
     fileName: String,
     line: Int
-  ): IrConstructorCall =
+  ): IrAnnotation =
     with(irBuilder(spec.symbol)) {
       irAnnotation(SPEC_METADATA_FQN, irString(fileName), irInt(line))
     }

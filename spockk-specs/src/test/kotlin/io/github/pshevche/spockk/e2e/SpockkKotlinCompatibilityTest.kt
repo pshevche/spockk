@@ -42,6 +42,7 @@ class SpockkKotlinCompatibilityTest : Specification() {
     setup
     workspace.kotlinVersion(kotlinVersion).gradleVersion(gradleVersion).setup()
     workspace.addSuccessfulSpec()
+    workspace.addSpecWithDataPipes()
 
     `when`
     val result = workspace.build("test", "--stacktrace")
@@ -51,12 +52,14 @@ class SpockkKotlinCompatibilityTest : Specification() {
     result.output.let {
       assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
       assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
+      assertContains(it, "DataPipeSpec > data pipe feature > data pipe feature")
     }
 
     where
     kotlinVersion          ; gradleVersion
     KotlinVersions.V2_0_21 ; GradleVersions.V8_8
     KotlinVersions.V2_1_21 ; GradleVersions.V8_12_1
-    KotlinVersions.V2_2_21 ; GradleVersions.V8_14_4
+    KotlinVersions.V2_2_21 ; GradleVersions.V8_14_5
+    KotlinVersions.V2_3_21 ; GradleVersions.V9_3_1
   }
 }
