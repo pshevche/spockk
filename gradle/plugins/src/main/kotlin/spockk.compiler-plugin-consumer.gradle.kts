@@ -4,7 +4,7 @@ plugins {
   id("spockk.kotlin-library")
 }
 
-val compilerPlugin by configurations.creating {
+val compilerPlugin = configurations.create("compilerPlugin") {
   isCanBeResolved = true
   isCanBeConsumed = false
   attributes {

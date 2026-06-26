@@ -7,13 +7,11 @@
 # These are Windows script files and should use crlf
 *.bat           text eol=crlf
 
-# Binary files should be left untouched
-*.jar           binary
-
 # Spotless formatting newline issues on Windows using auto.crlf=false.
 # See https://github.com/diffplug/spotless/tree/main/plugin-gradle#line-endings-and-encodings-invisible-stuff
 * text eol=lf
 
-# png files should be left untouched
+# Binary files should be left untouched
+*.jar           binary
 *.png binary
 

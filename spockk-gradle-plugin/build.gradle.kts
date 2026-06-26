@@ -10,17 +10,16 @@ plugins {
 dependencies { implementation(kotlin("gradle-plugin-api")) }
 
 gradlePlugin {
-  val spockk by
-    plugins.creating {
-      id = "io.github.pshevche.spockk"
-      displayName = "Spockk"
-      description =
-        "Applies the Spockk Kotlin compiler plugin to transform concise specification syntax into runnable tests."
-      website = "https://pshevche.github.io/spockk"
-      vcsUrl = "https://github.com/pshevche/spockk.git"
-      tags = listOf("kotlin", "testing", "spockk", "compiler-plugin")
-      implementationClass = "io.github.pshevche.spockk.compilation.SpockkGradlePlugin"
-    }
+  plugins.create("spockk") {
+    id = "io.github.pshevche.spockk"
+    displayName = "Spockk"
+    description =
+      "Applies the Spockk Kotlin compiler plugin to transform concise specification syntax into runnable tests."
+    website = "https://pshevche.github.io/spockk"
+    vcsUrl = "https://github.com/pshevche/spockk.git"
+    tags = listOf("kotlin", "testing", "spockk", "compiler-plugin")
+    implementationClass = "io.github.pshevche.spockk.compilation.SpockkGradlePlugin"
+  }
 }
 
 val isCI = System.getenv("CI") != null
