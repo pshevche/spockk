@@ -18,4 +18,5 @@ object KotlinVersions {
   val V2_0_21: KotlinVersion = KotlinVersion(2, 0, 21)
   val V2_1_21: KotlinVersion = KotlinVersion(2, 1, 21)
   val V2_2_21: KotlinVersion = KotlinVersion(2, 2, 21)
+  val V2_3_21: KotlinVersion = KotlinVersion(2, 3, 21)
 }

@@ -59,6 +59,7 @@ class SpockkKotlinCompatibilityTest : Specification() {
     kotlinVersion          ; gradleVersion
     KotlinVersions.V2_0_21 ; GradleVersions.V8_8
     KotlinVersions.V2_1_21 ; GradleVersions.V8_12_1
-    KotlinVersions.V2_2_21 ; GradleVersions.V8_14_4
+    KotlinVersions.V2_2_21 ; GradleVersions.V8_14_5
+    KotlinVersions.V2_3_21 ; GradleVersions.V9_3_1
   }
 }

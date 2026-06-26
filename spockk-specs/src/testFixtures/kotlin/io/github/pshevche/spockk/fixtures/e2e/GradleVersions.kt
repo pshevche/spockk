@@ -17,9 +17,8 @@ package io.github.pshevche.spockk.fixtures.e2e
 import org.gradle.util.GradleVersion
 
 object GradleVersions {
-  val V7_6_6: GradleVersion = GradleVersion.version("7.6.6")
-  val V8_1_1: GradleVersion = GradleVersion.version("8.1.1")
   val V8_8: GradleVersion = GradleVersion.version("8.8")
   val V8_12_1: GradleVersion = GradleVersion.version("8.12.1")
-  val V8_14_4: GradleVersion = GradleVersion.version("8.14.4")
+  val V8_14_5: GradleVersion = GradleVersion.version("8.14.5")
+  val V9_3_1: GradleVersion = GradleVersion.version("9.3.1")
 }

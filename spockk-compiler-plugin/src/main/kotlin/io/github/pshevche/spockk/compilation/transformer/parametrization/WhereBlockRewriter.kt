@@ -54,9 +54,9 @@ import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.expressions.IrAnnotation
 import org.jetbrains.kotlin.ir.expressions.IrBody
 import org.jetbrains.kotlin.ir.expressions.IrCall
-import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
@@ -402,7 +402,7 @@ internal class WhereBlockRewriter(
     function: IrFunction,
     nextDataVariableIndex: Int,
     previousVariables: List<IrVariable>
-  ): IrConstructorCall {
+  ): IrAnnotation {
     val dataVariables =
       rewriteResources.dataProcessorVars.subList(nextDataVariableIndex, rewriteResources.dataProcessorVars.size).map {
         it.name.asString()
@@ -527,7 +527,7 @@ internal class WhereBlockRewriter(
     }
   }
 
-  fun createDataProcessorAnnotation(builder: DeclarationIrBuilder): IrConstructorCall =
+  fun createDataProcessorAnnotation(builder: DeclarationIrBuilder): IrAnnotation =
     builder.irAnnotation(
       DATA_PROCESSOR_METADATA_FQN,
       builder.irStringArray(dataProcessorVars.map { it.name.asString() })
