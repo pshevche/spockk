@@ -1,6 +1,6 @@
 [versions]
 auto-service = "1.1.1"
-junit-platform = "6.1.0"
+junit-platform = "6.1.1"
 kotlin = "2.4.0"
 
 [plugins]
