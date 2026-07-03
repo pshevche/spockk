@@ -109,6 +109,41 @@ class SuppressorSpec : SpockkSpecification() {
 3. If successful: migrate remaining 5 test files
 4. If blocked: document blockers, keep JUnit 5 as stable state
 
+## Postmortem: Phase 2 Spockk Migration Attempt
+
+Phase 2 was explored but ultimately abandoned. Here's what happened and why.
+
+### Attempted Approach
+
+Converted `SpockkUnreachableCodeSuppressorTest` to a Spockk spec by extending `spock.lang.Specification` and manually creating the `CodeInsightTestFixture` via `IdeaTestFixtureFactory` in `setup()`/`cleanup()`.
+
+### What Worked
+
+- **Spockk spec syntax**: The compiler plugin correctly transforms `fun \`feature name\`()` and imported block labels (`expect`, `cleanup`, etc.). The spec compiled successfully.
+- **Spockk compiler plugin application**: The `spockk.compiler-plugin-consumer` convention plugin correctly applies the `-Xplugin` argument to `compileTestKotlin` (tested with a `SmokeSpockkSpec`).
+
+### What Blocked
+
+**1. IntelliJ Platform test sandbox causes classpath conflict with Spock**
+
+The IntelliJ Platform Gradle Plugin creates a test sandbox that copies all test runtime dependencies into `.intellijPlatform/sandbox/.../plugins-test/.../lib/`. When `spockk-core` (shadow jar) is added as a test dependency, its transitive `spock-core` jar gets copied to the sandbox. At runtime, both the original `spock-core` jar (from Gradle's classpath) and the sandbox copy are loaded, causing Spock's `ExtensionClassesLoader` to detect duplicate extension declarations and fail with:
+
+```
+ExtensionException: Duplicated Extension declaration for [...]
+```
+
+The error is thrown by `ExtensionClassesLoader.loadClasses()`, which strictly rejects any duplicate `IGlobalExtension` implementations — there is no opt-out flag.
+
+**2. No clean way to prevent the sandbox duplication**
+
+- Excluding `spock-core` as a transitive dependency breaks compilation because composite builds (used during development with `projects.spockkCore`) don't consume the shadow jar; they use the project's raw class files, which don't include spock-core.
+- Preventively deleting the jar from the sandbox in a task `doLast` block is fragile and paths are version-dependent.
+- Changing `spockk-core`'s dependency from `api` to `implementation` would break `spockk-specs`, which relies on the transitive `spock-core` in composite mode.
+
+### Resolution
+
+Phase 2 is abandoned. The existing JUnit 5 migration (Phase 1) is sufficient: 13 tests pass, all JUnit 4 usage eliminated. The Spockk spec files have been removed from the branch.
+
 ## Non-Goals
 
 - Moving tests to `spockk-specs` module (out of scope for this issue)

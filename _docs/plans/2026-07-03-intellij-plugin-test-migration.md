@@ -534,7 +534,27 @@ class SpockkUnreachableCodeSuppressorSpockkSpec : Specification() {
 Run: `./gradlew :spockk-intellij-plugin:test --tests "*SpockkUnreachableCodeSuppressorSpockkSpec*"`
 Expected: Either all tests PASS, or see error indicating incompatibility
 
-- [ ] **Step 4: Document findings**
+- [x] **Step 4: Document findings**
 
-If Spockk works: update remaining 3 test files and commit.
-If Spockk fails: note the blocker in `_docs/specs/2026-07-03-intellij-plugin-test-migration-design.md` under Phase 2.
+Spockk failed. See postmortem in spec doc.
+
+### Postmortem: What Did Not Go as Planned
+
+**Phase 2 (Spockk migration) was abandoned due to a classpath conflict with the IntelliJ Platform test sandbox.**
+
+**The good:**
+- The Spockk compiler plugin applies correctly to the `spockk-intellij-plugin` module. A minimal `SmokeSpockkSpec` compiled successfully with `fun` syntax, block label imports (`expect`, etc.), and `kotlin.test` assertions.
+- The `spockk.compiler-plugin-consumer` convention plugin works as intended.
+
+**The blocker:**
+- The IntelliJ Platform test sandbox (`prepareTestSandbox`) copies `spock-core-*.jar` into a plugins-test directory. At runtime, the classloader sees two copies of the `META-INF/services/org.spockframework.runtime.extension.IGlobalExtension` file — one from Gradle's classpath, one from the sandbox. Spock's `ExtensionClassesLoader` strictly rejects this with a `Duplicated Extension declaration` error.
+- There is no Spock configuration flag to bypass this check.
+- Composition approaches (excluding the transitive dep, deleting from sandbox post-copy) are either fragile, break composite builds, or don't work.
+
+**Impact:**
+- Phase 1 (JUnit 5) is unaffected — all 13 tests pass.
+- Phase 2 code (Spockk specs, sandbox-related build config) has been removed from the branch.
+- The test data resources directory `SpockkUnreachableCodeSuppressorSpockkSpec/` (created accidentally) was also deleted.
+
+**Future consideration:**
+- If a future version of Spock adds a property to disable the duplicate extension check, or if the IntelliJ Platform Gradle Plugin adds a way to exclude specific jars from the test sandbox, this could be revisited.
