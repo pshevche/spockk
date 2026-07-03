@@ -23,7 +23,7 @@ tasks.named("asciidoctor", AsciidoctorTask::class) {
     mapOf(
       "imagesdir" to "images",
       "revnumber" to project.property("version"),
-      "junitPlatformVersion" to libs.versions.junit.platform.get(),
+      "junitPlatformVersion" to libs.versions.junit.get(),
     )
   )
 }
