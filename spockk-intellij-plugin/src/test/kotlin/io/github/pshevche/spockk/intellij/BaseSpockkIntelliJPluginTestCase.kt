@@ -14,15 +14,29 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import java.nio.file.Paths
 
-abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTestCase() {
+abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTestCase5() {
+
+  protected val myFixture: CodeInsightTestFixture
+    get() = fixture
+
+  protected val project: Project
+    get() = fixture.project
+
+  protected val file: PsiFile
+    get() = fixture.file
+
+  protected val name: String
+    get() = testNameRule.methodName
 
   override fun getTestDataPath(): String {
     val testCaseName = this::class.simpleName!!
@@ -32,9 +46,9 @@ abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTes
 
   protected fun CodeInsightTestFixture.configureFromDefaultFile(): PsiFile = this.configureByFile("/${this@BaseSpockkIntelliJPluginTestCase.name}.kt")
 
-  protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T {
+  protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T = ReadAction.compute<T, RuntimeException> {
     val document = PsiDocumentManager.getInstance(project).getDocument(file)
-    return document!!.text.allIndexesOf(text).firstNotNullOf {
+    document!!.text.allIndexesOf(text).firstNotNullOf {
       PsiTreeUtil.getParentOfType<T?>(file.findElementAt(it), elementClass)
     }
   }

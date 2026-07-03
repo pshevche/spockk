@@ -16,29 +16,35 @@ package io.github.pshevche.spockk.intellij
 
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.psi.codeStyle.CodeStyleManager
+import org.junit.jupiter.api.Test
 
 class SpockkDataTableFormattingModelBuilderTest : BaseSpockkIntelliJPluginTestCase() {
 
+  @Test
   fun testApplyKotlinFormatterByDefault() {
     // expect
     checkFormattingBeforeAndAfter()
   }
 
+  @Test
   fun testApplyDefaultFormatterToTablesOutsideOfWhereBlock() {
     // expect
     checkFormattingBeforeAndAfter()
   }
 
+  @Test
   fun testSpockkTableBasicUsage() {
     // expect
     checkFormattingBeforeAndAfter()
   }
 
+  @Test
   fun testSpockkTableWithComments() {
     // expect
     checkFormattingBeforeAndAfter()
   }
 
+  @Test
   fun testSpockkTableWithBlockDescription() {
     // expect
     checkFormattingBeforeAndAfter()

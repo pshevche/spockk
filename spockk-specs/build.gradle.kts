@@ -35,7 +35,7 @@ tasks.test {
     "spockk.workspaceDir",
     layout.buildDirectory.dir("spockk-specs-workspaces").get().asFile.absolutePath
   )
-  systemProperty("spockk.junitPlatformVersion", libs.versions.junit.platform.get())
+  systemProperty("spockk.junitPlatformVersion", libs.versions.junit.get())
 
   jvmArgs(
     "-XX:+EnableDynamicAgentLoading" // To disable warning about byte-buddy-agent

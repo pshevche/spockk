@@ -14,33 +14,43 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.psi.PsiElement
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
 
   private lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
-  override fun setUp() {
-    super.setUp()
+  @BeforeEach
+  private fun setUp() {
     suppressor = SpockkUnusedExpressionInspectionSuppressor()
     myFixture.configureFromDefaultFile()
   }
 
   private fun isSuppressedFor(elementText: String): Boolean =
-    suppressor.isSuppressedFor(
-      findRequiredElementByTextAndType(elementText, PsiElement::class.java),
-      "KotlinUnreachableCode"
-    )
+    ReadAction.compute<Boolean, RuntimeException> {
+      suppressor.isSuppressedFor(
+        findRequiredElementByTextAndType(elementText, PsiElement::class.java),
+        "KotlinUnreachableCode"
+      )
+    }
 
+  @Test
   fun testSuppressUnreachableCodeWarningsForWhereBlockStatements() {
     assertTrue(isSuppressedFor("val11"))
     assertTrue(isSuppressedFor("val21"))
   }
 
+  @Test
   fun testSuppressUnreachableCodeWarningsForCleanupBlockStatements() {
     assertTrue(isSuppressedFor("println"))
   }
 
+  @Test
   fun testDoesNotSuppressUnreachableCodeOutsideSpecialBlocks() {
     assertFalse(isSuppressedFor("regularStatement"))
   }
