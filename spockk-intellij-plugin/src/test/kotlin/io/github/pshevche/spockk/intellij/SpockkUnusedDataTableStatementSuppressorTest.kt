@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test
 class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkUnusedExpressionInspectionSuppressorTest() {
 
   @BeforeEach
-  override fun setUp() {
-    super.setUp()
+  fun setUpFixture() {
     myFixture.configureFromDefaultFile()
   }
 
