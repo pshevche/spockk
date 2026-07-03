@@ -3,11 +3,11 @@ plugins {
 }
 
 develocity {
+  projectId = "spockframework"
+  server = "https://community.develocity.cloud"
   buildScan {
-    termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
-    termsOfUseAgree = "yes"
     publishing {
-      onlyIf { it.buildResult.failures.isNotEmpty() }
+      onlyIf { it.isAuthenticated }
     }
   }
 }
