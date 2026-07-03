@@ -26,7 +26,7 @@ class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
   private lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
   @BeforeEach
-  fun setUp() {
+  private fun setUp() {
     suppressor = SpockkUnusedExpressionInspectionSuppressor()
     myFixture.configureFromDefaultFile()
   }

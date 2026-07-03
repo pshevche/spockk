@@ -23,7 +23,7 @@ abstract class BaseSpockkUnusedExpressionInspectionSuppressorTest : BaseSpockkIn
   protected lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
   @BeforeEach
-  open fun setUp() {
+  private fun setUp() {
     suppressor = SpockkUnusedExpressionInspectionSuppressor()
   }
 

@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test
 class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkUnusedExpressionInspectionSuppressorTest() {
 
   @BeforeEach
-  fun setUpFixture() {
+  private fun setUp() {
     myFixture.configureFromDefaultFile()
   }
 
