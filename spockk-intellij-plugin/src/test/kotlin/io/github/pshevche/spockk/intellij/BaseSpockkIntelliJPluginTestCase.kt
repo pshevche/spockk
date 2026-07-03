@@ -14,15 +14,28 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase5
 import java.nio.file.Paths
 
-abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTestCase() {
+abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTestCase5() {
+
+  protected val myFixture: CodeInsightTestFixture
+    get() = fixture
+
+  protected val project: Project
+    get() = fixture.project
+
+  protected val file: PsiFile
+    get() = fixture.file
+
+  protected val name: String
+    get() = testNameRule.methodName
 
   override fun getTestDataPath(): String {
     val testCaseName = this::class.simpleName!!

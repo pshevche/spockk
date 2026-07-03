@@ -15,13 +15,14 @@
 package io.github.pshevche.spockk.intellij
 
 import com.intellij.psi.PsiElement
+import org.junit.jupiter.api.BeforeEach
 
 abstract class BaseSpockkUnusedExpressionInspectionSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
 
   protected lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
-  override fun setUp() {
-    super.setUp()
+  @BeforeEach
+  open fun setUp() {
     suppressor = SpockkUnusedExpressionInspectionSuppressor()
   }
 

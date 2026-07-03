@@ -15,19 +15,26 @@
 package io.github.pshevche.spockk.intellij
 
 import com.intellij.psi.PsiElement
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkUnusedExpressionInspectionSuppressorTest() {
 
+  @BeforeEach
   override fun setUp() {
     super.setUp()
     myFixture.configureFromDefaultFile()
   }
 
+  @Test
   fun testSuppressUnusedWarningsForSpockkBlockObjectReferences() {
     // expect
     assertTrue(isSuppressedFor("expect"))
   }
 
+  @Test
   fun testWarnsAboutSpockkObjectReferencesForOtherInspections() {
     // expect
     assertFalse(
@@ -38,6 +45,7 @@ class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkUnusedExpressionInspectio
     )
   }
 
+  @Test
   fun testWarnsAboutUnusedNonSpockkObjectReferences() {
     // expect
     assertFalse(isSuppressedFor("expect"))

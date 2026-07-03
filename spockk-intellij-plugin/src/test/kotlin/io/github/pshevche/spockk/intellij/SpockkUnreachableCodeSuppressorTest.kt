@@ -15,13 +15,17 @@
 package io.github.pshevche.spockk.intellij
 
 import com.intellij.psi.PsiElement
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
 
   private lateinit var suppressor: SpockkUnusedExpressionInspectionSuppressor
 
-  override fun setUp() {
-    super.setUp()
+  @BeforeEach
+  fun setUp() {
     suppressor = SpockkUnusedExpressionInspectionSuppressor()
     myFixture.configureFromDefaultFile()
   }
@@ -32,15 +36,18 @@ class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
       "KotlinUnreachableCode"
     )
 
+  @Test
   fun testSuppressUnreachableCodeWarningsForWhereBlockStatements() {
     assertTrue(isSuppressedFor("val11"))
     assertTrue(isSuppressedFor("val21"))
   }
 
+  @Test
   fun testSuppressUnreachableCodeWarningsForCleanupBlockStatements() {
     assertTrue(isSuppressedFor("println"))
   }
 
+  @Test
   fun testDoesNotSuppressUnreachableCodeOutsideSpecialBlocks() {
     assertFalse(isSuppressedFor("regularStatement"))
   }

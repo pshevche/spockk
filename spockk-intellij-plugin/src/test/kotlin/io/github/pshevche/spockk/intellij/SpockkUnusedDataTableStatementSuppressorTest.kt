@@ -14,16 +14,22 @@
 
 package io.github.pshevche.spockk.intellij
 
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 
 class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkUnusedExpressionInspectionSuppressorTest() {
 
+  @BeforeEach
   override fun setUp() {
     super.setUp()
     myFixture.configureFromDefaultFile()
   }
 
+  @Test
   fun testSuppressUnusedWarningsForDataTableStatements() {
     // expect
     listOf("variable1", "variable2").forEach {
@@ -36,6 +42,7 @@ class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkUnusedExpressionI
     }
   }
 
+  @Test
   fun testWarnsAboutDataTableStatementsInNonFeatures() {
     // expect
     listOf("variable1", "variable2").forEach {
