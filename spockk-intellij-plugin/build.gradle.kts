@@ -20,6 +20,13 @@ dependencies {
 
   testImplementation(libs.hamcrest)
   testImplementation(libs.junit.jupiter)
+
+  testRuntimeOnly(libs.junit4)
+  testRuntimeOnly(libs.junit.platform.launcher)
+}
+
+tasks.test {
+  useJUnitPlatform()
 }
 
 val releaseNotesFile: RegularFile = layout.projectDirectory.dir("docs").file("release-notes.txt")

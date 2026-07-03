@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
@@ -45,9 +46,9 @@ abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTes
 
   protected fun CodeInsightTestFixture.configureFromDefaultFile(): PsiFile = this.configureByFile("/${this@BaseSpockkIntelliJPluginTestCase.name}.kt")
 
-  protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T {
+  protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T = ReadAction.compute<T, RuntimeException> {
     val document = PsiDocumentManager.getInstance(project).getDocument(file)
-    return document!!.text.allIndexesOf(text).firstNotNullOf {
+    document!!.text.allIndexesOf(text).firstNotNullOf {
       PsiTreeUtil.getParentOfType<T?>(file.findElementAt(it), elementClass)
     }
   }

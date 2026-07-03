@@ -14,12 +14,12 @@
 
 package io.github.pshevche.spockk.intellij
 
+import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.jetbrains.kotlin.psi.KtLiteralStringTemplateEntry
-import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 
 class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkUnusedExpressionInspectionSuppressorTest() {
 

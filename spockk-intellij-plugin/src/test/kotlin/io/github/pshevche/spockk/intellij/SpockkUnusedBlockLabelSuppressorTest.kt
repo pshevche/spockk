@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.psi.PsiElement
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -38,10 +39,12 @@ class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkUnusedExpressionInspectio
   fun testWarnsAboutSpockkObjectReferencesForOtherInspections() {
     // expect
     assertFalse(
-      suppressor.isSuppressedFor(
-        myFixture.findElementByText("expect", PsiElement::class.java),
-        "UnusedDeclaration"
-      )
+      ReadAction.compute<Boolean, RuntimeException> {
+        suppressor.isSuppressedFor(
+          myFixture.findElementByText("expect", PsiElement::class.java),
+          "UnusedDeclaration"
+        )
+      }
     )
   }
 
