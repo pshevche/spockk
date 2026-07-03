@@ -1,6 +1,7 @@
 [versions]
 auto-service = "1.1.1"
 junit-platform = "6.1.1"
+junit-jupiter = "6.1.1"
 kotlin = "2.4.0"
 
 [plugins]
@@ -21,6 +22,7 @@ google-autoservice-annotations = { module = "com.google.auto.service:auto-servic
 hamcrest = { module = "org.hamcrest:hamcrest", version = "3.0" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
 junit-platform-testkit = { module = "org.junit.platform:junit-platform-testkit", version.ref = "junit-platform" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 junit4 = { module = "junit:junit", version = "4.13.2" }
 opentest4j = { module = "org.opentest4j:opentest4j", version = "1.3.0" }
 kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.13.0" }
