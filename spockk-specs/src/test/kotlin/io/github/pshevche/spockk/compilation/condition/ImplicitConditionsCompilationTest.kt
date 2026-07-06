@@ -24,4 +24,9 @@ class ImplicitConditionsCompilationTest : BaseCompilationTest() {
     expect
     assertTransformation(sampleFromResource("condition/BasicImplicitCondition"))
   }
+
+  fun `smoke test`() {
+    expect
+    false
+  }
 }

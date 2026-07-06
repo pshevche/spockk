@@ -26,8 +26,10 @@ import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
+import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
+import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -120,16 +122,29 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     builder: DeclarationIrBuilder,
     feature: IrFunction,
     featureBody: FeatureBody
-  ): List<IrStatement> {
-    val result = mutableListOf<IrStatement>()
-
-    result.addAll(featureBody.anonymousStatements)
+  ): List<IrStatement> = buildList {
+    addAll(featureBody.anonymousStatements)
     featureBody.behaviorBlocks.forEach {
-      result.add(rewriterContext.spockRuntime.irCallBlockEntered(builder, feature.requiredThisParameter(), it.ordinal))
-      result.addAll(it.statements)
-      result.add(rewriterContext.spockRuntime.irCallBlockExited(builder, feature.requiredThisParameter(), it.ordinal))
+      if (it.element.label == FeatureBlockLabel.EXPECT || it.element.label == FeatureBlockLabel.THEN) {
+        val conditionRewriter = ConditionRewriter(rewriterContext, builder, feature, it.ordinal)
+        addAll(conditionRewriter.rewrite(it.statements))
+      } else {
+        add(
+          rewriterContext.spockRuntime.irCallBlockEntered(
+            builder,
+            feature.requiredThisParameter(),
+            it.ordinal
+          )
+        )
+        addAll(it.statements)
+        add(
+          rewriterContext.spockRuntime.irCallBlockExited(
+            builder,
+            feature.requiredThisParameter(),
+            it.ordinal
+          )
+        )
+      }
     }
-
-    return result
   }
 }

@@ -12,7 +12,7 @@ class BasicImplicitCondition : spock.lang.Specification() {
   )
   fun `$spock_feature_0_0`() {
     val `$spock_valueRecorder` : org.spockframework.runtime.ValueRecorder = org.spockframework.runtime.ValueRecorder()
-    val `$spock_errorCollector` : org.spockframework.runtime.ErrorRethrower =
+    val `$spock_errorCollector` : org.spockframework.runtime.ErrorCollector =
       org.spockframework.runtime.ErrorRethrower.INSTANCE
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     try {

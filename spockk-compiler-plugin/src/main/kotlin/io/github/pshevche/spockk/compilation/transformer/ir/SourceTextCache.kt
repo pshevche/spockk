@@ -14,13 +14,18 @@
 
 package io.github.pshevche.spockk.compilation.transformer.ir
 
-import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.path
+import java.io.File
 
-/**
- * Wraps default IR generator context and provides abstractions for accessing IRs in Spock classes, such as SpockRuntime.
- */
-internal class SpockkIrRewriterContext(
-  private val defaultGenerator: IrGeneratorContext,
-  val sourceTextCache: SourceTextCache = SourceTextCache(),
-  val spockRuntime: IrSpockRuntime = IrSpockRuntime.create(defaultGenerator, sourceTextCache)
-) : IrGeneratorContext by defaultGenerator
+internal class SourceTextCache {
+  private val sourceTextByFile = mutableMapOf<IrFile, String>()
+
+  fun get(file: IrFile): String = sourceTextByFile.computeIfAbsent(file) {
+    File(file.path).readText()
+  }
+
+  fun evict(file: IrFile) {
+    sourceTextByFile.remove(file)
+  }
+}
