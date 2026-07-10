@@ -1,4 +1,3 @@
 <ul>
-    <li>[NEW] Added syntax support for setup and cleanup block labels</li>
-    <li>[FIX] Suppressed false-positive unreachable code warnings in cleanup and where blocks</li>
+    <li>Regular dependency management.</li>
 </ul>

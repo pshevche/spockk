@@ -1,5 +1,11 @@
 == Changelog
 
+=== v0.4.0
+
+- [Core] Added support for Kotlin 2.4.x
+- [Core] Bundle Spock API to avoid declaring Spock as a separate dependency
+- Regular dependency management.
+
 === v0.3.2
 
 - [Core] Allow accessing `@Shared` fields from `setupSpec` and `cleanupSpec` methods
