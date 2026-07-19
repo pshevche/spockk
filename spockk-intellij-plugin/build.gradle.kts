@@ -9,8 +9,9 @@ repositories { intellijPlatform { defaultRepositories() } }
 
 dependencies {
   intellijPlatform {
-    intellijIdea("2025.3.4")
+    intellijIdea("2026.2")
 
+    bundledPlugin("com.intellij.java")
     bundledPlugin("org.jetbrains.kotlin")
     bundledPlugin("org.jetbrains.plugins.gradle")
 
@@ -34,7 +35,7 @@ val releaseNotesFile: RegularFile = layout.projectDirectory.dir("docs").file("re
 intellijPlatform {
   buildSearchableOptions = false
   pluginConfiguration {
-    ideaVersion { sinceBuild = "251" }
+    ideaVersion { sinceBuild = "262" }
 
     changeNotes = releaseNotesFile.asFile.readText()
   }
