@@ -20,6 +20,7 @@ dependencies {
   }
 
   testImplementation(libs.hamcrest)
+  testImplementation(libs.spock)
   testImplementation(libs.junit.jupiter)
 
   testRuntimeOnly(libs.junit4)

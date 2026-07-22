@@ -23,9 +23,13 @@ import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 
 private val SPOCKK_BLOCKS_FQN =
   setOf(
@@ -131,3 +135,54 @@ private fun getBlockPosition(
 internal fun PsiElement.getLineNumber(): Int = PsiDocumentManager.getInstance(project)
   .getDocument(containingFile)
   ?.getLineNumber(textRange.startOffset)!!
+
+private val SPOCKK_SPEC_KEY = Key.create<CachedValue<Boolean>>("spockk.spec")
+private val SPOCKK_FEATURE_KEY = Key.create<CachedValue<Boolean>>("spockk.feature")
+
+internal fun PsiElement.isSpockkSpec(): Boolean {
+  val classOrObject = PsiTreeUtil.getParentOfType(this, KtClassOrObject::class.java) ?: return false
+  if (classOrObject is KtClass && (classOrObject.isInterface() || classOrObject.isEnum())) return false
+  val key = SPOCKK_SPEC_KEY
+  val cached = classOrObject.getUserData(key)
+    ?: CachedValuesManager.getManager(classOrObject.project).createCachedValue {
+      val ktFile = classOrObject.containingFile as? KtFile
+      val hasSpecImport = ktFile
+        ?.importDirectives
+        ?.any { it.importedReference?.text == "spock.lang.Specification" }
+        ?: false
+      val result = classOrObject.superTypeListEntries.any { entry ->
+        val text = entry.text.trim()
+        text == "Specification" && hasSpecImport ||
+          text == "spock.lang.Specification"
+      }
+      CachedValueProvider.Result(result, PsiModificationTracker.MODIFICATION_COUNT)
+    }
+  if (classOrObject.getUserData(key) == null) {
+    classOrObject.putUserData(key, cached)
+  }
+  return cached.value
+}
+
+internal fun PsiElement.isSpockkFeature(): Boolean {
+  val ktFunction = PsiTreeUtil.getParentOfType(this, KtNamedFunction::class.java) ?: return false
+  if (ktFunction.isLocal) return false
+  if (isFixtureMethod(ktFunction)) return false
+  val specClass = PsiTreeUtil.getParentOfType(ktFunction, KtClassOrObject::class.java) ?: return false
+  if (!specClass.isSpockkSpec()) return false
+  val key = SPOCKK_FEATURE_KEY
+  val cached = ktFunction.getUserData(key)
+    ?: CachedValuesManager.getManager(ktFunction.project).createCachedValue {
+      val hasBlockLabel = PsiTreeUtil.collectElementsOfType(ktFunction, KtNameReferenceExpression::class.java)
+        .any { it.isSpockkBlock() }
+      CachedValueProvider.Result(hasBlockLabel, PsiModificationTracker.MODIFICATION_COUNT)
+    }
+  if (ktFunction.getUserData(key) == null) {
+    ktFunction.putUserData(key, cached)
+  }
+  return cached.value
+}
+
+private fun isFixtureMethod(function: KtNamedFunction): Boolean {
+  val name = function.name
+  return name == "setup" || name == "cleanup" || name == "setupSpec" || name == "cleanupSpec"
+}
