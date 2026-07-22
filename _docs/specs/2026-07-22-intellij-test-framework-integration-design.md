@@ -24,7 +24,7 @@ Tests must execute via Gradle (the Spockk compiler plugin is applied through the
 - Implements `KotlinPsiBasedTestFramework` directly (does NOT extend `AbstractKotlinPsiBasedTestFramework` — Spockk's superclass-based detection doesn't fit the annotation-oriented base class)
 
 **Spec class detection** (`isTestClass()` / `checkTestClass()`):
-A Kotlin class is a Spockk spec if it (or any superclass) extends `spock.lang.Specification`. Traverse the PSI supertype list to check for a reference resolvable to this FQN.
+A Kotlin class is a Spockk spec if it (or any superclass) extends `spock.lang.Specification`. Uses PSI resolution (`KtSuperTypeListEntry.typeReference?.resolveToClass()`) to walk the real superclass hierarchy. Results are cached via `CachedValuesManager` with `PsiModificationTracker.MODIFICATION_COUNT` dependency (same pattern as existing `Psi.kt`).
 
 **Feature method detection** (`isTestMethod()`):
 A Kotlin function inside a spec class is a feature if:
@@ -93,12 +93,15 @@ These follow the same pattern as `KotlinJvmTestClassGradleConfigurationProducer`
 | `SpockkTestClassGradleConfigurationProducer.kt` | Class-level Gradle run config producer |
 | `SpockkTestMethodGradleConfigurationProducer.kt` | Method-level Gradle run config producer |
 | (Conditional) `SpockkRunLineMarkerContributor.kt` | Gutter icons, only if TestFramework doesn't auto-provide them |
+| (Conditional) `SpockkRunLineMarkerContributor.kt` | Gutter icons, only if TestFramework doesn't auto-provide them |
 
 ### Modified files
 | File | Changes |
 |------|---------|
 | `Psi.kt` | Add `isSpockkSpec()`, `isSpockkFeature()` |
 | `plugin.xml` | Register testFramework, testFrameworkProvider, runConfigurationProducer extensions |
+
+**Build changes:** Add `libs.spock` (spock-core) as a `testImplementation` dependency of `spockk-intellij-plugin` — required for PSI resolution of `spock.lang.Specification` in tests.
 
 ### Test files
 | File | What it tests |
@@ -125,3 +128,9 @@ The Kotlin plugin classes referenced are internal API (`org.jetbrains.kotlin.ide
 - `sinceBuild = "262"` pins to IntelliJ 2026.2 with a specific Kotlin plugin version
 - The pattern follows established convention used by Kotlin's own JUnit/TestNG integration
 - If the Kotlin plugin API changes in a future IntelliJ version, the plugin can be updated accordingly
+
+**Fallback plan:** If `AbstractKotlinTestClassGradleConfigurationProducer` is not accessible (package visibility), fall back to extending `TestClassGradleConfigurationProducer` (public Gradle Java API) directly. The `TestFrameworks.isTestClass()` mechanism still works via our `TestFramework` registration.
+
+## Build Changes
+
+Add `libs.spock` (spock-core) to `spockk-intellij-plugin` as `testImplementation` dependency — required for PSI resolution of `spock.lang.Specification` in test fixtures.
