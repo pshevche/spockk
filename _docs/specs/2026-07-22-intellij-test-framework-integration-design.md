@@ -26,18 +26,20 @@ Tests must execute via Gradle (the Spockk compiler plugin is applied through the
 **Spec class detection** (`isTestClass()` / `checkTestClass()`):
 A Kotlin class is a Spockk spec if it (or any superclass) extends `spock.lang.Specification`. Uses PSI resolution (`KtSuperTypeListEntry.typeReference?.resolveToClass()`) to walk the real superclass hierarchy. Results are cached via `CachedValuesManager` with `PsiModificationTracker.MODIFICATION_COUNT` dependency (same pattern as existing `Psi.kt`).
 
+**Scope:** We do NOT restrict to test source roots (`isUnderTestSources()`). Spockk specs are always in test sources by convention (they depend on `spock.lang.Specification` which is a test dependency), but checking this adds complexity with no practical benefit. A class in `src/main/` that extends `Specification` would get gutter icons, which is correct behavior if someone puts a spec there.
+
 **Feature method detection** (`isTestMethod()`):
 A Kotlin function inside a spec class is a feature if:
 - Its body contains at least one Spockk block label reference (`given`, `setup`, `expect`, `when`, `then`, `and`, `where`, `cleanup`)
 - It is NOT a fixture method (`setup`, `cleanup`, `setupSpec`, `cleanupSpec`)
 
-Reuses `isSpockkBlock()` from `Psi.kt` with a body-scoped PSI visitor.
+Uses `PsiTreeUtil.collectElementsOfType(function, KtNameReferenceExpression::class.java)` to find all reference expressions in the method body, then filters each candidate through `isSpockkBlock()` from `Psi.kt`. This covers reference expressions at any nesting depth (including inside lambdas) but does NOT descend into nested class or object declarations within the method body — those are separate classes, not features.
 
 **Edge cases:**
 - **Abstract spec classes:** Detected as test classes. IntelliJ automatically provides a dropdown of concrete subclasses to run.
 - **Fixture methods:** NOT detected as feature methods.
 - **Nested/inner spec classes:** NOT detected (no gutter icons).
-- **Kotlin `object` specs:** NOT detected (no gutter icons).
+- **Kotlin `object` specs:** NOT detected (no gutter icons). `object MySpec : Specification()` is valid but excluded because spec classes are typically `class` declarations. `object` specs are uncommon and the `KotlinPsiBasedTestFramework.checkTestClass()` base logic has different code paths for `object` vs `class` — excluding `object` avoids edge cases. This is a deliberate scope reduction; `object` specs can be run by adding a run config manually or by converting to a `class`.
 
 **Icon:** Standard test run icon (`AllIcons.RunConfigurations.TestState.Run`).
 
@@ -45,7 +47,14 @@ Reuses `isSpockkBlock()` from `Psi.kt` with a body-scoped PSI visitor.
 
 **Extension point:** `org.jetbrains.kotlin.idea.testFrameworkProvider`
 
-Implements `KotlinTestFrameworkProvider` to bridge Spockk detection with the Kotlin plugin's JVM test infrastructure:
+**Why needed:** The Kotlin plugin has its own test detection layer that runs alongside IntelliJ's Java `TestFrameworks` service. Without a registered `KotlinTestFrameworkProvider`:
+
+- **`isProducedByKotlin()` / `isProducedByJava()`** — The Kotlin plugin uses these to decide configuration precedence. Missing them means Spockk run configs produced by Kotlin-aware producers could be silently replaced by generic Java config producers (e.g., the JUnit runner).
+- **`getJavaTestEntity()`** — The Gradle run configuration base classes need a Java `PsiClass`/`PsiMethod` to build `--tests` filters. Without a provider that extracts these from Kotlin PSI, method-level filtering won't work.
+- **`isTestFrameworkAvailable()`** — Used by the Kotlin plugin's test UI to decide whether to offer Spockk gutter icons. Missing this means no gutter icons when the Kotlin plugin is active.
+- **`isTestJavaClass()` / `isTestJavaMethod()`** — These bridge our Kotlin PSI detection to the Java PSI layer, ensuring that when the Kotlin plugin's `PsiClass` facade asks "is this a test?", it gets the right answer.
+
+Implements `KotlinTestFrameworkProvider`:
 - `getCanRunJvmTests()` — returns `true`
 - `isTestJavaClass()` / `isTestJavaMethod()` — delegates to `SpockkTestFramework`
 - `isTestFrameworkAvailable()` — checks if `spock.lang.Specification` is on the module's classpath
@@ -83,6 +92,11 @@ These follow the same pattern as `KotlinJvmTestClassGradleConfigurationProducer`
 
 **Method-level filtering:** Uses the feature's original name as display name. `--tests "pkg.SpecClass.some feature"` sends a `MethodSelector` to JUnit Platform, which the Spock engine resolves via `@FeatureMetadata.name`. This is confirmed working.
 
+**Filter format details:**
+- Feature names are Kotlin identifiers (e.g., `` fun `some feature`() ``). The backticks are Kotlin syntax, not part of the identifier. The PSI element name is `"some feature"` (no backticks), and that's what goes in the `--tests` filter.
+- Spaces in the display name are passed through — the `--tests` filter value is double-quoted and handled by Gradle's argument parser, not the shell. Gradle passes it as a single argument to the JVM.
+- Characters like `$`, `#`, `!` in display names may cause issues with Gradle's `--tests` filter parsing. These are unusual in feature names but could appear. If a filter fails to match, Gradle runs no tests and exits successfully — no error. We document this as a known limitation.
+
 ## Files
 
 ### New files
@@ -92,7 +106,6 @@ These follow the same pattern as `KotlinJvmTestClassGradleConfigurationProducer`
 | `SpockkTestFrameworkProvider.kt` | KotlinTestFrameworkProvider implementation |
 | `SpockkTestClassGradleConfigurationProducer.kt` | Class-level Gradle run config producer |
 | `SpockkTestMethodGradleConfigurationProducer.kt` | Method-level Gradle run config producer |
-| (Conditional) `SpockkRunLineMarkerContributor.kt` | Gutter icons, only if TestFramework doesn't auto-provide them |
 | (Conditional) `SpockkRunLineMarkerContributor.kt` | Gutter icons, only if TestFramework doesn't auto-provide them |
 
 ### Modified files
@@ -134,3 +147,7 @@ The Kotlin plugin classes referenced are internal API (`org.jetbrains.kotlin.ide
 ## Build Changes
 
 Add `libs.spock` (spock-core) to `spockk-intellij-plugin` as `testImplementation` dependency — required for PSI resolution of `spock.lang.Specification` in test fixtures.
+
+**Test classpath verification:** `LightJavaCodeInsightFixtureTestCase5` resolves test fixture code against the test module's classpath. Adding `libs.spock` as `testImplementation` should be sufficient — the IntelliJ test framework includes the test runtime classpath. If resolution fails, verify that:
+1. `spock.lang.Specification` appears in the test module's resolved dependency graph
+2. The test project's module root manager includes the spock library
