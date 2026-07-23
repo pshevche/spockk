@@ -26,12 +26,12 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
-import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
+import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.psi.KtObjectDeclaration
 
 private val SPOCKK_BLOCKS_FQN =
   setOf(
@@ -161,7 +161,8 @@ internal fun PsiElement.isSpockkSpec(): Boolean {
     val ktFile = foundClass.containingFile as? KtFile ?: return@compute false
     for (other in ktFile.declarations) {
       if (other is KtClassOrObject && other != foundClass &&
-        (other.text.contains(": spock.lang.Specification") || other.text.contains(": Specification"))) {
+        (other.text.contains(": spock.lang.Specification") || other.text.contains(": Specification"))
+      ) {
         if (classText.contains(": ${other.name}")) return@compute true
       }
     }
@@ -175,7 +176,10 @@ internal fun PsiElement.isSpockkFeature(): Boolean {
     var node: PsiElement? = element
     var ktFunction: KtNamedFunction? = null
     while (node != null) {
-      if (node is KtNamedFunction) { ktFunction = node; break }
+      if (node is KtNamedFunction) {
+        ktFunction = node
+        break
+      }
       node = node.parent
     }
     if (ktFunction == null) return@compute false
@@ -184,7 +188,10 @@ internal fun PsiElement.isSpockkFeature(): Boolean {
     var p: PsiElement? = ktFunction.parent
     var inSpec = false
     while (p != null) {
-      if (p.isSpockkSpec()) { inSpec = true; break }
+      if (p.isSpockkSpec()) {
+        inSpec = true
+        break
+      }
       p = p.parent
     }
     if (!inSpec) return@compute false
