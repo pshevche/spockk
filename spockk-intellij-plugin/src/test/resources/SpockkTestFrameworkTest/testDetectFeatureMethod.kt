@@ -8,7 +8,7 @@ class FeatureMethodSpec : spock.lang.Specification() {
     assert(true)
   }
 
-  fun `a feature with all blocks`() {
+  fun `a feature with multiple blocks`() {
     when:
     val x = 1
     then:
