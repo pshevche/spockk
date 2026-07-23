@@ -220,3 +220,29 @@ private fun isFixtureMethod(function: KtNamedFunction): Boolean {
   val name = function.name
   return name == "setup" || name == "cleanup" || name == "setupSpec" || name == "cleanupSpec"
 }
+
+internal fun PsiElement.findSpockkSetUpMethod(): PsiElement? {
+  var parent: PsiElement? = this
+  var foundClass: KtClassOrObject? = null
+  while (parent != null) {
+    if (parent is KtClassOrObject && parent !is KtObjectDeclaration) {
+      foundClass = parent
+      break
+    }
+    parent = parent.parent
+  }
+  return foundClass?.body?.functions?.find { it.name == "setup" }
+}
+
+internal fun PsiElement.findSpockkTearDownMethod(): PsiElement? {
+  var parent: PsiElement? = this
+  var foundClass: KtClassOrObject? = null
+  while (parent != null) {
+    if (parent is KtClassOrObject && parent !is KtObjectDeclaration) {
+      foundClass = parent
+      break
+    }
+    parent = parent.parent
+  }
+  return foundClass?.body?.functions?.find { it.name == "cleanup" }
+}

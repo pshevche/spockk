@@ -38,9 +38,9 @@ class SpockkTestFramework : TestFramework {
 
   override fun isPotentialTestClass(element: PsiElement): Boolean = isTestClass(element)
 
-  override fun findSetUpMethod(element: PsiElement): PsiElement? = null
+  override fun findSetUpMethod(element: PsiElement): PsiElement? = element.findSpockkSetUpMethod()
 
-  override fun findTearDownMethod(element: PsiElement): PsiElement? = null
+  override fun findTearDownMethod(element: PsiElement): PsiElement? = element.findSpockkTearDownMethod()
 
   override fun findOrCreateSetUpMethod(element: PsiElement): PsiElement? = null
 
