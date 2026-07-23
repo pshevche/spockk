@@ -22,7 +22,7 @@ import org.jetbrains.kotlin.platform.jvm.isJvm
 
 class SpockkTestClassGradleConfigurationProducer : AbstractKotlinTestClassGradleConfigurationProducer() {
 
-  override val forceGradleRunner: Boolean get() = false
+  override val forceGradleRunner: Boolean get() = true
 
   override val hasTestFramework: Boolean get() = true
 
