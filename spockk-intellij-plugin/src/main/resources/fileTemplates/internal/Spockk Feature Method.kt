@@ -1,0 +1,4 @@
+fun `${NAME}`() {
+  expect
+  ${BODY}
+}

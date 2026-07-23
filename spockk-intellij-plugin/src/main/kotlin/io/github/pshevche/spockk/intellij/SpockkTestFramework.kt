@@ -45,13 +45,13 @@ class SpockkTestFramework : TestFramework {
   override fun findOrCreateSetUpMethod(element: PsiElement): PsiElement? = null
 
   override fun getSetUpMethodFileTemplateDescriptor(): FileTemplateDescriptor =
-    FileTemplateDescriptor("")
+    FileTemplateDescriptor("Spockk SetUp Method.kt")
 
   override fun getTearDownMethodFileTemplateDescriptor(): FileTemplateDescriptor =
-    FileTemplateDescriptor("")
+    FileTemplateDescriptor("Spockk TearDown Method.kt")
 
   override fun getTestMethodFileTemplateDescriptor(): FileTemplateDescriptor =
-    FileTemplateDescriptor("")
+    FileTemplateDescriptor("Spockk Feature Method.kt")
 
   override fun isIgnoredMethod(element: PsiElement): Boolean = element.isSpockkIgnored()
 
