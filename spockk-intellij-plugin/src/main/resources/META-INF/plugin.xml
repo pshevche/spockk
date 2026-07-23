@@ -26,6 +26,5 @@
     </extensions>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin.idea">
-        <testFrameworkProvider implementation="io.github.pshevche.spockk.intellij.SpockkTestFrameworkProvider"/>
     </extensions>
 </idea-plugin>

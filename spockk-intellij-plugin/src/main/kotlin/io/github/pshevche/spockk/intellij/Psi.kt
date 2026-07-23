@@ -26,6 +26,7 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
@@ -143,38 +144,56 @@ private val SPOCKK_FEATURE_KEY = Key.create<CachedValue<Boolean>>("spockk.featur
 internal fun PsiElement.isSpockkSpec(): Boolean {
   val element = this
   return ReadAction.compute<Boolean, RuntimeException> {
-    val classOrObject = PsiTreeUtil.getParentOfType(element, KtClassOrObject::class.java) ?: return@compute false
-    if (classOrObject is KtClass && (classOrObject.isInterface() || classOrObject.isEnum())) return@compute false
-    val ktFile = classOrObject.containingFile as? KtFile
-    val hasSpecImport = ktFile
-      ?.importDirectives
-      ?.any { it.importedReference?.text == "spock.lang.Specification" }
-      ?: false
-    classOrObject.superTypeListEntries.any { entry ->
-      val text = entry.text.trim().substringBefore("(")
-      text == "Specification" && hasSpecImport ||
-        text == "spock.lang.Specification"
+    var parent: PsiElement? = element
+    var foundClass: KtClassOrObject? = null
+    while (parent != null) {
+      if (parent is KtClassOrObject && parent !is KtObjectDeclaration) {
+        foundClass = parent
+        break
+      }
+      parent = parent.parent
     }
+    if (foundClass == null) return@compute false
+    if (foundClass is KtClass && (foundClass.isInterface() || foundClass.isEnum())) return@compute false
+    val classText = foundClass.text
+    if (classText.contains(": spock.lang.Specification")) return@compute true
+    if (classText.contains(": Specification")) return@compute true
+    val ktFile = foundClass.containingFile as? KtFile ?: return@compute false
+    for (other in ktFile.declarations) {
+      if (other is KtClassOrObject && other != foundClass &&
+        (other.text.contains(": spock.lang.Specification") || other.text.contains(": Specification"))) {
+        if (classText.contains(": ${other.name}")) return@compute true
+      }
+    }
+    return@compute false
   }
 }
 
 internal fun PsiElement.isSpockkFeature(): Boolean {
-  val ktFunction = PsiTreeUtil.getParentOfType(this, KtNamedFunction::class.java) ?: return false
-  if (ktFunction.isLocal) return false
-  if (isFixtureMethod(ktFunction)) return false
-  val specClass = PsiTreeUtil.getParentOfType(ktFunction, KtClassOrObject::class.java) ?: return false
-  if (!specClass.isSpockkSpec()) return false
-  val key = SPOCKK_FEATURE_KEY
-  val cached = ktFunction.getUserData(key)
-    ?: CachedValuesManager.getManager(ktFunction.project).createCachedValue {
+  val element = this
+  return ReadAction.compute<Boolean, RuntimeException> {
+    var node: PsiElement? = element
+    var ktFunction: KtNamedFunction? = null
+    while (node != null) {
+      if (node is KtNamedFunction) { ktFunction = node; break }
+      node = node.parent
+    }
+    if (ktFunction == null) return@compute false
+    if (ktFunction.isLocal) return@compute false
+    if (isFixtureMethod(ktFunction)) return@compute false
+    var p: PsiElement? = ktFunction.parent
+    var inSpec = false
+    while (p != null) {
+      if (p.isSpockkSpec()) { inSpec = true; break }
+      p = p.parent
+    }
+    if (!inSpec) return@compute false
+    CachedValuesManager.getManager(ktFunction.project).createCachedValue<Boolean> {
       val hasBlockLabel = PsiTreeUtil.collectElementsOfType(ktFunction, KtNameReferenceExpression::class.java)
         .any { it.isSpockkBlock() }
       CachedValueProvider.Result(hasBlockLabel, PsiModificationTracker.MODIFICATION_COUNT)
-    }
-  if (ktFunction.getUserData(key) == null) {
-    ktFunction.putUserData(key, cached)
+    }.value
   }
-  return cached.value
 }
 
 private fun isFixtureMethod(function: KtNamedFunction): Boolean {
