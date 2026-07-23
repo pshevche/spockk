@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
@@ -140,27 +141,21 @@ private val SPOCKK_SPEC_KEY = Key.create<CachedValue<Boolean>>("spockk.spec")
 private val SPOCKK_FEATURE_KEY = Key.create<CachedValue<Boolean>>("spockk.feature")
 
 internal fun PsiElement.isSpockkSpec(): Boolean {
-  val classOrObject = PsiTreeUtil.getParentOfType(this, KtClassOrObject::class.java) ?: return false
-  if (classOrObject is KtClass && (classOrObject.isInterface() || classOrObject.isEnum())) return false
-  val key = SPOCKK_SPEC_KEY
-  val cached = classOrObject.getUserData(key)
-    ?: CachedValuesManager.getManager(classOrObject.project).createCachedValue {
-      val ktFile = classOrObject.containingFile as? KtFile
-      val hasSpecImport = ktFile
-        ?.importDirectives
-        ?.any { it.importedReference?.text == "spock.lang.Specification" }
-        ?: false
-      val result = classOrObject.superTypeListEntries.any { entry ->
-        val text = entry.text.trim()
-        text == "Specification" && hasSpecImport ||
-          text == "spock.lang.Specification"
-      }
-      CachedValueProvider.Result(result, PsiModificationTracker.MODIFICATION_COUNT)
+  val element = this
+  return ReadAction.compute<Boolean, RuntimeException> {
+    val classOrObject = PsiTreeUtil.getParentOfType(element, KtClassOrObject::class.java) ?: return@compute false
+    if (classOrObject is KtClass && (classOrObject.isInterface() || classOrObject.isEnum())) return@compute false
+    val ktFile = classOrObject.containingFile as? KtFile
+    val hasSpecImport = ktFile
+      ?.importDirectives
+      ?.any { it.importedReference?.text == "spock.lang.Specification" }
+      ?: false
+    classOrObject.superTypeListEntries.any { entry ->
+      val text = entry.text.trim().substringBefore("(")
+      text == "Specification" && hasSpecImport ||
+        text == "spock.lang.Specification"
     }
-  if (classOrObject.getUserData(key) == null) {
-    classOrObject.putUserData(key, cached)
   }
-  return cached.value
 }
 
 internal fun PsiElement.isSpockkFeature(): Boolean {

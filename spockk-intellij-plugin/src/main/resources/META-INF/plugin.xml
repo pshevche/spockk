@@ -16,9 +16,16 @@
         <lang.formatter language="kotlin"
                         implementationClass="io.github.pshevche.spockk.intellij.SpockkDataTableFormattingModelBuilder"
                         order="first"/>
+        <testFramework implementation="io.github.pshevche.spockk.intellij.SpockkTestFramework"/>
+        <runConfigurationProducer implementation="io.github.pshevche.spockk.intellij.SpockkTestClassGradleConfigurationProducer"/>
+        <runConfigurationProducer implementation="io.github.pshevche.spockk.intellij.SpockkTestMethodGradleConfigurationProducer"/>
     </extensions>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <supportsKotlinPluginMode supportsK2="true"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin.idea">
+        <testFrameworkProvider implementation="io.github.pshevche.spockk.intellij.SpockkTestFrameworkProvider"/>
     </extensions>
 </idea-plugin>

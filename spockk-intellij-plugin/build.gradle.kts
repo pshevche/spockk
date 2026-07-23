@@ -27,8 +27,16 @@ dependencies {
   testRuntimeOnly(libs.junit.platform.launcher)
 }
 
+configurations.all {
+  resolutionStrategy.capabilitiesResolution.withCapability("org.codehaus.groovy:groovy") {
+    select("org.apache.groovy:groovy:0")
+  }
+}
+
 tasks.test {
-  useJUnitPlatform()
+  useJUnitPlatform {
+    excludeEngines("spock")
+  }
 }
 
 val releaseNotesFile: RegularFile = layout.projectDirectory.dir("docs").file("release-notes.txt")
