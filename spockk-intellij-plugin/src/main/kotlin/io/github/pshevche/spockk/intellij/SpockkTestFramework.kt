@@ -14,7 +14,10 @@
 
 package io.github.pshevche.spockk.intellij
 
+import com.intellij.icons.IconLoader
+import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import com.intellij.lang.Language
+import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiElement
 import com.intellij.testIntegration.TestFramework
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -23,9 +26,9 @@ class SpockkTestFramework : TestFramework {
 
   override fun getName(): String = "Spockk"
 
-  override fun getIcon() = com.intellij.icons.AllIcons.RunConfigurations.TestState.Run
+  override fun getIcon() = IconLoader.getIcon("/frameworkIcon.svg", javaClass)
 
-  override fun isLibraryAttached(module: com.intellij.openapi.module.Module): Boolean = false
+  override fun isLibraryAttached(module: Module): Boolean = false
 
   override fun getLibraryPath(): String = ""
 
@@ -41,14 +44,14 @@ class SpockkTestFramework : TestFramework {
 
   override fun findOrCreateSetUpMethod(element: PsiElement): PsiElement? = null
 
-  override fun getSetUpMethodFileTemplateDescriptor(): com.intellij.ide.fileTemplates.FileTemplateDescriptor =
-    com.intellij.ide.fileTemplates.FileTemplateDescriptor("")
+  override fun getSetUpMethodFileTemplateDescriptor(): FileTemplateDescriptor =
+    FileTemplateDescriptor("")
 
-  override fun getTearDownMethodFileTemplateDescriptor(): com.intellij.ide.fileTemplates.FileTemplateDescriptor =
-    com.intellij.ide.fileTemplates.FileTemplateDescriptor("")
+  override fun getTearDownMethodFileTemplateDescriptor(): FileTemplateDescriptor =
+    FileTemplateDescriptor("")
 
-  override fun getTestMethodFileTemplateDescriptor(): com.intellij.ide.fileTemplates.FileTemplateDescriptor =
-    com.intellij.ide.fileTemplates.FileTemplateDescriptor("")
+  override fun getTestMethodFileTemplateDescriptor(): FileTemplateDescriptor =
+    FileTemplateDescriptor("")
 
   override fun isIgnoredMethod(element: PsiElement): Boolean = false
 
