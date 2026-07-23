@@ -66,16 +66,16 @@ File saved/opened
 
 User clicks "Run" CodeLens
   → testController: create TestRun
-  → gradleRunner: spawn ./gradlew :module:test --tests "*.<Spec>.<feature>"
-  → gradleRunner: parse stdout for live PASSED/FAILED/SKIPPED events
-  → testController: update TestRun with results in real-time
-  → gradleRunner: read JUnit XML for rich failure details
-  → testController: append failure messages, stack traces, diffs
+  → gradleRunner: spawn ./gradlew :module:test --tests "*.<Spec>.<feature>" --console=plain
+  → Gradle runs tests, exits
+  → gradleRunner: read JUnit XML from build/test-results/test/
+  → testController: map testcase entries to TestItems, report results
 
 User clicks "Debug" CodeLens
-  → gradleRunner: spawn ./gradlew ... --debug-jvm
-  → debugAdapter: launch Java DAP, attach to debug port
+  → gradleRunner: spawn ./gradlew :module:test --tests "<filter>" --debug-jvm --console=plain
+  → debugAdapter: launch Java DAP attach on port 5005 (via Java Debug Extension)
   → User hits breakpoints in spec source
+  → Gradle exits, read JUnit XML for results
 
 File saved
   → dataTableFormatter: if file contains where block, align semicolons
@@ -92,7 +92,7 @@ File saved
 - **Feature method:** A method inside a spec that contains at least one Spockk block label.
 - **Block region:** The range of source text covered by a Spockk block label invocation (from the label call through its trailing lambda).
 
-**Implementation:** Regex-based scanning of the file text. No AST parsing. Block labels are matched as identifier + whitespace + `{` at the start of a line (accounting for indentation). False positives are accepted as low-risk — the convention of `import io.github.pshevche.spockk.lang.*` makes these labels distinctive.
+**Implementation:** Import-based FQN verification. First, scan `import` statements for `io.github.pshevche.spockk.lang.*` or individual Spockk block imports. Only flag occurrences of `given`, `when`, `then`, `expect`, `where`, `setup`, `cleanup`, `and` that are confirmed to use the Spockk FQN (via import tracking). Within a file, this is a two-pass approach: collect imports, then scan the file body for Spockk block calls. A method is a feature if it contains at least one import-verified Spockk block call at the top level of the method body.
 
 **Output:** A `SpockkFileAnalysis` object with:
 ```typescript
@@ -150,21 +150,22 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
 
 **Implementation:**
 - Create a `TestController` with the ID `spockk-test-controller` and label `"Spockk"`.
-- **Discovery:** On activation and on file save, run the Block Detector on all open `.kt` files in the workspace. Create a tree of `TestItem`s:
+- **Activation:** `onLanguage:kotlin` — fires when the user opens a Kotlin file. The extension reads only that file, checks imports for Spockk FQNs, and only activates further (test discovery, diagnostic filtering) if the file is a Spockk spec. No workspace-wide scan.
+- **Discovery:** On save of a Kotlin file, re-run the Block Detector on that file. Update or remove `TestItem`s as needed. Create a tree of `TestItem`s:
   - Root level: spec classes → `TestItem` with `kind: TestItemKind.Suite`
   - Child level: features → `TestItem` with `kind: TestItemKind.Test`
   - Each `TestItem` has a URI and range pointing to the corresponding source location (enabling CodeLens and "Go to Test").
 - **Execution:** When the user triggers a test run:
   1. Create a `TestRun` via `testController.createTestRun()`.
-  2. Determine the Gradle test filter from the `TestItem` hierarchy:
-     - For a single feature: `--tests "*.<SpecClass>.<featureDisplayName>"`
-     - For a full spec: `--tests "*.<SpecClass>"` (or `--tests "*.<SpecClass>*"` for parameterized)
+   2. Determine the Gradle test filter from the `TestItem` hierarchy:
+     - For a single feature: `--tests "*.<SpecFQN>.<displayName>"` (display name matches the Kotlin function name as-is)
+     - For a full spec: `--tests "*.<SpecFQN>"`
      - For a file with multiple specs: run each spec separately.
-  3. Determine the Gradle module by matching the test file path against the project structure (look for `build.gradle.kts` in parent directories).
-  4. Spawn `./gradlew :<module>:test --tests "<filter>"` and pipe stdout.
-  5. Parse stdout lines for test events: `PASSED`, `FAILED`, `SKIPPED` — call `passed()`, `failed()`, `skipped()` on the `TestRun` accordingly.
-  6. After Gradle exits, read `build/test-results/test/TEST-<SpecClass>.xml` for detailed results (durations, stack traces, assertion diffs). Enrich the `TestRun` with this data via `appendMessages()`.
-  7. End the `TestRun`.
+   3. Determine the Gradle module by matching the test file path against the project structure (walk up from the file until a `build.gradle.kts` is found; skip the root project's `build.gradle.kts`; use the directory name as the module name `:<dirName>`).
+   4. Spawn `./gradlew :<module>:test --tests "<filter>" --console=plain` and pipe stdout.
+   5. **Do not parse stdout for live results.** Results are reported only after Gradle exits.
+   6. After Gradle exits, read `build/test-results/test/TEST-<SpecClass>.xml` for test results — PASSED, FAILED, SKIPPED, durations, stack traces, assertion diffs. Map `<testcase classname="SpecFQN" name="displayName">` entries to `TestItem`s by matching classname + name.
+   7. Call `passed()`, `failed()`, `skipped()`, `appendMessages()` on the `TestRun` accordingly. End the `TestRun`.
 - **CodeLenses:** The TestController automatically registers CodeLenses by default; no separate `CodeLensProvider` registration is needed for run/debug buttons above each `TestItem`.
 
 ### 4. Gradle Runner
@@ -172,21 +173,16 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
 **Purpose:** Manage Gradle child processes for test execution.
 
 **Implementation:**
-- Find the Gradle wrapper in the workspace root (`gradlew` on Unix, `gradlew.bat` on Windows).
+- Auto-detect the Gradle wrapper in the workspace root (`gradlew` on Unix, `gradlew.bat` on Windows).
 - Accept a test filter string and Gradle module path.
-- Spawn the process with `child_process.spawn()`.
-- Parse stdout for Gradle test output patterns:
-  - `<displayName> > <specClass> > <featureName>() PASSED`
-  - `<displayName> > <specClass> > <featureName>() FAILED`
-  - `<displayName> > <specClass> > <featureName>() SKIPPED`
-- Emit typed events: `{ kind: "passed" | "failed" | "skipped", spec: string, feature: string }`.
-- On process exit, resolve with the exit code and path to the JUnit XML results.
+- Spawn the process with `child_process.spawn()`, passing `--console=plain` for cleaner output.
+- Do NOT parse stdout for live results. Results are determined from JUnit XML after the process exits.
+- On process exit, resolve with the exit code and path to the JUnit XML results directory (`build/test-results/test/`).
 
 **Error handling:**
-- If Gradle wrapper not found, show an error message asking the user to run `gradle wrapper`.
-- If Gradle build fails (non-zero exit), surface the build error in the test run output.
+- Gradle wrapper auto-detected at workspace root. If not found, show an error asking the user to run `gradle wrapper` or set up a Gradle project.
+- If Gradle build fails (non-zero exit) and no JUnit XML exists, surface the build error in the test run output.
 - If a test times out, kill the Gradle process and mark remaining tests as skipped.
-- Support `--no-daemon` to avoid stale daemon issues.
 
 ### 5. Debug Adapter
 
@@ -196,15 +192,17 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
 - When the user clicks "Debug" on a spec/feature:
 
   1. Calculate the Gradle module and test filter (same as Test Controller).
-  2. Spawn `./gradlew :<module>:test --tests "<filter>" --debug-jvm -Dorg.gradle.jvmargs="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005"`.
-  3. Resolve a free port (default 5005, fallback incremental).
-  4. Wait for `Listening for transport dt_socket at address: 5005` on stdout.
-  5. Start a VSCode debug session using the `java` debug type with configuration:
+  2. Spawn `./gradlew :<module>:test --tests "<filter>" --debug-jvm --console=plain`.
+  3. Gradle's `--debug-jvm` flag suspends the JVM before running tests and waits for a debugger to attach on port 5005 by default.
+  4. Start a VSCode debug session using the `java` debug type with configuration:
      ```json
      { "type": "java", "name": "Debug Spockk Test", "request": "attach", "hostName": "localhost", "port": 5005 }
      ```
-  6. The Java debug extension handles breakpoints, step-through, variable inspection, etc.
-  7. When the test finishes (Gradle exits), end the debug session.
+  5. The Java Debug Extension (`vscode-java`) handles breakpoints, step-through, variable inspection, etc.
+  6. When the test finishes (Gradle exits), end the debug session.
+  7. Read JUnit XML for results (same as Test Controller).
+
+**Dependency:** Requires the Java Debug Extension (`vscjava.vscode-java-debug`) to be installed.
 
 - Register the debug configuration provider via `debug.registerDebugAdapterDescriptorFactory()`.
 
@@ -213,7 +211,7 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
 **Purpose:** Column-align semicolons in `where` block data tables on file save.
 
 **Implementation:**
-- Implement `DocumentFormattingEditProvider` and `DocumentRangeFormattingEditProvider`.
+- Implement `DocumentFormattingEditProvider`.
 - On `textDocument/formatting` (triggered on save if `editor.formatOnSave` is enabled):
   1. Find all `where` blocks in the file via the Block Detector.
   2. For each `where` block, find lines containing data table rows (non-comment lines with semicolons).
@@ -244,9 +242,11 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
 
 **`package.json`:**
 - Engine: `vscode` with `^1.96.0`.
-- Activation events: `onLanguage:kotlin`, `onStartupFinished`.
+- Activation events: `onLanguage:kotlin` only (lazy activation, per-file).
 - Contributes: test controller, formatting provider, debug configuration provider.
 - Dependencies: `@types/vscode`, `typescript`, `@vscode/test-electron`, `vsce`.
+
+**Versioning:** Shares the project version from `gradle.properties`. The `.vsix` artifact name is `spockk-vscode-plugin-<version>.vsix`. Published as part of the regular release workflow.
 
 ## Testing
 
