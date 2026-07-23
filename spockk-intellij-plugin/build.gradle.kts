@@ -20,17 +20,10 @@ dependencies {
   }
 
   testImplementation(libs.hamcrest)
-  testImplementation(libs.spock)
   testImplementation(libs.junit.jupiter)
 
   testRuntimeOnly(libs.junit4)
   testRuntimeOnly(libs.junit.platform.launcher)
-}
-
-configurations.all {
-  resolutionStrategy.capabilitiesResolution.withCapability("org.codehaus.groovy:groovy") {
-    select("org.apache.groovy:groovy:0")
-  }
 }
 
 tasks.test {
