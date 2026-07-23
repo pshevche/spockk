@@ -15,7 +15,10 @@
 package io.github.pshevche.spockk.intellij
 
 import com.intellij.openapi.module.Module
+import org.jetbrains.kotlin.idea.base.facet.isNewMultiPlatformModule
+import org.jetbrains.kotlin.idea.base.facet.platform.platform
 import org.jetbrains.kotlin.idea.gradleJava.run.AbstractKotlinTestClassGradleConfigurationProducer
+import org.jetbrains.kotlin.platform.jvm.isJvm
 
 class SpockkTestClassGradleConfigurationProducer : AbstractKotlinTestClassGradleConfigurationProducer() {
 
@@ -23,5 +26,6 @@ class SpockkTestClassGradleConfigurationProducer : AbstractKotlinTestClassGradle
 
   override val hasTestFramework: Boolean get() = true
 
-  override fun isApplicable(module: Module): Boolean = true
+  override fun isApplicable(module: Module): Boolean =
+    module.platform.isJvm() && !module.isNewMultiPlatformModule
 }
