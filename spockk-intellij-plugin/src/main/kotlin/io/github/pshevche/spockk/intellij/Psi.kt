@@ -155,19 +155,29 @@ internal fun PsiElement.isSpockkSpec(): Boolean {
     }
     if (foundClass == null) return@compute false
     if (foundClass is KtClass && (foundClass.isInterface() || foundClass.isEnum())) return@compute false
-    val classText = foundClass.text
-    if (classText.contains(": spock.lang.Specification")) return@compute true
-    if (classText.contains(": Specification")) return@compute true
-    val ktFile = foundClass.containingFile as? KtFile ?: return@compute false
-    for (other in ktFile.declarations) {
-      if (other is KtClassOrObject && other != foundClass &&
-        (other.text.contains(": spock.lang.Specification") || other.text.contains(": Specification"))
-      ) {
-        if (classText.contains(": ${other.name}")) return@compute true
+    foundClass.getUserData(SPOCKK_SPEC_KEY)?.let { return@compute it.value }
+    val cached = CachedValuesManager.getManager(foundClass.project).createCachedValue {
+      val result = isSpockkSpecForClass(foundClass)
+      CachedValueProvider.Result(result, PsiModificationTracker.MODIFICATION_COUNT)
+    }
+    foundClass.putUserData(SPOCKK_SPEC_KEY, cached)
+    return@compute cached.value
+  }
+}
+
+private fun isSpockkSpecForClass(foundClass: KtClassOrObject): Boolean {
+  val superTypeTexts = foundClass.superTypeListEntries.map { it.typeReference?.text ?: "" }
+  if (superTypeTexts.contains("spock.lang.Specification") || superTypeTexts.contains("Specification")) return true
+  val ktFile = foundClass.containingFile as? KtFile ?: return false
+  for (other in ktFile.declarations) {
+    if (other is KtClassOrObject && other != foundClass) {
+      val otherSuperTypeTexts = other.superTypeListEntries.map { it.typeReference?.text ?: "" }
+      if (otherSuperTypeTexts.contains("spock.lang.Specification") || otherSuperTypeTexts.contains("Specification")) {
+        if (superTypeTexts.contains(other.name)) return true
       }
     }
-    return@compute false
   }
+  return false
 }
 
 internal fun PsiElement.isSpockkFeature(): Boolean {
@@ -195,11 +205,14 @@ internal fun PsiElement.isSpockkFeature(): Boolean {
       p = p.parent
     }
     if (!inSpec) return@compute false
-    CachedValuesManager.getManager(ktFunction.project).createCachedValue<Boolean> {
+    ktFunction.getUserData(SPOCKK_FEATURE_KEY)?.let { return@compute it.value }
+    val cached = CachedValuesManager.getManager(ktFunction.project).createCachedValue<Boolean> {
       val hasBlockLabel = PsiTreeUtil.collectElementsOfType(ktFunction, KtNameReferenceExpression::class.java)
         .any { it.isSpockkBlock() }
       CachedValueProvider.Result(hasBlockLabel, PsiModificationTracker.MODIFICATION_COUNT)
-    }.value
+    }
+    ktFunction.putUserData(SPOCKK_FEATURE_KEY, cached)
+    return@compute cached.value
   }
 }
 

@@ -47,8 +47,8 @@ abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTes
   protected fun CodeInsightTestFixture.configureFromDefaultFile(): PsiFile = this.configureByFile("/${this@BaseSpockkIntelliJPluginTestCase.name}.kt")
 
   protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T = ReadAction.compute<T, RuntimeException> {
-    val document = PsiDocumentManager.getInstance(project).getDocument(file)
-    document!!.text.allIndexesOf(text).firstNotNullOf {
+    val document = PsiDocumentManager.getInstance(project).getDocument(file)!!
+    document.text.allIndexesOf(text).firstNotNullOf {
       PsiTreeUtil.getParentOfType<T?>(file.findElementAt(it), elementClass)
     }
   }

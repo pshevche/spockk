@@ -52,6 +52,8 @@ class SpockkTestFrameworkTest : BaseSpockkIntelliJPluginTestCase() {
   fun testExcludeFixtureMethods() {
     assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun setup()", PsiElement::class.java)))
     assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun cleanup()", PsiElement::class.java)))
+    assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun setupSpec()", PsiElement::class.java)))
+    assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun cleanupSpec()", PsiElement::class.java)))
   }
 
   @Test
