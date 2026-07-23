@@ -92,7 +92,11 @@ File saved
 - **Feature method:** A method inside a spec that contains at least one Spockk block label.
 - **Block region:** The range of source text covered by a Spockk block label invocation (from the label call through its trailing lambda).
 
-**Implementation:** Import-based FQN verification. First, scan `import` statements for `io.github.pshevche.spockk.lang.*` or individual Spockk block imports. Only flag occurrences of `given`, `when`, `then`, `expect`, `where`, `setup`, `cleanup`, `and` that are confirmed to use the Spockk FQN (via import tracking). Within a file, this is a two-pass approach: collect imports, then scan the file body for Spockk block calls. A method is a feature if it contains at least one import-verified Spockk block call at the top level of the method body.
+**Implementation:** Import-based FQN verification. First, scan `import` statements for `io.github.pshevche.spockk.lang.*` or individual Spockk block imports. Only flag occurrences of `given`, `when`, `then`, `expect`, `where`, `setup`, `cleanup`, `and` that are confirmed to use the Spockk FQN (via import tracking). Within a file, this is a two-pass approach: collect imports, then scan the file body for Spockk block calls.
+
+**Spec class detection:** A class is a spec if it has at least one feature method (a method containing an import-verified Spockk block call). No base class check needed.
+
+**Multi-spec files:** Group detected features by their enclosing top-level class. Each class with at least one feature becomes a `SpockkSpec`.
 
 **Output:** A `SpockkFileAnalysis` object with:
 ```typescript
@@ -167,6 +171,9 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
    6. After Gradle exits, read `build/test-results/test/TEST-<SpecClass>.xml` for test results — PASSED, FAILED, SKIPPED, durations, stack traces, assertion diffs. Map `<testcase classname="SpecFQN" name="displayName">` entries to `TestItem`s by matching classname + name.
    7. Call `passed()`, `failed()`, `skipped()`, `appendMessages()` on the `TestRun` accordingly. End the `TestRun`.
 - **CodeLenses:** The TestController automatically registers CodeLenses by default; no separate `CodeLensProvider` registration is needed for run/debug buttons above each `TestItem`.
+- **Multi-spec runs:** When running multiple specs/features, aggregate by module and use a single `./gradlew` invocation with multiple `--tests` flags (Gradle supports multiple `--tests`). Process JUnit XML per spec after completion.
+- **Compilation errors:** If Gradle exits non-zero with no JUnit XML, read stdout/stderr for compile errors and call `TestRun.failed()` with the build error message.
+- **Zero test match:** If Gradle exits zero but no `<testcase>` entries matched the requested filter, emit a warning notification.
 
 ### 4. Gradle Runner
 
@@ -246,7 +253,7 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
 - Contributes: test controller, formatting provider, debug configuration provider.
 - Dependencies: `@types/vscode`, `typescript`, `@vscode/test-electron`, `vsce`.
 
-**Versioning:** Shares the project version from `gradle.properties`. The `.vsix` artifact name is `spockk-vscode-plugin-<version>.vsix`. Published as part of the regular release workflow.
+**Versioning:** Shares the project version from `gradle.properties`. The `build.gradle.kts` generates `package.json` with the correct version before `npm run package`. The `.vsix` artifact name is `spockk-vscode-plugin-<version>.vsix`. Published as part of the regular release workflow.
 
 ## Testing
 
@@ -265,3 +272,8 @@ Additionally, the Diagnostic Filter does its own lightweight analysis:
 - Gradle task configuration UI — editing Gradle test configuration manually.
 - Non-Gradle build systems (Maven, Bazel).
 - Test history / re-run failed tests — relies on VSCode's built-in Test Explorer capabilities.
+
+## Follow-ups (implementation-time investigation)
+
+- **Diagnostic suppression:** Determine whether the Kotlin LSP emits `UnusedExpression`/`UnreachableCode` diagnostics for Spockk blocks. If it does, implement suppression immediately — the mechanism (LSP proxy, workspace config, or CodeAction) is decided during implementation based on what the LSP supports.
+- **Parameterized feature XML mapping:** Investigate how data-driven features (with `where` blocks) map to JUnit XML testcase entries. The `--tests` filter may match all iterations by base name; JUnit XML parsing needs to group iterations back to the parent `TestItem`.
