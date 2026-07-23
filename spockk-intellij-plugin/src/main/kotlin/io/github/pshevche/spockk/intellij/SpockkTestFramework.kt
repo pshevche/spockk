@@ -53,7 +53,7 @@ class SpockkTestFramework : TestFramework {
   override fun getTestMethodFileTemplateDescriptor(): FileTemplateDescriptor =
     FileTemplateDescriptor("")
 
-  override fun isIgnoredMethod(element: PsiElement): Boolean = false
+  override fun isIgnoredMethod(element: PsiElement): Boolean = element.isSpockkIgnored()
 
   override fun isTestMethod(element: PsiElement): Boolean = element.isSpockkFeature()
 

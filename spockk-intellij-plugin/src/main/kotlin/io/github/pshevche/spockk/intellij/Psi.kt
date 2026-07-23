@@ -246,3 +246,19 @@ internal fun PsiElement.findSpockkTearDownMethod(): PsiElement? {
   }
   return foundClass?.body?.functions?.find { it.name == "cleanup" }
 }
+
+internal fun PsiElement.isSpockkIgnored(): Boolean {
+  var parent: PsiElement? = this
+  var foundFunction: KtNamedFunction? = null
+  while (parent != null) {
+    if (parent is KtNamedFunction) {
+      foundFunction = parent
+      break
+    }
+    parent = parent.parent
+  }
+  return foundFunction?.annotationEntries?.any {
+    val typeText = it.typeReference?.text
+    typeText == "Ignore" || typeText == "spock.lang.Ignore"
+  } == true
+}
