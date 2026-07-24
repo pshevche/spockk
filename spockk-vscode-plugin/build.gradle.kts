@@ -31,8 +31,14 @@ val npmRunPackage by tasks.registering(NpmTask::class) {
   npmCommand.set(listOf("run", "package"))
 }
 
+val npmTest by tasks.registering(NpmTask::class) {
+  dependsOn(npmRunCompile)
+  npmCommand.set(listOf("run", "test"))
+}
+
 tasks.assemble { dependsOn(npmRunCompile) }
 tasks.build { dependsOn(npmRunPackage) }
+tasks.check { dependsOn(npmTest) }
 
 tasks.register("cleanVsCode") {
   delete("out/", "*.vsix")

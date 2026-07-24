@@ -3,6 +3,7 @@ import { scanFile } from "./blockDetector";
 import { SpockkSpec } from "./types";
 import { createTestController } from "./testController";
 import { SpockkDataTableFormattingProvider } from "./dataTableFormatter";
+import { registerDiagnosticFilter } from "./diagnosticFilter";
 
 let specsCache: SpockkSpec[] = [];
 
@@ -14,6 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
   console.log("Spockk VSCode plugin activated");
 
   createTestController(context, () => specsCache, getWorkspaceRoot);
+  registerDiagnosticFilter(context, () => specsCache);
 
   context.subscriptions.push(
     vscode.languages.registerDocumentFormattingEditProvider(

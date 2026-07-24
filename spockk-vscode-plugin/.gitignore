@@ -2,3 +2,10 @@ node_modules/
 out/
 *.vsix
 build/
+
+# Test project
+test/test-project/.gradle/
+test/test-project/build/
+test/test-project/gradlew
+test/test-project/gradlew.bat
+test/test-project/gradle/

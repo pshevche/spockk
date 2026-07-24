@@ -11,4 +11,18 @@ export interface DebugConfig {
 export function buildDebugConfig(specFqn: string, featureName?: string): DebugConfig {
   const label = featureName ? `${specFqn}.${featureName}` : specFqn;
   return {
-    name: `Debug Spockk
+    name: `Debug Spockk: ${label}`,
+    type: "java",
+    request: "attach",
+    hostName: "localhost",
+    port: 5005,
+  };
+}
+
+export async function startDebugSession(
+  specFqn: string,
+  featureName?: string
+): Promise<boolean> {
+  const config = buildDebugConfig(specFqn, featureName);
+  return vscode.debug.startDebugging(undefined, config);
+}
