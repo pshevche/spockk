@@ -7,8 +7,14 @@
   "engines": {
     "vscode": "^1.96.0"
   },
-  "categories": ["Testing", "Formatters", "Debuggers"],
-  "activationEvents": ["onLanguage:kotlin"],
+  "categories": [
+    "Testing",
+    "Formatters",
+    "Debuggers"
+  ],
+  "activationEvents": [
+    "onLanguage:kotlin"
+  ],
   "main": "./out/extension.js",
   "contributes": {},
   "scripts": {
@@ -17,10 +23,10 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/node": "^26.1.1",
     "@types/vscode": "^1.96.0",
-    "typescript": "^5.7.0",
+    "@vscode/test-electron": "^2.4.0",
     "@vscode/vsce": "^3.0.0",
-    "@vscode/test-electron": "^2.4.0"
-  },
-  "dependencies": {}
+    "typescript": "^5.7.0"
+  }
 }
