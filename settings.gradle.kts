@@ -22,5 +22,6 @@ include("spockk-docs")
 include("spockk-intellij-plugin")
 include("spockk-gradle-plugin")
 include("spockk-specs")
+include("spockk-vscode-plugin")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")

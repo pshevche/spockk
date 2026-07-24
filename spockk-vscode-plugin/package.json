@@ -1,0 +1,26 @@
+{
+  "name": "spockk-vscode-plugin",
+  "displayName": "Spockk",
+  "description": "Spockk test support for VS Code",
+  "version": "__VERSION__",
+  "publisher": "pshevche",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": ["Testing", "Formatters", "Debuggers"],
+  "activationEvents": ["onLanguage:kotlin"],
+  "main": "./out/extension.js",
+  "contributes": {},
+  "scripts": {
+    "compile": "tsc -p ./tsconfig.json",
+    "package": "vsce package --out build/vsix/",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.96.0",
+    "typescript": "^5.7.0",
+    "@vscode/vsce": "^3.0.0",
+    "@vscode/test-electron": "^2.4.0"
+  },
+  "dependencies": {}
+}
