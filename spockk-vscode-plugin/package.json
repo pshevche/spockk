@@ -24,7 +24,7 @@
     ]
   },
   "scripts": {
-    "compile": "tsc -p ./tsconfig.json",
+    "compile": "node -e \"const fs=require('fs');const p='package.json';let c=fs.readFileSync(p,'utf-8');fs.writeFileSync(p,c.replace('0.4.0',process.env.SPOCKK_VERSION||'0.0.0'))\" && tsc -p ./tsconfig.json",
     "package": "vsce package --out build/vsix/",
     "test": "node ./out/test/runTest.js"
   },

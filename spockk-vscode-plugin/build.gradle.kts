@@ -14,16 +14,14 @@ node {
 }
 
 val projectVersion = project.version.toString()
+
 val npmInstall by tasks.existing(NpmInstallTask::class)
 
 val npmRunCompile by tasks.registering(NpmTask::class) {
   dependsOn(npmInstall)
   npmCommand.set(listOf("run", "compile"))
   args.set(listOf("--", "--noEmit", "false"))
-  doFirst {
-    val pkg = layout.projectDirectory.file("package.json").asFile
-    pkg.writeText(pkg.readText().replace("__VERSION__", projectVersion))
-  }
+  environment.put("SPOCKK_VERSION", projectVersion)
 }
 
 val npmRunPackage by tasks.registering(NpmTask::class) {
