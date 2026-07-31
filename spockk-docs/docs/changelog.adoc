@@ -1,5 +1,10 @@
 == Changelog
 
+=== v0.4.1
+
+- [IntelliJ Plugin] Added support for IntelliJ 2026.2
+- Regular dependency management.
+
 === v0.4.0
 
 - [Core] Added support for Kotlin 2.4.x
