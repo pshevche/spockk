@@ -21,9 +21,31 @@ class SharedLateinitVarField : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    val `$spock_valueRecorder` : org.spockframework.runtime.ValueRecorder = org.spockframework.runtime.ValueRecorder()
+    val `$spock_errorCollector` : org.spockframework.runtime.ErrorCollector =
+      org.spockframework.runtime.ErrorRethrower.INSTANCE
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
     setUninitializedSharedField("initialized")
-    assert(getUninitializedSharedField() == "initialized")
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "(uninitializedSharedField == \"initialized\")",
+        8,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), getUninitializedSharedField()) as String) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), "initialized") as String)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "(uninitializedSharedField == \"initialized\")",
+        8,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 

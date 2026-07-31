@@ -22,7 +22,7 @@ class BasicImplicitCondition : spock.lang.Specification() {
         4,
         5,
         null,
-        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), true))
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), true) as Boolean)
     }
     catch (`$spock_condition_throwable` : Throwable) {
       org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
