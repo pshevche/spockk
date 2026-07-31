@@ -34,9 +34,11 @@ class SpockkRunLineMarkerContributor : RunLineMarkerContributor() {
       parent is KtClassOrObject && parent !is KtObjectDeclaration &&
         parent.nameIdentifier == element && parent.isSpockkSpec() ->
         ExecutorAction.getActions(0)
+
       parent is KtNamedFunction && parent.nameIdentifier == element &&
         parent.isSpockkFeature() ->
         ExecutorAction.getActions(1)
+
       else -> return null
     }
     return Info(AllIcons.RunConfigurations.TestState.Run, actions)

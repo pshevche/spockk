@@ -14,10 +14,10 @@
 
 package io.github.pshevche.spockk.intellij
 
-import com.intellij.openapi.util.IconLoader
 import com.intellij.ide.fileTemplates.FileTemplateDescriptor
 import com.intellij.lang.Language
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
 import com.intellij.testIntegration.TestFramework
 import org.jetbrains.kotlin.idea.KotlinLanguage
