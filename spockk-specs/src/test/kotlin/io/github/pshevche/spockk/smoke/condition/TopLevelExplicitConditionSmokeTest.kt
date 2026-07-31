@@ -45,13 +45,19 @@ class TopLevelExplicitConditionSmokeTest : Specification() {
   }
 
   fun `logical and condition`() {
+    val left = "spockk".isNotEmpty()
+    val right = "kotlin".isNotEmpty()
+
     expect
-    assert(1 == 1 && 2 == 2)
+    assert(left && right)
   }
 
   fun `logical or condition`() {
+    val left = "spockk".isEmpty()
+    val right = "kotlin".isNotEmpty()
+
     expect
-    assert(1 == 2 || 2 == 2)
+    assert(left || right)
   }
 
   fun `arithmetic condition`() {
