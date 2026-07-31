@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.transformer.ir
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.VALUE_RECORDER_FQN
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
+import io.github.pshevche.spockk.compilation.ir.irCastTo
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.jvm.functionByName
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
@@ -44,13 +45,17 @@ internal class IrValueRecorder private constructor(
     }
   }
 
-  fun irRecord(builder: DeclarationIrBuilder, idx: Int, expr: IrExpression): IrCall {
+  fun irRecord(builder: DeclarationIrBuilder, idx: Int, expr: IrExpression): IrExpression {
     val record = valueRecorderClassSymbol.functionByName("record")
-    return builder.irCall(record).apply {
+    val recordCall = builder.irCall(record).apply {
       dispatchReceiver = irGet(builder)
       arguments[1] = irStartRecordingValue(builder, idx)
       arguments[2] = expr
     }
+    // record(...) is typed Any?; cast the result back to the recorded expression's type so the
+    // recorded value can slot into statically typed positions (e.g. operands of typed operators
+    // such as Int.plus or comparisons), which Kotlin's IR - unlike Groovy's AST - requires.
+    return builder.irCastTo(recordCall, expr.type)
   }
 
   private fun irStartRecordingValue(builder: DeclarationIrBuilder, idx: Int): IrCall {
