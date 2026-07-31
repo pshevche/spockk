@@ -17,9 +17,11 @@
                         implementationClass="io.github.pshevche.spockk.intellij.SpockkDataTableFormattingModelBuilder"
                         order="first"/>
         <testFramework implementation="io.github.pshevche.spockk.intellij.SpockkTestFramework"/>
-        <runConfigurationProducer implementation="io.github.pshevche.spockk.intellij.SpockkTestClassGradleConfigurationProducer"/>
-        <runConfigurationProducer implementation="io.github.pshevche.spockk.intellij.SpockkTestMethodGradleConfigurationProducer"/>
+        <runConfigurationProducer
+                implementation="io.github.pshevche.spockk.intellij.SpockkTestClassGradleConfigurationProducer"/>
+        <runConfigurationProducer
+                implementation="io.github.pshevche.spockk.intellij.SpockkTestMethodGradleConfigurationProducer"/>
         <runLineMarkerContributor language="kotlin"
-                                 implementationClass="io.github.pshevche.spockk.intellij.SpockkRunLineMarkerContributor"/>
+                                  implementationClass="io.github.pshevche.spockk.intellij.SpockkRunLineMarkerContributor"/>
     </extensions>
 </idea-plugin>
