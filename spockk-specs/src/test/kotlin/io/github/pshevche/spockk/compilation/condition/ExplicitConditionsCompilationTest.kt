@@ -24,4 +24,14 @@ class ExplicitConditionsCompilationTest : BaseCompilationTest() {
     expect
     assertTransformation(sampleFromResource("condition/BasicExplicitCondition"))
   }
+
+  fun `method call condition`() {
+    expect
+    assertTransformation(sampleFromResource("condition/ExplicitMethodCallCondition"))
+  }
+
+  fun `negation condition`() {
+    expect
+    assertTransformation(sampleFromResource("condition/ExplicitNegationCondition"))
+  }
 }
