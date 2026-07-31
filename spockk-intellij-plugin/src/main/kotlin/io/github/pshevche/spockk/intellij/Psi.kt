@@ -14,7 +14,6 @@
 
 package io.github.pshevche.spockk.intellij
 
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
@@ -22,8 +21,10 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.util.CachedValue
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
+import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.kotlin.asJava.toLightClass
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtExpression
@@ -141,111 +142,102 @@ internal fun PsiElement.getLineNumber(): Int = PsiDocumentManager.getInstance(pr
 private val SPOCKK_SPEC_KEY = Key.create<CachedValue<Boolean>>("spockk.spec")
 private val SPOCKK_FEATURE_KEY = Key.create<CachedValue<Boolean>>("spockk.feature")
 
+private const val SPECIFICATION_FQN = "spock.lang.Specification"
+private val FIXTURE_METHOD_NAMES = setOf("setup", "cleanup", "setupSpec", "cleanupSpec")
+
+/**
+ * A Kotlin class is a Spockk spec if it inherits `spock.lang.Specification`, directly or
+ * transitively through a base class in any file. Detection resolves the real superclass hierarchy
+ * (via light classes) rather than matching the supertype name textually, so an unrelated class that
+ * merely happens to be named `Specification` is not misdetected. The result is cached per class.
+ *
+ * This resolves the superclass hierarchy and must therefore run off the EDT (e.g. from a run line
+ * marker's slow pass, or a background inspection thread), never from a latency-sensitive fast pass.
+ */
 internal fun PsiElement.isSpockkSpec(): Boolean {
-  val element = this
-  return ReadAction.compute<Boolean, RuntimeException> {
-    var parent: PsiElement? = element
-    var foundClass: KtClassOrObject? = null
-    while (parent != null) {
-      if (parent is KtClassOrObject && parent !is KtObjectDeclaration) {
-        foundClass = parent
-        break
-      }
-      parent = parent.parent
-    }
-    if (foundClass == null) return@compute false
-    if (foundClass is KtClass && (foundClass.isInterface() || foundClass.isEnum())) return@compute false
-    foundClass.getUserData(SPOCKK_SPEC_KEY)?.let { return@compute it.value }
-    val cached = CachedValuesManager.getManager(foundClass.project).createCachedValue {
-      val result = isSpockkSpecForClass(foundClass)
-      CachedValueProvider.Result(result, PsiModificationTracker.MODIFICATION_COUNT)
-    }
-    foundClass.putUserData(SPOCKK_SPEC_KEY, cached)
-    return@compute cached.value
+  val foundClass = enclosingSpecCandidateClass() ?: return false
+  return CachedValuesManager.getCachedValue(foundClass, SPOCKK_SPEC_KEY) {
+    CachedValueProvider.Result.create(isSpockkSpecForClass(foundClass), PsiModificationTracker.MODIFICATION_COUNT)
   }
+}
+
+/**
+ * Walks up to the nearest enclosing class declaration that could be a Spockk spec. `object`
+ * declarations are excluded (specs are conventionally `class` declarations), as are interfaces and
+ * enums.
+ */
+private fun PsiElement.enclosingSpecCandidateClass(): KtClassOrObject? {
+  val enclosingClass = enclosingClassDeclaration() ?: return null
+  if (enclosingClass is KtClass && (enclosingClass.isInterface() || enclosingClass.isEnum())) return null
+  return enclosingClass
+}
+
+/** Walks up to the nearest enclosing `class` declaration, skipping `object` declarations. */
+private fun PsiElement.enclosingClassDeclaration(): KtClassOrObject? {
+  var parent: PsiElement? = this
+  while (parent != null) {
+    if (parent is KtClassOrObject && parent !is KtObjectDeclaration) return parent
+    parent = parent.parent
+  }
+  return null
 }
 
 private fun isSpockkSpecForClass(foundClass: KtClassOrObject): Boolean {
-  val superTypeTexts = foundClass.superTypeListEntries.map { it.typeReference?.text ?: "" }
-  if (superTypeTexts.contains("spock.lang.Specification") || superTypeTexts.contains("Specification")) return true
-  val ktFile = foundClass.containingFile as? KtFile ?: return false
-  for (other in ktFile.declarations) {
-    if (other is KtClassOrObject && other != foundClass) {
-      val otherSuperTypeTexts = other.superTypeListEntries.map { it.typeReference?.text ?: "" }
-      if (otherSuperTypeTexts.contains("spock.lang.Specification") || otherSuperTypeTexts.contains("Specification")) {
-        if (superTypeTexts.contains(other.name)) return true
-      }
-    }
-  }
-  return false
+  // Walk the real superclass hierarchy via light classes. `InheritanceUtil.isInheritor` matches by
+  // fully-qualified name, so it accepts `Specification` inherited directly or transitively through a
+  // base class in another file, and rejects an unrelated same-named class.
+  val lightClass = foundClass.toLightClass() ?: return false
+  return InheritanceUtil.isInheritor(lightClass, SPECIFICATION_FQN)
 }
 
 internal fun PsiElement.isSpockkFeature(): Boolean {
-  val element = this
-  return ReadAction.compute<Boolean, RuntimeException> {
-    var node: PsiElement? = element
-    var ktFunction: KtNamedFunction? = null
-    while (node != null) {
-      if (node is KtNamedFunction) {
-        ktFunction = node
-        break
-      }
-      node = node.parent
-    }
-    if (ktFunction == null) return@compute false
-    if (ktFunction.isLocal) return@compute false
-    if (isFixtureMethod(ktFunction)) return@compute false
-    var p: PsiElement? = ktFunction.parent
-    var inSpec = false
-    while (p != null) {
-      if (p.isSpockkSpec()) {
-        inSpec = true
-        break
-      }
-      p = p.parent
-    }
-    if (!inSpec) return@compute false
-    ktFunction.getUserData(SPOCKK_FEATURE_KEY)?.let { return@compute it.value }
-    val cached = CachedValuesManager.getManager(ktFunction.project).createCachedValue<Boolean> {
-      val hasBlockLabel = PsiTreeUtil.collectElementsOfType(ktFunction, KtNameReferenceExpression::class.java)
-        .any { it.isSpockkBlock() }
-      CachedValueProvider.Result(hasBlockLabel, PsiModificationTracker.MODIFICATION_COUNT)
-    }
-    ktFunction.putUserData(SPOCKK_FEATURE_KEY, cached)
-    return@compute cached.value
+  val function = enclosingNamedFunction() ?: return false
+  if (function.isLocal) return false
+  if (isFixtureMethod(function)) return false
+  if (!function.isDeclaredInSpockkSpec()) return false
+  return CachedValuesManager.getCachedValue(function, SPOCKK_FEATURE_KEY) {
+    val hasBlockLabel = PsiTreeUtil.collectElementsOfType(function, KtNameReferenceExpression::class.java)
+      .any { it.isSpockkBlock() }
+    CachedValueProvider.Result.create(hasBlockLabel, PsiModificationTracker.MODIFICATION_COUNT)
   }
 }
 
-private fun isFixtureMethod(function: KtNamedFunction): Boolean {
-  val name = function.name
-  return name == "setup" || name == "cleanup" || name == "setupSpec" || name == "cleanupSpec"
+/**
+ * A Spockk fixture method is a lifecycle callback (`setup`, `cleanup`, `setupSpec`, `cleanupSpec`)
+ * declared directly inside a spec. Reported alongside features as an implicit usage so it is not
+ * flagged as unused.
+ */
+internal fun PsiElement.isSpockkFixtureMethod(): Boolean {
+  val function = enclosingNamedFunction() ?: return false
+  if (function.isLocal) return false
+  if (!isFixtureMethod(function)) return false
+  return function.isDeclaredInSpockkSpec()
 }
 
-internal fun PsiElement.findSpockkSetUpMethod(): PsiElement? {
-  var parent: PsiElement? = this
-  var foundClass: KtClassOrObject? = null
-  while (parent != null) {
-    if (parent is KtClassOrObject && parent !is KtObjectDeclaration) {
-      foundClass = parent
-      break
-    }
-    parent = parent.parent
+private fun PsiElement.enclosingNamedFunction(): KtNamedFunction? {
+  var node: PsiElement? = this
+  while (node != null) {
+    if (node is KtNamedFunction) return node
+    node = node.parent
   }
-  return foundClass?.body?.functions?.find { it.name == "setup" }
+  return null
 }
 
-internal fun PsiElement.findSpockkTearDownMethod(): PsiElement? {
-  var parent: PsiElement? = this
-  var foundClass: KtClassOrObject? = null
-  while (parent != null) {
-    if (parent is KtClassOrObject && parent !is KtObjectDeclaration) {
-      foundClass = parent
-      break
-    }
-    parent = parent.parent
-  }
-  return foundClass?.body?.functions?.find { it.name == "cleanup" }
-}
+/**
+ * A method belongs to a spec only when its *directly enclosing* class is a spec. Walking every
+ * ancestor would misclassify a method in a nested non-spec helper class that itself sits inside a
+ * spec.
+ */
+private fun KtNamedFunction.isDeclaredInSpockkSpec(): Boolean =
+  enclosingClassDeclaration()?.isSpockkSpec() == true
+
+private fun isFixtureMethod(function: KtNamedFunction): Boolean = function.name in FIXTURE_METHOD_NAMES
+
+internal fun PsiElement.findSpockkSetUpMethod(): PsiElement? =
+  enclosingClassDeclaration()?.body?.functions?.find { it.name == "setup" }
+
+internal fun PsiElement.findSpockkTearDownMethod(): PsiElement? =
+  enclosingClassDeclaration()?.body?.functions?.find { it.name == "cleanup" }
 
 internal fun PsiElement.isSpockkIgnored(): Boolean {
   var parent: PsiElement? = this

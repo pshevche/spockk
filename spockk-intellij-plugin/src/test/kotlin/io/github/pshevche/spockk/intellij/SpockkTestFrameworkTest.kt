@@ -26,53 +26,64 @@ class SpockkTestFrameworkTest : BaseSpockkIntelliJPluginTestCase() {
 
   @BeforeEach
   private fun setUp() {
+    myFixture.addSpecificationStub()
     myFixture.configureFromDefaultFile()
   }
 
   @Test
   fun testDetectSpecClass() {
-    assertTrue(framework.isTestClass(findRequiredElementByTextAndType("class MySpec", PsiElement::class.java)))
+    assertTrue(isTestClass("class MySpec"))
   }
 
   @Test
   fun testDetectNonSpecClass() {
-    assertFalse(framework.isTestClass(findRequiredElementByTextAndType("class NotASpec", PsiElement::class.java)))
+    assertFalse(isTestClass("class NotASpec"))
   }
 
   @Test
   fun testDetectFeatureMethod() {
-    assertTrue(
-      framework.isTestMethod(
-        findRequiredElementByTextAndType("fun `a passing feature`", PsiElement::class.java)
-      )
-    )
+    assertTrue(isTestMethod("fun `a passing feature`"))
   }
 
   @Test
   fun testExcludeFixtureMethods() {
-    assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun setup()", PsiElement::class.java)))
-    assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun cleanup()", PsiElement::class.java)))
-    assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun setupSpec()", PsiElement::class.java)))
-    assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun cleanupSpec()", PsiElement::class.java)))
+    assertFalse(isTestMethod("fun setup()"))
+    assertFalse(isTestMethod("fun cleanup()"))
+    assertFalse(isTestMethod("fun setupSpec()"))
+    assertFalse(isTestMethod("fun cleanupSpec()"))
   }
 
   @Test
   fun testExcludeRegularMethods() {
-    assertFalse(framework.isTestMethod(findRequiredElementByTextAndType("fun helperMethod()", PsiElement::class.java)))
-    assertTrue(
-      framework.isTestMethod(
-        findRequiredElementByTextAndType("fun `a real feature`", PsiElement::class.java)
-      )
-    )
+    assertFalse(isTestMethod("fun helperMethod()"))
+    assertTrue(isTestMethod("fun `a real feature`"))
   }
 
   @Test
   fun testDetectAbstractSpec() {
-    assertTrue(framework.isTestClass(findRequiredElementByTextAndType("class AbstractBaseSpec", PsiElement::class.java)))
-    assertTrue(
-      framework.isTestMethod(
-        findRequiredElementByTextAndType("fun `base feature`", PsiElement::class.java)
-      )
-    )
+    assertTrue(isTestClass("class AbstractBaseSpec"))
+    assertTrue(isTestMethod("fun `base feature`"))
   }
+
+  @Test
+  fun testExcludeMethodsInNestedNonSpecClass() {
+    assertTrue(isTestMethod("fun `real feature`"))
+    assertFalse(isTestMethod("fun `looks like a feature`"))
+  }
+
+  @Test
+  fun testDetectSpecInheritedFromBaseClass() {
+    myFixture.configureByFiles(
+      "testDetectSpecInheritedFromBaseClass.kt",
+      "InheritedBaseSpec.kt"
+    )
+    assertTrue(isTestClass("class DerivedSpec"))
+    assertTrue(isTestMethod("fun `derived feature`"))
+  }
+
+  private fun isTestClass(elementText: String): Boolean =
+    runInReadAction { framework.isTestClass(findRequiredElementByTextAndType(elementText, PsiElement::class.java)) }
+
+  private fun isTestMethod(elementText: String): Boolean =
+    runInReadAction { framework.isTestMethod(findRequiredElementByTextAndType(elementText, PsiElement::class.java)) }
 }

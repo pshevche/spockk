@@ -14,8 +14,9 @@
 
 package io.github.pshevche.spockk.intellij
 
-import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
@@ -46,7 +47,23 @@ abstract class BaseSpockkIntelliJPluginTestCase : LightJavaCodeInsightFixtureTes
 
   protected fun CodeInsightTestFixture.configureFromDefaultFile(): PsiFile = this.configureByFile("/${this@BaseSpockkIntelliJPluginTestCase.name}.kt")
 
-  protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T = ReadAction.compute<T, RuntimeException> {
+  /**
+   * Adds a minimal `spock.lang.Specification` stub to the in-memory fixture project so that spec
+   * detection, which resolves the real superclass hierarchy, can resolve it without putting the
+   * spock library on the test classpath.
+   */
+  protected fun CodeInsightTestFixture.addSpecificationStub() {
+    this.addFileToProject("spock/lang/Specification.kt", "package spock.lang\n\nopen class Specification\n")
+  }
+
+  /**
+   * Runs [action] inside a read action. The plugin's PSI utilities assume the platform already holds
+   * the read lock (as it does at every production call site), so tests must establish it themselves.
+   */
+  protected fun <T> runInReadAction(action: () -> T): T =
+    ApplicationManager.getApplication().runReadAction(Computable { action() })
+
+  protected fun <T : PsiElement> findRequiredElementByTextAndType(text: String, elementClass: Class<T>): T = runInReadAction {
     val document = PsiDocumentManager.getInstance(project).getDocument(file)!!
     document.text.allIndexesOf(text).firstNotNullOf {
       PsiTreeUtil.getParentOfType<T?>(file.findElementAt(it), elementClass)

@@ -13,6 +13,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <lang.inspectionSuppressor language="kotlin"
                                    implementationClass="io.github.pshevche.spockk.intellij.SpockkUnusedExpressionInspectionSuppressor"/>
+        <implicitUsageProvider
+                implementationClass="io.github.pshevche.spockk.intellij.SpockkImplicitUsageProvider"/>
         <lang.formatter language="kotlin"
                         implementationClass="io.github.pshevche.spockk.intellij.SpockkDataTableFormattingModelBuilder"
                         order="first"/>

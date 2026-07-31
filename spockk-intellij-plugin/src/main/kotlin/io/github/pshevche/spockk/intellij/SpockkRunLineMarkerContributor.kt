@@ -18,29 +18,21 @@ import com.intellij.execution.lineMarker.ExecutorAction
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.icons.AllIcons
 import com.intellij.psi.PsiElement
-import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtNamedFunction
-import org.jetbrains.kotlin.psi.KtObjectDeclaration
 
 class SpockkRunLineMarkerContributor : RunLineMarkerContributor() {
 
-  override fun getInfo(element: PsiElement): Info? = calculateIcon(element)
+  // Feature detection resolves the superclass hierarchy, which must not run on the EDT fast pass.
+  // Return nothing here and let the slow pass compute the marker in the background.
+  override fun getInfo(element: PsiElement): Info? = null
 
-  override fun getSlowInfo(element: PsiElement): Info? = calculateIcon(element)
-
-  private fun calculateIcon(element: PsiElement): Info? {
+  // Only feature methods are marked. The spec-class gutter icon is already provided by the built-in
+  // Spock plugin, so marking the class here too would show a duplicate icon.
+  override fun getSlowInfo(element: PsiElement): Info? {
     val parent = element.parent
-    val actions = when {
-      parent is KtClassOrObject && parent !is KtObjectDeclaration &&
-        parent.nameIdentifier == element && parent.isSpockkSpec() ->
-        ExecutorAction.getActions(0)
-
-      parent is KtNamedFunction && parent.nameIdentifier == element &&
-        parent.isSpockkFeature() ->
-        ExecutorAction.getActions(1)
-
-      else -> return null
+    if (parent is KtNamedFunction && parent.nameIdentifier == element && parent.isSpockkFeature()) {
+      return Info(AllIcons.RunConfigurations.TestState.Run, ExecutorAction.getActions(1))
     }
-    return Info(AllIcons.RunConfigurations.TestState.Run, actions)
+    return null
   }
 }

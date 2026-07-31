@@ -14,7 +14,6 @@
 
 package io.github.pshevche.spockk.intellij
 
-import com.intellij.openapi.application.ReadAction
 import com.intellij.psi.PsiElement
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -32,7 +31,7 @@ class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
   }
 
   private fun isSuppressedFor(elementText: String): Boolean =
-    ReadAction.compute<Boolean, RuntimeException> {
+    runInReadAction {
       suppressor.isSuppressedFor(
         findRequiredElementByTextAndType(elementText, PsiElement::class.java),
         "KotlinUnreachableCode"
