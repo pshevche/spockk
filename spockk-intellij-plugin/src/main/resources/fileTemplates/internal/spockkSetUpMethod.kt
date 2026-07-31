@@ -1,0 +1,3 @@
+fun setup() {
+  ${BODY}
+}

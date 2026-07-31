@@ -14,7 +14,6 @@
 
 package io.github.pshevche.spockk.intellij
 
-import com.intellij.openapi.application.ReadAction
 import com.intellij.psi.PsiElement
 import org.junit.jupiter.api.BeforeEach
 
@@ -32,7 +31,7 @@ abstract class BaseSpockkUnusedExpressionInspectionSuppressorTest : BaseSpockkIn
   protected fun <T : PsiElement> isSuppressedFor(
     elementText: String,
     elementType: Class<T>
-  ): Boolean = ReadAction.compute<Boolean, RuntimeException> {
+  ): Boolean = runInReadAction {
     suppressor.isSuppressedFor(
       findRequiredElementByTextAndType(elementText, elementType),
       "UnusedExpression"

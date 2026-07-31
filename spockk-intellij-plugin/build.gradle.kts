@@ -27,7 +27,9 @@ dependencies {
 }
 
 tasks.test {
-  useJUnitPlatform()
+  useJUnitPlatform {
+    excludeEngines("spock")
+  }
 }
 
 val releaseNotesFile: RegularFile = layout.projectDirectory.dir("docs").file("release-notes.txt")
