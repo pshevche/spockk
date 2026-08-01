@@ -21,7 +21,6 @@ import io.github.pshevche.spockk.lang.where
 import spock.lang.Shared
 import spock.lang.Specification
 import kotlin.math.max
-import kotlin.test.assertEquals
 
 class DataPipesSmokeTest : Specification() {
 
@@ -36,7 +35,7 @@ class DataPipesSmokeTest : Specification() {
 
   fun `single variable single value`(a: Int) {
     expect
-    assertEquals(1, a)
+    a == 1
 
     where
     variable(a).from(1)
@@ -44,7 +43,7 @@ class DataPipesSmokeTest : Specification() {
 
   fun `single variable vararg values`(a: Int) {
     expect
-    assertEquals(0, a % 2)
+    a % 2 == 0
 
     where
     variable(a).from(2, 4, 6)
@@ -52,7 +51,7 @@ class DataPipesSmokeTest : Specification() {
 
   fun `single variable values list`(a: Int) {
     expect
-    assertEquals(0, a % 2)
+    a % 2 == 0
 
     where
     variable(a).from(listOf(2, 4, 6))
@@ -60,7 +59,7 @@ class DataPipesSmokeTest : Specification() {
 
   fun `single data pipe with multiple variables`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(c, a + b)
+    a + b == c
 
     where
     variables(a, b, c).from(listOf(1, 2), listOf(3, 4), listOf(4, 6))
@@ -68,7 +67,7 @@ class DataPipesSmokeTest : Specification() {
 
   fun `multiple data pipes`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(c, a + b)
+    a + b == c
 
     where
     variables(a, b).from(listOf(1, 2), listOf(3, 4))
@@ -77,9 +76,9 @@ class DataPipesSmokeTest : Specification() {
 
   fun `pipes may contain arbitrary expressions`(a: String, b: Person, c: Int) {
     expect
-    assertEquals("oo", a)
-    assertEquals(23, b.age)
-    assertEquals(5, c)
+    a == "oo"
+    b.age == 23
+    c == 5
 
     where
     variables(a, b, c).from(
@@ -91,7 +90,7 @@ class DataPipesSmokeTest : Specification() {
 
   fun `pipes can reference static fields`(a: Int) {
     expect
-    assertEquals(42, a)
+    a == 42
 
     where
     variable(a).from(STATIC_FIELD, sharedField)
@@ -99,7 +98,7 @@ class DataPipesSmokeTest : Specification() {
 
   fun `pipes can reference previous variables`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(listOf(0, 1, 2), listOf(a, b, c))
+    listOf(a, b, c) == listOf(0, 1, 2)
 
     where
     variable(a).from(0)

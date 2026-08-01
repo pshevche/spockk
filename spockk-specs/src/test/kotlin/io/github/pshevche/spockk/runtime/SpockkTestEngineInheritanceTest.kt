@@ -24,7 +24,6 @@ import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 import spock.lang.Specification
-import kotlin.test.assertEquals
 
 class SpockkTestEngineInheritanceTest : Specification() {
   fun `discovers feature methods defined both in parent and child`() {
@@ -77,14 +76,11 @@ class SpockkTestEngineInheritanceTest : Specification() {
         .toList()
 
     then
-    assertEquals(
-      listOf(
-        "successful parent feature",
-        "failing parent feature",
-        "successful child feature",
-        "failing child feature"
-      ),
-      features
+    features == listOf(
+      "successful parent feature",
+      "failing parent feature",
+      "successful child feature",
+      "failing child feature"
     )
   }
 }

@@ -20,8 +20,6 @@ import io.github.pshevche.spockk.lang.setup
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import spock.lang.Specification
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class CleanupBlockSmokeTest : Specification() {
 
@@ -29,16 +27,16 @@ class CleanupBlockSmokeTest : Specification() {
 
   fun `cleanup block executes after feature body`() {
     expect
-    assertFalse(cleaned)
+    !cleaned
 
     cleanup
     cleaned = true
-    assertTrue(cleaned)
+    assert(cleaned)
   }
 
   fun `cleanup block with multiple statements`() {
     expect
-    assertTrue(true)
+    true
 
     cleanup
     println("cleanup statement 1")
@@ -53,6 +51,6 @@ class CleanupBlockSmokeTest : Specification() {
     val y = x + 1
 
     then
-    assertTrue(y == 43)
+    y == 43
   }
 }

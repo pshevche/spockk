@@ -30,6 +30,7 @@ import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.expressions.IrWhen
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 /**
  * Rewrites a condition expression into a value-recording expression tree, mirroring Spock's
@@ -53,6 +54,7 @@ import org.jetbrains.kotlin.ir.expressions.IrWhen
  * Following Spock, children are converted before the enclosing node is recorded (post-order), so
  * that recorded indices increase left-to-right and inside-out.
  */
+@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class ConditionValueRecordingTransformer(
   private val builder: DeclarationIrBuilder,
   private val irValueRecorder: IrValueRecorder

@@ -31,9 +31,8 @@ class ConditionRenderingRuntimeTest : Specification() {
 
     then
     val message = failure(events).message ?: ""
-    assert(
-      message ==
-        """
+    message ==
+      """
       |Condition not satisfied:
       |
       |x > y
@@ -41,8 +40,7 @@ class ConditionRenderingRuntimeTest : Specification() {
       |5 | 10
       |  false
       |
-        """.trimMargin()
-    )
+      """.trimMargin()
   }
 
   private fun failure(events: Events): Throwable =

@@ -22,8 +22,6 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.test.assertContains
-import kotlin.test.assertFalse
 
 @OptIn(ExperimentalCompilerApi::class)
 class DataTablesCompilationTest : BaseCompilationTest() {
@@ -52,10 +50,9 @@ class DataTablesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:6:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:6:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: where-blocks may only contain parametrization, e.g.
@@ -86,10 +83,9 @@ class DataTablesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:6:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:6:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Data table must have more than just the header row
@@ -118,10 +114,9 @@ class DataTablesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:6:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:6:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Row #2 in the data table has a wrong number of elements (3 instead of 2)
@@ -150,10 +145,9 @@ class DataTablesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:6:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:6:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Header of data table may only contain variable names

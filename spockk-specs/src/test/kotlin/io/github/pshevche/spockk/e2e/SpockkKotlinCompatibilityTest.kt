@@ -25,7 +25,6 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import spock.lang.Specification
 import kotlin.test.assertContains
-import kotlin.test.assertEquals
 
 class SpockkKotlinCompatibilityTest : Specification() {
 
@@ -48,7 +47,7 @@ class SpockkKotlinCompatibilityTest : Specification() {
     val result = workspace.build("test", "--stacktrace")
 
     then
-    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
+    result.task(":test")!!.outcome == TaskOutcome.SUCCESS
     result.output.let {
       assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
       assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")

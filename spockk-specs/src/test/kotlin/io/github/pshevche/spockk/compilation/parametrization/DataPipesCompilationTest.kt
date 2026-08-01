@@ -22,8 +22,6 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.test.assertContains
-import kotlin.test.assertFalse
 
 @OptIn(ExperimentalCompilerApi::class)
 class DataPipesCompilationTest : BaseCompilationTest() {
@@ -50,10 +48,9 @@ class DataPipesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:9:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:9:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Data pipe target must be declared inline as 'variable(a)' or 'variables(a, b)'
@@ -84,10 +81,9 @@ class DataPipesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:9:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:9:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Data provider must reference a feature method variable
@@ -146,10 +142,9 @@ class DataPipesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:6:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:6:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Data pipes may reference other feature variables only if the reference is the only value (valid: 'variable(a).from(other + 1)'; invalid: 'variable(a).from(1, other)')
@@ -178,10 +173,9 @@ class DataPipesCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(result.compilation.messages, "Spec.kt:6:5")
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:6:5")
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Data pipes may reference other feature variables only if the reference is the only value (valid: 'variable(a).from(other + 1)'; invalid: 'variable(a).from(1, other)')

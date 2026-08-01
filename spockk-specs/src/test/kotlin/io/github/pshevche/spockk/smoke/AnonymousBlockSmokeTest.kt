@@ -18,8 +18,6 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import spock.lang.Specification
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class AnonymousBlockSmokeTest : Specification() {
 
@@ -28,7 +26,7 @@ class AnonymousBlockSmokeTest : Specification() {
     val b = 2
 
     expect
-    assertEquals(3, a + b)
+    a + b == 3
   }
 
   fun `implicit given with when-then`() {
@@ -38,7 +36,7 @@ class AnonymousBlockSmokeTest : Specification() {
     list.add("hello")
 
     then
-    assertEquals(1, list.size)
-    assertTrue(list.contains("hello"))
+    list.size == 1
+    list.contains("hello")
   }
 }
