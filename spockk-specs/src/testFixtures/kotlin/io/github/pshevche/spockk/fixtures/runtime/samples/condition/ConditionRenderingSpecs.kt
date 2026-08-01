@@ -124,3 +124,219 @@ class StringEqualitySpec : Specification() {
     x == y
   }
 }
+
+class CharValueSpec : Specification() {
+  fun `test`() {
+    val x: Char? = 'c'
+    expect
+    x == null
+  }
+}
+
+class EmptyStringValueSpec : Specification() {
+  fun `test`() {
+    val x = ""
+    expect
+    x == null
+  }
+}
+
+class MultiLineStringValueSpec : Specification() {
+  fun `test`() {
+    val x = "one\ntwo\rthree\r\nfour"
+    expect
+    x == null
+  }
+}
+
+class ListValueSpec : Specification() {
+  fun `test`() {
+    val x = listOf(1, 2, 3)
+    expect
+    x == null
+  }
+}
+
+class EmptyListValueSpec : Specification() {
+  fun `test`() {
+    val x = emptyList<Int>()
+    expect
+    x == null
+  }
+}
+
+class MapValueSpec : Specification() {
+  fun `test`() {
+    val x = linkedMapOf("a" to 1, "b" to 2)
+    expect
+    x == null
+  }
+}
+
+class SetValueSpec : Specification() {
+  fun `test`() {
+    val x = linkedSetOf(1, 2, 3)
+    expect
+    x == null
+  }
+}
+
+class IntArrayValueSpec : Specification() {
+  fun `test`() {
+    val x = intArrayOf(1, 2)
+    expect
+    x == null
+  }
+}
+
+class ObjectArrayValueSpec : Specification() {
+  fun `test`() {
+    val x = arrayOf("one", "two")
+    expect
+    x == null
+  }
+}
+
+class SingleLineToString {
+  override fun toString() = "single line"
+}
+
+class SingleLineToStringValueSpec : Specification() {
+  fun `test`() {
+    val x = SingleLineToString()
+    expect
+    x == null
+  }
+}
+
+class MultiLineToString {
+  override fun toString() = "mul\ntiple\n   lines"
+}
+
+class MultiLineToStringValueSpec : Specification() {
+  fun `test`() {
+    val x = MultiLineToString()
+    expect
+    x == null
+  }
+}
+
+class EmptyToString {
+  fun objectToString(): String = super.toString()
+  override fun toString() = ""
+}
+
+class EmptyToStringValueSpec : Specification() {
+  fun `test`() {
+    val x = EmptyToString()
+    capturedInstance = x
+    expect
+    x == null
+  }
+
+  companion object {
+    lateinit var capturedInstance: EmptyToString
+  }
+}
+
+class ThrowingToString {
+  fun objectToString(): String = super.toString()
+  override fun toString(): String = throw UnsupportedOperationException()
+}
+
+class ThrowingToStringValueSpec : Specification() {
+  fun `test`() {
+    val x = ThrowingToString()
+    capturedInstance = x
+    expect
+    x == null
+  }
+
+  companion object {
+    lateinit var capturedInstance: ThrowingToString
+  }
+}
+
+class DefaultToString {
+  val a = 4
+}
+
+class DefaultToStringValueSpec : Specification() {
+  fun `test`() {
+    val x = DefaultToString()
+    expect
+    x == null
+  }
+}
+
+enum class ColorValue {
+  RED,
+  GREEN
+}
+
+class EnumValueSpec : Specification() {
+  fun `test`() {
+    val x = ColorValue.RED
+    expect
+    x == null
+  }
+}
+
+enum class EnumWithToString {
+  VALUE;
+
+  override fun toString() = "I'm a value"
+}
+
+class EnumWithToStringValueSpec : Specification() {
+  fun `test`() {
+    val x = EnumWithToString.VALUE
+    expect
+    x == null
+  }
+}
+
+class ClassValueSpec : Specification() {
+  fun `test`() {
+    val x = String::class.java
+    expect
+    x == null
+  }
+}
+
+class TypeHintValueSpec : Specification() {
+  fun `test`() {
+    val x: Any = 1
+    val y: Any = "1"
+    expect
+    x == y
+  }
+}
+
+class Bean {
+  var integer: Int = 0
+  var string: String = ""
+
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other !is Bean) return false
+    return integer == other.integer && string == other.string
+  }
+
+  override fun hashCode(): Int = 31 * integer + string.hashCode()
+}
+
+class CustomObjectDiffSpec : Specification() {
+  fun `test`() {
+    val b1 = Bean().apply {
+      integer = 1
+      string = "fun"
+    }
+    val b2 = Bean().apply {
+      integer = 2
+      string = "fun2"
+    }
+    expect
+    b1 == b2
+  }
+}

@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrStringConcatenation
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
@@ -88,6 +89,15 @@ internal class ConditionValueRecordingTransformer(
   }
 
   override fun visitCall(expression: IrCall): IrExpression {
+    val comparison = expression.desugaredNotEqualsComparisonOrNull()
+    if (comparison != null) {
+      // Kotlin desugars `a != b` into `(a == b).not()`, unlike Groovy, which keeps `!=` as a
+      // single BinaryExpression. Record the comparison's own operands as usual, but skip
+      // recording the intermediate `==` call itself - only its negated result (the `.not()`
+      // call) corresponds to a value Groovy would record for the whole `!=` expression.
+      comparison.transformChildren(this, null)
+      return record(expression)
+    }
     expression.transformChildren(this, null)
     return record(expression)
   }
@@ -128,4 +138,17 @@ internal class ConditionValueRecordingTransformer(
 
   private fun record(expression: IrExpression): IrExpression =
     irValueRecorder.irRecord(builder, recordCount++, expression)
+
+  /**
+   * Kotlin desugars `a != b` into `(a == b).not()`, tagging both calls with
+   * [IrStatementOrigin.EXCLEQ]. A user-written `!(a == b)` produces a similarly shaped call
+   * chain, but without that origin (the `.not()` call has no origin, and the inner call is
+   * tagged [IrStatementOrigin.EQEQ] instead), so this only matches the compiler-synthesized
+   * `!=` case.
+   */
+  private fun IrCall.desugaredNotEqualsComparisonOrNull(): IrCall? {
+    if (origin != IrStatementOrigin.EXCLEQ) return null
+    val comparison = dispatchReceiver as? IrCall ?: return null
+    return comparison.takeIf { it.origin == IrStatementOrigin.EXCLEQ }
+  }
 }
