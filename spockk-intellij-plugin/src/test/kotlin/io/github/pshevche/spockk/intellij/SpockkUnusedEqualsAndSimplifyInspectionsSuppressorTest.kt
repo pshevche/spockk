@@ -56,6 +56,20 @@ class SpockkUnusedEqualsAndSimplifyInspectionsSuppressorTest : BaseSpockkUnusedE
   }
 
   @Test
+  fun testSuppressUnusedExpressionInExpectBlock() {
+    assertTrue(
+      isSuppressedFor("x > y", KtBinaryExpression::class.java, "UnusedExpression")
+    )
+  }
+
+  @Test
+  fun testSuppressKotlinConstantConditionsInThenBlock() {
+    assertTrue(
+      isSuppressedFor("x > y", KtBinaryExpression::class.java, "KotlinConstantConditions")
+    )
+  }
+
+  @Test
   fun testDoesNotSuppressForUnrelatedToolId() {
     assertFalse(
       isSuppressedFor("x > y", KtBinaryExpression::class.java, "UnusedDeclaration")

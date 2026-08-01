@@ -27,7 +27,7 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
         return element.isSpockkBlock() || element.isPartOfDataProviderBlock()
       }
 
-      return element.isPartOfDataProviderBlock()
+      return element.isPartOfDataProviderBlock() || element.isPartOfThenOrExpectBlock()
     }
 
     if (toolId == "KotlinUnreachableCode") {
@@ -36,7 +36,8 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
 
     if (toolId == "UnusedEquals" ||
       toolId == "SimplifyBooleanWithConstants" ||
-      toolId == "SimplifyNegatedBinaryExpression"
+      toolId == "SimplifyNegatedBinaryExpression" ||
+      toolId == "KotlinConstantConditions"
     ) {
       return element.isPartOfThenOrExpectBlock()
     }
