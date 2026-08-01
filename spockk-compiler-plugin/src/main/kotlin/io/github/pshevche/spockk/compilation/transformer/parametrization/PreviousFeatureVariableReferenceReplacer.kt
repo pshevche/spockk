@@ -20,9 +20,7 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class PreviousFeatureVariableReferenceReplacer(
   private val feature: IrFunction,
   private val featureVariableReplacement: Map<IrValueParameter, IrExpression>

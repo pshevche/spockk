@@ -14,11 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.condition
 
-import io.github.pshevche.spockk.compilation.ir.irCatchParameter
-import io.github.pshevche.spockk.compilation.ir.irTry
-import io.github.pshevche.spockk.compilation.ir.isAssertCall
-import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
-import io.github.pshevche.spockk.compilation.ir.unwrapImplicitCoercionToUnit
+import io.github.pshevche.spockk.compilation.ir.*
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.CONDITION_THROWABLE_VAR
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.IrValueRecorder
@@ -33,10 +29,8 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.file
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class ConditionRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
   private val builder: DeclarationIrBuilder,

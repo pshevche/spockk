@@ -14,14 +14,8 @@
 
 package io.github.pshevche.spockk.compilation.transformer.fixture
 
+import io.github.pshevche.spockk.compilation.ir.*
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_INFO_FQN
-import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
-import io.github.pshevche.spockk.compilation.ir.irAddSuppressed
-import io.github.pshevche.spockk.compilation.ir.irCatchParameter
-import io.github.pshevche.spockk.compilation.ir.irThrow
-import io.github.pshevche.spockk.compilation.ir.irTry
-import io.github.pshevche.spockk.compilation.ir.irVar
-import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.FAILED_BLOCK_VAR
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.FEATURE_THROWABLE_VAR
@@ -33,23 +27,16 @@ import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irCatch
 import org.jetbrains.kotlin.backend.common.lower.irIfThen
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.irBlock
-import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irIfThenElse
-import org.jetbrains.kotlin.ir.builders.irNotEquals
-import org.jetbrains.kotlin.ir.builders.irNull
-import org.jetbrains.kotlin.ir.builders.irSet
+import org.jetbrains.kotlin.ir.builders.*
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.util.parentAsClass
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class CleanupBlockRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
   private val feature: IrFunction,

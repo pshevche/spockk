@@ -20,10 +20,8 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class PreviousFeatureVariablesAccessTracker(
   private val feature: IrFunction,
   private val referenceableVariables: Set<String>

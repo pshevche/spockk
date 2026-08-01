@@ -20,10 +20,8 @@ import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterCont
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.file
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkIrTransformer(
   private val rewriterContext: SpockkIrRewriterContext,
   private val context: SpockkTransformationContext
