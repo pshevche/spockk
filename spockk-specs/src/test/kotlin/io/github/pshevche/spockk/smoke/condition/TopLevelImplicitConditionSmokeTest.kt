@@ -15,12 +15,15 @@
 package io.github.pshevche.spockk.smoke.condition
 
 import io.github.pshevche.spockk.lang.expect
+import org.spockframework.runtime.ConditionFailedWithExceptionError
+import org.spockframework.runtime.ConditionNotSatisfiedError
+import spock.lang.FailsWith
 import spock.lang.Specification
 
 /**
  * Exercises top-level implicit conditions (a bare boolean expression statement in an `expect`
- * block) across the common Kotlin expression shapes. Every condition here is satisfied, so the
- * spec passes when the conditions are correctly rewritten and evaluated.
+ * block) across the common Kotlin expression shapes, including both passing and expected-failure
+ * cases annotated with @FailsWith.
  */
 class TopLevelImplicitConditionSmokeTest : Specification() {
 
@@ -34,9 +37,21 @@ class TopLevelImplicitConditionSmokeTest : Specification() {
     1 == 1
   }
 
+  @FailsWith(ConditionNotSatisfiedError::class)
+  fun `unsatisfied equality comparison`() {
+    expect
+    1 == 2
+  }
+
   fun `relational condition`() {
     expect
     2 > 1
+  }
+
+  @FailsWith(ConditionNotSatisfiedError::class)
+  fun `unsatisfied relational condition`() {
+    expect
+    2 > 3
   }
 
   fun `negation condition`() {
@@ -78,5 +93,11 @@ class TopLevelImplicitConditionSmokeTest : Specification() {
   fun `string equality condition`() {
     expect
     "spockk" == "spockk"
+  }
+
+  @FailsWith(ConditionFailedWithExceptionError::class)
+  fun `exception while evaluating an implicit condition`() {
+    expect
+    emptyList<Int>()[0] == 0
   }
 }

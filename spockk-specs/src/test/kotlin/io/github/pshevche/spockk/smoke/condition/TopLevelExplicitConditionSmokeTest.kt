@@ -15,12 +15,14 @@
 package io.github.pshevche.spockk.smoke.condition
 
 import io.github.pshevche.spockk.lang.expect
+import org.spockframework.runtime.ConditionFailedWithExceptionError
+import org.spockframework.runtime.ConditionNotSatisfiedError
+import spock.lang.FailsWith
 import spock.lang.Specification
 
 /**
  * Exercises top-level explicit conditions (`assert(...)`) across the common Kotlin expression
- * shapes. Every condition here is satisfied, so the spec passes when the conditions are correctly
- * rewritten and evaluated.
+ * shapes, including both passing and expected-failure cases annotated with @FailsWith.
  */
 class TopLevelExplicitConditionSmokeTest : Specification() {
 
@@ -37,6 +39,12 @@ class TopLevelExplicitConditionSmokeTest : Specification() {
   fun `relational condition`() {
     expect
     assert(2 > 1)
+  }
+
+  @FailsWith(ConditionNotSatisfiedError::class)
+  fun `unsatisfied relational condition`() {
+    expect
+    assert(2 > 3)
   }
 
   fun `negation condition`() {
@@ -78,5 +86,11 @@ class TopLevelExplicitConditionSmokeTest : Specification() {
   fun `string equality condition`() {
     expect
     assert("spockk" == "spockk")
+  }
+
+  @FailsWith(ConditionFailedWithExceptionError::class)
+  fun `exception while evaluating an explicit condition`() {
+    expect
+    assert(emptyList<Int>()[0] == 0)
   }
 }

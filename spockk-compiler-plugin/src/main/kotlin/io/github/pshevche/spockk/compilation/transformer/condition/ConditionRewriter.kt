@@ -14,7 +14,11 @@
 
 package io.github.pshevche.spockk.compilation.transformer.condition
 
-import io.github.pshevche.spockk.compilation.ir.*
+import io.github.pshevche.spockk.compilation.ir.irCatchParameter
+import io.github.pshevche.spockk.compilation.ir.irTry
+import io.github.pshevche.spockk.compilation.ir.isAssertCall
+import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
+import io.github.pshevche.spockk.compilation.ir.unwrapImplicitCoercionToUnit
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.CONDITION_THROWABLE_VAR
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.IrValueRecorder

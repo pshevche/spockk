@@ -22,7 +22,6 @@ import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.testkit.engine.Events
 import spock.lang.Specification
-import kotlin.test.assertContains
 
 class ConditionRenderingRuntimeTest : Specification() {
 
@@ -32,11 +31,18 @@ class ConditionRenderingRuntimeTest : Specification() {
 
     then
     val message = failure(events).message ?: ""
-    assertContains(message, "Condition not satisfied")
-    assertContains(message, "x > y")
-    assertContains(message, "5")
-    assertContains(message, "10")
-    assertContains(message, "false")
+    assert(
+      message ==
+        """
+      |Condition not satisfied:
+      |
+      |x > y
+      || | |
+      |5 | 10
+      |  false
+      |
+        """.trimMargin()
+    )
   }
 
   private fun failure(events: Events): Throwable =
