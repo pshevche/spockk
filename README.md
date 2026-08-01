@@ -1,8 +1,8 @@
 <h1>
   <picture width="200">
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/images/name_with_icon_dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/images/name_with_icon_light.svg">
-    <img alt="Spockk" src="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/images/name_with_icon_light.svg" width="200">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/public/images/name_with_icon_dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/public/images/name_with_icon_light.svg">
+    <img alt="Spockk" src="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/public/images/name_with_icon_light.svg" width="200">
   </picture>
 </h1>
 

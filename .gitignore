@@ -31,3 +31,8 @@ build
 
 .claude/worktrees
 .opencode/worktrees
+
+# Node / VitePress (spockk-docs)
+node_modules
+docs/.vitepress/cache
+docs/.vitepress/dist

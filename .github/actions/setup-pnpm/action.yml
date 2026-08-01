@@ -1,0 +1,13 @@
+name: "Set up pnpm"
+description: "Install pnpm and Node.js for building spockk-docs"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: pnpm/action-setup@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: pnpm
+        cache-dependency-path: spockk-docs/pnpm-lock.yaml

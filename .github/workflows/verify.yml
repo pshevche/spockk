@@ -27,5 +27,8 @@ jobs:
       - name: Set up Gradle
         uses: ./.github/actions/setup-gradle
 
+      - name: Set up pnpm
+        uses: ./.github/actions/setup-pnpm
+
       - name: Build
         run: ./gradlew build

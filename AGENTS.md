@@ -16,7 +16,7 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 - **spockk-gradle-plugin** - Gradle plugin applying the compiler plugin to Kotlin tasks
 - **spockk-intellij-plugin** - IntelliJ IDEA integration (warning suppression, data table formatting)
 - **spockk-specs** - Framework test suite (dogfooding: tests written using Spockk itself)
-- **spockk-docs** - User guide in AsciiDoc, published to GitHub Pages
+- **spockk-docs** - User guide built with VitePress (Markdown + Vue), published to GitHub Pages
 
 ## Tech Stack
 
@@ -34,7 +34,7 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 ./gradlew spotlessApply             # Auto-format code
 ./gradlew spotlessCheck             # Check formatting
 ./gradlew detekt                    # Static analysis
-./gradlew :spockk-docs:asciidoctor  # Generate documentation
+./gradlew :spockk-docs:build        # Build documentation site (output in spockk-docs/build/docs)
 ```
 
 ## Code Style

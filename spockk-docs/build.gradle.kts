@@ -1,33 +1,49 @@
-import org.asciidoctor.gradle.jvm.AsciidoctorTask
-
-repositories {
-  mavenCentral()
-}
+import org.gradle.api.tasks.PathSensitivity
 
 plugins {
-  alias(libs.plugins.asciidoctor)
+  base
 }
 
-tasks.named("asciidoctor", AsciidoctorTask::class) {
-  notCompatibleWithConfigurationCache("issue in org.asciidoctor.jvm.convert")
+val isWindows = System.getProperty("os.name").lowercase().contains("windows")
+val pnpmCommand = if (isWindows) "pnpm.cmd" else "pnpm"
 
-  baseDirFollowsSourceDir()
-  sourceDir(layout.projectDirectory.dir("docs"))
-  setOutputDir(layout.buildDirectory.dir("docs"))
-  resources {
-    from(layout.projectDirectory.files("docs/images")) {
-      into("images")
+val docsDir = layout.projectDirectory.dir("docs")
+val nodeModulesDir = layout.projectDirectory.dir("node_modules")
+val vitepressCacheDir = docsDir.dir(".vitepress/cache")
+
+val pnpmInstall = tasks.register<Exec>("pnpmInstall") {
+  inputs.file(layout.projectDirectory.file("package.json"))
+  inputs.file(layout.projectDirectory.file("pnpm-lock.yaml"))
+  outputs.dir(nodeModulesDir)
+
+  workingDir(layout.projectDirectory)
+  commandLine(pnpmCommand, "install", "--frozen-lockfile")
+}
+
+val pnpmBuild = tasks.register<Exec>("pnpmBuild") {
+  dependsOn(pnpmInstall)
+
+  inputs.files(
+    fileTree(docsDir) {
+      exclude(".vitepress/cache", ".vitepress/dist")
     }
-  }
-  attributes(
+  ).withPropertyName("docsSource").withPathSensitivity(PathSensitivity.RELATIVE)
+  outputs.dir(layout.buildDirectory.dir("docs"))
+
+  workingDir(layout.projectDirectory)
+  environment(
     mapOf(
-      "imagesdir" to "images",
-      "revnumber" to project.property("version"),
-      "junitPlatformVersion" to libs.versions.junit.get(),
+      "SPOCKK_VERSION" to project.property("version").toString(),
+      "JUNIT_PLATFORM_VERSION" to libs.versions.junit.get()
     )
   )
+  commandLine(pnpmCommand, "run", "build")
 }
 
 tasks.named("build") {
-  dependsOn("asciidoctor")
+  dependsOn(pnpmBuild)
+}
+
+tasks.named<Delete>("clean") {
+  delete(vitepressCacheDir)
 }
