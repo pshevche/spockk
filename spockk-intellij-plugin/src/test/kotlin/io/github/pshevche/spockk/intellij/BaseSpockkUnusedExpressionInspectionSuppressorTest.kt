@@ -26,15 +26,17 @@ abstract class BaseSpockkUnusedExpressionInspectionSuppressorTest : BaseSpockkIn
     suppressor = SpockkUnusedExpressionInspectionSuppressor()
   }
 
-  protected fun isSuppressedFor(elementText: String): Boolean = isSuppressedFor(elementText, PsiElement::class.java)
+  protected fun isSuppressedFor(elementText: String, toolId: String): Boolean =
+    isSuppressedFor(elementText, PsiElement::class.java, toolId)
 
   protected fun <T : PsiElement> isSuppressedFor(
     elementText: String,
-    elementType: Class<T>
+    elementType: Class<T>,
+    toolId: String
   ): Boolean = runInReadAction {
     suppressor.isSuppressedFor(
       findRequiredElementByTextAndType(elementText, elementType),
-      "UnusedExpression"
+      toolId
     )
   }
 }

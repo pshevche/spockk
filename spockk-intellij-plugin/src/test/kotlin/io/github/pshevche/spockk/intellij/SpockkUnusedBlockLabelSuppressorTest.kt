@@ -30,7 +30,7 @@ class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkUnusedExpressionInspectio
   @Test
   fun testSuppressUnusedWarningsForSpockkBlockObjectReferences() {
     // expect
-    assertTrue(isSuppressedFor("expect"))
+    assertTrue(isSuppressedFor("expect", "UnusedExpression"))
   }
 
   @Test
@@ -49,6 +49,6 @@ class SpockkUnusedBlockLabelSuppressorTest : BaseSpockkUnusedExpressionInspectio
   @Test
   fun testWarnsAboutUnusedNonSpockkObjectReferences() {
     // expect
-    assertFalse(isSuppressedFor("expect"))
+    assertFalse(isSuppressedFor("expect", "UnusedExpression"))
   }
 }

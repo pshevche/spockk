@@ -34,6 +34,13 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
       return element.isSpockkBlock() || element.isPartOfDataProviderBlock() || element.isPartOfCleanupBlock()
     }
 
+    if (toolId == "UnusedEquals" ||
+      toolId == "SimplifyBooleanWithConstants" ||
+      toolId == "SimplifyNegatedBinaryExpression"
+    ) {
+      return element.isPartOfThenOrExpectBlock()
+    }
+
     return false
   }
 

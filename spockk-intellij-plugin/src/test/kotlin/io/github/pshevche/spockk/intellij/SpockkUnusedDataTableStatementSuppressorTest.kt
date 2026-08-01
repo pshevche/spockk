@@ -32,12 +32,12 @@ class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkUnusedExpressionI
   fun testSuppressUnusedWarningsForDataTableStatements() {
     // expect
     listOf("variable1", "variable2").forEach {
-      assertTrue(isSuppressedFor(it, KtNameReferenceExpression::class.java))
+      assertTrue(isSuppressedFor(it, KtNameReferenceExpression::class.java, "UnusedExpression"))
     }
 
     // and
     listOf("val11", "val21", "val12", "val22").forEach {
-      assertTrue(isSuppressedFor(it, KtLiteralStringTemplateEntry::class.java))
+      assertTrue(isSuppressedFor(it, KtLiteralStringTemplateEntry::class.java, "UnusedExpression"))
     }
   }
 
@@ -45,12 +45,12 @@ class SpockkUnusedDataTableStatementSuppressorTest : BaseSpockkUnusedExpressionI
   fun testWarnsAboutDataTableStatementsInNonFeatures() {
     // expect
     listOf("variable1", "variable2").forEach {
-      assertFalse(isSuppressedFor(it, KtNameReferenceExpression::class.java))
+      assertFalse(isSuppressedFor(it, KtNameReferenceExpression::class.java, "UnusedExpression"))
     }
 
     // and
     listOf("val11", "val21", "val12", "val22").forEach {
-      assertFalse(isSuppressedFor(it, KtLiteralStringTemplateEntry::class.java))
+      assertFalse(isSuppressedFor(it, KtLiteralStringTemplateEntry::class.java, "UnusedExpression"))
     }
   }
 }
