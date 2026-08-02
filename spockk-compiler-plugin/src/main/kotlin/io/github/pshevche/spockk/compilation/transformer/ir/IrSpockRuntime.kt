@@ -126,22 +126,18 @@ internal class IrSpockRuntime private constructor(
     builder.irNull()
   }
 
-  /**
-   * For a dot-qualified call used as a bare top-level condition (e.g. `str.startsWith("xyz")`),
-   * Kotlin gives the [IrCall] itself the offset of just the callee (`startsWith(...)`), not the
-   * receiver (`str.`) - unlike Groovy, which always positions a MethodCallExpression at the start
-   * of its receiver. When the same call is nested inside another expression (e.g. `... == true`),
-   * the enclosing expression's own offset already spans the receiver, so this only needs to look
-   * at receivers, and only recurse into further calls/coercions, not arbitrary sub-expressions.
-   */
+  // For a bare top-level call (e.g. `str.startsWith("xyz")`), Kotlin offsets the IrCall at the
+  // callee, not the receiver, so walk into receivers to find the condition's true start.
   @OptIn(UnsafeDuringIrConstructionAPI::class)
   private fun IrExpression.effectiveStartOffset(): Int = when (this) {
     is IrTypeOperatorCall -> argument.effectiveStartOffset()
-    is IrCall -> symbol.owner.parameters
-      .asSequence()
-      .withIndex()
-      .filter { (_, parameter) -> parameter.kind == IrParameterKind.DispatchReceiver || parameter.kind == IrParameterKind.ExtensionReceiver }
-      .fold(startOffset) { minOffset, (index, _) -> minOf(minOffset, arguments[index]?.effectiveStartOffset() ?: minOffset) }
+
+    is IrCall ->
+      symbol.owner.parameters
+        .asSequence()
+        .withIndex()
+        .filter { (_, parameter) -> parameter.kind == IrParameterKind.DispatchReceiver || parameter.kind == IrParameterKind.ExtensionReceiver }
+        .fold(startOffset) { minOffset, (index, _) -> minOf(minOffset, arguments[index]?.effectiveStartOffset() ?: minOffset) }
 
     else -> startOffset
   }

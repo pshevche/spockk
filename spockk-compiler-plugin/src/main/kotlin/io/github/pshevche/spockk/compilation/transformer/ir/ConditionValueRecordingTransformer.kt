@@ -37,26 +37,9 @@ import org.jetbrains.kotlin.ir.expressions.IrWhen
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 
 /**
- * Rewrites a condition expression into a value-recording expression tree, mirroring Spock's
- * `org.spockframework.compiler.ConditionRewriter`. Every value-producing sub-expression is
- * wrapped in `$spock_valueRecorder.record($spock_valueRecorder.startRecordingValue(n), <expr>)`.
- *
- * Kotlin IR collapses many distinct Groovy AST nodes onto a handful of expression types, so the
- * `visit*` methods below map to Spock's `visit*` methods as follows:
- *   - [visitConst]                -> visitConstantExpression
- *   - [visitGetValue]             -> visitVariableExpression
- *   - [visitGetField]             -> visitFieldExpression / visitAttributeExpression
- *   - [visitCall]                 -> visitMethodCallExpression / visitStaticMethodCallExpression /
- *                                    visitPropertyExpression / all operator expressions
- *                                    (binary, unary, not, prefix/postfix, spaceship, ...)
- *   - [visitConstructorCall]      -> visitConstructorCallExpression
- *   - [visitTypeOperator]         -> visitCastExpression (and `instanceof`)
- *   - [visitWhen]                 -> visitTernaryExpression / visitShortTernaryExpression / `&&` / `||`
- *   - [visitStringConcatenation]  -> visitGStringExpression
- *   - [visitVararg]               -> visitListExpression / visitArrayExpression
- *
- * Following Spock, children are converted before the enclosing node is recorded (post-order), so
- * that recorded indices increase left-to-right and inside-out.
+ * Wraps every value-producing sub-expression of a condition in a value-recording call, mirroring
+ * Spock's `org.spockframework.compiler.ConditionRewriter`. Children are recorded before their
+ * enclosing expression (post-order), so recorded indices increase left-to-right and inside-out.
  */
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class ConditionValueRecordingTransformer(
@@ -92,17 +75,16 @@ internal class ConditionValueRecordingTransformer(
   }
 
   override fun visitCall(expression: IrCall): IrExpression {
-    val comparison = expression.desugaredNotEqualsComparisonOrNull()
-    if (comparison != null) {
-      // Kotlin desugars `a != b` into `(a == b).not()`, unlike Groovy, which keeps `!=` as a
-      // single BinaryExpression. Record the comparison's own operands as usual, but skip
-      // recording the intermediate `==` call itself - only its negated result (the `.not()`
-      // call) corresponds to a value Groovy would record for the whole `!=` expression.
-      comparison.transformChildren(this, null)
+    val innerEquals = expression.innerEqualsOfNotOperator()
+    if (innerEquals != null) {
+      // Kotlin writes `a != b` as `(a == b).not()`. Record `a` and `b` as usual, but skip
+      // recording the inner `==` call itself - only its negated result (the `.not()` call)
+      // is the value that belongs to the whole `!=` expression.
+      innerEquals.transformChildren(this, null)
       return record(expression)
     }
 
-    if (expression.representsGroovyMethodCallExpression()) {
+    if (expression.isPlainMethodCall()) {
       // A real method call gets two extra index slots with no recorded value - Spock's runtime
       // reserves the same two when it re-parses the condition text, for the method name and the
       // argument list, so skipping them here would shift every later index out of alignment.
@@ -138,14 +120,14 @@ internal class ConditionValueRecordingTransformer(
 
   override fun visitWhen(expression: IrWhen): IrExpression {
     when (expression.origin) {
-      // `a && b` desugars to `if (a) b else false`: only the first branch holds real operands.
+      // Kotlin writes `a && b` as `if (a) b else false`: only the first branch holds real operands.
       IrStatementOrigin.ANDAND -> {
         val realOperands = expression.branches[0]
         realOperands.condition = realOperands.condition.transform(this, null)
         realOperands.result = realOperands.result.transform(this, null)
       }
 
-      // `a || b` desugars to `if (a) true else b`: the real operands are split across both branches.
+      // Kotlin writes `a || b` as `if (a) true else b`: the real operands are split across both branches.
       IrStatementOrigin.OROR -> {
         val left = expression.branches[0]
         val right = expression.branches[1]
@@ -172,24 +154,17 @@ internal class ConditionValueRecordingTransformer(
     irValueRecorder.irRecord(builder, recordCount++, expression)
 
   /**
-   * Kotlin desugars `a != b` into `(a == b).not()`, tagging both calls with
-   * [IrStatementOrigin.EXCLEQ]. A user-written `!(a == b)` produces a similarly shaped call
-   * chain, but without that origin (the `.not()` call has no origin, and the inner call is
-   * tagged [IrStatementOrigin.EQEQ] instead), so this only matches the compiler-synthesized
-   * `!=` case.
+   * Kotlin writes `a != b` as `(a == b).not()`, tagging both calls [IrStatementOrigin.EXCLEQ].
+   * User-written `!(a == b)` has the same shape but without that tag, so this only matches `!=`.
    */
-  private fun IrCall.desugaredNotEqualsComparisonOrNull(): IrCall? {
+  private fun IrCall.innerEqualsOfNotOperator(): IrCall? {
     if (origin != IrStatementOrigin.EXCLEQ) return null
-    val comparison = dispatchReceiver as? IrCall ?: return null
-    return comparison.takeIf { it.origin == IrStatementOrigin.EXCLEQ }
+    val innerEquals = dispatchReceiver as? IrCall ?: return null
+    return innerEquals.takeIf { it.origin == IrStatementOrigin.EXCLEQ }
   }
 
-  /**
-   * True for a plain method call, `foo.bar(...)` or implicit-receiver `bar(...)` - as opposed to
-   * an operator (`==`, `[]`, ...), a property getter, or `!x` (desugared to `x.not()`), none of
-   * which get the extra index slots reserved below.
-   */
-  private fun IrCall.representsGroovyMethodCallExpression(): Boolean =
+  // True for `foo.bar(...)` or implicit-receiver `bar(...)`, not an operator, property getter, or `!x`.
+  private fun IrCall.isPlainMethodCall(): Boolean =
     origin == null && fqName() != IrIdentifiers.Kotlin.BOOLEAN_NOT_FQN && symbol.owner.correspondingPropertySymbol == null
 
   private fun IrCall.transformReceiverArguments() {
