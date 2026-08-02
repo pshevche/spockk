@@ -17,8 +17,8 @@ package io.github.pshevche.spockk.runtime
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CharValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ChainedExpressionSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CharValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClassValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CustomObjectDiffSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.DefaultToStringValueSpec
