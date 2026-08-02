@@ -103,21 +103,13 @@ internal class ConditionValueRecordingTransformer(
     }
 
     if (expression.representsGroovyMethodCallExpression()) {
-      // Groovy's MethodCallExpression indexes two things Kotlin has no equivalent node for:
-      // - its method name, converted (and thus indexed) as its own ConstantExpression child,
-      //   right after the receiver and before the arguments;
-      // - its whole argument list, wrapped in an ArgumentListExpression that reserves its own
-      //   index (via `recordNa`, no value) right after the individual arguments and before the
-      //   call itself.
-      // Neither is ever independently displayed, but both still consume an index slot at
-      // runtime, so reserve the same two slots here, in the same positions, to keep recorded
-      // indices aligned with what Groovy's own ConditionRewriter would produce for the reparsed
-      // text. Operator calls (`==`, `[]`, property getters, ...) don't go through this: Groovy
-      // represents those as different node kinds that don't have a method name or argument list.
+      // A real method call gets two extra index slots with no recorded value - Spock's runtime
+      // reserves the same two when it re-parses the condition text, for the method name and the
+      // argument list, so skipping them here would shift every later index out of alignment.
       expression.transformReceiverArguments()
-      recordCount++
+      recordCount++ // method name
       expression.transformNonReceiverArguments()
-      recordCount++
+      recordCount++ // argument list
       return record(expression)
     }
 
@@ -146,18 +138,14 @@ internal class ConditionValueRecordingTransformer(
 
   override fun visitWhen(expression: IrWhen): IrExpression {
     when (expression.origin) {
-      // Kotlin desugars `a && b` into `if (a) b else false` and `a || b` into `if (a) true else b`,
-      // tagging the resulting IrWhen with ANDAND/OROR. Unlike Groovy, which keeps `&&`/`||` as a
-      // single BinaryExpression with two real operands, this shape has two synthetic branches
-      // whose `true`/`false` legs don't correspond to anything in the source text. Transform (and
-      // record) only the real operands - the other branch's condition/result is left untouched -
-      // so the recorded values match what Groovy's own ConditionRewriter would produce.
+      // `a && b` desugars to `if (a) b else false`: only the first branch holds real operands.
       IrStatementOrigin.ANDAND -> {
         val realOperands = expression.branches[0]
         realOperands.condition = realOperands.condition.transform(this, null)
         realOperands.result = realOperands.result.transform(this, null)
       }
 
+      // `a || b` desugars to `if (a) true else b`: the real operands are split across both branches.
       IrStatementOrigin.OROR -> {
         val left = expression.branches[0]
         val right = expression.branches[1]
@@ -197,13 +185,9 @@ internal class ConditionValueRecordingTransformer(
   }
 
   /**
-   * A plain, source-level call (explicit or implicit receiver) that Groovy would parse as a
-   * `MethodCallExpression` - as opposed to a property/operator call (`origin` tags those with e.g.
-   * `GET_PROPERTY`, `GET_ARRAY_ELEMENT`, `EQEQ`, `PLUS`, ...), which Groovy represents with a
-   * different node kind that has no separate method-name child. `!x`, desugared to `x.not()`, is
-   * the one symbolic operator that isn't tagged with an origin of its own (unlike `.equals(...)`,
-   * which is also `operator fun`-declared but genuinely is a Groovy-style method call when called
-   * explicitly), so it's excluded by name instead.
+   * True for a plain method call, `foo.bar(...)` or implicit-receiver `bar(...)` - as opposed to
+   * an operator (`==`, `[]`, ...), a property getter, or `!x` (desugared to `x.not()`), none of
+   * which get the extra index slots reserved below.
    */
   private fun IrCall.representsGroovyMethodCallExpression(): Boolean =
     origin == null && fqName() != IrIdentifiers.Kotlin.BOOLEAN_NOT_FQN && symbol.owner.correspondingPropertySymbol == null
