@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.smoke.fixture
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect
 import spock.lang.Specification
-import kotlin.test.assertEquals
 
 class FixtureMethodsSmokeTest : Specification() {
 
@@ -43,7 +42,7 @@ class FixtureMethodsSmokeTest : Specification() {
 
   fun `first feature`() {
     expect
-    assertEquals(listOf("setupSpec", "setup"), log)
+    log == listOf("setupSpec", "setup")
 
     cleanup
     log.add("feature1")
@@ -51,7 +50,7 @@ class FixtureMethodsSmokeTest : Specification() {
 
   fun `second feature`() {
     expect
-    assertEquals(listOf("setupSpec", "setup", "feature1", "cleanup", "setup"), log)
+    log == listOf("setupSpec", "setup", "feature1", "cleanup", "setup")
 
     cleanup
     log.add("feature2")

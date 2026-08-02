@@ -23,7 +23,6 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.jupiter.api.Assertions.assertFalse
 import spock.lang.Specification
 import kotlin.test.assertContains
-import kotlin.test.assertEquals
 
 class SpockkE2ETest : Specification() {
 
@@ -42,7 +41,7 @@ class SpockkE2ETest : Specification() {
     val result = workspace.buildAndFail("test")
 
     then
-    assertEquals(TaskOutcome.FAILED, result.task(":test")!!.outcome)
+    result.task(":test")!!.outcome == TaskOutcome.FAILED
     result.output.let {
       assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
       assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
@@ -56,7 +55,7 @@ class SpockkE2ETest : Specification() {
     val result = workspace.build("test", "--tests", "SuccessfulSpec")
 
     then
-    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
+    result.task(":test")!!.outcome == TaskOutcome.SUCCESS
     result.output.let {
       assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
       assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
@@ -70,7 +69,7 @@ class SpockkE2ETest : Specification() {
     val result = workspace.build("test", "--tests", "SuccessfulSpec.passing feature 1")
 
     then
-    assertEquals(TaskOutcome.SUCCESS, result.task(":test")!!.outcome)
+    result.task(":test")!!.outcome == TaskOutcome.SUCCESS
     result.output.let {
       assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
       assertFalse(it.contains("SuccessfulSpec > passing feature 2 PASSED"))

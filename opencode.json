@@ -7,14 +7,14 @@
   "instructions": [
     ".opencode/instructions/conventional-commits.md"
   ],
-  "model": "opencode/deepseek-v4-flash-free",
-  "small_model": "opencode/deepseek-v4-flash-free",
+  "model": "opencode/deepseek-v4-pro",
+  "small_model": "opencode/deepseek-v4-flash",
   "agent": {
     "plan": {
-      "model": "opencode/nemotron-3-super-free"
+      "model": "opencode/deepseek-v4-pro"
     },
     "build": {
-      "model": "opencode/deepseek-v4-flash-free"
+      "model": "opencode/deepseek-v4-flash"
     }
   },
   "lsp": {

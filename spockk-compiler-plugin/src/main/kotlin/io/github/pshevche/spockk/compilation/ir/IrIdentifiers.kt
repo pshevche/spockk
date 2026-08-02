@@ -33,9 +33,12 @@ internal object IrIdentifiers {
     val SHARED_ANNOTATION_FQN = LANG_PKG_FQN.child("Shared")
 
     private val RUNTIME_PKG_FQN = FqName("org.spockframework.runtime")
-    val SPOCK_RUNTIME_FQN = RUNTIME_PKG_FQN.child("SpockRuntime")
+    val ERROR_COLLECTOR_FQN = RUNTIME_PKG_FQN.child("ErrorCollector")
+    val ERROR_RETHROWER_FQN = RUNTIME_PKG_FQN.child("ErrorRethrower")
     val SPECIFICATION_CONTEXT_FQN = RUNTIME_PKG_FQN.child("SpecificationContext")
     val SPEC_INTERNALS_FQN = RUNTIME_PKG_FQN.child("SpecInternals")
+    val SPOCK_RUNTIME_FQN = RUNTIME_PKG_FQN.child("SpockRuntime")
+    val VALUE_RECORDER_FQN = RUNTIME_PKG_FQN.child("ValueRecorder")
 
     private val RUNTIME_MODEL_PKG_FQN = RUNTIME_PKG_FQN.child("model")
     val BLOCK_INFO_FQN = RUNTIME_MODEL_PKG_FQN.child("BlockInfo")
@@ -71,6 +74,8 @@ internal object IrIdentifiers {
   internal object Kotlin {
     // FqName
     val LIST_FQN = COLLECTIONS_PACKAGE_FQ_NAME.child("List")
+    val ASSERT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("assert")
+    val BOOLEAN_NOT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("Boolean").child("not")
 
     private val JVM_PKG_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("jvm")
     val VOLATILE_FQN = JVM_PKG_FQN.child("Volatile")

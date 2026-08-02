@@ -20,9 +20,6 @@ import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.test.assertContains
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCompilerApi::class)
 class FieldAccessCompilationTest : BaseCompilationTest() {
@@ -50,7 +47,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 
   fun `data tables can reference companion object fields`() {
@@ -78,7 +75,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 
   fun `data pipes can reference shared instance fields`() {
@@ -103,7 +100,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 
   fun `data tables can reference shared instance fields`() {
@@ -130,7 +127,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 
   fun `data pipes can invoke companion methods`() {
@@ -156,7 +153,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 
   fun `data tables can invoke companion methods`() {
@@ -184,7 +181,7 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 
   fun `data pipes cannot reference non-companion fields`() {
@@ -208,9 +205,8 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Only companion object members and @Shared fields may be accessed from here
@@ -242,9 +238,8 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Only companion object members and @Shared fields may be accessed from here
@@ -274,9 +269,8 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Only companion object members and @Shared fields may be accessed from here
@@ -308,9 +302,8 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
+    !result.isSuccess()
+    result.compilation.messages.contains(
       """
         Problem with `where`
         Details: Only companion object members and @Shared fields may be accessed from here

@@ -23,9 +23,6 @@ import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import kotlin.test.assertContains
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCompilerApi::class)
 class FixtureMethodValidationTest : BaseCompilationTest() {
@@ -51,7 +48,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 
   fun `rejects fixture method with block labels`(fixtureMethodName: String) {
@@ -70,11 +67,8 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
-      "Fixture method '$fixtureMethodName' must not contain block labels, but found 'given'"
-    )
+    !result.isSuccess()
+    result.compilation.messages.contains("Fixture method '$fixtureMethodName' must not contain block labels, but found 'given'")
 
     where
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
@@ -102,11 +96,8 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
-      "Fixture method '$fixtureMethodName' must not call 'super.$fixtureMethodName()'"
-    )
+    !result.isSuccess()
+    result.compilation.messages.contains("Fixture method '$fixtureMethodName' must not call 'super.$fixtureMethodName()'")
 
     where
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
@@ -139,11 +130,8 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
-      "Only companion object members and @Shared fields may be accessed from here"
-    )
+    !result.isSuccess()
+    result.compilation.messages.contains("Only companion object members and @Shared fields may be accessed from here")
 
     where
     variable(fixtureMethodName).from("setupSpec", "cleanupSpec")
@@ -177,7 +165,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
 
     where
     variable(fixtureMethodName).from("setup", "cleanup")
@@ -198,11 +186,8 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       )
 
     then
-    assertFalse(result.isSuccess())
-    assertContains(
-      result.compilation.messages,
-      "Fixture method '$fixtureMethodName' must not have any parameters, but found 'param'"
-    )
+    !result.isSuccess()
+    result.compilation.messages.contains("Fixture method '$fixtureMethodName' must not have any parameters, but found 'param'")
 
     where
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
@@ -237,7 +222,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
       )
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
 
     where
     variable(fixtureMethodName).from("setupSpec", "setup", "cleanup", "cleanupSpec")

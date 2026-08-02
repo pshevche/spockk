@@ -19,6 +19,7 @@ import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROCESS
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.DATA_PROVIDER_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.asFeatureVariable
+import io.github.pshevche.spockk.compilation.ir.findFieldByFqName
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.irArrayOf
@@ -33,13 +34,13 @@ import io.github.pshevche.spockk.compilation.ir.isSingleVariableInitializer
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
+import io.github.pshevche.spockk.compilation.ir.unwrapImplicitCoercionToUnit
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.fir.lazy.Fir2IrLazyPropertyForPureField
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilder
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
@@ -60,7 +61,6 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetField
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
-import org.jetbrains.kotlin.ir.expressions.IrTypeOperator.IMPLICIT_COERCION_TO_UNIT
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.isArray
@@ -271,7 +271,7 @@ internal class WhereBlockRewriter(
   }
 
   private fun isWildcardRef(header: IrStatement): Boolean = (header as? IrExpression)
-    ?.let { unwrapImplicitCoercionToUnit(it) }
+    ?.unwrapImplicitCoercionToUnit()
     ?.let { it as? IrGetField }
     ?.let { it.symbol.owner.fqNameWhenAvailable == IrIdentifiers.Spock.WILDCARD_FQN }
     ?: false
@@ -468,19 +468,9 @@ internal class WhereBlockRewriter(
     dataProviderValues: List<IrExpression>,
     builder: DeclarationIrBuilder
   ): List<IrExpression> = dataProviderValues
-    .map { unwrapImplicitCoercionToUnit(it) }
+    .map { it.unwrapImplicitCoercionToUnit() }
     .map { replaceWildcardRef(it, builder) }
     .map { it.rebindDispatchReceiverReferences(dataProviderMethod.requiredThisParameter(), builder) }
-
-  private fun rebindDispatchReceiverReferences(
-    expressions: List<IrExpression>,
-    dataProviderThisParam: IrValueParameter
-  ): List<IrExpression> = expressions.map {
-    it.rebindDispatchReceiverReferences(
-      dataProviderThisParam,
-      irBuilder(dataProviderThisParam.symbol)
-    )
-  }
 
   private fun replaceWildcardRef(dataProviderValue: IrExpression, builder: IrBuilder): IrExpression =
     (dataProviderValue as? IrGetValue)
@@ -491,20 +481,11 @@ internal class WhereBlockRewriter(
 
   private fun irGetWildcardField(builder: IrBuilder): IrGetField {
     val specificationSymbol = builder.context.findRequiredClassSymbol(IrIdentifiers.Spock.SPECIFICATION_FQN)
-    val wildcardField = specificationSymbol
-      .owner
-      .declarations
-      .filterIsInstance<Fir2IrLazyPropertyForPureField>()
-      .map { it.backingField!! }
-      .single { it.symbol.owner.fqNameWhenAvailable == IrIdentifiers.Spock.WILDCARD_FQN }
+    val wildcardField = specificationSymbol.findFieldByFqName(IrIdentifiers.Spock.WILDCARD_FQN)
     return builder.irGetField(receiver = null, field = wildcardField).apply {
       superQualifierSymbol = specificationSymbol
     }
   }
-
-  private fun unwrapImplicitCoercionToUnit(exp: IrExpression): IrExpression = (exp as? IrTypeOperatorCall)?.let {
-    if (it.operator == IMPLICIT_COERCION_TO_UNIT) it.argument else it
-  } ?: exp
 
   private fun initializeDataProcessorMethod(): IrFunction =
     spec

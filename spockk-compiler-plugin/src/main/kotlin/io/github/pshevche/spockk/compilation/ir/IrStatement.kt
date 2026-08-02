@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperator.IMPLICIT_COERCION_TO_UNIT
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -90,4 +91,13 @@ internal fun IrExpression.rebindDispatchReceiverReferences(
     }
   }
   return transform(rebinder, null)
+}
+
+internal fun IrExpression.unwrapImplicitCoercionToUnit(): IrExpression = (this as? IrTypeOperatorCall)?.let {
+  if (it.operator == IMPLICIT_COERCION_TO_UNIT) it.argument else it
+} ?: this
+
+internal fun IrStatement.isAssertCall(): Boolean {
+  val owner = (this as? IrCall)?.symbol?.owner ?: return false
+  return owner.fqNameWhenAvailable == IrIdentifiers.Kotlin.ASSERT_FQN
 }

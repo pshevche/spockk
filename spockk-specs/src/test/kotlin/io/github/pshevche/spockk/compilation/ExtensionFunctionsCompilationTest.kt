@@ -20,7 +20,6 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import spock.lang.Issue
-import kotlin.test.assertTrue
 
 class ExtensionFunctionsCompilationTest : BaseCompilationTest() {
 
@@ -41,6 +40,6 @@ class ExtensionFunctionsCompilationTest : BaseCompilationTest() {
     val result = transform(fixture)
 
     then
-    assertTrue(result.isSuccess())
+    result.isSuccess()
   }
 }

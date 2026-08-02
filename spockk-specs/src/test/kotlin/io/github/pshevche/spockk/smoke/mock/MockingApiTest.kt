@@ -18,7 +18,6 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
-import org.junit.jupiter.api.assertNotNull
 import org.spockframework.mock.MockUtil
 import spock.lang.Specification
 import kotlin.test.assertEquals
@@ -32,7 +31,7 @@ class MockingApiTest : Specification() {
     val m = Mock(Runnable::class.java)
 
     then
-    assertNotNull(m)
+    m != null
 
     `when`
     m.run()
@@ -56,8 +55,8 @@ class MockingApiTest : Specification() {
 
     `when`
     m.run()
-    then
 
+    then
     assertIsSpockMock(m)
     assertMockName(m, "m")
   }
@@ -85,7 +84,7 @@ class MockingApiTest : Specification() {
     val m = Stub(Runnable::class.java)
 
     then
-    assertNotNull(m)
+    m != null
 
     `when`
     m.run()
@@ -110,13 +109,13 @@ class MockingApiTest : Specification() {
     val m = Spy(StringBuilder::class.java)
 
     then
-    assertNotNull(m)
+    m != null
 
     `when`
     m.append("a")
 
     then
-    assertEquals("a", m.toString())
+    m.toString() == "a"
     assertIsSpockMock(m)
   }
 
@@ -128,7 +127,7 @@ class MockingApiTest : Specification() {
     m.append("a")
 
     then
-    assertEquals("a", m.toString())
+    m.toString() == "a"
     assertIsSpockMock(m)
   }
 

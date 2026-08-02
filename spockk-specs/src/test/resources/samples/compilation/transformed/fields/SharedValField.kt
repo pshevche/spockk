@@ -21,8 +21,30 @@ class SharedValField : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    val `$spock_valueRecorder` : org.spockframework.runtime.ValueRecorder = org.spockframework.runtime.ValueRecorder()
+    val `$spock_errorCollector` : org.spockframework.runtime.ErrorCollector =
+      org.spockframework.runtime.ErrorRethrower.INSTANCE
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
-    assert(getSharedAnswer() == 42)
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "(sharedAnswer == 42)",
+        7,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), getSharedAnswer()) as Int) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), 42) as Int)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "(sharedAnswer == 42)",
+        7,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 

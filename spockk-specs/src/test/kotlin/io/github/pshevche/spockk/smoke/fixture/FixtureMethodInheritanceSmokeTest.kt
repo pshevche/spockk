@@ -16,7 +16,6 @@ package io.github.pshevche.spockk.smoke.fixture
 
 import io.github.pshevche.spockk.lang.expect
 import spock.lang.Specification
-import kotlin.test.assertTrue
 
 abstract class FixtureMethodInheritanceBase : Specification() {
 
@@ -45,7 +44,7 @@ class FixtureMethodInheritanceSmokeTest : FixtureMethodInheritanceBase() {
 
   fun `inherited fixture methods are executed`() {
     expect
-    assertTrue(log.contains("parent:setupSpec"))
-    assertTrue(log.contains("parent:setup"))
+    log.contains("parent:setupSpec")
+    log.contains("parent:setup")
   }
 }

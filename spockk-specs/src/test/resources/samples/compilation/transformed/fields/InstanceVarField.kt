@@ -19,8 +19,30 @@ class InstanceVarField : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    val `$spock_valueRecorder` : org.spockframework.runtime.ValueRecorder = org.spockframework.runtime.ValueRecorder()
+    val `$spock_errorCollector` : org.spockframework.runtime.ErrorCollector =
+      org.spockframework.runtime.ErrorRethrower.INSTANCE
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
-    assert(instanceField == "hello")
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "(instanceField == \"hello\")",
+        6,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), instanceField) as String) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), "hello") as String)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "(instanceField == \"hello\")",
+        6,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 

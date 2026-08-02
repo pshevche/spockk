@@ -25,7 +25,6 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectUniqueId
 import spock.lang.Specification
 import java.util.stream.Collectors.toSet
-import kotlin.test.assertEquals
 
 class SpockkTestEngineSmokeTest : Specification() {
   fun `discovers test class by class name`() {
@@ -97,7 +96,7 @@ class SpockkTestEngineSmokeTest : Specification() {
     val specIds = events.map { it.testDescriptor.uniqueId.removeLastSegment() }.collect(toSet())
 
     then
-    assertEquals(5, specIds.count())
+    specIds.count() == 5
   }
 
   fun `executes tests in the declaration order`() {
@@ -109,6 +108,6 @@ class SpockkTestEngineSmokeTest : Specification() {
         .toList()
 
     then
-    assertEquals(listOf("successful feature", "failing feature"), features)
+    features == listOf("successful feature", "failing feature")
   }
 }

@@ -37,10 +37,70 @@ class MultipleFields : spock.lang.Specification() {
     )]
   )
   fun `$spock_feature_0_0`() {
+    val `$spock_valueRecorder` : org.spockframework.runtime.ValueRecorder = org.spockframework.runtime.ValueRecorder()
+    val `$spock_errorCollector` : org.spockframework.runtime.ErrorCollector =
+      org.spockframework.runtime.ErrorRethrower.INSTANCE
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
-    assert(getAnswer() == 42)
-    assert(instanceField == "hello")
-    assert(getSharedField() == 24)
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "(answer == 42)",
+        9,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), getAnswer()) as Int) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), 42) as Int)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "(answer == 42)",
+        9,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "(instanceField == \"hello\")",
+        10,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), instanceField) as String) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), "hello") as String)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "(instanceField == \"hello\")",
+        10,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "(sharedField == 24)",
+        11,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), getSharedField()) as Int) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), 24) as Int)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "(sharedField == 24)",
+        11,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 

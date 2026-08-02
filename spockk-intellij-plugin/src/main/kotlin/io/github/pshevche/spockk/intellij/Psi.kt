@@ -52,6 +52,9 @@ private val DATA_PROVIDER_BLOCK_IDX_KEY =
 private val CLEANUP_BLOCK_IDX_KEY =
   Key.create<CachedValue<Int>>("spockk.cleanup.block.idx")
 
+private val THEN_OR_EXPECT_BLOCK_IDX_KEY =
+  Key.create<CachedValue<Int>>("spockk.then.or.expect.block.idx")
+
 internal fun PsiElement.isSpockkBlock(): Boolean {
   val firstBrace = text.indexOf("(")
   val nameWithoutArgs = if (firstBrace > -1) text.substring(0, firstBrace) else text
@@ -64,6 +67,9 @@ internal fun PsiElement.isDataProviderBlock(): Boolean =
 
 internal fun PsiElement.isCleanupBlock(): Boolean =
   text.contains("cleanup") && isSpockkBlock()
+
+internal fun PsiElement.isThenOrExpectBlock(): Boolean =
+  (text.startsWith("then") || text.startsWith("expect")) && isSpockkBlock()
 
 private fun getSpockkImportDirectives(file: PsiFile): List<String> {
   if (file is KtFile) {
@@ -99,6 +105,13 @@ internal fun PsiElement.isPartOfCleanupBlock(): Boolean {
   return elementPositionInFeature > cleanupBlockPosition
 }
 
+internal fun PsiElement.isPartOfThenOrExpectBlock(): Boolean {
+  val feature = getParentFeature() ?: return false
+  val blockPosition = getThenOrExpectBlockPosition(feature) ?: return false
+  val elementPositionInFeature = textRange.startOffset
+  return elementPositionInFeature > blockPosition
+}
+
 internal fun PsiElement.getParentFeature(): KtFunction? = PsiTreeUtil.getParentOfType(this, KtFunction::class.java)
 
 private fun getCleanupBlockPosition(feature: KtFunction): Int? = getBlockPosition(feature, CLEANUP_BLOCK_IDX_KEY) {
@@ -108,6 +121,11 @@ private fun getCleanupBlockPosition(feature: KtFunction): Int? = getBlockPositio
 private fun getDataProviderBlockPosition(feature: KtFunction) = getBlockPosition(feature, DATA_PROVIDER_BLOCK_IDX_KEY) {
   it.isDataProviderBlock()
 }
+
+private fun getThenOrExpectBlockPosition(feature: KtFunction) =
+  getBlockPosition(feature, THEN_OR_EXPECT_BLOCK_IDX_KEY) {
+    it.isThenOrExpectBlock()
+  }
 
 private fun getBlockPosition(
   feature: KtFunction,

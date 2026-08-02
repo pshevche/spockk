@@ -44,12 +44,10 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.util.parentAsClass
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class CleanupBlockRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
   private val feature: IrFunction,

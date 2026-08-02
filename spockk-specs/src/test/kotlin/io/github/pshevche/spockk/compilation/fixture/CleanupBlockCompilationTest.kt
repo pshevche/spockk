@@ -19,9 +19,7 @@ import io.github.pshevche.spockk.compilation.TransformationSample.Companion.samp
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
-import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
-@OptIn(ExperimentalCompilerApi::class)
 class CleanupBlockCompilationTest : BaseCompilationTest() {
 
   fun `transforms #sampleName`(sampleName: String) {

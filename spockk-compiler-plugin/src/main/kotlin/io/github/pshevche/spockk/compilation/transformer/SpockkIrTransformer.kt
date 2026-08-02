@@ -20,11 +20,10 @@ import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterCont
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.util.file
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
 internal class SpockkIrTransformer(
-  rewriterContext: SpockkIrRewriterContext,
+  private val rewriterContext: SpockkIrRewriterContext,
   private val context: SpockkTransformationContext
 ) : BaseSpockkIrElementTransformer() {
   private val specRewriter = SpecRewriter(rewriterContext)
@@ -33,6 +32,7 @@ internal class SpockkIrTransformer(
   override fun visitClassNew(declaration: IrClass): IrStatement =
     declaration.transformPostfix {
       context.specContext(this)?.let { specRewriter.rewrite(this, it) }
+      rewriterContext.sourceTextCache.evict(declaration.file)
     }
 
   override fun visitFunctionNew(declaration: IrFunction): IrStatement =

@@ -21,8 +21,6 @@ import io.github.pshevche.spockk.lang.where
 import spock.lang.Shared
 import spock.lang.Specification
 import kotlin.math.max
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class DataTablesSmokeTest : Specification() {
 
@@ -37,7 +35,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `basic usage`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(c, max(a, b))
+    max(a, b) == c
 
     where
     a ; b ; c
@@ -48,7 +46,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `basic usage with collections`(a: List<Int>, b: List<Int>, c: List<Int>) {
     expect
-    assertEquals(c, a + b)
+    a + b == c
 
     where
     a            ; b            ; c
@@ -58,7 +56,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `basic usage with custom objects`(younger: Person, older: Person) {
     expect
-    assertTrue(younger.age < older.age)
+    younger.age < older.age
 
     where
     younger    ; older
@@ -68,7 +66,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `estimate iterations correctly`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(3, specificationContext.currentIteration.estimatedNumIterations)
+    specificationContext.currentIteration.estimatedNumIterations == 3
 
     where
     a ; b ; c
@@ -79,7 +77,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `can use pseudo-column to enable one-column table`(a: Int) {
     expect
-    assertEquals(1, a)
+    a == 1
 
     where
     a ; `_`
@@ -88,7 +86,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `pseudo-column can be declared as parameter`(a: Int, `_`: Any) {
     expect
-    assertEquals(3, a)
+    a == 3
 
     where
     a ; `_`
@@ -97,7 +95,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `tables can be mixed with other parametrization`(a: Int, b: Int, c: Int, d: Int) {
     expect
-    assertEquals(listOf(1, 2, 3, 4), listOf(a, b, c, d))
+    listOf(a, b, c, d) == listOf(1, 2, 3, 4)
 
     where
     variable(a).from(1)
@@ -110,9 +108,9 @@ class DataTablesSmokeTest : Specification() {
 
   fun `cells may contain arbitrary expressions`(a: String, b: Person, c: Int) {
     expect
-    assertEquals("oo", a)
-    assertEquals(23, b.age)
-    assertEquals(5, c)
+    a == "oo"
+    b.age == 23
+    c == 5
 
     where
     a                  ; b          ; c
@@ -121,8 +119,8 @@ class DataTablesSmokeTest : Specification() {
 
   fun `cells can reference static fields`(a: Int, b: Int) {
     expect
-    assertEquals(42, a)
-    assertEquals(42, b)
+    a == 42
+    b == 42
 
     where
     a            ; b
@@ -132,7 +130,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `cells can reference previous cells`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(listOf(0, 1, 2), listOf(a, b, c))
+    listOf(a, b, c) == listOf(0, 1, 2)
 
     where
     a ; b     ; c
@@ -145,7 +143,7 @@ class DataTablesSmokeTest : Specification() {
     c: Int
   ) {
     expect
-    assertEquals(c, max(a, b))
+    max(a, b) == c
 
     where
     a  ; b  ; c
@@ -157,8 +155,8 @@ class DataTablesSmokeTest : Specification() {
 
   fun `cell references are pointing to the current row`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(1 + a * 2, b)
-    assertEquals(3 * b, c)
+    b == 1 + a * 2
+    c == 3 * b
 
     where
     a ; b         ; c
@@ -172,7 +170,7 @@ class DataTablesSmokeTest : Specification() {
     b: Int
   ) {
     expect
-    assertTrue(true)
+    true
 
     where
     a ; b
@@ -182,7 +180,7 @@ class DataTablesSmokeTest : Specification() {
 
   fun `data tables can be referenced from following variables`(a: Int, b: Int, c: Int) {
     expect
-    assertEquals(3, c)
+    c == 3
 
     where
     a ; b
@@ -199,7 +197,7 @@ class DataTablesSmokeTest : Specification() {
     a: Int
   ) {
     expect
-    assertEquals(y, z)
+    z == y
 
     where
     variable(x).from(1)
@@ -217,7 +215,7 @@ class DataTablesSmokeTest : Specification() {
     a: Int
   ) {
     expect
-    assertEquals(y, z)
+    y == z
 
     where
     variable(x).from(listOf(1, 2))

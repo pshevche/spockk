@@ -38,22 +38,22 @@ abstract class SharedFieldsInSuperclassBase : Specification() {
 
   fun `can access private shared field from base class`() {
     expect
-    assert(sharedPrivate == "sharedPrivate")
+    sharedPrivate == "sharedPrivate"
   }
 
   fun `can access protected shared field from base class`() {
     expect
-    assert(sharedProtected == "sharedProtected")
+    sharedProtected == "sharedProtected"
   }
 
   fun `can access public shared field from base class`() {
     expect
-    assert(sharedPublic == "sharedPublic")
+    sharedPublic == "sharedPublic"
   }
 
   fun `can access internal shared field from base class`() {
     expect
-    assert(sharedProperty == "sharedProperty")
+    sharedProperty == "sharedProperty"
   }
 }
 

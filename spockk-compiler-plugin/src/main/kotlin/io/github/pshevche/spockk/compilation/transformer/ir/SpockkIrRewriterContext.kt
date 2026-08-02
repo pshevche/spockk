@@ -21,5 +21,6 @@ import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
  */
 internal class SpockkIrRewriterContext(
   private val defaultGenerator: IrGeneratorContext,
-  val spockRuntime: IrSpockRuntime = IrSpockRuntime.create(defaultGenerator)
+  val sourceTextCache: SourceTextCache = SourceTextCache(),
+  val spockRuntime: IrSpockRuntime = IrSpockRuntime.create(defaultGenerator, sourceTextCache)
 ) : IrGeneratorContext by defaultGenerator

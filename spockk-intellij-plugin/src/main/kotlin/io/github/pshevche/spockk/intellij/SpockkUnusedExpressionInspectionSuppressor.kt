@@ -27,11 +27,20 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
         return element.isSpockkBlock() || element.isPartOfDataProviderBlock()
       }
 
-      return element.isPartOfDataProviderBlock()
+      return element.isPartOfDataProviderBlock() || element.isPartOfThenOrExpectBlock()
     }
 
     if (toolId == "KotlinUnreachableCode") {
       return element.isSpockkBlock() || element.isPartOfDataProviderBlock() || element.isPartOfCleanupBlock()
+    }
+
+    if (toolId == "UnusedEquals" ||
+      toolId == "SimplifyBooleanWithConstants" ||
+      toolId == "SimplifyNegatedBinaryExpression" ||
+      toolId == "KotlinConstantConditions" ||
+      toolId == "SENSELESS_COMPARISON"
+    ) {
+      return element.isPartOfThenOrExpectBlock()
     }
 
     return false
