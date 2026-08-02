@@ -18,19 +18,19 @@ class ImplicitMethodCallCondition : spock.lang.Specification() {
     try {
       org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
         `$spock_valueRecorder`.reset(),
-        "startsWith(\"he\")",
+        "\"hello\".startsWith(\"he\")",
         4,
-        13,
+        5,
         null,
-        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
-          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), "hello") as String).startsWith(`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), "he") as String)) as Boolean)
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(4),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), "hello") as String).startsWith(`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2), "he") as String)) as Boolean)
     }
     catch (`$spock_condition_throwable` : Throwable) {
       org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
         `$spock_valueRecorder`,
-        "startsWith(\"he\")",
+        "\"hello\".startsWith(\"he\")",
         4,
-        13,
+        5,
         null,
         `$spock_condition_throwable`)}
     finally {

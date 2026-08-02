@@ -43,6 +43,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SimpleComparisonSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SingleLineToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualitySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualsMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThrowingToStringValueSpec
@@ -130,7 +131,24 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |startsWith("xyz")
+      |str.startsWith("xyz")
+      ||   |
+      ||   false
+      |hello
+      |
+      """.trimMargin()
+  }
+
+  fun `string equals method call`() {
+    expect
+    failureMessage(StringEqualsMethodCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |str.equals("xyz")
+      ||   |
+      ||   false
+      |hello
       |
       """.trimMargin()
   }
@@ -163,27 +181,31 @@ class ConditionRenderingTest : Specification() {
   }
 
   fun `logical and`() {
+    // left is false, so && short-circuits: right is never evaluated and has no recorded value.
     expect
     failureMessage(LogicalAndSpec::class) ==
       """
       |Condition not satisfied:
       |
       |left && right
-      ||
+      ||    |
+      ||    false
       |false
       |
       """.trimMargin()
   }
 
   fun `logical or`() {
+    // left is false, so || must evaluate right too; both operands are recorded.
     expect
     failureMessage(LogicalOrSpec::class) ==
       """
       |Condition not satisfied:
       |
       |left || right
-      ||
-      |false
+      ||    |  |
+      |false|  false
+      |     false
       |
       """.trimMargin()
   }

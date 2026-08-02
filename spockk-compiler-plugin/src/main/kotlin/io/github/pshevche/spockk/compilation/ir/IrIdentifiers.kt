@@ -75,6 +75,7 @@ internal object IrIdentifiers {
     // FqName
     val LIST_FQN = COLLECTIONS_PACKAGE_FQ_NAME.child("List")
     val ASSERT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("assert")
+    val BOOLEAN_NOT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("Boolean").child("not")
 
     private val JVM_PKG_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("jvm")
     val VOLATILE_FQN = JVM_PKG_FQN.child("Volatile")

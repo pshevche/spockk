@@ -14,10 +14,13 @@
 
 package io.github.pshevche.spockk.compilation.transformer.ir
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
+import io.github.pshevche.spockk.compilation.ir.fqName
 import io.github.pshevche.spockk.compilation.ir.isAssertCall
 import io.github.pshevche.spockk.compilation.ir.unwrapImplicitCoercionToUnit
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
@@ -98,6 +101,26 @@ internal class ConditionValueRecordingTransformer(
       comparison.transformChildren(this, null)
       return record(expression)
     }
+
+    if (expression.representsGroovyMethodCallExpression()) {
+      // Groovy's MethodCallExpression indexes two things Kotlin has no equivalent node for:
+      // - its method name, converted (and thus indexed) as its own ConstantExpression child,
+      //   right after the receiver and before the arguments;
+      // - its whole argument list, wrapped in an ArgumentListExpression that reserves its own
+      //   index (via `recordNa`, no value) right after the individual arguments and before the
+      //   call itself.
+      // Neither is ever independently displayed, but both still consume an index slot at
+      // runtime, so reserve the same two slots here, in the same positions, to keep recorded
+      // indices aligned with what Groovy's own ConditionRewriter would produce for the reparsed
+      // text. Operator calls (`==`, `[]`, property getters, ...) don't go through this: Groovy
+      // represents those as different node kinds that don't have a method name or argument list.
+      expression.transformReceiverArguments()
+      recordCount++
+      expression.transformNonReceiverArguments()
+      recordCount++
+      return record(expression)
+    }
+
     expression.transformChildren(this, null)
     return record(expression)
   }
@@ -122,7 +145,28 @@ internal class ConditionValueRecordingTransformer(
   }
 
   override fun visitWhen(expression: IrWhen): IrExpression {
-    expression.transformChildren(this, null)
+    when (expression.origin) {
+      // Kotlin desugars `a && b` into `if (a) b else false` and `a || b` into `if (a) true else b`,
+      // tagging the resulting IrWhen with ANDAND/OROR. Unlike Groovy, which keeps `&&`/`||` as a
+      // single BinaryExpression with two real operands, this shape has two synthetic branches
+      // whose `true`/`false` legs don't correspond to anything in the source text. Transform (and
+      // record) only the real operands - the other branch's condition/result is left untouched -
+      // so the recorded values match what Groovy's own ConditionRewriter would produce.
+      IrStatementOrigin.ANDAND -> {
+        val realOperands = expression.branches[0]
+        realOperands.condition = realOperands.condition.transform(this, null)
+        realOperands.result = realOperands.result.transform(this, null)
+      }
+
+      IrStatementOrigin.OROR -> {
+        val left = expression.branches[0]
+        val right = expression.branches[1]
+        left.condition = left.condition.transform(this, null)
+        right.result = right.result.transform(this, null)
+      }
+
+      else -> expression.transformChildren(this, null)
+    }
     return record(expression)
   }
 
@@ -150,5 +194,33 @@ internal class ConditionValueRecordingTransformer(
     if (origin != IrStatementOrigin.EXCLEQ) return null
     val comparison = dispatchReceiver as? IrCall ?: return null
     return comparison.takeIf { it.origin == IrStatementOrigin.EXCLEQ }
+  }
+
+  /**
+   * A plain, source-level call (explicit or implicit receiver) that Groovy would parse as a
+   * `MethodCallExpression` - as opposed to a property/operator call (`origin` tags those with e.g.
+   * `GET_PROPERTY`, `GET_ARRAY_ELEMENT`, `EQEQ`, `PLUS`, ...), which Groovy represents with a
+   * different node kind that has no separate method-name child. `!x`, desugared to `x.not()`, is
+   * the one symbolic operator that isn't tagged with an origin of its own (unlike `.equals(...)`,
+   * which is also `operator fun`-declared but genuinely is a Groovy-style method call when called
+   * explicitly), so it's excluded by name instead.
+   */
+  private fun IrCall.representsGroovyMethodCallExpression(): Boolean =
+    origin == null && fqName() != IrIdentifiers.Kotlin.BOOLEAN_NOT_FQN && symbol.owner.correspondingPropertySymbol == null
+
+  private fun IrCall.transformReceiverArguments() {
+    symbol.owner.parameters.forEachIndexed { index, parameter ->
+      if (parameter.kind == IrParameterKind.DispatchReceiver || parameter.kind == IrParameterKind.ExtensionReceiver) {
+        arguments[index] = arguments[index]?.transform(this@ConditionValueRecordingTransformer, null)
+      }
+    }
+  }
+
+  private fun IrCall.transformNonReceiverArguments() {
+    symbol.owner.parameters.forEachIndexed { index, parameter ->
+      if (parameter.kind != IrParameterKind.DispatchReceiver && parameter.kind != IrParameterKind.ExtensionReceiver) {
+        arguments[index] = arguments[index]?.transform(this@ConditionValueRecordingTransformer, null)
+      }
+    }
   }
 }

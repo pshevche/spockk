@@ -340,3 +340,11 @@ class CustomObjectDiffSpec : Specification() {
     b1 == b2
   }
 }
+
+class StringEqualsMethodCallSpec : Specification() {
+  fun `test`() {
+    val str = "hello"
+    expect
+    str.equals("xyz")
+  }
+}

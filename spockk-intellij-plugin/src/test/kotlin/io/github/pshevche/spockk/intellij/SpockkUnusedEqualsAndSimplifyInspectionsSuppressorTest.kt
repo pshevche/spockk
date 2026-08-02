@@ -70,6 +70,13 @@ class SpockkUnusedEqualsAndSimplifyInspectionsSuppressorTest : BaseSpockkUnusedE
   }
 
   @Test
+  fun testSuppressSenselessComparisonInThenBlock() {
+    assertTrue(
+      isSuppressedFor("x > y", KtBinaryExpression::class.java, "SENSELESS_COMPARISON")
+    )
+  }
+
+  @Test
   fun testDoesNotSuppressForUnrelatedToolId() {
     assertFalse(
       isSuppressedFor("x > y", KtBinaryExpression::class.java, "UnusedDeclaration")

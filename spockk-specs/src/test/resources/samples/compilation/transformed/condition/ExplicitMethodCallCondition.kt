@@ -22,8 +22,8 @@ class ExplicitMethodCallCondition : spock.lang.Specification() {
         4,
         5,
         null,
-        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
-          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), "hello") as String).startsWith(`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), "he") as String)) as Boolean)
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(4),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), "hello") as String).startsWith(`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2), "he") as String)) as Boolean)
     }
     catch (`$spock_condition_throwable` : Throwable) {
       org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,

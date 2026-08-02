@@ -26,12 +26,15 @@ import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.deepCopyWithSymbols
 import org.jetbrains.kotlin.ir.util.toIrConst
 
@@ -68,8 +71,9 @@ internal class IrSpockRuntime private constructor(
     file: IrFile
   ): IrCall {
     val verifyCondition = spockRuntimeClassSymbol.functionByName("verifyCondition")
-    val line = file.fileEntry.getLineNumber(statement.startOffset) + 1
-    val column = file.fileEntry.getColumnNumber(statement.startOffset) + 1
+    val startOffset = statement.effectiveStartOffset()
+    val line = file.fileEntry.getLineNumber(startOffset) + 1
+    val column = file.fileEntry.getColumnNumber(startOffset) + 1
     val conditionValueRecorder = ConditionValueRecordingTransformer(builder, irValueRecorder)
     return with(builder) {
       irCall(verifyCondition).apply {
@@ -96,8 +100,9 @@ internal class IrSpockRuntime private constructor(
     conditionThrowable: IrVariable
   ): IrCall {
     val conditionFailedWithException = spockRuntimeClassSymbol.functionByName("conditionFailedWithException")
-    val line = file.fileEntry.getLineNumber(statement.startOffset) + 1
-    val column = file.fileEntry.getColumnNumber(statement.startOffset) + 1
+    val startOffset = statement.effectiveStartOffset()
+    val line = file.fileEntry.getLineNumber(startOffset) + 1
+    val column = file.fileEntry.getColumnNumber(startOffset) + 1
     return with(builder) {
       irCall(conditionFailedWithException).apply {
         arguments[0] = irGet(errorCollectorVar)
@@ -112,12 +117,33 @@ internal class IrSpockRuntime private constructor(
   }
 
   private fun irStatementText(builder: DeclarationIrBuilder, statement: IrExpression, file: IrFile): IrConst = try {
-    val startOffset = if (statement.isAssertCall()) statement.startOffset + "assert".length else statement.startOffset
+    val startOffset =
+      if (statement.isAssertCall()) statement.effectiveStartOffset() + "assert".length else statement.effectiveStartOffset()
     sourceTextCache.get(file)
       .substring(startOffset, statement.endOffset)
       .toIrConst(builder.context.irBuiltIns.stringType)
   } catch (_: Exception) {
     builder.irNull()
+  }
+
+  /**
+   * For a dot-qualified call used as a bare top-level condition (e.g. `str.startsWith("xyz")`),
+   * Kotlin gives the [IrCall] itself the offset of just the callee (`startsWith(...)`), not the
+   * receiver (`str.`) - unlike Groovy, which always positions a MethodCallExpression at the start
+   * of its receiver. When the same call is nested inside another expression (e.g. `... == true`),
+   * the enclosing expression's own offset already spans the receiver, so this only needs to look
+   * at receivers, and only recurse into further calls/coercions, not arbitrary sub-expressions.
+   */
+  @OptIn(UnsafeDuringIrConstructionAPI::class)
+  private fun IrExpression.effectiveStartOffset(): Int = when (this) {
+    is IrTypeOperatorCall -> argument.effectiveStartOffset()
+    is IrCall -> symbol.owner.parameters
+      .asSequence()
+      .withIndex()
+      .filter { (_, parameter) -> parameter.kind == IrParameterKind.DispatchReceiver || parameter.kind == IrParameterKind.ExtensionReceiver }
+      .fold(startOffset) { minOffset, (index, _) -> minOf(minOffset, arguments[index]?.effectiveStartOffset() ?: minOffset) }
+
+    else -> startOffset
   }
 
   companion object {

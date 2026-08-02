@@ -37,7 +37,8 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
     if (toolId == "UnusedEquals" ||
       toolId == "SimplifyBooleanWithConstants" ||
       toolId == "SimplifyNegatedBinaryExpression" ||
-      toolId == "KotlinConstantConditions"
+      toolId == "KotlinConstantConditions" ||
+      toolId == "SENSELESS_COMPARISON"
     ) {
       return element.isPartOfThenOrExpectBlock()
     }
