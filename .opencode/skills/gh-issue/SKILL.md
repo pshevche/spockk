@@ -1,6 +1,6 @@
 ---
 name: gh-issue
-description: Hand off a GitHub issue to an OpenCode agent for implementation. Fetches the issue, creates a worktree, then either starts implementation (type::task) or prepares design docs first (type::story).
+description: Hand off a GitHub issue to a coding agent (OpenCode or Claude Code) for implementation. Fetches the issue, creates a worktree, then either starts implementation (type::task) or prepares design docs first (type::story).
 ---
 
 You are being asked to take ownership of a GitHub issue and drive it to completion.
@@ -47,8 +47,6 @@ Closes #<number>
 
 ## Test plan
 <checklist>
-
-Generated with OpenCode.
 EOF
 )"
 ```
@@ -59,8 +57,10 @@ EOF
 
 A design spec and implementation plan are required before coding.
 
-1. Load and run the `superpowers/brainstorming` skill via OpenCode's native `skill` tool.
-2. The brainstorming workflow should produce a design spec under `_docs/specs/` and an implementation plan under `_docs/plans/`.
+1. On OpenCode, load and run the `superpowers/brainstorming` skill via OpenCode's native `skill` tool. On Claude Code
+   (no equivalent plugin), run the same process manually: ask clarifying questions until the design is unambiguous,
+   then draft the documents yourself.
+2. Produce a design spec under `_docs/specs/` and an implementation plan under `_docs/plans/`.
 3. Ask the user to review and approve both documents.
 
 Do not start implementation until approval is explicit.

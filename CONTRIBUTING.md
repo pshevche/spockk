@@ -23,6 +23,12 @@ Before starting work on a significant change, please [open an issue](https://git
 
 2. Import the project into IntelliJ IDEA (Gradle configuration will be detected automatically)
 
+### Using an AI coding agent
+
+Project instructions live in [`AGENTS.md`](AGENTS.md), read by both [OpenCode](https://opencode.ai) and Claude Code
+(via `CLAUDE.md`). Reusable skills (`/gh-issue`, `spock-expert`, `ir-expert`, `grill-me`) live under
+`.opencode/skills/` and are symlinked into `.claude/skills/` so either tool can use them.
+
 ## Building and Testing
 
 ### Build the project

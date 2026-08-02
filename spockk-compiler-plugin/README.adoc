@@ -7,8 +7,13 @@ Implements IR transformations that modify the simplified test syntax into execut
 - link:src/main/kotlin/io/github/pshevche/spockk/compilation/SpockkCompilerPlugin.kt[`SpockkCompilerPlugin`]: the entry point for the plugin that registers the IR transformer.
 - link:src/main/kotlin/io/github/pshevche/spockk/compilation/collector/SpockkTransformationContextCollector.kt[`SpockkTransformationContextCollector`]: traverses the IR tree and collects information about specs and features.
 - link:src/main/kotlin/io/github/pshevche/spockk/compilation/transformer/SpockkIrTransformer.kt[`SpockkIrTransformer`]: rewrites specification classes and feature methods (e.g., appends annotations that support the test engine in detecting executable tests).
+- link:src/main/kotlin/io/github/pshevche/spockk/compilation/transformer/ir/ConditionValueRecordingTransformer.kt[`ConditionValueRecordingTransformer`]: wraps condition sub-expressions in Spock's `ValueRecorder` calls, mirroring `org.spockframework.compiler.ConditionRewriter`.
 
 == Design considerations
+
+=== Condition rendering
+
+Failure-message diagrams for `expect`/`assert` are not reimplemented here - they reuse Spock's own runtime classes (`SpockRuntime`, `ValueRecorder`, `Condition`, `ExpressionInfoBuilder`), shaded unmodified into `spockk-core`. At runtime those classes re-parse the condition's source text as Groovy and match recorded values to the resulting tree purely by position. `ConditionValueRecordingTransformer` must therefore record the exact same number and order of values Groovy's own `ConditionRewriter` would for that text - including value-less slots for constructs Kotlin has no separate IR node for (a method call's name and argument list), or every later value shifts out of alignment.
 
 The IR transformation happens in two phases: firstly, the plugin collects information about declared specifications and feature methods, and transforms them in the second stage.
 This is done for two purposes:
