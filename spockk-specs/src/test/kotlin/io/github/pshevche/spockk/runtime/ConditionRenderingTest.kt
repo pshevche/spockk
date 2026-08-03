@@ -36,6 +36,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalOrSpe
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MapValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerifyInVerifyAllSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAccessSpec
@@ -48,6 +49,9 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringMethod
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThrowingToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPropertyAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -517,6 +521,71 @@ class ConditionRenderingTest : Specification() {
     )
     expect
     expectedPattern.matches(failureMessage(CustomObjectDiffSpec::class))
+  }
+
+  fun `implicit target inside verify is not itself recorded`() {
+    expect
+    failureMessage(VerifyPropertyAccessSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |length == 3
+      ||      |
+      |5      false
+      |
+      """.trimMargin()
+  }
+
+  fun `implicit target inside verifyAll is not itself recorded`() {
+    expect
+    failureMessage(VerifyAllPropertyAccessSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |length == 3
+      ||      |
+      |5      false
+      |
+      """.trimMargin()
+  }
+
+  fun `implicit target inside nested verify-in-verifyAll is not itself recorded`() {
+    expect
+    failureMessage(NestedVerifyInVerifyAllSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |length == 3
+      ||      |
+      |5      false
+      |
+      """.trimMargin()
+  }
+
+  fun `verifyEach reports the same condition diagram per failing item`() {
+    val message = failureMessage(VerifyEachPropertyAccessSpec::class)
+
+    expect
+    message.contains("Assertions failed for item[0] hello:")
+    message.contains("Assertions failed for item[1] hi:")
+    message.contains(
+      """
+      |Condition not satisfied:
+      |
+      |length == 3
+      ||      |
+      |5      false
+      """.trimMargin()
+    )
+    message.contains(
+      """
+      |Condition not satisfied:
+      |
+      |length == 3
+      ||      |
+      |2      false
+      """.trimMargin()
+    )
   }
 
   private fun failureMessage(clazz: KClass<*>): String {
