@@ -34,4 +34,39 @@ class ImplicitConditionsCompilationTest : BaseCompilationTest() {
     expect
     assertTransformation(sampleFromResource("condition/ImplicitNegationCondition"))
   }
+
+  fun `verify call`() {
+    expect
+    assertTransformation(sampleFromResource("condition/VerifyBasic"))
+  }
+
+  fun `verifyAll call`() {
+    expect
+    assertTransformation(sampleFromResource("condition/VerifyAllBasic"))
+  }
+
+  fun `verifyEach call`() {
+    expect
+    assertTransformation(sampleFromResource("condition/VerifyEachBasic"))
+  }
+
+  fun `nested verify inside verifyAll`() {
+    expect
+    assertTransformation(sampleFromResource("condition/NestedVerifyInVerifyAll"))
+  }
+
+  fun `verify call inside a helper method`() {
+    expect
+    assertTransformation(sampleFromResource("condition/VerifyInHelperMethod"))
+  }
+
+  fun `verify call with a non-literal lambda is left unrewritten`() {
+    expect
+    assertTransformation(sampleFromResource("condition/VerifyWithNonLiteralLambda"))
+  }
+
+  fun `verify call inside a top-level extension function is left unrewritten`() {
+    expect
+    assertTransformation(sampleFromResource("condition/VerifyInExtensionFunction"))
+  }
 }
