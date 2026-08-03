@@ -15,6 +15,9 @@
 package io.github.pshevche.spockk.fixtures.runtime.samples.condition
 
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.verify
+import io.github.pshevche.spockk.lang.verifyAll
+import io.github.pshevche.spockk.lang.verifyEach
 import spock.lang.Specification
 
 class SimpleComparisonSpec : Specification() {
@@ -346,5 +349,39 @@ class StringEqualsMethodCallSpec : Specification() {
     val str = "hello"
     expect
     str.equals("xyz")
+  }
+}
+
+class VerifyPropertyAccessSpec : Specification() {
+  fun `test`() {
+    val str = "hello"
+    expect
+    verify(str) { length == 3 }
+  }
+}
+
+class VerifyAllPropertyAccessSpec : Specification() {
+  fun `test`() {
+    val str = "hello"
+    expect
+    verifyAll(str) { length == 3 }
+  }
+}
+
+class VerifyEachPropertyAccessSpec : Specification() {
+  fun `test`() {
+    val strings = listOf("hello", "hi")
+    expect
+    verifyEach(strings) { length == 3 }
+  }
+}
+
+class NestedVerifyInVerifyAllSpec : Specification() {
+  fun `test`() {
+    val str = "hello"
+    expect
+    verifyAll {
+      verify(str) { length == 3 }
+    }
   }
 }
