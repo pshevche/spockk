@@ -57,7 +57,9 @@ All of the "real" behavior — implicit conditions, error collection, soft-asser
 closure's *body* at compile time. The runtime methods themselves know nothing special about conditions.
 
 `verifyEach` is the one exception: its per-item loop, failure wrapping, and aggregation is real runtime logic, in
-[`SpockRuntime.verifyEach`](https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/runtime/SpockRuntime.java#L304-L330):
+`SpockRuntime.verifyEach`. Content below is verified against the `2.4-groovy-5.0` release sources (this project's
+pinned Spock version, where the method sits at roughly lines 183-215); `master`'s line numbers drift over time, so
+follow the method name rather than a line link:
 
 ```java
 public static <T> void verifyEach(
@@ -187,6 +189,24 @@ Bare boolean statements at the *top level of a helper method* are **not** implic
 called from inside a `verifyAll` block, etc.) is supported by construction, since the rewriter recurses uniformly
 regardless of where it started.
 
+**Explicitly out of scope: top-level/extension-function helpers.** "Method of a `Specification` subclass" means a
+*member* method. A top-level Kotlin extension function such as `fun Specification.checkPc(pc: PC) = verify(pc) {
+vendor == "Sunny" }` cannot be reached by the plugin's class-scoped traversal the way a member helper can —
+`SpockkIrTransformer.visitFunctionNew` already null-guards on `maybeCurrentIrClass` for exactly this reason
+(extension functions have no enclosing `IrClass` on the visitor's class stack; see the existing comment at
+`SpockkIrTransformer.kt:40`). A `verify`/`verifyAll`/`verifyEach` call inside such a function is not specially
+rewritten — it still compiles and runs as an ordinary function call, just without implicit-condition sugar (bare
+booleans inside stay plain, unchecked expression statements). This is a deliberate scope decision, not an oversight:
+no compile-time diagnostic is planned for this iteration. Member-method helpers, the documented and intended usage,
+are unaffected.
+
+**Inherited/overridden helper methods need no special handling.** Feature methods need the `addPotentialFeature`/
+fake-override machinery in `MutableSpockkTransformationContext` because Spockk materializes each inherited feature
+as its own distinct JUnit dynamic test per subclass. A plain helper method has no such requirement: it's rewritten
+once, in the class where its real `IrBlockBody` lives, and ordinary JVM virtual dispatch makes it work correctly
+however it's called (directly or transitively, from any subclass). `HelperMethodContext` does not need a parallel
+fake-override mechanism.
+
 **Runtime API** (`spockk-core`, new `Verification.kt`, real functioning Kotlin — not compile-erased markers like
 `Blocks.kt`, since unlike block labels these wrap genuine lambda-invocation/iteration behavior that must still work
 correctly even where the compiler plugin doesn't apply special treatment, e.g. a non-literal lambda argument):
@@ -203,47 +223,101 @@ fun <T> verifyEach(things: Iterable<T>, namer: (T) -> String, block: T.() -> Uni
 delegate/resolve-strategy machinery needed, since Kotlin resolves unqualified member access against the receiver
 statically.
 
+**Non-inline, deliberately.** All five functions are ordinary (non-`inline`) functions. The alternative — `inline`,
+matching Kotlin's own `with`/`apply`/`run` — would allow a bare non-local `return` inside the block (closer to
+Groovy closure ergonomics), but adds unverified risk around cross-module inline-body serialization interacting with
+the compiler plugin's own IR rewriting of the block's contents, for a marginal ergonomic gain. Decision: stay
+non-inline; a `return` inside a `verify`/`verifyAll`/`verifyEach` block uses the standard Kotlin labeled form
+(`return@verify`, `return@verifyAll`, `return@verifyEach`) like any other non-inline lambda parameter — this is
+ordinary, well-understood Kotlin behavior, not a special case introduced by this feature.
+
+**`verifyEach`'s index-parameter form is deferred.** Real Spock's `verifyEach` also accepts a two-arg closure
+(`{ item, index -> ... }`) for accessing the loop index directly. Spockk ships only the `namer`-based overload in
+this iteration (covers the main use case — readable failure messages — via `Verification.kt`'s
+`verifyEach(things, namer, block)`); an index-parameter overload is a pure additive API change and can be added
+later without breaking anything shipped now.
+
 `verifyEach` **does not use Groovy at all** (`spockk-core` already depends on Groovy transitively for
 `spock.lang.Specification`/mocking, but this call path avoids it entirely per explicit instruction). It's a direct
 Kotlin port of `SpockRuntime.verifyEach`'s algorithm: loop with index, try/catch per item, wrap each failure via the
 same `"Assertions failed for item[%d] %s:\n%s"` format into a `SpockAssertionError` (already shaded, unmodified,
-into `spockk-core`) with the original stack trace, then throw the single failure directly or aggregate multiple into
-`org.opentest4j.MultipleFailuresError` (already a transitive dependency via `spock-core`) — reusing Spock's exact
-message format and error types without going through `Closure`.
+into `spockk-core`; confirmed public constructors `()`, `(String)`, `(Throwable)`, `(String, Throwable)` in the
+`2.4-groovy-5.0` sources) with the original stack trace, then throw the single failure directly or aggregate
+multiple into `org.opentest4j.MultipleFailuresError` — reusing Spock's exact message format and error types without
+going through `Closure`. Dependency chain confirmed by inspecting the resolved build: `opentest4j` is not shaded
+into `spockk-core` (`shadowJar` only includes `io/github/pshevche/spockk/**`, `org/spockframework/**`, `spock/**`),
+but resolves transitively and correctly regardless — `spock-core`'s Gradle module metadata declares
+`junit-platform-engine` as an `apiElements` (compile-scope) dependency, and `junit-platform-engine` in turn declares
+`org.opentest4j:opentest4j` as its own `apiElements` dependency; since `spockk-core` declares `api(libs.spock)`, this
+propagates all the way through. No new dependency declaration needed. (Real Spock's own `SpockMultipleFailuresError`,
+thrown by `ErrorCollector.validateCollectedErrors()` on the IR-driven `verifyAll` path, itself extends
+`org.opentest4j.MultipleFailuresError` — so the two aggregation paths throw type-compatible errors.)
 
 **Compile-time rewriting** (`spockk-compiler-plugin`):
 
-- New FQNs in `IrIdentifiers.Spockk`: `VERIFY_FQN`, `VERIFY_ALL_FQN`, `VERIFY_EACH_FQN`.
+- New FQNs in `IrIdentifiers.Spockk`: `VERIFY_FQN`, `VERIFY_ALL_FQN`, `VERIFY_EACH_FQN`. Matching by FqName alone
+  (ignoring overload) is sufficient and already precedented: `IrCall.fqName()` collapses to package+name with no
+  signature encoding, and `isAssertCall()` already uses exactly this technique to match both of Kotlin's `assert`
+  overloads (`IrStatement.kt:100-103`) against one `ASSERT_FQN` constant.
 - `ConditionRewriter`'s per-statement loop (currently private, bookended by `callBlockEntered`/`callBlockExited` in
-  `rewrite()`) is factored into a reusable core that:
+  `rewrite()`) is factored into a reusable core,
+  `rewriteConditionStatements(statements, enclosingFunction, valueRecorderVar, errorCollectorVar, builder,
+  treatBareBooleansAsConditions)`, that:
   - Detects a statement that's a call to `verify`/`verifyAll`/`verifyEach` **with a literal trailing lambda
     argument** (`IrFunctionExpression`) — non-literal arguments are left as ordinary calls, matching Spock's own
     restriction.
-  - Recurses into that lambda's `IrBlockBody`, applying the same statement rewriting to it in place.
+  - Recurses into that lambda's `IrBlockBody`, applying this same function to it in place, **always passing
+    `treatBareBooleansAsConditions = true` for the recursive call** — regardless of what was passed in for the
+    outer statement list. This is what makes `verify`/`verifyAll`/`verifyEach` bodies get implicit-condition
+    treatment even when reached from a helper method's non-condition top level (see below), and what makes nesting
+    (`verifyAll { verify(x) { ... } }`) compose for free.
+  - Otherwise (not a helper call): treats the statement as a condition — wraps it in the existing
+    try/catch/`verifyCondition` scaffolding — only if `treatBareBooleansAsConditions` is true *for this call* (an
+    `assert(...)` call always counts, matching today's `isConditionStatement`; a bare boolean only counts when the
+    flag is true). Otherwise the statement is left untouched.
   - For `verify`/`verifyEach`: reuses whichever `(ValueRecorder, ErrorCollector)` pair is already ambient at that
     point (the feature-shared pair inside a `then`/`expect` block, or a pair declared once at the top of the
     enclosing helper method) — fail-fast, matching Spock's `isConditionMethodCall()`.
-  - For `verifyAll`: declares a **fresh** local `ErrorCollector` (a real instance via its constructor, not
-    `ErrorRethrower.INSTANCE` — same construction pattern `FeatureRewriter.initializeErrorCollectorStatement`
-    already uses) as the first statement of the lambda body, threads it through the recursive rewrite of that body,
-    and appends `errorCollector.validateCollectedErrors()` as the lambda's last statement.
+  - For `verifyAll`: declares a **fresh** local `ErrorCollector` as the first statement of the lambda body — a real
+    instance built via its constructor (confirmed: `ErrorCollector` declares no explicit constructor, so Java/Kotlin
+    supplies an implicit public no-arg one, unlike `ErrorRethrower`'s explicitly `private` constructor), using the
+    same constructor-call pattern `FeatureRewriter.initializeValueRecorderStatement` already uses for
+    `ValueRecorder` (`findRequiredClassSymbol(...).constructors.first()` + `builder.irCallConstructor(...)`),
+    applied to `ERROR_COLLECTOR_FQN` instead of `VALUE_RECORDER_FQN`. (Note: this is *not* the same pattern as
+    `FeatureRewriter.initializeErrorCollectorStatement`, which reads the `ErrorRethrower.INSTANCE` singleton field
+    rather than constructing anything — that method builds the fail-fast case, not the fresh-collector case.) The
+    fresh collector is threaded through the recursive rewrite of that body, and
+    `errorCollector.validateCollectedErrors()` is appended as the lambda's last statement.
   - The shared feature-level `ValueRecorder` is reused at every nesting depth (consistent with Spockk's existing
     per-feature simplification).
 - `FeatureRewriter` is updated to route `then`/`expect` block statements through this recursive core (unchanged
-  externally — `callBlockEntered`/`callBlockExited` still bookend only the top-level block, not nested lambdas).
+  externally — `callBlockEntered`/`callBlockExited` still bookend only the top-level block, not nested lambdas) with
+  `treatBareBooleansAsConditions = true`. **This is not purely a routing change**: `rewriteBehaviorStatements`'s
+  `hasConditions` check (which gates whether the shared `ValueRecorder`/`ErrorCollector` locals are declared at all)
+  currently only looks at `isConditionStatement` — an `assert(...)` call or a bare boolean. It must also recognize a
+  literal-lambda `verify`/`verifyAll`/`verifyEach` call as "this block has conditions", reusing the same detection
+  the recursive core uses. Without this, a `then`/`expect` block whose *only* statement is `verify(x) { ... }` (a
+  common, not edge-case, shape) computes `hasConditions = false`, leaves both vars `null`, and the existing
+  `valueRecorderVar!!`/`errorCollectorVar!!` non-null assertions in the rewrite path crash.
 - `SpockkTransformationContextCollector.visitBlockBody` gains a second detection path: for a method that is neither
   a feature (no block labels) nor a fixture method, scan its statements (recursively, through literal-lambda
   `verify`/`verifyAll`/`verifyEach` calls only — not through arbitrary control flow) for any occurrence of these
   three calls. If found, register the method in a new `HelperMethodContext` (parallel to `FeatureContext`) so
   `SpockkIrTransformer.visitFunctionNew` can dispatch a `HelperMethodRewriter`, which declares a fresh
   `(ValueRecorder, ErrorRethrower.INSTANCE-backed ErrorCollector)` pair scoped to that method (mirroring
-  `FeatureRewriter`'s once-per-feature declaration) before applying the same recursive core.
-- `ConditionValueRecordingTransformer` needs no algorithmic changes, but its implicit-`<this>`-skipping logic in
-  `visitGetValue` must be verified to also correctly skip the nested lambda's own implicit extension-receiver
-  parameter, so e.g. `verify(pc) { vendor == "Sunny" }` doesn't spuriously record `pc` itself and renders identically
-  to Spock's `with(pc) { vendor == "Sunny" }`. Validated empirically against real Spock's
-  `Condition(values, text, position, null, null, null).getRendering()`, per the project's established practice for
-  condition rendering changes.
+  `FeatureRewriter`'s once-per-feature declaration) before calling the same recursive core over the method's
+  top-level statements with `treatBareBooleansAsConditions = false` (bare booleans at a helper method's own top
+  level are ordinary statements; only the helper-call detection inside `rewriteConditionStatements` applies there —
+  see above for how recursion into a matched call flips the flag back to `true` for that nested body).
+- `ConditionValueRecordingTransformer` needs no algorithmic changes. Its implicit-`<this>`-skipping logic in
+  `visitGetValue` (skips any `IrValueParameter` named `"<this>"`) should already correctly skip a nested lambda's
+  own implicit extension-receiver parameter for free: Kotlin IR conventionally names both dispatch and extension
+  receiver parameters `"<this>"`, and this codebase already relies on that same blanket convention elsewhere
+  (`IrFunction.assignableParameters()` filters out parameters named `"<this>"` generically, not just for the
+  top-level feature's receiver). So e.g. `verify(pc) { vendor == "Sunny" }` should already render identically to
+  Spock's `with(pc) { vendor == "Sunny" }` with no code change — this is validated empirically (a rendering test
+  cross-checked against real Spock's `Condition(values, text, position, null, null, null).getRendering()`, per the
+  project's established practice), with `visitGetValue` extended only if that empirical check turns up a mismatch.
 
 ### Spock Source References
 
