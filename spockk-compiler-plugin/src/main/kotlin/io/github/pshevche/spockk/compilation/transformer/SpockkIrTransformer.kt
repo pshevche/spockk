@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.transformer
 
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext
+import io.github.pshevche.spockk.compilation.transformer.condition.HelperMethodRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrClass
@@ -28,6 +29,7 @@ internal class SpockkIrTransformer(
 ) : BaseSpockkIrElementTransformer() {
   private val specRewriter = SpecRewriter(rewriterContext)
   private val featureRewriter = FeatureRewriter(rewriterContext)
+  private val helperMethodRewriter = HelperMethodRewriter(rewriterContext)
 
   override fun visitClassNew(declaration: IrClass): IrStatement =
     declaration.transformPostfix {
@@ -38,8 +40,13 @@ internal class SpockkIrTransformer(
   override fun visitFunctionNew(declaration: IrFunction): IrStatement =
     declaration.transformPostfix {
       // extension functions do not have a reference to a class
-      maybeCurrentIrClass?.let {
-        context.featureContext(it, this)?.let { ctx -> featureRewriter.rewrite(this, ctx) }
+      maybeCurrentIrClass?.let { spec ->
+        val featureContext = context.featureContext(spec, this)
+        if (featureContext != null) {
+          featureRewriter.rewrite(this, featureContext)
+        } else if (context.isHelperMethodWithConditions(spec, this)) {
+          helperMethodRewriter.rewrite(this)
+        }
       }
     }
 }
