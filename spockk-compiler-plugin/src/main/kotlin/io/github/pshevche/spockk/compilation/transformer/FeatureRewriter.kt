@@ -37,6 +37,7 @@ import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.ERROR_COLLECTOR_VAR
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.VALUE_RECORDER_VAR
 import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
+import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
 import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
@@ -136,9 +137,12 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     featureBody: FeatureBody
   ): List<IrStatement> = buildList {
     // The value recorder and error collector are declared once per feature (matching Spock) and
-    // shared across every condition-bearing block, rather than re-declared per block.
+    // shared across every condition-bearing block, rather than re-declared per block. A block whose
+    // only statement is a literal-lambda verify/verifyAll/verifyEach call still needs them declared,
+    // even though that call itself isn't a bare condition statement.
     val hasConditions = featureBody.behaviorBlocks.any { block ->
-      block.statements.any { it.isConditionStatement(irBuiltIns) }
+      block.statements.any { it.isConditionStatement(irBuiltIns) } ||
+        block.statements.containsImplicitAssertionHelperCall()
     }
     val valueRecorderVar =
       if (hasConditions) initializeValueRecorderStatement(builder, feature).also { add(it) } else null
