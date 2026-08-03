@@ -68,12 +68,17 @@ Extract the statement-rewriting loop out of `ConditionRewriter.rewrite()` (curre
 With Task 3's `hasConditions` fix in place, confirm `FeatureRewriter` routes `then`/`expect` statements through the
 recursive core correctly for every shape: bare conditions only, helper calls only, and a mix of both in one block.
 
-**Files:**
-- Test: compilation snapshot pairs (see Task 7)
+This task needs its own executable checkpoint — `:spockk-compiler-plugin:compileKotlin` only compiles the plugin's
+own sources and cannot exercise the rewriter against sample code. Use the project's existing quick-check pattern
+(`TestDataFactory.specWithFeatureBody()` + `transform()`, asserting `result.isSuccess()`) rather than deferring
+verification to Task 7's formal golden files, so Task 3's refactor is validated before Task 5 builds on it.
 
-- [ ] **Step 1:** Compile a `then` block containing only a `verify(x) { ... }` call (no bare top-level condition) and confirm the value recorder/error collector are declared and no `!!`-related crash occurs
-- [ ] **Step 2:** Compile a `then` block mixing a bare condition and a `verify`/`verifyAll`/`verifyEach` call and confirm both are correctly rewritten
-- [ ] **Step 3:** Run `./gradlew :spockk-compiler-plugin:compileKotlin`, commit
+**Files:**
+- Test: throwaway/inline check via `TestDataFactory.specWithFeatureBody()` (superseded by Task 7's formal snapshot pairs — this task's own test does not need to survive as a permanent file)
+
+- [ ] **Step 1:** Using `TestDataFactory.specWithFeatureBody()` + `transform()`, compile a `then` block containing only a `verify(x) { ... }` call (no bare top-level condition) and assert `result.isSuccess()` — confirms the value recorder/error collector are declared and no `!!`-related crash occurs
+- [ ] **Step 2:** Same pattern, a `then` block mixing a bare condition and a `verify`/`verifyAll`/`verifyEach` call — assert `result.isSuccess()`
+- [ ] **Step 3:** Run `./gradlew :spockk-compiler-plugin:compileKotlin :spockk-specs:test --tests "*ConditionRewriter*"` (or equivalent for wherever the check lands), commit
 
 ### Task 5: Add helper-method detection and rewriting
 
@@ -84,9 +89,20 @@ method-scoped `(ValueRecorder, ErrorCollector)` pair.
 **Explicitly out of scope:** top-level Kotlin extension functions on `Specification` (as opposed to member methods)
 are not detected — `SpockkIrTransformer.visitFunctionNew` already null-guards on `maybeCurrentIrClass` for this
 exact reason (no enclosing `IrClass` on the visitor's class stack; see the existing comment at
-`SpockkIrTransformer.kt:40`). A `verify`/`verifyAll`/`verifyEach` call there silently runs as an ordinary call with
-no implicit-condition sugar. No compile diagnostic for this case in this iteration — documented as a known
-limitation (Task 9), not implemented as an error.
+`SpockkIrTransformer.kt:40`). A `verify`/`verifyAll`/`verifyEach` call there must silently run as an ordinary call
+with no implicit-condition sugar — **not crash the compiler**. No compile diagnostic for this case in this
+iteration — documented as a known limitation (Task 9), not implemented as an error.
+
+**Correctness-critical:** `SpockkTransformationContextCollector` visits the whole module, including top-level
+declarations outside any class (`SpockkCompilerPlugin.kt:51`), so `maybeCurrentIrClass` is genuinely `null` for a
+top-level extension function — this is exactly the scenario the paragraph above needs to degrade gracefully on.
+`visitBlockBody`'s existing else-branch (where the new scan is added, per the Files note below) currently does
+`context.addFeature(currentIrClass, function, it)`, where `currentIrClass = maybeCurrentIrClass!!` — an *unguarded*
+assertion (`BaseSpockkIrElementVisitor.kt`). The new scan must **not** follow that pattern. Follow the *safe*
+precedent instead, used two lines away in the same file's `visitFunctionNew` for fixture methods:
+`maybeCurrentIrClass?.let { spec -> context.addFixtureMethod(spec, declaration) }`. Registering (and therefore
+rewriting) a helper method must only happen when `maybeCurrentIrClass` is non-null; when it's null, skip
+registration entirely and let the call through unrewritten, per the paragraph above.
 
 **Files:**
 - Modify: `spockk-compiler-plugin/.../shared/SpockkTransformationContext.kt` — add `HelperMethodContext`
@@ -96,11 +112,12 @@ limitation (Task 9), not implemented as an error.
 - Modify: `spockk-compiler-plugin/.../transformer/SpockkIrTransformer.kt` — dispatch `HelperMethodRewriter` for registered helper methods
 
 - [ ] **Step 1:** Add a statement-list scan (reusing the literal-lambda detection from Task 3) that answers "does this method contain a verify/verifyAll/verifyEach call anywhere reachable via direct statements and recursion into their lambda bodies" without treating bare booleans at the method's own top level as conditions
-- [ ] **Step 2:** Register matching methods in a new context bucket (`HelperMethodContext`), parallel to `FeatureContext`/`fixtureMethods`
+- [ ] **Step 2:** Register matching methods in a new context bucket (`HelperMethodContext`), parallel to `FeatureContext`/`fixtureMethods` — gated by `maybeCurrentIrClass?.let { ... }`, never the unguarded `currentIrClass`/`!!` form (see correctness note above)
 - [ ] **Step 3:** Create `HelperMethodRewriter`: declares a fresh `ValueRecorder` + `ErrorRethrower.INSTANCE`-backed `ErrorCollector` pair once at the top of the method (mirroring `FeatureRewriter.initializeValueRecorderStatement`/`initializeErrorCollectorStatement`, generalized to an arbitrary enclosing function), then calls `rewriteConditionStatements` from Task 3 over the method's top-level statements with `treatBareBooleansAsConditions = false` (the flag governs only this top-level call — recursion into any matched helper call's lambda body flips it back to `true` per Task 3 Step 3)
 - [ ] **Step 4:** Wire dispatch into `SpockkIrTransformer.visitFunctionNew` alongside the existing `featureContext` lookup
 - [ ] **Step 5:** Confirm a helper method with no verify/verifyAll/verifyEach calls is untouched (no spurious recorder/collector declarations)
-- [ ] **Step 6:** Run `./gradlew :spockk-compiler-plugin:compileKotlin`, commit
+- [ ] **Step 6:** Add a case for a **top-level Kotlin extension function** on `Specification` containing a `verify`/`verifyAll`/`verifyEach` call (e.g. `fun Specification.checkPc(pc: PC) = verify(pc) { vendor == "Sunny" }`) — assert it compiles successfully with no special rewriting (this is the scenario Step 2's guard exists for; it must not crash the compiler)
+- [ ] **Step 7:** Run `./gradlew :spockk-compiler-plugin:compileKotlin`, commit
 
 ### Task 6: Validate condition rendering inside nested lambdas
 
@@ -119,7 +136,7 @@ Depends on Task 3/4 (the recursive rewriter and its `hasConditions` fix) being i
 ### Task 7: Add compilation snapshot tests
 
 **Files:**
-- Create: `spockk-specs/src/test/resources/samples/compilation/source/condition/{VerifyBasic,VerifyAllBasic,VerifyAllNoTarget,VerifyEachBasic,NestedVerifyInVerifyAll,VerifyInHelperMethod,VerifyWithNonLiteralLambda}.kt`
+- Create: `spockk-specs/src/test/resources/samples/compilation/source/condition/{VerifyBasic,VerifyAllBasic,VerifyAllNoTarget,VerifyEachBasic,NestedVerifyInVerifyAll,VerifyInHelperMethod,VerifyWithNonLiteralLambda,VerifyInExtensionFunction}.kt`
 - Create: matching golden files under `spockk-specs/src/test/resources/samples/compilation/transformed/condition/`
 - Modify: `spockk-specs/src/test/kotlin/.../compilation/condition/ImplicitConditionsCompilationTest.kt` (or a new `VerificationHelpersCompilationTest.kt`)
 
@@ -129,7 +146,8 @@ Depends on Task 3/4 (the recursive rewriter and its `hasConditions` fix) being i
 - [ ] **Step 4:** Nested `verify` inside `verifyAll` — golden shows the inner lambda using the fresh `verifyAll` collector
 - [ ] **Step 5:** `verify`/`verifyAll` call inside a plain helper method (not a feature) — golden shows a method-scoped recorder/collector pair declared, bare booleans outside the lambda untouched
 - [ ] **Step 6:** A `verify` call with a non-literal lambda argument (stored in a `val` first) — golden shows no special rewriting, ordinary call
-- [ ] **Step 7:** Run `./gradlew :spockk-specs:test --rerun`, fix failures, commit
+- [ ] **Step 7:** A `verify`/`verifyAll`/`verifyEach` call inside a top-level Kotlin extension function on `Specification` — golden shows no special rewriting (permanent version of Task 5 Step 6's check)
+- [ ] **Step 8:** Run `./gradlew :spockk-specs:test --rerun`, fix failures, commit
 
 ### Task 8: Add smoke tests for runtime pass/fail semantics
 
