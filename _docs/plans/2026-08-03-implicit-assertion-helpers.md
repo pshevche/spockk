@@ -104,8 +104,11 @@ limitation (Task 9), not implemented as an error.
 
 ### Task 6: Validate condition rendering inside nested lambdas
 
+Depends on Task 3/4 (the recursive rewriter and its `hasConditions` fix) being in place.
+
 **Files:**
 - Modify (if needed): `spockk-compiler-plugin/.../transformer/ir/ConditionValueRecordingTransformer.kt`
+- Modify: `spockk-specs/src/testFixtures/kotlin/io/github/pshevche/spockk/fixtures/runtime/samples/condition/ConditionRenderingSpecs.kt` — add fixture specs for `verify`/`verifyAll`/`verifyEach` (and a nested case), following the existing convention where every case in `ConditionRenderingTest.kt` drives against a compiled spec class from this shared file
 - Test: extend `spockk-specs/.../runtime/ConditionRenderingTest.kt`
 
 - [ ] **Step 1:** Write a rendering test for `verify(pc) { vendor == "Sunny" }` and compare against real Spock's `Condition(values, text, position, null, null, null).getRendering()` for the equivalent `with(pc) { vendor == "Sunny" }`
@@ -141,12 +144,22 @@ limitation (Task 9), not implemented as an error.
 
 ### Task 9: Update spockk-docs
 
-**Files:**
-- Modify: relevant AsciiDoc page(s) under `spockk-docs` alongside the existing implicit-conditions documentation
+**There is no existing implicit-conditions doc page to extend** — `spockk-docs` currently has no coverage of the
+already-shipped implicit-condition feature at all (`writing_tests.adoc` only shows the explicit `assert(...)` form).
+Worse, `spockk-docs/docs/limitations.adoc:5` currently reads *"it does not yet provide built-in fixtures for
+defining conditions (assertions)"* — stale even before this feature, since implicit conditions already shipped.
+This task documents both the pre-existing implicit-conditions feature and the new helpers together, and corrects
+the stale limitation.
 
-- [ ] **Step 1:** Document `verify`/`verifyAll`/`verifyEach` usage, the then/expect + member-helper-method scope restriction, and the naming rationale (`verify` instead of `with`, to avoid colliding with Kotlin's stdlib `with`)
-- [ ] **Step 2:** Document known limitations: extension-function (non-member) helpers on `Specification` aren't specially rewritten; `verifyEach`'s `(item, index)` two-arg closure form isn't available yet (use the `namer` overload for per-item message context); `return` inside a block uses the labeled form (`return@verify` etc.)
-- [ ] **Step 3:** Run `./gradlew :spockk-docs:asciidoctor`, verify output, commit
+**Files:**
+- Modify: `spockk-docs/.../writing_tests.adoc` — add implicit-conditions coverage (bare boolean / `assert(...)` in then/expect) alongside the new helpers, since neither is documented today
+- Modify: `spockk-docs/docs/limitations.adoc` — remove/correct the stale "no built-in fixtures for conditions" claim
+
+- [ ] **Step 1:** Document implicit conditions (bare boolean statements in `then`/`expect`, already shipped but undocumented) as a prerequisite for the rest of this section
+- [ ] **Step 2:** Document `verify`/`verifyAll`/`verifyEach` usage, the then/expect + member-helper-method scope restriction, and the naming rationale (`verify` instead of `with`, to avoid colliding with Kotlin's stdlib `with`)
+- [ ] **Step 3:** Document known limitations: extension-function (non-member) helpers on `Specification` aren't specially rewritten; `verifyEach`'s `(item, index)` two-arg closure form isn't available yet (use the `namer` overload for per-item message context); `return` inside a block uses the labeled form (`return@verify` etc.)
+- [ ] **Step 4:** Correct `limitations.adoc:5`'s stale claim
+- [ ] **Step 5:** Run `./gradlew :spockk-docs:asciidoctor`, verify output, commit
 
 ### Task 10: Final verification
 
