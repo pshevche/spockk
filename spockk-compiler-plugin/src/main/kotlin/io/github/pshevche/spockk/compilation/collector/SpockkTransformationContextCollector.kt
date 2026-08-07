@@ -79,17 +79,6 @@ internal class SpockkTransformationContextCollector(
         validateFieldAccessInDataProviders(function.parentAsClass, featureBody.dataProviderBlocks)
         context.addFeature(currentIrClass, function, featureBody)
       } else if (function.parent == maybeCurrentIrClass && body.statements.containsImplicitAssertionHelperCall()) {
-        // A plain helper method (not a feature - no block labels found) that calls
-        // verify/verifyAll/verifyEach directly. Only genuine member methods of a Specification
-        // subclass are registered here:
-        // - `function.parent == maybeCurrentIrClass` excludes local/lambda functions (their parent
-        //   is the enclosing function, not the class) - without this, the lambda body of an outer
-        //   verify/verifyAll/verifyEach call would itself look like "a function containing a literal
-        //   verify call" to this same check and get double-rewritten (once via the recursive
-        //   ConditionStatementsRewriter that already handles it, once via HelperMethodRewriter).
-        // - a top-level Kotlin extension function has no enclosing IrClass on the visitor's class
-        //   stack (maybeCurrentIrClass is null), so it's deliberately left untouched (see the design
-        //   doc) rather than crashing on an unguarded currentIrClass access.
         context.addHelperMethodWithConditions(maybeCurrentIrClass!!, function)
       }
     }

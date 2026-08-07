@@ -31,7 +31,7 @@ import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
 import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
-import io.github.pshevche.spockk.compilation.transformer.condition.irAmbientErrorCollectorDeclaration
+import io.github.pshevche.spockk.compilation.transformer.condition.irStaticErrorCollectorDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.irValueRecorderDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
@@ -127,10 +127,9 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     feature: IrFunction,
     featureBody: FeatureBody
   ): List<IrStatement> = buildList {
-    // The value recorder and error collector are declared once per feature (matching Spock) and
-    // shared across every condition-bearing block, rather than re-declared per block. A block whose
-    // only statement is a literal-lambda verify/verifyAll/verifyEach call still needs them declared,
-    // even though that call itself isn't a bare condition statement.
+    // Declared once per feature (matching Spock), shared across every condition-bearing block. A
+    // literal-lambda verify/verifyAll/verifyEach call also counts, even though it isn't itself a
+    // bare condition statement.
     val hasConditions = featureBody.behaviorBlocks.any { block ->
       block.statements.any { it.isConditionStatement(irBuiltIns) } ||
         block.statements.containsImplicitAssertionHelperCall()
@@ -138,7 +137,7 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     val valueRecorderVar =
       if (hasConditions) irValueRecorderDeclaration(builder, feature).also { add(it) } else null
     val errorCollectorVar =
-      if (hasConditions) irAmbientErrorCollectorDeclaration(builder, feature).also { add(it) } else null
+      if (hasConditions) irStaticErrorCollectorDeclaration(builder, feature).also { add(it) } else null
 
     addAll(featureBody.anonymousStatements)
     featureBody.behaviorBlocks.forEach {

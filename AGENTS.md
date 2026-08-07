@@ -46,6 +46,10 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 - **Line endings**: LF, with final newline
 - **Comments**: 2-3 lines max, straight to the point. If it's clear from the code, skip the comment. Don't narrate
   framework/library internals (e.g. Groovy AST node names) in comments - state the constraint or behavior directly.
+  Audit comments before committing: if a comment just restates what the code already says, delete it rather than
+  shortening it.
+- **Prose**: no em dashes (`—`) in docs, comments, commit messages, or PR text. Use a comma, colon, semicolon, or
+  parentheses instead, whichever reads most naturally.
 
 ## Off-Limits
 
@@ -136,6 +140,9 @@ Review and approve the spec and plan before implementation starts.
 ## Code Review Workflow
 
 When presenting changes for review, always refresh the in-app diff by running `git diff HEAD` so reviewers see current uncommitted changes.
+
+When replying to PR comments (review threads, issue comments) on the user's behalf, prefix the reply with a robot
+emoji (🤖) so readers can tell it's an agent-authored reply relaying the user's response, not the user's own words.
 
 ## CI
 

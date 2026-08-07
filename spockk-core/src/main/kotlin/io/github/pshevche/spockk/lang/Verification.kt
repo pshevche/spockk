@@ -19,14 +19,54 @@ package io.github.pshevche.spockk.lang
 import org.opentest4j.MultipleFailuresError
 import org.spockframework.runtime.SpockAssertionError
 
+/**
+ * Sets [target] as the implicit receiver of the conditions in [block], so they don't need to
+ * repeat it on every line. Conditions are implicit: no `assert` needed. Fails fast on the first
+ * unsatisfied condition, like a plain sequence of conditions would.
+ *
+ * ```
+ * then
+ * verify(pc) {
+ *   vendor == "Sunny"
+ *   clockRate >= 2333
+ * }
+ * ```
+ *
+ * Corresponds to Spock's `with`, renamed to avoid colliding with Kotlin's own [kotlin.with].
+ */
 fun <T> verify(target: T, block: T.() -> Unit) = target.block()
 
+/**
+ * Runs every condition in [block], collecting failures instead of stopping at the first one, and
+ * reports them all together at the end.
+ *
+ * ```
+ * expect
+ * verifyAll {
+ *   1 == 2
+ *   2 == 3
+ * }
+ * ```
+ *
+ * This reports two failures instead of just the first.
+ */
 fun verifyAll(block: () -> Unit) = block()
 
+/** A combination of [verify] and [verifyAll]: [target] as the implicit receiver, failures collected. */
 fun <T> verifyAll(target: T, block: T.() -> Unit) = target.block()
 
+/**
+ * Runs [block] once per element of [things] with the element as the implicit receiver, collecting
+ * failures across every element instead of stopping at the first one. A failing element's message
+ * identifies it by [Any.toString]; use the [verifyEach] overload with a `namer` to customize that.
+ */
 fun <T> verifyEach(things: Iterable<T>, block: T.() -> Unit) = verifyEach(things, { it.toString() }, block)
 
+/**
+ * Runs [block] once per element of [things] with the element as the implicit receiver, collecting
+ * failures across every element instead of stopping at the first one. A failing element's message
+ * identifies it by calling [namer] on it.
+ */
 fun <T> verifyEach(things: Iterable<T>, namer: (T) -> String, block: T.() -> Unit) {
   val failures = mutableListOf<ItemFailure<T>>()
   var index = -1

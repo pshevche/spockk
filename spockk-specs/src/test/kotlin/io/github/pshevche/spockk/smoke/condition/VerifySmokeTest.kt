@@ -15,6 +15,7 @@
 package io.github.pshevche.spockk.smoke.condition
 
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.verify
 import org.spockframework.runtime.ConditionNotSatisfiedError
 import spock.lang.FailsWith
@@ -29,6 +30,7 @@ private data class VerifyPc(val vendor: String, val clockRate: Int)
 class VerifySmokeTest : Specification() {
 
   fun `passes when all conditions inside the block hold`() {
+    given
     val pc = VerifyPc("Sunny", 2500)
 
     expect
@@ -40,6 +42,7 @@ class VerifySmokeTest : Specification() {
 
   @FailsWith(ConditionNotSatisfiedError::class)
   fun `fails on the first unsatisfied condition`() {
+    given
     val pc = VerifyPc("Sunny", 2500)
 
     expect
@@ -50,6 +53,7 @@ class VerifySmokeTest : Specification() {
   }
 
   fun `target members resolve without qualification`() {
+    given
     val pc = VerifyPc("Sunny", 2500)
 
     expect

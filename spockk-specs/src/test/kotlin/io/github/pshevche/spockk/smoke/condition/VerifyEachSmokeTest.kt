@@ -15,7 +15,10 @@
 package io.github.pshevche.spockk.smoke.condition
 
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verifyEach
+import io.github.pshevche.spockk.lang.`when`
 import org.opentest4j.MultipleFailuresError
 import org.spockframework.runtime.SpockAssertionError
 import spock.lang.FailsWith
@@ -45,40 +48,49 @@ class VerifyEachSmokeTest : Specification() {
   }
 
   fun `a single failing element's message identifies the item and index`() {
+    given
     var caught: SpockAssertionError? = null
+
+    `when`
     try {
       oneOddOutOfThree()
     } catch (e: SpockAssertionError) {
       caught = e
     }
 
-    expect
+    then
     caught != null
     caught!!.message!!.contains("item[1] 3")
   }
 
   fun `multiple failing elements are collected, later elements are still checked`() {
+    given
     var caught: MultipleFailuresError? = null
+
+    `when`
     try {
       twoOddOutOfFour()
     } catch (e: MultipleFailuresError) {
       caught = e
     }
 
-    expect
+    then
     caught != null
     caught!!.failures.size == 2
   }
 
   fun `the namer overload customizes how a failing item is identified`() {
+    given
     var caught: SpockAssertionError? = null
+
+    `when`
     try {
       bothItemsUnsatisfiedWithNamer()
     } catch (e: MultipleFailuresError) {
       caught = e.failures.first() as SpockAssertionError
     }
 
-    expect
+    then
     caught != null
     caught!!.message!!.contains("item[0] a")
   }

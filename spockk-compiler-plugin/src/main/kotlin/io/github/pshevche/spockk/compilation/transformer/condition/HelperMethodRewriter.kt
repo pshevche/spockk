@@ -34,7 +34,7 @@ internal class HelperMethodRewriter(
     val builder = irBuilder(function.symbol)
 
     val valueRecorderVar = irValueRecorderDeclaration(builder, function)
-    val errorCollectorVar = irAmbientErrorCollectorDeclaration(builder, function)
+    val errorCollectorVar = irStaticErrorCollectorDeclaration(builder, function)
 
     val rewritten = ConditionStatementsRewriter(rewriterContext).rewrite(
       statements = statements.toList(),

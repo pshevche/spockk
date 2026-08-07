@@ -26,6 +26,7 @@ import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.irVal
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.ERROR_COLLECTOR_VAR
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.VALUE_RECORDER_VAR
+import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.VERIFY_ALL_ERROR_COLLECTOR_VAR
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
@@ -52,11 +53,12 @@ internal fun SpockkIrRewriter.irValueRecorderDeclaration(builder: DeclarationIrB
 
 /**
  * The stateless, fail-fast `ErrorRethrower.INSTANCE` singleton, declared once at the top of
- * [enclosingFunction] as the ambient error collector for conditions that should abort immediately
+ * [enclosingFunction] as the static error collector for conditions that should abort immediately
  * on the first failure (a feature's top-level conditions, `verify`/`verifyEach`, and a plain helper
- * method's own conditions).
+ * method's own conditions). `ErrorRethrower`'s constructor is private, so `INSTANCE` is the only
+ * value that can ever be referenced here - the same is true of Spock's own generated code.
  */
-internal fun SpockkIrRewriter.irAmbientErrorCollectorDeclaration(builder: DeclarationIrBuilder, enclosingFunction: IrFunction): IrVariable {
+internal fun SpockkIrRewriter.irStaticErrorCollectorDeclaration(builder: DeclarationIrBuilder, enclosingFunction: IrFunction): IrVariable {
   val errorCollectorType = builder.irType(ERROR_COLLECTOR_FQN)
   val errorRethrowerType = builder.irType(ERROR_RETHROWER_FQN)
   val errorRethrowerClass = rewriterContext.findRequiredClassSymbol(ERROR_RETHROWER_FQN)
@@ -68,5 +70,21 @@ internal fun SpockkIrRewriter.irAmbientErrorCollectorDeclaration(builder: Declar
   return irVal(ERROR_COLLECTOR_VAR, errorCollectorType).apply {
     parent = enclosingFunction
     initializer = builder.irImplicitNotNull(instanceFieldAccess, errorRethrowerType)
+  }
+}
+
+/**
+ * A fresh `ErrorCollector` instance, declared as the first statement of a `verifyAll` lambda body -
+ * unlike the static [irStaticErrorCollectorDeclaration], this one has real per-scope state (the list
+ * of collected failures), so a new instance is required for every `verifyAll` call.
+ */
+internal fun SpockkIrRewriter.irCollectingErrorCollectorDeclaration(builder: DeclarationIrBuilder, enclosingFunction: IrFunction): IrVariable {
+  val errorCollectorClass = rewriterContext.findRequiredClassSymbol(ERROR_COLLECTOR_FQN)
+  val errorCollectorConstructor = errorCollectorClass.constructors.first()
+  val newErrorCollectorCall = builder.irCallConstructor(errorCollectorConstructor, listOf())
+
+  return irVal(VERIFY_ALL_ERROR_COLLECTOR_VAR, builder.irType(ERROR_COLLECTOR_FQN)).apply {
+    parent = enclosingFunction
+    initializer = newErrorCollectorCall
   }
 }

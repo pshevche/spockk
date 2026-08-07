@@ -59,7 +59,7 @@ class MyFirstSpecification : Specification() {
 
 === Conditions
 
-`then` and `expect` blocks describe expected outcomes as _conditions_ — boolean expressions that must hold true.
+`then` and `expect` blocks describe expected outcomes as _conditions_: boolean expressions that must hold true.
 Spockk supports both explicit and implicit conditions.
 
 An explicit condition uses Kotlin's `assert`:
@@ -70,7 +70,7 @@ then
 assert(myList.size == 2)
 ----
 
-An implicit condition is a bare boolean expression statement — no `assert` needed:
+An implicit condition is a bare boolean expression statement, no `assert` needed:
 
 [source,kotlin]
 ----
@@ -132,9 +132,8 @@ NOTE: These correspond to Spock's `with`, `verifyAll`, and `verifyEach`. Spockk 
 
 ==== Known limitations
 
-- `verifyEach` does not yet support the two-argument closure form Spock offers for accessing the element's index (`{ item, index -> ... }`); use the namer argument to customize failure messages instead.
-- A `return` inside one of these blocks needs the labeled form (e.g. `return@verify`), the same as any other non-inline lambda parameter in Kotlin.
-- Calling `verify`/`verifyAll`/`verifyEach` from a top-level Kotlin extension function (as opposed to a member method of your specification) is not specially rewritten — the call still runs, just without the implicit-condition sugar inside its block.
+- `verifyEach` does not yet support the two-argument closure form Spock offers for accessing the element's index (`{ item, index -> ... }`).
+- Calling `verify`/`verifyAll`/`verifyEach` from a top-level Kotlin extension function (as opposed to a member method of your specification) is not specially rewritten: the call still runs, just without the implicit-condition sugar inside its block.
 
 === Specifications as Documentation
 

@@ -15,7 +15,10 @@
 package io.github.pshevche.spockk.smoke.condition
 
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verifyAll
+import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.runtime.ConditionNotSatisfiedError
 import org.spockframework.runtime.SpockMultipleFailuresError
 import spock.lang.FailsWith
@@ -38,6 +41,7 @@ class VerifyAllSmokeTest : Specification() {
   }
 
   fun `passes with a target when all conditions hold`() {
+    given
     val pc = VerifyAllPc("Sunny", 2500)
 
     expect
@@ -58,6 +62,7 @@ class VerifyAllSmokeTest : Specification() {
 
   @FailsWith(SpockMultipleFailuresError::class)
   fun `multiple failing conditions are collected and reported together`() {
+    given
     val pc = VerifyAllPc("Sunny", 2500)
 
     expect
@@ -68,14 +73,17 @@ class VerifyAllSmokeTest : Specification() {
   }
 
   fun `both failing conditions are checked, not just the first`() {
+    given
     var caught: SpockMultipleFailuresError? = null
+
+    `when`
     try {
       bothUnsatisfied()
     } catch (e: SpockMultipleFailuresError) {
       caught = e
     }
 
-    expect
+    then
     caught != null
     caught!!.failures.size == 2
   }
