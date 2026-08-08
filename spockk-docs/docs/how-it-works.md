@@ -222,6 +222,8 @@ verifyAll(wallet) {
 
 `verify(target) { ... }` scopes conditions to `target` and fails fast on the first unsatisfied one, just like a plain sequence of conditions. `verifyAll` behaves the same way but collects every failing condition and reports them together. `verifyEach(items) { ... }` runs the block once per element, aggregating failures across the whole collection instead of stopping at the first one. These mirror Spock's `with`, `verifyAll`, and `verifyEach` (Spockk calls the first one `verify` since `with` already means something else in Kotlin's standard library).
 
+They also work inside an ordinary helper method of your specification, not just directly in a `then`/`expect` block. The one place they don't get this treatment is a top-level Kotlin extension function: the call still runs, just without the implicit-condition rewriting inside its block.
+
 <div class="page-nav">
   <a class="page-nav-next" href="/limitations">
     <span class="page-nav-label">Next</span>

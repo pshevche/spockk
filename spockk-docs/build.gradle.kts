@@ -23,18 +23,24 @@ val pnpmInstall = tasks.register<Exec>("pnpmInstall") {
 val pnpmBuild = tasks.register<Exec>("pnpmBuild") {
   dependsOn(pnpmInstall)
 
+  val spockkVersion = project.property("version").toString()
+  val junitPlatformVersion = libs.versions.junit.get()
+
   inputs.files(
     fileTree(docsDir) {
       exclude(".vitepress/cache", ".vitepress/dist")
     }
   ).withPropertyName("docsSource").withPathSensitivity(PathSensitivity.RELATIVE)
+  inputs.dir(nodeModulesDir).withPropertyName("nodeModules").withPathSensitivity(PathSensitivity.RELATIVE)
+  inputs.property("spockkVersion", spockkVersion)
+  inputs.property("junitPlatformVersion", junitPlatformVersion)
   outputs.dir(layout.buildDirectory.dir("docs"))
 
   workingDir(layout.projectDirectory)
   environment(
     mapOf(
-      "SPOCKK_VERSION" to project.property("version").toString(),
-      "JUNIT_PLATFORM_VERSION" to libs.versions.junit.get()
+      "SPOCKK_VERSION" to spockkVersion,
+      "JUNIT_PLATFORM_VERSION" to junitPlatformVersion
     )
   )
   commandLine(pnpmCommand, "run", "build")

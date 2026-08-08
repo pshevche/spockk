@@ -34,5 +34,5 @@ build
 
 # Node / VitePress (spockk-docs)
 node_modules
-docs/.vitepress/cache
-docs/.vitepress/dist
+spockk-docs/docs/.vitepress/cache
+spockk-docs/docs/.vitepress/dist

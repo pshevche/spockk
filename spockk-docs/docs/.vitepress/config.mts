@@ -1,9 +1,24 @@
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
 
-// Passed in by the :spockk-docs Gradle build so code snippets always show
-// the current release. Fall back to the last known-good values for `pnpm dev`.
-const spockkVersion = process.env.SPOCKK_VERSION ?? '0.4.1'
-const junitPlatformVersion = process.env.JUNIT_PLATFORM_VERSION ?? '6.1.2'
+// Three levels up from docs/.vitepress/ is the repository root.
+const repoRoot = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../..')
+
+function readProperty(file: string, pattern: RegExp): string | undefined {
+  return readFileSync(file, 'utf-8').match(pattern)?.[1]
+}
+
+// The Gradle build passes these in explicitly so a real release always shows
+// the exact version it published. Reading the same source files directly
+// keeps `pnpm dev`/`pnpm build` (run without Gradle) equally accurate,
+// instead of falling back to a hardcoded value that would silently drift.
+const spockkVersion =
+  process.env.SPOCKK_VERSION ?? readProperty(path.join(repoRoot, 'gradle.properties'), /^version\s*=\s*(.+)$/m)
+const junitPlatformVersion =
+  process.env.JUNIT_PLATFORM_VERSION ??
+  readProperty(path.join(repoRoot, 'gradle/libs.versions.toml'), /^junit\s*=\s*"([^"]+)"/m)
 
 export default defineConfig({
   title: 'Spockk',
