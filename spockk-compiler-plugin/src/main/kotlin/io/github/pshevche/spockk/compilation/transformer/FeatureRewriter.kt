@@ -16,43 +16,35 @@
 
 package io.github.pshevche.spockk.compilation.transformer
 
-import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_KIND_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.BLOCK_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FEATURE_METADATA_FQN
-import io.github.pshevche.spockk.compilation.ir.findFieldByName
-import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
 import io.github.pshevche.spockk.compilation.ir.irEnumValue
-import io.github.pshevche.spockk.compilation.ir.irImplicitNotNull
 import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irType
-import io.github.pshevche.spockk.compilation.ir.irVal
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
-import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.ERROR_COLLECTOR_VAR
-import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.VALUE_RECORDER_VAR
 import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
+import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
+import io.github.pshevche.spockk.compilation.transformer.condition.irStaticErrorCollectorDeclaration
+import io.github.pshevche.spockk.compilation.transformer.condition.irValueRecorderDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.irCallConstructor
-import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrAnnotation
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.name.Name
 
 internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterContext) : SpockkIrRewriter {
@@ -135,15 +127,17 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     feature: IrFunction,
     featureBody: FeatureBody
   ): List<IrStatement> = buildList {
-    // The value recorder and error collector are declared once per feature (matching Spock) and
-    // shared across every condition-bearing block, rather than re-declared per block.
+    // Declared once per feature (matching Spock), shared across every condition-bearing block. A
+    // literal-lambda verify/verifyAll/verifyEach call also counts, even though it isn't itself a
+    // bare condition statement.
     val hasConditions = featureBody.behaviorBlocks.any { block ->
-      block.statements.any { it.isConditionStatement(irBuiltIns) }
+      block.statements.any { it.isConditionStatement(irBuiltIns) } ||
+        block.statements.containsImplicitAssertionHelperCall()
     }
     val valueRecorderVar =
-      if (hasConditions) initializeValueRecorderStatement(builder, feature).also { add(it) } else null
+      if (hasConditions) irValueRecorderDeclaration(builder, feature).also { add(it) } else null
     val errorCollectorVar =
-      if (hasConditions) initializeErrorCollectorStatement(builder, feature).also { add(it) } else null
+      if (hasConditions) irStaticErrorCollectorDeclaration(builder, feature).also { add(it) } else null
 
     addAll(featureBody.anonymousStatements)
     featureBody.behaviorBlocks.forEach {
@@ -168,32 +162,6 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
           )
         )
       }
-    }
-  }
-
-  private fun initializeValueRecorderStatement(builder: DeclarationIrBuilder, feature: IrFunction): IrVariable {
-    val valueRecorderClass = rewriterContext.findRequiredClassSymbol(IrIdentifiers.Spock.VALUE_RECORDER_FQN)
-    val valueRecorderConstructor = valueRecorderClass.constructors.first()
-    val newValueRecorderCall = builder.irCallConstructor(valueRecorderConstructor, listOf())
-
-    return irVal(VALUE_RECORDER_VAR, builder.irType(IrIdentifiers.Spock.VALUE_RECORDER_FQN)).apply {
-      parent = feature
-      initializer = newValueRecorderCall
-    }
-  }
-
-  private fun initializeErrorCollectorStatement(builder: DeclarationIrBuilder, feature: IrFunction): IrVariable {
-    val errorCollectorType = builder.irType(IrIdentifiers.Spock.ERROR_COLLECTOR_FQN)
-    val errorRethrowerType = builder.irType(IrIdentifiers.Spock.ERROR_RETHROWER_FQN)
-    val errorRethrowerClass = rewriterContext.findRequiredClassSymbol(IrIdentifiers.Spock.ERROR_RETHROWER_FQN)
-    val instanceField = errorRethrowerClass.findFieldByName("INSTANCE")
-
-    val instanceFieldAccess = builder.irGetField(null, instanceField).apply {
-      superQualifierSymbol = errorRethrowerClass
-    }
-    return irVal(ERROR_COLLECTOR_VAR, errorCollectorType).apply {
-      parent = feature
-      initializer = builder.irImplicitNotNull(instanceFieldAccess, errorRethrowerType)
     }
   }
 }

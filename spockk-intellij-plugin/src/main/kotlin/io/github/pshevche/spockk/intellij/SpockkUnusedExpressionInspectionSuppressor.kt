@@ -27,7 +27,9 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
         return element.isSpockkBlock() || element.isPartOfDataProviderBlock()
       }
 
-      return element.isPartOfDataProviderBlock() || element.isPartOfThenOrExpectBlock()
+      return element.isPartOfDataProviderBlock() ||
+        element.isPartOfThenOrExpectBlock() ||
+        element.isPartOfImplicitAssertionHelperCall()
     }
 
     if (toolId == "KotlinUnreachableCode") {
@@ -40,7 +42,7 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
       toolId == "KotlinConstantConditions" ||
       toolId == "SENSELESS_COMPARISON"
     ) {
-      return element.isPartOfThenOrExpectBlock()
+      return element.isPartOfThenOrExpectBlock() || element.isPartOfImplicitAssertionHelperCall()
     }
 
     return false

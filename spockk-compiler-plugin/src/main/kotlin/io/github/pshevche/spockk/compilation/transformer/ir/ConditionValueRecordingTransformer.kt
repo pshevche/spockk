@@ -60,10 +60,14 @@ internal class ConditionValueRecordingTransformer(
   override fun visitConst(expression: IrConst): IrExpression = record(expression)
 
   override fun visitGetValue(expression: IrGetValue): IrExpression {
-    // Like Spock, do not record implicit `this` receivers: the spec instance is not a meaningful
-    // value in the rendered condition, and recording it would shift the recorded indices.
+    // Like Spock, do not record implicit receivers: the spec instance (a feature's dispatch
+    // receiver) or a nested verify/verifyAll/verifyEach lambda's implicit target (its extension
+    // receiver, named `$this$verify` etc. - not `<this>`) is not a meaningful value in the rendered
+    // condition, and recording it would shift the recorded indices.
     val owner = expression.symbol.owner
-    if (owner is IrValueParameter && owner.name.asString() == "<this>") {
+    if (owner is IrValueParameter &&
+      (owner.kind == IrParameterKind.DispatchReceiver || owner.kind == IrParameterKind.ExtensionReceiver)
+    ) {
       return expression
     }
     return record(expression)

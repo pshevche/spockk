@@ -16,10 +16,9 @@ package io.github.pshevche.spockk.compilation
 
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.compile
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.lang.verifyAll
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import spock.lang.Specification
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCompilerApi::class)
 abstract class BaseCompilationTest : Specification() {
@@ -29,7 +28,10 @@ abstract class BaseCompilationTest : Specification() {
     val aDump = actual.irDump
     val eDump = expected.irDump
 
-    assertTrue(actual.isSuccess() && expected.isSuccess())
-    assertEquals(eDump, aDump)
+    verifyAll {
+      actual.isSuccess()
+      expected.isSuccess()
+      aDump == eDump
+    }
   }
 }

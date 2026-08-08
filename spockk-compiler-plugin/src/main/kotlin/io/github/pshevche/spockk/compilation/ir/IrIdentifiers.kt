@@ -67,6 +67,10 @@ internal object IrIdentifiers {
     val SINGLE_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variable")
     val MULTI_VARIABLE_INIT_FQN = LANG_PKG_FQN.child("variables")
 
+    val VERIFY_FQN = LANG_PKG_FQN.child("verify")
+    val VERIFY_ALL_FQN = LANG_PKG_FQN.child("verifyAll")
+    val VERIFY_EACH_FQN = LANG_PKG_FQN.child("verifyEach")
+
     // Misc
     val FROM_FQN_REGEX = "io\\.github\\.pshevche\\.spockk\\.lang\\.DataVariable.+\\.from".toRegex()
   }

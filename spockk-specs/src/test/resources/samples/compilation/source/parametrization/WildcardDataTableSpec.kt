@@ -1,7 +1,7 @@
 class WildcardDataTableSpec : spock.lang.Specification() {
   fun `can use pseudo-column to enable one-column table`(a: Int) {
     io.github.pshevche.spockk.lang.expect
-    kotlin.test.assertEquals(1, a)
+    a == 1
 
     io.github.pshevche.spockk.lang.where
     a ; `_`
@@ -10,7 +10,7 @@ class WildcardDataTableSpec : spock.lang.Specification() {
 
   fun `pseudo-column can be declared as parameter`(a: Int, `_`: Any) {
     io.github.pshevche.spockk.lang.expect
-    kotlin.test.assertEquals(3, a)
+    a == 3
 
     io.github.pshevche.spockk.lang.where
     a ; `_`

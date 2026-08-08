@@ -25,11 +25,14 @@ import com.intellij.psi.util.InheritanceUtil
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.asJava.toLightClass
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtFunction
+import org.jetbrains.kotlin.psi.KtLambdaArgument
+import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
@@ -44,6 +47,13 @@ private val SPOCKK_BLOCKS_FQN =
     "io.github.pshevche.spockk.lang.and",
     "io.github.pshevche.spockk.lang.where",
     "io.github.pshevche.spockk.lang.cleanup"
+  )
+
+private val IMPLICIT_ASSERTION_HELPER_FQN =
+  setOf(
+    "io.github.pshevche.spockk.lang.verify",
+    "io.github.pshevche.spockk.lang.verifyAll",
+    "io.github.pshevche.spockk.lang.verifyEach"
   )
 
 private val DATA_PROVIDER_BLOCK_IDX_KEY =
@@ -71,14 +81,40 @@ internal fun PsiElement.isCleanupBlock(): Boolean =
 internal fun PsiElement.isThenOrExpectBlock(): Boolean =
   (text.startsWith("then") || text.startsWith("expect")) && isSpockkBlock()
 
-private fun getSpockkImportDirectives(file: PsiFile): List<String> {
+private fun getSpockkImportDirectives(file: PsiFile, fqns: Set<String> = SPOCKK_BLOCKS_FQN): List<String> {
   if (file is KtFile) {
     return file.importDirectives
       .mapNotNull { it.importedReference?.text }
-      .filter { SPOCKK_BLOCKS_FQN.contains(it) }
+      .filter { fqns.contains(it) }
   }
 
   return listOf()
+}
+
+/**
+ * True when the element sits inside the lambda body of a `verify`/`verifyAll`/`verifyEach` call,
+ * however deeply nested inside further such calls. Bare booleans there are implicit conditions too,
+ * whether the call appears in a then/expect block or in a dedicated (non-feature) helper method.
+ */
+internal fun PsiElement.isPartOfImplicitAssertionHelperCall(): Boolean {
+  var lambda = PsiTreeUtil.getParentOfType(this, KtLambdaExpression::class.java)
+  while (lambda != null) {
+    if (lambda.isImplicitAssertionHelperLambda()) return true
+    lambda = PsiTreeUtil.getParentOfType(lambda, KtLambdaExpression::class.java)
+  }
+  return false
+}
+
+private fun KtLambdaExpression.isImplicitAssertionHelperLambda(): Boolean {
+  val callee = ((parent as? KtLambdaArgument)?.parent as? KtCallExpression)?.calleeExpression ?: return false
+  return callee.isImplicitAssertionHelperCallee()
+}
+
+private fun PsiElement.isImplicitAssertionHelperCallee(): Boolean {
+  val firstBrace = text.indexOf("(")
+  val nameWithoutArgs = if (firstBrace > -1) text.substring(0, firstBrace) else text
+  return IMPLICIT_ASSERTION_HELPER_FQN.contains(nameWithoutArgs) ||
+    getSpockkImportDirectives(containingFile, IMPLICIT_ASSERTION_HELPER_FQN).any { it.endsWith(nameWithoutArgs) }
 }
 
 /**

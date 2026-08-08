@@ -1,10 +1,9 @@
 import io.github.pshevche.spockk.lang.*
-import kotlin.test.assertEquals
 
 class ReferenceFeatureVariableInDataTableSpec : spock.lang.Specification() {
   fun `a feature`(a: Int, b: Int) {
     expect
-    assertEquals(b, a)
+    a == b
 
     where
     a ; b

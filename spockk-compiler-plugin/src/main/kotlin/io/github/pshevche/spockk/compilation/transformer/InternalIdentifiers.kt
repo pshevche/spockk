@@ -26,6 +26,7 @@ internal object InternalIdentifiers {
   val TMP_THROWABLE_VAR = Name.identifier($$"$spock_tmp_throwable")
   val ERROR_COLLECTOR_VAR = Name.identifier($$"$spock_errorCollector")
   val VALUE_RECORDER_VAR = Name.identifier($$"$spock_valueRecorder")
+  val VERIFY_ALL_ERROR_COLLECTOR_VAR = Name.identifier($$"$spock_verifyAllErrorCollector")
   val CONDITION_THROWABLE_VAR = Name.identifier($$"$spock_condition_throwable")
 
   fun getFeatureName(context: FeatureContext): String =

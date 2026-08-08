@@ -23,12 +23,16 @@ internal data class SpockkTransformationContext(private val specs: Map<IrClass, 
 
   fun featureContext(clazz: IrClass, feature: IrFunction) = specs[clazz]?.features[feature]
 
+  fun isHelperMethodWithConditions(clazz: IrClass, function: IrFunction) =
+    specs[clazz]?.helperMethodsWithConditions?.contains(function) ?: false
+
   internal data class SpecContext(
     val fileName: String,
     val line: Int,
     val features: Map<IrFunction, FeatureContext>,
     val fields: Map<IrProperty, FieldContext>,
-    val fixtureMethods: List<IrFunction>
+    val fixtureMethods: List<IrFunction>,
+    val helperMethodsWithConditions: Set<IrFunction>
   )
 
   internal data class FeatureContext(

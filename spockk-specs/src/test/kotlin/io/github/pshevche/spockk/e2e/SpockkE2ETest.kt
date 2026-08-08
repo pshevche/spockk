@@ -18,11 +18,10 @@ import io.github.pshevche.spockk.fixtures.e2e.Workspace
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.`when`
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.Assertions.assertFalse
 import spock.lang.Specification
-import kotlin.test.assertContains
 
 class SpockkE2ETest : Specification() {
 
@@ -42,11 +41,11 @@ class SpockkE2ETest : Specification() {
 
     then
     result.task(":test")!!.outcome == TaskOutcome.FAILED
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
-      assertContains(it, "FailingSpec > failing feature 1 FAILED")
-      assertContains(it, "FailingSpec > failing feature 2 FAILED")
+    verify(result.output) {
+      contains("SuccessfulSpec > passing feature 1 PASSED")
+      contains("SuccessfulSpec > passing feature 2 PASSED")
+      contains("FailingSpec > failing feature 1 FAILED")
+      contains("FailingSpec > failing feature 2 FAILED")
     }
   }
 
@@ -56,11 +55,11 @@ class SpockkE2ETest : Specification() {
 
     then
     result.task(":test")!!.outcome == TaskOutcome.SUCCESS
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
-      assertFalse(it.contains("FailingSpec > failing feature 1 FAILED"))
-      assertFalse(it.contains("FailingSpec > failing feature 2 FAILED"))
+    verify(result.output) {
+      contains("SuccessfulSpec > passing feature 1 PASSED")
+      contains("SuccessfulSpec > passing feature 2 PASSED")
+      !contains("FailingSpec > failing feature 1 FAILED")
+      !contains("FailingSpec > failing feature 2 FAILED")
     }
   }
 
@@ -70,11 +69,11 @@ class SpockkE2ETest : Specification() {
 
     then
     result.task(":test")!!.outcome == TaskOutcome.SUCCESS
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertFalse(it.contains("SuccessfulSpec > passing feature 2 PASSED"))
-      assertFalse(it.contains("FailingSpec > failing feature 1 FAILED"))
-      assertFalse(it.contains("FailingSpec > failing feature 2 FAILED"))
+    verify(result.output) {
+      contains("SuccessfulSpec > passing feature 1 PASSED")
+      !contains("SuccessfulSpec > passing feature 2 PASSED")
+      !contains("FailingSpec > failing feature 1 FAILED")
+      !contains("FailingSpec > failing feature 2 FAILED")
     }
   }
 

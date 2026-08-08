@@ -17,11 +17,10 @@ package io.github.pshevche.spockk.smoke.mock
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.MockUtil
 import spock.lang.Specification
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /** Tests the usage of the underlying Spock MockingApi is working. */
 class MockingApiTest : Specification() {
@@ -155,10 +154,14 @@ class MockingApiTest : Specification() {
   }
 
   private fun assertIsSpockMock(m: Any?) {
-    assertTrue(MockUtil().isMock(m))
+    verify(m) {
+      MockUtil().isMock(this)
+    }
   }
 
   private fun assertMockName(m: Any?, name: String) {
-    assertEquals(MockUtil().asMock(m)!!.name, name)
+    verify(MockUtil().asMock(m)!!) {
+      this.name == name
+    }
   }
 }

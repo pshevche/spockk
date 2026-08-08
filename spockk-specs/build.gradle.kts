@@ -1,10 +1,5 @@
-@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 plugins {
   `java-test-fixtures`
-  alias(libs.plugins.kotlin.power.assert)
   id("spockk.artifact-under-test-consumer")
   id("spockk.compiler-plugin-consumer")
 }
@@ -12,7 +7,6 @@ plugins {
 dependencies {
   testImplementation(projects.spockkCore)
   testImplementation(gradleTestKit())
-  testImplementation(kotlin("test"))
   testImplementation(libs.junit.platform.testkit)
   testImplementation(libs.kotlin.compile.testing)
 
@@ -40,16 +34,4 @@ tasks.test {
   jvmArgs(
     "-XX:+EnableDynamicAgentLoading" // To disable warning about byte-buddy-agent
   )
-}
-
-powerAssert {
-  functions =
-    setOf(
-      "kotlin.test.assertContains",
-      "kotlin.test.assertEquals",
-      "kotlin.test.assertFalse",
-      "kotlin.test.assertNotNull",
-      "kotlin.test.assertTrue"
-    )
-  includedSourceSets = setOf("test")
 }

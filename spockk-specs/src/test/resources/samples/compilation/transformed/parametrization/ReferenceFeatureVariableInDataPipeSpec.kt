@@ -1,12 +1,11 @@
 import io.github.pshevche.spockk.lang.*
-import kotlin.test.assertEquals
 
-@org.spockframework.runtime.model.SpecMetadata(filename = "ReferenceFeatureVariableInDataPipeSpec.kt", line = 4)
+@org.spockframework.runtime.model.SpecMetadata(filename = "ReferenceFeatureVariableInDataPipeSpec.kt", line = 3)
 class ReferenceFeatureVariableInDataPipeSpec : spock.lang.Specification() {
   @org.spockframework.runtime.model.FeatureMetadata(
     ordinal = 0,
     name = "a feature",
-    line = 5,
+    line = 4,
     parameterNames = ["a", "b"],
     blocks = [org.spockframework.runtime.model.BlockMetadata(
       org.spockframework.runtime.model.BlockKind.EXPECT,
@@ -18,8 +17,30 @@ class ReferenceFeatureVariableInDataPipeSpec : spock.lang.Specification() {
       )]
   )
   fun `$spock_feature_0_0`(a: Int, b: Int) {
+    val `$spock_valueRecorder` : org.spockframework.runtime.ValueRecorder = org.spockframework.runtime.ValueRecorder()
+    val `$spock_errorCollector` : org.spockframework.runtime.ErrorCollector =
+      org.spockframework.runtime.ErrorRethrower.INSTANCE
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
-    assertEquals(b, a)
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "a == b",
+        6,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(0), a) as Int) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), b) as Int)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "a == b",
+        6,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 

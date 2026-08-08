@@ -1,7 +1,7 @@
 class BasicDataTableSpec : spock.lang.Specification() {
   fun `basic usage`(a: Int, b: Int, c: Int) {
     io.github.pshevche.spockk.lang.expect
-    kotlin.test.assertEquals(c, kotlin.math.max(a, b))
+    kotlin.math.max(a, b) == c
 
     io.github.pshevche.spockk.lang.where
     a ; b ; c

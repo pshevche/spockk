@@ -19,6 +19,7 @@ import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATIO
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementVisitor
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.MutableSpockkTransformationContext
+import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -73,9 +74,12 @@ internal class SpockkTransformationContextCollector(
     } else {
       val bodyParser = createFeatureStatementsCollector(function.file)
       body.statements.forEach { bodyParser.consume(it) }
-      bodyParser.getFeatureBody()?.let {
-        validateFieldAccessInDataProviders(function.parentAsClass, it.dataProviderBlocks)
-        context.addFeature(currentIrClass, function, it)
+      val featureBody = bodyParser.getFeatureBody()
+      if (featureBody != null) {
+        validateFieldAccessInDataProviders(function.parentAsClass, featureBody.dataProviderBlocks)
+        context.addFeature(currentIrClass, function, featureBody)
+      } else if (function.parent == maybeCurrentIrClass && body.statements.containsImplicitAssertionHelperCall()) {
+        context.addHelperMethodWithConditions(maybeCurrentIrClass!!, function)
       }
     }
     super.visitBlockBody(body)

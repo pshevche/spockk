@@ -57,6 +57,84 @@ class MyFirstSpecification : Specification() {
 }
 ----
 
+=== Conditions
+
+`then` and `expect` blocks describe expected outcomes as _conditions_: boolean expressions that must hold true.
+Spockk supports both explicit and implicit conditions.
+
+An explicit condition uses Kotlin's `assert`:
+
+[source,kotlin]
+----
+then
+assert(myList.size == 2)
+----
+
+An implicit condition is a bare boolean expression statement, no `assert` needed:
+
+[source,kotlin]
+----
+then
+myList.size == 2
+----
+
+Either way, a failing condition renders a diagram showing the value of every sub-expression, making it obvious why the condition failed:
+
+[source]
+----
+Condition not satisfied:
+
+myList.size == 2
+|       |    |
+[1]     1    false
+----
+
+=== Grouping Conditions
+
+Sometimes you want to check several conditions against the same object, or collect every failure instead of stopping at the first one.
+Spockk provides three helper methods for this, usable as a direct statement inside a `then`/`expect` block, or inside a plain (non-feature) helper method of your specification:
+
+- `verify(target) { ... }` scopes conditions to `target` as the implicit receiver, so you don't have to repeat it on every line.
+Like a normal sequence of conditions, it fails fast on the first unsatisfied one.
++
+[source,kotlin]
+----
+then
+verify(pc) {
+    vendor == "Sunny"
+    clockRate >= 2333
+}
+----
+
+- `verifyAll { ... }` / `verifyAll(target) { ... }` behave like `verify`, but collect every failing condition and report them together instead of stopping at the first one.
++
+[source,kotlin]
+----
+then
+verifyAll(pc) {
+    vendor == "Sunny"
+    clockRate >= 2333
+}
+----
+
+- `verifyEach(things) { ... }` runs the block once per element of `things`, with the current element as the implicit receiver, collecting failures across every element instead of stopping at the first failing one.
+An optional second argument customizes how a failing element is identified in the failure message: `verifyEach(things, { it.name }) { ... }`.
++
+[source,kotlin]
+----
+then
+verifyEach(pcs) {
+    vendor == "Sunny"
+}
+----
+
+NOTE: These correspond to Spock's `with`, `verifyAll`, and `verifyEach`. Spockk names the first one `verify` instead of `with`, since `with` would otherwise collide with Kotlin's own standard library function of the same name.
+
+==== Known limitations
+
+- `verifyEach` does not yet support the two-argument closure form Spock offers for accessing the element's index (`{ item, index -> ... }`).
+- Calling `verify`/`verifyAll`/`verifyEach` from a top-level Kotlin extension function (as opposed to a member method of your specification) is not specially rewritten: the call still runs, just without the implicit-condition sugar inside its block.
+
 === Specifications as Documentation
 
 Block labels can include natural-language descriptions, making your specifications more expressive and readable — even for non-engineers.
