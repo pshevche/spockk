@@ -207,7 +207,7 @@ once, in the class where its real `IrBlockBody` lives, and ordinary JVM virtual 
 however it's called (directly or transitively, from any subclass). `HelperMethodContext` does not need a parallel
 fake-override mechanism.
 
-**Runtime API** (`spockk-core`, new `Verification.kt`, real functioning Kotlin — not compile-erased markers like
+**Runtime API** (`spockk-core`, new `Conditions.kt`, real functioning Kotlin — not compile-erased markers like
 `Blocks.kt`, since unlike block labels these wrap genuine lambda-invocation/iteration behavior that must still work
 correctly even where the compiler plugin doesn't apply special treatment, e.g. a non-literal lambda argument):
 
@@ -233,7 +233,7 @@ ordinary, well-understood Kotlin behavior, not a special case introduced by this
 
 **`verifyEach`'s index-parameter form is deferred.** Real Spock's `verifyEach` also accepts a two-arg closure
 (`{ item, index -> ... }`) for accessing the loop index directly. Spockk ships only the `namer`-based overload in
-this iteration (covers the main use case — readable failure messages — via `Verification.kt`'s
+this iteration (covers the main use case — readable failure messages — via `Conditions.kt`'s
 `verifyEach(things, namer, block)`); an index-parameter overload is a pure additive API change and can be added
 later without breaking anything shipped now.
 

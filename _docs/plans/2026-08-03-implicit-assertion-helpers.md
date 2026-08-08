@@ -25,7 +25,7 @@ Add `verify`, `verifyAll` (two overloads), and `verifyEach` (two overloads) as r
 not compile-erased markers. `verifyEach` ports `SpockRuntime.verifyEach`'s exact algorithm without touching Groovy.
 
 **Files:**
-- Create: `spockk-core/src/main/kotlin/io/github/pshevche/spockk/lang/Verification.kt`
+- Create: `../../spockk-core/src/main/kotlin/io/github/pshevche/spockk/lang/Conditions.kt`
 - Test: `spockk-core` unit test (or `spockk-specs` smoke test) exercising the runtime functions directly, without the compiler plugin, to confirm graceful fallback behavior (block still runs; bare booleans just aren't asserted)
 
 - [ ] **Step 1:** Add `fun <T> verify(target: T, block: T.() -> Unit)` — non-inline (deliberate; see design doc). A `return` inside the block uses the standard labeled form (`return@verify`), same as any other non-inline lambda parameter
