@@ -7,13 +7,13 @@ title: How It Works
 
 # How Does It Work?
 
-Spockk is a Kotlin compiler plugin, not a runtime library with clever tricks. During compilation, it walks your specification's IR (Kotlin's intermediate representation) and rewrites block labels into the exact metadata Spock's own Groovy AST transform would have generated — `@FeatureMetadata`, `@BlockMetadata`, calls into `SpockRuntime` for block tracking, generated data-provider methods, all of it. By the time the JVM sees your class, it's indistinguishable from a spec Spock compiled from Groovy.
+Spockk is a Kotlin compiler plugin, not a runtime library with clever tricks. During compilation, it walks your specification's IR (Kotlin's intermediate representation) and rewrites block labels into the exact metadata Spock's own Groovy AST transform would have generated: `@FeatureMetadata`, `@BlockMetadata`, calls into `SpockRuntime` for block tracking, generated data-provider methods, all of it. By the time the JVM sees your class, it's indistinguishable from a spec Spock compiled from Groovy.
 
 Drag through the carousel below to see what a few common constructs look like before and after.
 
 <TransformCarousel>
 
-<TransformSlide title="Block labels become Spock metadata" description="given/when/then descriptions aren't comments — they're compiled into Spock's own block metadata, so the IDE and Spock's reports show exactly what you wrote.">
+<TransformSlide title="Block labels become Spock metadata" description="given/when/then descriptions aren't comments: they're compiled into Spock's own block metadata, so the IDE and Spock's reports show exactly what you wrote.">
 
 **What you write**
 
@@ -62,7 +62,7 @@ class WalletSpec : Specification() {
 
 </TransformSlide>
 
-<TransformSlide title="Fixture methods are recognized by name" description="setup()/cleanup()/setupSpec()/cleanupSpec() need no annotations — Spockk recognizes them the same way Spock recognizes them in Groovy, and wires them into the feature lifecycle.">
+<TransformSlide title="Fixture methods are recognized by name" description="setup()/cleanup()/setupSpec()/cleanupSpec() need no annotations: Spockk recognizes them the same way Spock recognizes them in Groovy, and wires them into the feature lifecycle.">
 
 **What you write**
 
@@ -103,7 +103,7 @@ class WalletSpec : Specification() {
 
 </TransformSlide>
 
-<TransformSlide title="Data tables become real data providers" description="Every column of a where table is compiled into its own generated data-provider method — exactly like Spock generates for a table defined in Groovy.">
+<TransformSlide title="Data tables become real data providers" description="Every column of a where table is compiled into its own generated data-provider method, exactly like Spock generates for a table defined in Groovy.">
 
 **What you write**
 
@@ -155,9 +155,72 @@ fun `$spock_feature_0_0proc`(
 
 </TransformSlide>
 
+<TransformSlide title="Bare booleans become Spock-style diagnostics" description="No assert() required: a boolean expression on its own line is an implicit condition, and a failure renders the same value diagram Spock builds for Groovy.">
+
+**What you write**
+
+```kotlin
+class WalletSpec : Specification() {
+  fun `topping up a wallet`() {
+    given
+    val wallet = Wallet()
+
+    `when`
+    wallet.topUp(25)
+
+    then
+    wallet.balance == 25
+  }
+}
+```
+
+**What Spock runs**
+
+```kotlin
+fun `$spock_feature_0_0`() {
+  val recorder = ValueRecorder()
+  val collector = ErrorRethrower.INSTANCE
+  // ...given and when blocks...
+  SpockRuntime.callBlockEntered(this, 2)
+  try {
+    SpockRuntime.verifyCondition(
+      collector, recorder.reset(),
+      "wallet.balance == 25", 9, 5, null,
+      recorder.record(0, wallet.balance == 25) as Boolean
+    )
+  } catch (t: Throwable) {
+    SpockRuntime.conditionFailedWithException(
+      collector, recorder,
+      "wallet.balance == 25", 9, 5, null, t
+    )
+  }
+  SpockRuntime.callBlockExited(this, 2)
+}
+```
+
+</TransformSlide>
+
 </TransformCarousel>
 
-Because this all happens at compile time via a Kotlin IR compiler plugin, there's no reflection, no runtime proxies, and no separate spec format to learn — your specs show up correctly in IntelliJ's test tree, in Spock's HTML reports, and to any Spock extension that inspects feature metadata.
+Because this all happens at compile time via a Kotlin IR compiler plugin, there's no reflection, no runtime proxies, and no separate spec format to learn: your specs show up correctly in IntelliJ's test tree, in Spock's HTML reports, and to any Spock extension that inspects feature metadata.
+
+## Grouping conditions
+
+Sometimes you want to check several conditions against the same object, or collect every failure instead of stopping at the first one. Spockk provides `verify`, `verifyAll`, and `verifyEach` for this, usable directly inside a `then`/`expect` block:
+
+<RevealCode>
+
+```kotlin
+then
+verifyAll(wallet) {
+  balance == 25
+  transactions.size == 1
+}
+```
+
+</RevealCode>
+
+`verify(target) { ... }` scopes conditions to `target` and fails fast on the first unsatisfied one, just like a plain sequence of conditions. `verifyAll` behaves the same way but collects every failing condition and reports them together. `verifyEach(items) { ... }` runs the block once per element, aggregating failures across the whole collection instead of stopping at the first one. These mirror Spock's `with`, `verifyAll`, and `verifyEach` (Spockk calls the first one `verify` since `with` already means something else in Kotlin's standard library).
 
 <div class="page-nav">
   <a class="page-nav-next" href="/limitations">

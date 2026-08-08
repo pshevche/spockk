@@ -8,7 +8,7 @@ title: Getting Started
 # Getting Started
 
 ::: tip Fastest way in
-Clone the [Spockk Example Project](https://github.com/pshevche/spockk-example) — it's a fully configured Gradle project with a working spec, ready to run.
+Clone the [Spockk Example Project](https://github.com/pshevche/spockk-example): it's a fully configured Gradle project with a working spec, ready to run.
 :::
 
 **Prerequisites:** JDK 21+ and Kotlin 2.0.0+.
@@ -48,11 +48,11 @@ Setting up an existing project takes three small steps, plus one optional (but r
 
 3. ### Install the Spockk IntelliJ plugin
 
-   Search for **Spockk** in **Settings → Plugins → Marketplace**. It teaches IntelliJ to recognize Spockk syntax — correct highlighting for block labels, formatting-aware data tables, and gutter icons to run individual specs or features straight from the editor via Gradle.
+   Search for **Spockk** in **Settings → Plugins → Marketplace**. It teaches IntelliJ to recognize Spockk syntax: correct highlighting for block labels, formatting-aware data tables, and gutter icons to run individual specs or features straight from the editor via Gradle.
 
 4. ### Run your first spec
 
-   That's it — no separate spec runner, no extra configuration. Standard Gradle test tasks pick up Spockk specs automatically.
+   That's it: no separate spec runner, no extra configuration. Standard Gradle test tasks pick up Spockk specs automatically.
 
    <TerminalWindow title="zsh">
 

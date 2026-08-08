@@ -10,7 +10,7 @@ description: Spock's expressive specification syntax, natively in Kotlin.
     <h1 class="spockk-hero-title">Spock specs, <span class="gradient-text">written the way<br>Kotlin wants them</span>.</h1>
     <p class="spockk-hero-tagline">
       Spockk is a compiler plugin that brings Spock's <code>given</code>/<code>when</code>/<code>then</code>
-      specification syntax natively into Kotlin. No Groovy, no string DSLs — real Kotlin code that compiles
+      specification syntax natively into Kotlin: no Groovy, no string DSLs, just real Kotlin code that compiles
       down to genuine Spock specifications.
     </p>
     <div class="spockk-hero-actions">
@@ -48,17 +48,17 @@ class WalletSpec : Specification() {
 
 ## What is Spockk?
 
-[Spock](https://spockframework.org/) is one of the most expressive testing frameworks around — but it's written for Groovy, and speaks with a Groovy accent: dynamic typing, closures-as-blocks, and an AST transform that rewrites your test class before Kotlin ever gets a say.
+[Spock](https://spockframework.org/) is one of the most expressive testing frameworks around, but it's written for Groovy, and speaks with a Groovy accent: dynamic typing, closures-as-blocks, and an AST transform that rewrites your test class before Kotlin ever gets a say.
 
-**Spockk teaches Kotlin to speak Spock.** It's a Kotlin compiler plugin (plus a small runtime and a Gradle plugin) that recognizes Spock's block-label vocabulary — `given`, `when`, `then`, `expect`, `and`, `where`, `cleanup` — written as plain, statically-typed Kotlin, and rewrites it at compile time into genuine Spock feature methods. The result runs on Spock's own JUnit Platform engine, right alongside your Groovy specs.
+**Spockk teaches Kotlin to speak Spock.** It's a Kotlin compiler plugin (plus a small runtime and a Gradle plugin) that recognizes Spock's block-label vocabulary (`given`, `when`, `then`, `expect`, `and`, `where`, `cleanup`), written as plain, statically-typed Kotlin, and rewrites it at compile time into genuine Spock feature methods. The result runs on Spock's own JUnit Platform engine, right alongside your Groovy specs.
 
-Spockk is **not** a standalone testing framework, and it doesn't try to replace Spock's documentation — [Spock's reference docs](https://spockframework.org/spock/docs/2.4/index.html) already do a great job of explaining specifications, fixtures, and data-driven testing in general. This guide focuses on what's actually new: how that vocabulary maps onto idiomatic Kotlin, and what that buys you.
+Spockk is **not** a standalone testing framework, and it doesn't try to replace Spock's documentation: [Spock's reference docs](https://spockframework.org/spock/docs/2.4/index.html) already do a great job of explaining specifications, fixtures, and data-driven testing in general. This guide focuses on what's actually new: how that vocabulary maps onto idiomatic Kotlin, and what that buys you.
 
 <div class="feature-grid">
   <div class="feature-card">
     <div class="feature-icon">🧬</div>
     <h3>Native Kotlin syntax</h3>
-    <p>Block labels are real Kotlin declarations, type-checked by the compiler — not comments, not annotations, not a Groovy interop shim.</p>
+    <p>Block labels are real Kotlin declarations, type-checked by the compiler: not comments, not annotations, not a Groovy interop shim.</p>
   </div>
   <div class="feature-card">
     <div class="feature-icon">⚙️</div>
