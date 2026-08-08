@@ -1,4 +1,18 @@
 <script setup lang="ts">
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 defineProps<{
   hasTitle: string
   has: string[]
@@ -12,12 +26,14 @@ defineProps<{
     <div v-reveal class="comparison-panel panel-has">
       <h3><span class="panel-icon">✓</span>{{ hasTitle }}</h3>
       <ul>
+        <!-- eslint-disable-next-line vue/no-v-html -- static strings from limitations.md's own script setup, not user input -->
         <li v-for="(item, i) in has" :key="i" :style="{ '--i': i }" v-html="item" />
       </ul>
     </div>
     <div v-reveal class="comparison-panel panel-lacks">
       <h3><span class="panel-icon">–</span>{{ lacksTitle }}</h3>
       <ul>
+        <!-- eslint-disable-next-line vue/no-v-html -- static strings from limitations.md's own script setup, not user input -->
         <li v-for="(item, i) in lacks" :key="i" :style="{ '--i': i }" v-html="item" />
       </ul>
     </div>
@@ -38,7 +54,9 @@ defineProps<{
   border: 1px solid var(--vp-c-divider);
   opacity: 0;
   transform: translateY(10px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
 }
 
 .comparison-panel.in-view {

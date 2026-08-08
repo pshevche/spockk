@@ -50,6 +50,10 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
   shortening it.
 - **Prose**: no em dashes (`—`) in docs, comments, commit messages, or PR text. Use a comma, colon, semicolon, or
   parentheses instead, whichever reads most naturally.
+- **Dependency versions**: when adding or bumping a dependency (Gradle or npm/pnpm), use the latest version that's
+  compatible with the rest of the toolchain, not just whatever was already pinned elsewhere or the first version
+  that comes to mind. Check the registry (Maven Central, npm, Gradle Plugin Portal) for the current latest before
+  writing a version string.
 
 ## Off-Limits
 

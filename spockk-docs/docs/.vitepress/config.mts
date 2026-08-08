@@ -15,7 +15,8 @@ function readProperty(file: string, pattern: RegExp): string | undefined {
 // keeps `pnpm dev`/`pnpm build` (run without Gradle) equally accurate,
 // instead of falling back to a hardcoded value that would silently drift.
 const spockkVersion =
-  process.env.SPOCKK_VERSION ?? readProperty(path.join(repoRoot, 'gradle.properties'), /^version\s*=\s*(.+)$/m)
+  process.env.SPOCKK_VERSION ??
+  readProperty(path.join(repoRoot, 'gradle.properties'), /^version\s*=\s*(.+)$/m)
 const junitPlatformVersion =
   process.env.JUNIT_PLATFORM_VERSION ??
   readProperty(path.join(repoRoot, 'gradle/libs.versions.toml'), /^junit\s*=\s*"([^"]+)"/m)
@@ -58,9 +59,7 @@ export default defineConfig({
       { text: 'Changelog', link: '/changelog' },
     ],
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/pshevche/spockk' },
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/pshevche/spockk' }],
 
     search: {
       provider: 'local',
@@ -68,7 +67,8 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the Apache License 2.0.',
-      copyright: 'Spockk is an independent add-on and is not affiliated with the Spock Framework project.',
+      copyright:
+        'Spockk is an independent add-on and is not affiliated with the Spock Framework project.',
     },
   },
 })
