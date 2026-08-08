@@ -78,7 +78,7 @@ internal fun SpockkIrRewriter.irStaticErrorCollectorDeclaration(builder: Declara
  * unlike the static [irStaticErrorCollectorDeclaration], this one has real per-scope state (the list
  * of collected failures), so a new instance is required for every `verifyAll` call.
  */
-internal fun SpockkIrRewriter.irCollectingErrorCollectorDeclaration(builder: DeclarationIrBuilder, enclosingFunction: IrFunction): IrVariable {
+internal fun SpockkIrRewriter.irNewErrorCollectorDeclaration(builder: DeclarationIrBuilder, enclosingFunction: IrFunction): IrVariable {
   val errorCollectorClass = rewriterContext.findRequiredClassSymbol(ERROR_COLLECTOR_FQN)
   val errorCollectorConstructor = errorCollectorClass.constructors.first()
   val newErrorCollectorCall = builder.irCallConstructor(errorCollectorConstructor, listOf())

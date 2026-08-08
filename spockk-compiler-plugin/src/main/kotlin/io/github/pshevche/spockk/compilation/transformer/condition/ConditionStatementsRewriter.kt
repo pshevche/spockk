@@ -93,7 +93,7 @@ internal class ConditionStatementsRewriter(
       }
 
       ImplicitAssertionHelperKind.VERIFY_ALL -> {
-        val freshErrorCollectorVar = irCollectingErrorCollectorDeclaration(lambdaBuilder, lambda)
+        val freshErrorCollectorVar = irNewErrorCollectorDeclaration(lambdaBuilder, lambda)
         val freshErrorCollector = IrErrorCollector.create(rewriterContext, freshErrorCollectorVar)
         val rewritten =
           rewrite(lambdaStatements.toList(), lambda, lambdaBuilder, valueRecorderVar, freshErrorCollectorVar, treatAsConditionScope = true)
