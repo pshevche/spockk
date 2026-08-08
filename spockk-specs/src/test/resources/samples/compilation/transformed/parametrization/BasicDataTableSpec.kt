@@ -15,8 +15,32 @@ class BasicDataTableSpec : spock.lang.Specification() {
       )]
   )
   fun `$spock_feature_0_0`(a: Int, b: Int, c: Int) {
+    val `$spock_valueRecorder` : org.spockframework.runtime.ValueRecorder = org.spockframework.runtime.ValueRecorder()
+    val `$spock_errorCollector` : org.spockframework.runtime.ErrorCollector =
+      org.spockframework.runtime.ErrorRethrower.INSTANCE
     org.spockframework.runtime.SpockRuntime.callBlockEntered(this, 0)
-    kotlin.test.assertEquals(c, kotlin.math.max(a, b))
+    try {
+      org.spockframework.runtime.SpockRuntime.verifyCondition(`$spock_errorCollector`,
+        `$spock_valueRecorder`.reset(),
+        "kotlin.math.max(a, b) == c",
+        4,
+        5,
+        null,
+        `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(6),
+          (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(4),
+            kotlin.math.max(`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(1), a) as Int,
+              `$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(2), b) as Int)) as Int) == (`$spock_valueRecorder`.record(`$spock_valueRecorder`.startRecordingValue(5), c) as Int)) as Boolean)
+    }
+    catch (`$spock_condition_throwable` : Throwable) {
+      org.spockframework.runtime.SpockRuntime.conditionFailedWithException(`$spock_errorCollector`,
+        `$spock_valueRecorder`,
+        "kotlin.math.max(a, b) == c",
+        4,
+        5,
+        null,
+        `$spock_condition_throwable`)}
+    finally {
+    }
     org.spockframework.runtime.SpockRuntime.callBlockExited(this, 0)
   }
 

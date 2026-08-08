@@ -16,7 +16,6 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import spock.lang.Specification
-import kotlin.test.assertEquals
 
 class MathTest : Specification() {
     fun `sum of two numbers`(a: Int, b: Int, expectedSum: Int) {
@@ -24,7 +23,7 @@ class MathTest : Specification() {
         val sum = a + b
 
         then
-        assertEquals(expectedSum, sum)
+        sum == expectedSum
 
         where
         a ; b ; expectedSum

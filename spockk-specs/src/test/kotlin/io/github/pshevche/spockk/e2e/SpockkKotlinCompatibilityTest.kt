@@ -19,12 +19,12 @@ import io.github.pshevche.spockk.fixtures.e2e.KotlinVersions
 import io.github.pshevche.spockk.fixtures.e2e.Workspace
 import io.github.pshevche.spockk.lang.setup
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import spock.lang.Specification
-import kotlin.test.assertContains
 
 class SpockkKotlinCompatibilityTest : Specification() {
 
@@ -48,10 +48,10 @@ class SpockkKotlinCompatibilityTest : Specification() {
 
     then
     result.task(":test")!!.outcome == TaskOutcome.SUCCESS
-    result.output.let {
-      assertContains(it, "SuccessfulSpec > passing feature 1 PASSED")
-      assertContains(it, "SuccessfulSpec > passing feature 2 PASSED")
-      assertContains(it, "DataPipeSpec > data pipe feature > data pipe feature")
+    verify(result.output) {
+      contains("SuccessfulSpec > passing feature 1 PASSED")
+      contains("SuccessfulSpec > passing feature 2 PASSED")
+      contains("DataPipeSpec > data pipe feature > data pipe feature")
     }
 
     where

@@ -1,7 +1,7 @@
 class BasicDataTableSpec : spock.lang.Specification() {
     fun `basic usage`(a: String, b: String, c: String) {
         io.github.pshevche.spockk.lang.expect
-        kotlin.test.assertEquals(c, a + b)
+        a + b == c
 
         io.github.pshevche.spockk.lang.where
         a    ; b    ; c
