@@ -25,12 +25,16 @@ export default defineConfig({
   title: 'Spockk',
   description: "Spock's expressive specification syntax, natively in Kotlin.",
   lang: 'en-US',
+  // GitHub Pages serves this as a project site under /spockk/, not at
+  // the domain root, so every generated asset URL needs this prefix
+  // or it 404s against the domain root instead.
+  base: '/spockk/',
   outDir: '../build/docs',
   cleanUrls: true,
   lastUpdated: false,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/images/icon_with_background.svg' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: 'images/icon_with_background.svg' }],
     ['meta', { name: 'theme-color', content: '#844dfd' }],
   ],
 
