@@ -7,16 +7,24 @@ title: Changelog
 
 # Changelog
 
+## v0.5.0
+
+- [Core] Added support for implicit conditions in expectation blocks
+- [Core] Added `verify`/`verifyAll`/`verifyEach` implicit-assertion helpers
+- [Core] Implemented Spock-style assertion failure rendering
+- [IntelliJ Plugin] Added syntax support for implicit condition statements
+- Regular dependency management
+
 ## v0.4.1
 
 - [IntelliJ Plugin] Added support for IntelliJ 2026.2
-- Regular dependency management.
+- Regular dependency management
 
 ## v0.4.0
 
 - [Core] Added support for Kotlin 2.4.x
 - [Core] Bundle Spock API to avoid declaring Spock as a separate dependency
-- Regular dependency management.
+- Regular dependency management
 
 ## v0.3.2
 

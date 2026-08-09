@@ -1,4 +1,4 @@
 <ul>
-    <li>Added support for IntelliJ 2026.2.</li>
+    <li>Added syntax support for implicit condition statements.</li>
     <li>Regular dependency management.</li>
 </ul>
