@@ -20,6 +20,7 @@ const activeIndex = ref(0)
 const slideCount = ref(0)
 const trackHeight = ref<number>()
 const trackHeightPx = computed(() => (trackHeight.value ? `${trackHeight.value}px` : 'auto'))
+const trackOffset = computed(() => `translateX(-${activeIndex.value * 100}%)`)
 
 let slides: HTMLElement[] = []
 let resizeObserver: ResizeObserver | undefined
@@ -32,16 +33,13 @@ function updateHeight() {
   if (active) trackHeight.value = active.scrollHeight
 }
 
-function scrollToIndex(index: number) {
-  const el = track.value
-  if (!el) return
-  const target = el.children[index] as HTMLElement | undefined
-  target?.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' })
+function goTo(index: number) {
+  activeIndex.value = Math.min(Math.max(index, 0), slideCount.value - 1)
+  updateHeight()
 }
 
 function go(delta: number) {
-  const next = Math.min(Math.max(activeIndex.value + delta, 0), slideCount.value - 1)
-  scrollToIndex(next)
+  goTo(activeIndex.value + delta)
 }
 
 onMounted(() => {
@@ -56,21 +54,6 @@ onMounted(() => {
     resizeObserver = new ResizeObserver(updateHeight)
     slides.forEach((slide) => resizeObserver?.observe(slide))
   }
-
-  if (typeof IntersectionObserver === 'undefined') return
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          activeIndex.value = slides.indexOf(entry.target as HTMLElement)
-          updateHeight()
-        }
-      }
-    },
-    { root: el, threshold: 0.6 },
-  )
-  slides.forEach((slide) => observer.observe(slide))
 })
 
 onUnmounted(() => {
@@ -99,7 +82,7 @@ onUnmounted(() => {
           class="carousel-dot"
           :class="{ active: activeIndex === i - 1 }"
           :aria-label="`Go to slide ${i}`"
-          @click="scrollToIndex(i - 1)"
+          @click="goTo(i - 1)"
         />
       </span>
 
@@ -114,8 +97,24 @@ onUnmounted(() => {
       </button>
     </div>
 
-    <div ref="track" class="carousel-track">
-      <slot />
+    <!-- Slides are moved with a CSS transform driven by the controls
+         above, not native scrolling: a horizontally-scrollable track
+         fights with page scroll (a trackpad user scrolling the page
+         over the carousel nudges it sideways) and browsers then
+         "snap" it back to a fully-aligned slide, which reads as the
+         carousel jumping on its own. A fixed, non-scrolling viewport
+         has no scroll position for the browser to correct. -->
+    <div
+      class="carousel-viewport"
+      role="region"
+      aria-roledescription="carousel"
+      tabindex="0"
+      @keydown.left="go(-1)"
+      @keydown.right="go(1)"
+    >
+      <div ref="track" class="carousel-track">
+        <slot />
+      </div>
     </div>
   </div>
 </template>
@@ -146,17 +145,8 @@ onUnmounted(() => {
   border-radius: 32px;
 }
 
-.carousel-track {
-  display: flex;
-  overflow-x: auto;
-  /* No scroll-snap-type here on purpose: with slides at 100% of the
-     track's own width, even "proximity" snapping treats almost every
-     scroll position as close enough to a slide boundary to correct,
-     so a trackpad user just scrolling the page over the carousel
-     still gets yanked to a fully-aligned slide. Arrows and dots
-     already scroll to an exact, aligned position via scrollIntoView,
-     so native snapping isn't needed for that either. */
-  scrollbar-width: none;
+.carousel-viewport {
+  overflow: hidden;
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
   background: color-mix(in srgb, var(--vp-c-bg-soft) 70%, transparent);
@@ -165,8 +155,20 @@ onUnmounted(() => {
   transition: height 0.3s ease;
 }
 
-.carousel-track::-webkit-scrollbar {
-  display: none;
+.carousel-viewport:focus-visible {
+  outline: 2px solid var(--spockk-purple);
+  outline-offset: 2px;
+}
+
+.carousel-track {
+  display: flex;
+  /* flex-start, not the default stretch: stretch forces every slide
+     to share the height of the tallest one, which then makes each
+     slide's own scrollHeight report that shared height instead of its
+     own content height, defeating the active-slide height fit above. */
+  align-items: flex-start;
+  transform: v-bind(trackOffset);
+  transition: transform 0.4s ease;
 }
 
 .carousel-controls {
