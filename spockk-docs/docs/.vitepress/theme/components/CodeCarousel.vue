@@ -104,7 +104,11 @@ onMounted(() => {
 .carousel-track {
   display: flex;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  /* proximity, not mandatory: mandatory forces a snap back to a full
+     slide after any scroll, including horizontal drift picked up
+     while a trackpad user is really just scrolling the page over the
+     carousel, which reads as the carousel jumping back into place. */
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
