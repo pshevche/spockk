@@ -1,0 +1,446 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ---------------------------------------------------------------- */
+/* Brand tokens                                                      */
+/* ---------------------------------------------------------------- */
+:root {
+  --spockk-purple: #844dfd;
+  --spockk-pink: #e0406a;
+  --spockk-gradient: linear-gradient(135deg, var(--spockk-purple), var(--spockk-pink));
+
+  --vp-c-brand-1: var(--spockk-purple);
+  --vp-c-brand-2: #9163fd;
+  --vp-c-brand-3: #a67bfd;
+  --vp-c-brand-soft: rgba(132, 77, 253, 0.14);
+
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #fff;
+  --vp-button-brand-bg: var(--spockk-purple);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #fff;
+  --vp-button-brand-hover-bg: #7238f0;
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #fff;
+  --vp-button-brand-active-bg: #7238f0;
+
+  /* Type scale. One size for all code (fixed px, not em, so it can't
+     drift when nested inside a component with a different local base
+     font-size), and one for meta/caption text (labels, timestamps,
+     small print) used everywhere instead of ad-hoc rem values. */
+  --spockk-code-size: 14px;
+  --spockk-text-meta: 0.875rem;
+
+  --vp-font-family-mono: 'JetBrains Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --vp-code-font-size: var(--spockk-code-size);
+
+  --vp-nav-height: 72px;
+  --vp-nav-logo-height: 30px;
+}
+
+.dark {
+  --vp-c-brand-1: #a67bfd;
+  --vp-c-brand-2: #9163fd;
+  --vp-c-brand-3: #844dfd;
+}
+
+/* ---------------------------------------------------------------- */
+/* Navbar content sizing                                             */
+/* ---------------------------------------------------------------- */
+/* --vp-nav-height/--vp-nav-logo-height only control the bar's own
+   height and the logo image: menu links, the search button, and the
+   social icon are hardcoded px sizes in VitePress's own scoped
+   component styles, which outrank a plain class override on
+   specificity alone, so these need !important to actually win. */
+.VPNavBarMenuLink {
+  font-size: 15px !important;
+}
+
+.VPSocialLink {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.VPSocialLink > svg,
+.VPSocialLink > [class^='vpi-social-'] {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.DocSearch-Button .DocSearch-Button-Placeholder {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .DocSearch-Button .DocSearch-Search-Icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.DocSearch-Button .DocSearch-Button-Key {
+  height: 24px;
+  line-height: 24px;
+  font-size: 13px;
+}
+
+/* ---------------------------------------------------------------- */
+/* Link/text accents                                                  */
+/* ---------------------------------------------------------------- */
+.vp-doc a {
+  text-decoration-color: color-mix(in srgb, var(--vp-c-brand-1) 40%, transparent);
+}
+
+.gradient-text {
+  background: var(--spockk-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------------------------------------------------------------- */
+/* Page container (used by all `layout: page` docs pages)            */
+/* ---------------------------------------------------------------- */
+.page-container {
+  max-width: 992px;
+  margin: 0 auto;
+  padding: 2.5rem 32px 4rem;
+}
+
+.page-container.vp-doc h1:first-child {
+  margin-top: 0;
+}
+
+/* Used on the home page's hero wrapper: the hero already ends with its
+   own visual weight (buttons, code window), so it needs less trailing
+   space than a text page does before the next section starts. Also
+   wider than a regular page-container: the code window needs enough
+   room for its widest line (see .spockk-hero's grid-template-columns). */
+.page-container-hero {
+  max-width: 1280px;
+  padding-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1.5rem 24px 3rem;
+  }
+
+  .page-container-hero {
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Landing page hero                                                  */
+/* ---------------------------------------------------------------- */
+/* The code column is sized to what its widest line actually needs
+   (540-660px, see the code snippet in index.md), not a fraction of the
+   container: giving it a fr share ties it to the same growth as the
+   text column, which either starves the code window on narrow
+   viewports or leaves the text column stuck at a fixed fraction while
+   the code window has already maxed out. minmax(0, 1fr) lets the text
+   column absorb whatever width the code column isn't using. */
+.spockk-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(540px, 660px);
+  gap: 2.5rem;
+  align-items: center;
+  padding: 0.5rem 0 1rem;
+}
+
+/* Stack before the two-column layout gets too cramped for the code
+   window's widest line: below this, .spockk-hero-visual's own width
+   (not a fraction of it) has plenty of room. */
+@media (max-width: 1000px) {
+  .spockk-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.spockk-hero-title {
+  font-size: clamp(2.25rem, 4vw, 3.2rem);
+  line-height: 1.15;
+  font-weight: 800;
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+}
+
+.spockk-hero-tagline {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--vp-c-text-2);
+  margin: 0 0 2rem;
+}
+
+.spockk-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+.spockk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.35rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.spockk-btn:hover {
+  transform: translateY(-2px);
+}
+
+.spockk-btn-brand {
+  background: var(--spockk-gradient);
+  color: #fff !important;
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--spockk-purple) 70%, transparent);
+}
+
+.spockk-btn-alt {
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-1) !important;
+  border: 1px solid var(--vp-c-divider);
+}
+
+.spockk-hero-visual {
+  position: relative;
+}
+
+/* Fixed px offsets, not percentages: the blur radius itself (not the
+   inset) is what makes the edge read as soft, and a fixed px bleed
+   stays comfortably inside the smallest container padding (24px) at
+   every breakpoint instead of scaling into the viewport on a wide
+   .spockk-hero-visual (e.g. once the hero stacks to one column). */
+.spockk-hero-visual::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  bottom: -70px;
+  left: -20px;
+  background: var(--spockk-gradient);
+  opacity: 0.16;
+  filter: blur(80px);
+  z-index: -1;
+  border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+  .spockk-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 1.5rem;
+    text-align: center;
+  }
+
+  .spockk-hero-tagline {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .spockk-hero-actions {
+    justify-content: center;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Feature grid                                                      */
+/* ---------------------------------------------------------------- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin: 2.5rem 0;
+}
+
+.feature-card {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 14px;
+  padding: 1.5rem;
+  background: var(--vp-c-bg-soft);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: feature-in 0.5s ease forwards;
+  transition: border-color 0.2s ease;
+}
+
+.feature-grid .feature-card:nth-child(1) {
+  animation-delay: 0.15s;
+}
+.feature-grid .feature-card:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.feature-grid .feature-card:nth-child(3) {
+  animation-delay: 0.45s;
+}
+
+.feature-card:hover {
+  border-color: color-mix(in srgb, var(--spockk-purple) 45%, var(--vp-c-divider));
+}
+
+@keyframes feature-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-icon {
+  font-size: 1.6rem;
+  margin-bottom: 0.65rem;
+}
+
+.feature-card h3 {
+  font-size: 1.05rem;
+  margin: 0 0 0.4rem;
+  border: none;
+  padding: 0;
+}
+
+.feature-card p {
+  margin: 0;
+  color: var(--vp-c-text-2);
+  font-size: var(--spockk-text-meta);
+  line-height: 1.55;
+}
+
+@media (max-width: 768px) {
+  .feature-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Step list (Getting Started)                                       */
+/* ---------------------------------------------------------------- */
+.step-list ol {
+  list-style: none;
+  counter-reset: step;
+  margin: 2rem 0;
+  padding: 0;
+  position: relative;
+}
+
+.step-list ol > li {
+  counter-increment: step;
+  position: relative;
+  padding: 0 0 2.75rem 3.5rem;
+  opacity: 0;
+  animation: step-in 0.5s ease forwards;
+}
+
+.step-list ol > li:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.step-list ol > li:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.step-list ol > li:nth-child(3) {
+  animation-delay: 0.25s;
+}
+.step-list ol > li:nth-child(4) {
+  animation-delay: 0.35s;
+}
+.step-list ol > li:nth-child(5) {
+  animation-delay: 0.45s;
+}
+.step-list ol > li:nth-child(6) {
+  animation-delay: 0.55s;
+}
+
+.step-list ol > li:last-child {
+  padding-bottom: 0;
+}
+
+.step-list ol > li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--spockk-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.step-list ol > li::after {
+  content: '';
+  position: absolute;
+  left: 1.25rem;
+  top: 2.5rem;
+  bottom: 0;
+  width: 2px;
+  background: var(--vp-c-divider);
+}
+
+.step-list ol > li:last-child::after {
+  display: none;
+}
+
+.step-list ol > li > h3:first-child {
+  margin-top: 0.35rem;
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Next-page footer nav                                               */
+/* ---------------------------------------------------------------- */
+.page-nav {
+  display: flex;
+  justify-content: flex-end;
+  margin: 3.5rem 0 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.page-nav-next {
+  text-align: right;
+  text-decoration: none !important;
+}
+
+.page-nav-next .page-nav-label {
+  display: block;
+  font-size: var(--spockk-text-meta);
+  color: var(--vp-c-text-3);
+  margin-bottom: 0.15rem;
+}
+
+.page-nav-next .page-nav-title {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--vp-c-brand-1);
+}

@@ -1,7 +1,0 @@
-== Limitations
-
-Spockk is still in active development and currently lacks several features typically expected from an enterprise-level testing framework.
-For example, it does not yet provide built-in fixtures for interaction-based testing.
-It works seamlessly with Kotlin’s native assertion framework, as well as popular libraries such as AssertJ and Hamcrest.
-These and other enhancements are on the https://github.com/users/pshevche/projects/4/views/1[roadmap].
-Stay tuned for future releases!

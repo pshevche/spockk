@@ -16,7 +16,7 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 - **spockk-gradle-plugin** - Gradle plugin applying the compiler plugin to Kotlin tasks
 - **spockk-intellij-plugin** - IntelliJ IDEA integration (warning suppression, data table formatting)
 - **spockk-specs** - Framework test suite (dogfooding: tests written using Spockk itself)
-- **spockk-docs** - User guide in AsciiDoc, published to GitHub Pages
+- **spockk-docs** - User guide built with VitePress (Markdown + Vue), published to GitHub Pages
 
 ## Tech Stack
 
@@ -34,7 +34,7 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 ./gradlew spotlessApply             # Auto-format code
 ./gradlew spotlessCheck             # Check formatting
 ./gradlew detekt                    # Static analysis
-./gradlew :spockk-docs:asciidoctor  # Generate documentation
+./gradlew :spockk-docs:build        # Build documentation site (output in spockk-docs/build/docs)
 ```
 
 ## Code Style
@@ -50,6 +50,10 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
   shortening it.
 - **Prose**: no em dashes (`—`) in docs, comments, commit messages, or PR text. Use a comma, colon, semicolon, or
   parentheses instead, whichever reads most naturally.
+- **Dependency versions**: when adding or bumping a dependency (Gradle or npm/pnpm), use the latest version that's
+  compatible with the rest of the toolchain, not just whatever was already pinned elsewhere or the first version
+  that comes to mind. Check the registry (Maven Central, npm, Gradle Plugin Portal) for the current latest before
+  writing a version string.
 
 ## Off-Limits
 

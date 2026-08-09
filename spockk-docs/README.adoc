@@ -1,5 +1,20 @@
 == spockk-docs
 
 Contains the user guide content.
-The documentation is written using https://asciidoctor.org/[Asciidoctor] and is transformed into HTML using the https://asciidoctor.github.io/asciidoctor-gradle-plugin/master/[Asciidoctor Gradle plugin].
+The documentation is written in Markdown and built into a static site using https://vitepress.dev/[VitePress].
 The documentation gets deployed to https://pshevche.github.io/spockk[GitHub pages] using the "Publish" workflow.
+
+=== Working on the docs
+
+Pages live under `docs/`, with the VitePress config and custom theme components under `docs/.vitepress/`.
+
+[source,shell]
+----
+cd spockk-docs
+pnpm install
+pnpm dev      # live-reloading local preview
+pnpm build    # static build, output in build/docs
+----
+
+Running `./gradlew :spockk-docs:build` from the repository root installs dependencies and builds the site via Gradle,
+so it also works without invoking `pnpm` directly.

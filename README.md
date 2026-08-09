@@ -1,35 +1,29 @@
 <h1>
   <picture width="200">
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/images/name_with_icon_dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/images/name_with_icon_light.svg">
-    <img alt="Spockk" src="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/images/name_with_icon_light.svg" width="200">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/public/images/name_with_icon_dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/public/images/name_with_icon_light.svg">
+    <img alt="Spockk" src="https://raw.githubusercontent.com/pshevche/spockk/refs/heads/main/spockk-docs/docs/public/images/name_with_icon_light.svg" width="200">
   </picture>
 </h1>
 
 This repository is home to Spockk, an add-on for the [Spock](https://github.com/spockframework/spock) testing framework
 that brings its expressive BDD-style syntax for Groovy to Kotlin.
 
-## Sneak peek
+## Sneak preview
 
 ```kotlin
-import io.github.pshevche.spockk.lang.then
-import io.github.pshevche.spockk.lang.`when`
-import io.github.pshevche.spockk.lang.where
-import spock.lang.Specification
+class WelcomeSpec : Specification() {
+    fun `welcome to Spockk`(visitor: Being, greeting: String) {
+        given
+        val spock = Vulcan("Spock")
 
-class MathTest : Specification() {
-    fun `sum of two numbers`(a: Int, b: Int, expectedSum: Int) {
-        `when`
-        val sum = a + b
-
-        then
-        sum == expectedSum
+        expect
+        spock.greet(visitor) == greeting
 
         where
-        a ; b ; expectedSum
-        1 ; 3 ; 4
-        7 ; 4 ; 11
-        0 ; 0 ; 0
+        visitor         ; greeting
+        Vulcan("Sarek") ; "Live long and prosper!"
+        Human("Kirk")   ; "Hello!"
     }
 }
 ```
