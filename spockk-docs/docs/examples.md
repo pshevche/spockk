@@ -11,12 +11,13 @@ A few short specs showing what Spockk actually adds on top of plain Kotlin tests
 
 <CodeCarousel>
 
-<CarouselSlide title="Specifications as documentation" description="Block descriptions turn a feature into a story anyone can read, engineer or not, and Spock keeps them around for its reports.">
+<CarouselSlide title="Specifications as documentation" description="Block descriptions turn a feature into a story anyone can read, engineer or not.">
 
 <CodeWindow title="BridgeOperationsSpec.kt">
 
 ```kotlin
 class BridgeOperationsSpec : Specification() {
+
   fun `raising shields under attack`() {
     given("the Enterprise cruising at impulse")
     val enterprise = Enterprise()
@@ -25,8 +26,9 @@ class BridgeOperationsSpec : Specification() {
     enterprise.raiseShields()
 
     then("shields are at full strength")
-    assert(enterprise.shieldStrength == 100)
+    enterprise.shieldStrength == 100
   }
+
 }
 ```
 
@@ -34,7 +36,7 @@ class BridgeOperationsSpec : Specification() {
 
 </CarouselSlide>
 
-<CarouselSlide title="Natural assertions" description="A bare boolean is enough: no assert() required, and a failure still renders Spock's own value diagram.">
+<CarouselSlide title="Natural assertions" description="A bare condition is enough: no assertion framework required, and a failure renders a rich value diagram.">
 
 <CodeWindow title="ShieldsSpec.kt">
 
@@ -60,19 +62,23 @@ Condition not satisfied:
 
 enterprise.shieldStrength == 70
 |          |              |
-40         40             false
+|          40             false
+Enterprise(shieldStrength=40)
 ```
 
 </CodeWindow>
 
 </CarouselSlide>
 
-<CarouselSlide title="Data-driven features" description="A where table runs the feature once per row, iterations and all, exactly like Spock does in Groovy.">
+<CarouselSlide title="Data-driven features" description="A data table declares feature iterations, exactly like Spock does in Groovy.">
 
 <CodeWindow title="WarpFactorSpec.kt">
 
 ```kotlin
-fun `warp factor #factor is within safety limits`(factor: Int, safe: Boolean) {
+fun `warp factor #factor is within safety limits`(
+  factor: Int,
+  safe: Boolean
+) {
   expect
   enterprise.isWarpSafe(factor) == safe
 
@@ -88,14 +94,15 @@ fun `warp factor #factor is within safety limits`(factor: Int, safe: Boolean) {
 
 </CarouselSlide>
 
-<CarouselSlide title="Test lifecycle fixtures" description="setup()/cleanup() need no annotations: Spockk recognizes them by name, same as Spock does in Groovy.">
+<CarouselSlide title="Test lifecycle fixtures" description="No annotations needed: Spockk recognizes them by name, same as Spock does in Groovy.">
 
 <CodeWindow title="BridgeSystemsSpec.kt">
 
 ```kotlin
 class BridgeSystemsSpec : Specification() {
-  fun setup() {
-    enterprise.resetDiagnostics()
+
+  fun setupSpec() {
+    enterprise.initializeDiagnostics()
   }
 
   fun `bridge and engineering report ready`() {
@@ -108,6 +115,7 @@ class BridgeSystemsSpec : Specification() {
     cleanup
     enterprise.resetDiagnostics()
   }
+
 }
 ```
 
@@ -115,17 +123,19 @@ class BridgeSystemsSpec : Specification() {
 
 </CarouselSlide>
 
-<CarouselSlide title="Experimental extension support" description="Spock's own extensions, like @FailsWith for documenting a known bug, work as experimental support in Spockk too.">
+<CarouselSlide title="Experimental extension support" description="Spock's own extensions work in Spockk too.">
 
 <CodeWindow title="WarpCoreSpec.kt">
 
 ```kotlin
 class WarpCoreSpec : Specification() {
+
   @FailsWith(WarpCoreBreachException::class)
   fun `exceeding maximum warp causes a core breach`() {
     expect
     enterprise.engageWarp(10)
   }
+
 }
 ```
 
