@@ -52,9 +52,8 @@ export default defineConfig({
     siteTitle: false,
 
     nav: [
-      { text: 'Sneak Preview', link: '/sneak-preview' },
       { text: 'Getting Started', link: '/getting-started' },
-      { text: 'How It Works', link: '/how-it-works' },
+      { text: 'Examples', link: '/examples' },
       { text: 'Limitations', link: '/limitations' },
       { text: 'Changelog', link: '/changelog' },
     ],
@@ -67,8 +66,6 @@ export default defineConfig({
 
     footer: {
       message: 'Released under the Apache License 2.0.',
-      copyright:
-        'Spockk is an independent add-on and is not affiliated with the Spock Framework project.',
     },
   },
 })

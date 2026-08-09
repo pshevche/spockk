@@ -14,31 +14,33 @@ description: Spock's expressive specification syntax, natively in Kotlin.
       down to genuine Spock specifications.
     </p>
     <div class="spockk-hero-actions">
-      <a class="spockk-btn spockk-btn-brand" href="/sneak-preview">See it in action</a>
+      <a class="spockk-btn spockk-btn-brand" href="/examples">See it in action</a>
       <a class="spockk-btn spockk-btn-alt" href="/getting-started">Get Started</a>
       <a class="spockk-btn spockk-btn-alt" href="https://github.com/pshevche/spockk">GitHub ↗</a>
     </div>
   </div>
   <div class="spockk-hero-visual">
 
-<RevealCode>
+<CodeWindow title="GreetingSpec.kt">
 
 ```kotlin
-class WalletSpec : Specification() {
-  fun `topping up a wallet`() {
-    given("an empty wallet")
-    val wallet = Wallet()
+class GreetingSpec : Specification() {
+  fun `greeting styles`(
+    greeter: Being,
+    msg: String
+  ) {
+    expect
+    greeter.greet(Human("Kirk")) == msg
 
-    `when`("$25 is added")
-    wallet.topUp(25)
-
-    then("the balance is $25")
-    assert(wallet.balance == 25)
+    where
+    greeter         ; msg
+    Vulcan("Spock") ; "Live long!"
+    Human("Scotty") ; "Hello!"
   }
 }
 ```
 
-</RevealCode>
+</CodeWindow>
 
   </div>
 </section>
@@ -73,9 +75,9 @@ Spockk is **not** a standalone testing framework, and it doesn't try to replace 
 </div>
 
 <div class="page-nav">
-  <a class="page-nav-next" href="/sneak-preview">
+  <a class="page-nav-next" href="/getting-started">
     <span class="page-nav-label">Next</span>
-    <span class="page-nav-title">Sneak Preview →</span>
+    <span class="page-nav-title">Getting Started →</span>
   </a>
 </div>
 

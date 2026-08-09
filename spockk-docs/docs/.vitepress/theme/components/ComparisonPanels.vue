@@ -43,7 +43,7 @@ defineProps<{
 <style scoped>
 .comparison-panels {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.5rem;
   margin: 2rem 0;
 }
@@ -117,6 +117,7 @@ defineProps<{
   padding-left: 1.5rem;
   position: relative;
   line-height: 1.5;
+  overflow-wrap: break-word;
   opacity: 0;
   transform: translateX(-6px);
 }
@@ -142,10 +143,6 @@ defineProps<{
   font-weight: 700;
 }
 
-.comparison-panel :deep(code) {
-  font-size: 0.85em;
-}
-
 @keyframes item-in {
   to {
     opacity: 1;
@@ -155,7 +152,7 @@ defineProps<{
 
 @media (max-width: 640px) {
   .comparison-panels {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

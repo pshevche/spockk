@@ -21,9 +21,9 @@ Setting up an existing project takes three small steps, plus one optional (but r
 
    The **Spockk Core** module defines the specification syntax and bundles Spock itself, so you don't need to declare Spock as a separate dependency.
 
-   ```kotlin
-   // build.gradle.kts
+   <CodeWindow title="build.gradle.kts">
 
+   ```kotlin
    dependencies {
        testImplementation("io.github.pshevche.spockk:spockk-core:{revnumber}")
        testRuntimeOnly("org.junit.platform:junit-platform-launcher:{junitPlatformVersion}")
@@ -34,17 +34,21 @@ Setting up an existing project takes three small steps, plus one optional (but r
    }
    ```
 
+   </CodeWindow>
+
 2. ### Apply the Spockk Gradle plugin
 
    The **Spockk Gradle plugin** wires up the Kotlin compiler plugin that transforms Spockk's block-label syntax into runnable Spock feature methods during compilation. Without it, `given`/`when`/`then` are just function calls that throw at runtime.
 
-   ```kotlin
-   // build.gradle.kts
+   <CodeWindow title="build.gradle.kts">
 
+   ```kotlin
    plugins {
        id("io.github.pshevche.spockk") version "{revnumber}"
    }
    ```
+
+   </CodeWindow>
 
 3. ### Install the Spockk IntelliJ plugin
 
@@ -54,26 +58,26 @@ Setting up an existing project takes three small steps, plus one optional (but r
 
    That's it: no separate spec runner, no extra configuration. Standard Gradle test tasks pick up Spockk specs automatically.
 
-   <TerminalWindow title="zsh">
+   <CodeWindow title="zsh">
 
    ```sh
    $ ./gradlew test
 
    > Task :test
 
-   WalletSpec > topping up a wallet PASSED
+   BridgeOperationsSpec > raising shields under attack PASSED
 
    BUILD SUCCESSFUL in 2s
    ```
 
-   </TerminalWindow>
+   </CodeWindow>
 
 </div>
 
 <div class="page-nav">
-  <a class="page-nav-next" href="/how-it-works">
+  <a class="page-nav-next" href="/examples">
     <span class="page-nav-label">Next</span>
-    <span class="page-nav-title">How It Works →</span>
+    <span class="page-nav-title">Examples →</span>
   </a>
 </div>
 

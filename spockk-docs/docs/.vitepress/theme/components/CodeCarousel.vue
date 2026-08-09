@@ -55,12 +55,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="transform-carousel">
-    <div ref="track" class="transform-carousel-track">
+  <div class="carousel">
+    <div ref="track" class="carousel-track">
       <slot />
     </div>
 
-    <div class="transform-carousel-controls">
+    <div class="carousel-controls">
       <button
         type="button"
         class="carousel-arrow"
@@ -97,11 +97,11 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.transform-carousel {
+.carousel {
   margin: 2rem 0;
 }
 
-.transform-carousel-track {
+.carousel-track {
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -111,11 +111,11 @@ onMounted(() => {
   background: var(--vp-c-bg-soft);
 }
 
-.transform-carousel-track::-webkit-scrollbar {
+.carousel-track::-webkit-scrollbar {
   display: none;
 }
 
-.transform-carousel-controls {
+.carousel-controls {
   display: flex;
   align-items: center;
   justify-content: center;

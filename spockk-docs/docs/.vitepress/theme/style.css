@@ -34,6 +34,16 @@
   --vp-button-brand-active-border: transparent;
   --vp-button-brand-active-text: #fff;
   --vp-button-brand-active-bg: #7238f0;
+
+  /* Type scale. One size for all code (fixed px, not em, so it can't
+     drift when nested inside a component with a different local base
+     font-size), and one for meta/caption text (labels, timestamps,
+     small print) used everywhere instead of ad-hoc rem values. */
+  --spockk-code-size: 14px;
+  --spockk-text-meta: 0.875rem;
+
+  --vp-font-family-mono: 'JetBrains Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --vp-code-font-size: var(--spockk-code-size);
 }
 
 .dark {
@@ -84,6 +94,9 @@
   gap: 2.5rem;
   align-items: center;
   padding: 0.5rem 0 2.5rem;
+  /* Clips the glow's horizontal bleed (see .spockk-hero-visual::before)
+     so it can't add horizontal scroll on narrow viewports. */
+  overflow-x: hidden;
 }
 
 .spockk-hero-title {
@@ -156,7 +169,7 @@
 
 @media (max-width: 768px) {
   .spockk-hero {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding-top: 1.5rem;
     text-align: center;
   }
@@ -176,7 +189,7 @@
 /* ---------------------------------------------------------------- */
 .feature-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.25rem;
   margin: 2.5rem 0;
 }
@@ -228,13 +241,13 @@
 .feature-card p {
   margin: 0;
   color: var(--vp-c-text-2);
-  font-size: 0.92rem;
+  font-size: var(--spockk-text-meta);
   line-height: 1.55;
 }
 
 @media (max-width: 768px) {
   .feature-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -344,7 +357,7 @@
 
 .page-nav-next .page-nav-label {
   display: block;
-  font-size: 0.8rem;
+  font-size: var(--spockk-text-meta);
   color: var(--vp-c-text-3);
   margin-bottom: 0.15rem;
 }
