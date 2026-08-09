@@ -35,7 +35,7 @@ Spockk is in active development, and it falls short of writing a specification d
 These and other improvements are on the roadmap. Stay tuned for future releases!
 
 <div class="page-nav">
-  <a class="page-nav-next" href="/changelog">
+  <a class="page-nav-next" href="changelog">
     <span class="page-nav-label">Next</span>
     <span class="page-nav-title">Changelog →</span>
   </a>

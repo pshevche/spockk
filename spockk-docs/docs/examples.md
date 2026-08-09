@@ -146,7 +146,7 @@ class WarpCoreSpec : Specification() {
 </CodeCarousel>
 
 <div class="page-nav">
-  <a class="page-nav-next" href="/limitations">
+  <a class="page-nav-next" href="limitations">
     <span class="page-nav-label">Next</span>
     <span class="page-nav-title">Limitations →</span>
   </a>

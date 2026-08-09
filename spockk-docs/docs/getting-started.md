@@ -75,7 +75,7 @@ Setting up an existing project takes three small steps.
 </div>
 
 <div class="page-nav">
-  <a class="page-nav-next" href="/examples">
+  <a class="page-nav-next" href="examples">
     <span class="page-nav-label">Next</span>
     <span class="page-nav-title">Examples →</span>
   </a>
