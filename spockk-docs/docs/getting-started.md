@@ -13,13 +13,13 @@ Clone the [Spockk Example Project](https://github.com/pshevche/spockk-example): 
 
 **Prerequisites:** JDK 21+ and Kotlin 2.0.0+.
 
-Setting up an existing project takes three small steps, plus one optional (but recommended) IDE upgrade.
+Setting up an existing project takes three small steps.
 
 <div class="step-list">
 
 1. ### Add the Spockk Core dependency
 
-   The **Spockk Core** module defines the specification syntax and bundles Spock itself, so you don't need to declare Spock as a separate dependency.
+   The **Spockk Core** module defines the specification syntax for Kotlin and bundles Spock itself, so you don't need to declare it as a separate dependency.
 
    <CodeWindow title="build.gradle.kts">
 
@@ -38,7 +38,7 @@ Setting up an existing project takes three small steps, plus one optional (but r
 
 2. ### Apply the Spockk Gradle plugin
 
-   The **Spockk Gradle plugin** wires up the Kotlin compiler plugin that transforms Spockk's block-label syntax into runnable Spock feature methods during compilation. Without it, `given`/`when`/`then` are just function calls that throw at runtime.
+   The **Spockk Gradle plugin** wires up the Kotlin compiler plugin that transforms Spockk's expressive syntax into runnable Spock feature methods during compilation. Without it, `given`/`when`/`then` and other constructs are just regular function calls.
 
    <CodeWindow title="build.gradle.kts">
 
@@ -52,7 +52,7 @@ Setting up an existing project takes three small steps, plus one optional (but r
 
 3. ### Install the Spockk IntelliJ plugin
 
-   Search for **Spockk** in **Settings → Plugins → Marketplace**. It teaches IntelliJ to recognize Spockk syntax: correct highlighting for block labels, formatting-aware data tables, and gutter icons to run individual specs or features straight from the editor via Gradle.
+   Install the **Spockk** plugin from the [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/29021-spockk). It teaches IntelliJ to recognize Spockk syntax: correct highlighting for block labels, formatting-aware data tables, and gutter icons to run individual specs or features straight from the editor via Gradle.
 
 4. ### Run your first spec
 
