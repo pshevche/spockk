@@ -18,9 +18,14 @@ import io.github.pshevche.spockk.compilation.ir.isThrownCall
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
+import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.util.file
 
 /**
@@ -68,7 +73,11 @@ internal class ExceptionConditionRewriter(
       is ExceptionConditionOccurrence.BareStatement -> {
         // Discarded value: nullability doesn't matter, cast to the original call's own type.
         val castCall = builder.irAs(rewrittenCall, occurrence.call.type)
-        statements.map { if (it === occurrence.statement) castCall else it }
+        // thrown()'s non-Unit result, used as a bare statement, was coercion-wrapped by the
+        // Kotlin frontend before this rewrite ever saw it - preserve that shape so the rewritten
+        // statement looks exactly as ordinary Kotlin source producing the same call would.
+        val replacement = if (occurrence.statement.isCoercedToUnit()) builder.irCoerceToUnit(castCall) else castCall
+        statements.map { if (it === occurrence.statement) replacement else it }
       }
 
       is ExceptionConditionOccurrence.VariableInitializer -> {
@@ -80,3 +89,16 @@ internal class ExceptionConditionRewriter(
     }
   }
 }
+
+private fun IrStatement.isCoercedToUnit(): Boolean =
+  this is IrTypeOperatorCall && operator == IrTypeOperator.IMPLICIT_COERCION_TO_UNIT
+
+private fun DeclarationIrBuilder.irCoerceToUnit(value: IrExpression): IrExpression =
+  IrTypeOperatorCallImpl(
+    startOffset,
+    endOffset,
+    context.irBuiltIns.unitType,
+    IrTypeOperator.IMPLICIT_COERCION_TO_UNIT,
+    context.irBuiltIns.unitType,
+    value
+  )

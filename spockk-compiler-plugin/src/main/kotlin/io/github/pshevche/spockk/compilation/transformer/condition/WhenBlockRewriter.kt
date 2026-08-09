@@ -25,6 +25,7 @@ import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterCont
 import io.github.pshevche.spockk.compilation.transformer.ir.getSpecificationContext
 import org.jetbrains.kotlin.backend.common.lower.irCatch
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -69,7 +70,7 @@ internal class WhenBlockRewriter(
 
     return builder.irTry(
       tryExpressions = whenBlock.statements,
-      catchExpressions = listOf(builder.irCatch(catchVar, catchResult)),
+      catchExpressions = listOf(builder.irCatch(catchVar, builder.irBlock { +catchResult })),
       finallyExpressions = listOf()
     )
   }
