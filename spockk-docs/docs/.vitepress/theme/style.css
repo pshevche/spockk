@@ -128,7 +128,7 @@
    wider than a regular page-container: the code window needs enough
    room for its widest line (see .spockk-hero's grid-template-columns). */
 .page-container-hero {
-  max-width: 1120px;
+  max-width: 1280px;
   padding-bottom: 1.5rem;
 }
 
@@ -145,9 +145,16 @@
 /* ---------------------------------------------------------------- */
 /* Landing page hero                                                  */
 /* ---------------------------------------------------------------- */
+/* The code column is sized to what its widest line actually needs
+   (520-620px, see the code snippet in index.md), not a fraction of the
+   container: giving it a fr share ties it to the same growth as the
+   text column, which either starves the code window on narrow
+   viewports or leaves the text column stuck at a fixed fraction while
+   the code window has already maxed out. minmax(0, 1fr) lets the text
+   column absorb whatever width the code column isn't using. */
 .spockk-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+  grid-template-columns: minmax(0, 1fr) minmax(520px, 620px);
   gap: 2.5rem;
   align-items: center;
   padding: 0.5rem 0 1rem;
@@ -174,7 +181,6 @@
   font-size: 1.15rem;
   line-height: 1.6;
   color: var(--vp-c-text-2);
-  max-width: 46ch;
   margin: 0 0 2rem;
 }
 
