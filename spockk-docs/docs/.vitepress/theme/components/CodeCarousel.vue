@@ -56,10 +56,6 @@ onMounted(() => {
 
 <template>
   <div class="carousel">
-    <div ref="track" class="carousel-track">
-      <slot />
-    </div>
-
     <div class="carousel-controls">
       <button
         type="button"
@@ -93,6 +89,10 @@ onMounted(() => {
         ›
       </button>
     </div>
+
+    <div ref="track" class="carousel-track">
+      <slot />
+    </div>
   </div>
 </template>
 
@@ -120,7 +120,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .carousel-arrow {

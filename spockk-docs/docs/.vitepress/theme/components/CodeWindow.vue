@@ -134,6 +134,7 @@ onMounted(() => {
   display: block;
   width: fit-content;
   min-width: 100%;
+  padding: 0 24px;
   text-align: left;
 }
 
