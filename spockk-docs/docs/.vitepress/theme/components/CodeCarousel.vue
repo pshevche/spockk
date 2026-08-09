@@ -13,11 +13,24 @@
  * limitations under the License.
  */
 
-import { onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 
 const track = useTemplateRef<HTMLDivElement>('track')
 const activeIndex = ref(0)
 const slideCount = ref(0)
+const trackHeight = ref<number>()
+const trackHeightPx = computed(() => (trackHeight.value ? `${trackHeight.value}px` : 'auto'))
+
+let slides: HTMLElement[] = []
+let resizeObserver: ResizeObserver | undefined
+
+// scrollHeight, not getBoundingClientRect: slides are flex items that
+// stretch to the tallest sibling by default, so a slide's own rendered
+// height doesn't reflect its actual content height once stretched.
+function updateHeight() {
+  const active = slides[activeIndex.value]
+  if (active) trackHeight.value = active.scrollHeight
+}
 
 function scrollToIndex(index: number) {
   const el = track.value
@@ -35,8 +48,14 @@ onMounted(() => {
   const el = track.value
   if (!el) return
 
-  const slides = Array.from(el.children) as HTMLElement[]
+  slides = Array.from(el.children) as HTMLElement[]
   slideCount.value = slides.length
+  updateHeight()
+
+  if (typeof ResizeObserver !== 'undefined') {
+    resizeObserver = new ResizeObserver(updateHeight)
+    slides.forEach((slide) => resizeObserver?.observe(slide))
+  }
 
   if (typeof IntersectionObserver === 'undefined') return
 
@@ -45,12 +64,17 @@ onMounted(() => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
           activeIndex.value = slides.indexOf(entry.target as HTMLElement)
+          updateHeight()
         }
       }
     },
     { root: el, threshold: 0.6 },
   )
   slides.forEach((slide) => observer.observe(slide))
+})
+
+onUnmounted(() => {
+  resizeObserver?.disconnect()
 })
 </script>
 
@@ -98,21 +122,47 @@ onMounted(() => {
 
 <style scoped>
 .carousel {
+  position: relative;
   margin: 2rem 0;
+}
+
+/* A soft ambient glow instead of a flat, boxy fill, echoing the same
+   glow used behind the home page hero. Fixed px offsets (not
+   percentages): see CodeWindow's hero glow for why a percentage bleed
+   on a wide box can grow past the viewport and force horizontal
+   scroll, which this needs to avoid just as much at 992px content
+   width as the hero does. */
+.carousel::before {
+  content: '';
+  position: absolute;
+  top: -24px;
+  right: -24px;
+  bottom: -24px;
+  left: -24px;
+  background: var(--spockk-gradient);
+  opacity: 0.12;
+  filter: blur(70px);
+  z-index: -1;
+  border-radius: 32px;
 }
 
 .carousel-track {
   display: flex;
   overflow-x: auto;
-  /* proximity, not mandatory: mandatory forces a snap back to a full
-     slide after any scroll, including horizontal drift picked up
-     while a trackpad user is really just scrolling the page over the
-     carousel, which reads as the carousel jumping back into place. */
-  scroll-snap-type: x proximity;
+  /* No scroll-snap-type here on purpose: with slides at 100% of the
+     track's own width, even "proximity" snapping treats almost every
+     scroll position as close enough to a slide boundary to correct,
+     so a trackpad user just scrolling the page over the carousel
+     still gets yanked to a fully-aligned slide. Arrows and dots
+     already scroll to an exact, aligned position via scrollIntoView,
+     so native snapping isn't needed for that either. */
   scrollbar-width: none;
   border: 1px solid var(--vp-c-divider);
   border-radius: 16px;
-  background: var(--vp-c-bg-soft);
+  background: color-mix(in srgb, var(--vp-c-bg-soft) 70%, transparent);
+  backdrop-filter: blur(6px);
+  height: v-bind(trackHeightPx);
+  transition: height 0.3s ease;
 }
 
 .carousel-track::-webkit-scrollbar {

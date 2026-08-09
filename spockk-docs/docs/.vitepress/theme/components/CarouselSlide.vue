@@ -31,7 +31,6 @@ defineProps<{ title: string; description?: string }>()
 <style scoped>
 .carousel-slide {
   flex: 0 0 100%;
-  scroll-snap-align: start;
   box-sizing: border-box;
   padding: 1.75rem 1.5rem;
 }
