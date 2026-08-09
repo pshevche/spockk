@@ -21,21 +21,24 @@ description: Spock's expressive specification syntax, natively in Kotlin.
   </div>
   <div class="spockk-hero-visual">
 
-<CodeWindow title="GreetingSpec.kt">
+<CodeWindow title="WelcomeSpec.kt">
 
 ```kotlin
-class GreetingSpec : Specification() {
-  fun `greeting styles`(
-    greeter: Being,
-    msg: String
+class WelcomeSpec : Specification() {
+  fun `welcome to Spockk`(
+    visitor: Being,
+    greeting: String
   ) {
+    given
+    val spock = Vulcan("Spock")
+
     expect
-    greeter.greet(Human("Kirk")) == msg
+    spock.greet(visitor) == greeting
 
     where
-    greeter         ; msg
-    Vulcan("Spock") ; "Live long!"
-    Human("Scotty") ; "Hello!"
+    visitor         ; greeting
+    Vulcan("Sarek") ; "Live long and prosper!"
+    Human("Kirk")   ; "Hello!"
   }
 }
 ```
@@ -52,7 +55,7 @@ class GreetingSpec : Specification() {
 
 [Spock](https://spockframework.org/) is one of the most expressive testing frameworks around, but it's written for Groovy, and speaks with a Groovy accent: dynamic typing, closures-as-blocks, and an AST transform that rewrites your test class before Kotlin ever gets a say.
 
-**Spockk teaches Kotlin to speak Spock.** It's a Kotlin compiler plugin (plus a small runtime and a Gradle plugin) that recognizes Spock's block-label vocabulary (`given`, `when`, `then`, `expect`, `and`, `where`, `cleanup`), written as plain, statically-typed Kotlin, and rewrites it at compile time into genuine Spock feature methods. The result runs on Spock's own JUnit Platform engine, right alongside your Groovy specs.
+**Spockk teaches Kotlin to speak Spock.** It's a Kotlin compiler plugin that recognizes Spock's block-label vocabulary (`given`, `when`, `then`, `expect`, `and`, `where`, `cleanup`), written as plain, statically-typed Kotlin, and rewrites it at compile time into genuine Spock feature methods. The result runs on Spock's own JUnit Platform engine, right alongside your Groovy specs.
 
 Spockk is **not** a standalone testing framework, and it doesn't try to replace Spock's documentation: [Spock's reference docs](https://spockframework.org/spock/docs/2.4/index.html) already do a great job of explaining specifications, fixtures, and data-driven testing in general. This guide focuses on what's actually new: how that vocabulary maps onto idiomatic Kotlin, and what that buys you.
 
