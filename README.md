@@ -9,27 +9,21 @@
 This repository is home to Spockk, an add-on for the [Spock](https://github.com/spockframework/spock) testing framework
 that brings its expressive BDD-style syntax for Groovy to Kotlin.
 
-## Sneak peek
+## Sneak preview
 
 ```kotlin
-import io.github.pshevche.spockk.lang.then
-import io.github.pshevche.spockk.lang.`when`
-import io.github.pshevche.spockk.lang.where
-import spock.lang.Specification
+class WelcomeSpec : Specification() {
+    fun `welcome to Spockk`(visitor: Being, greeting: String) {
+        given
+        val spock = Vulcan("Spock")
 
-class MathTest : Specification() {
-    fun `sum of two numbers`(a: Int, b: Int, expectedSum: Int) {
-        `when`
-        val sum = a + b
-
-        then
-        sum == expectedSum
+        expect
+        spock.greet(visitor) == greeting
 
         where
-        a ; b ; expectedSum
-        1 ; 3 ; 4
-        7 ; 4 ; 11
-        0 ; 0 ; 0
+        visitor         ; greeting
+        Vulcan("Sarek") ; "Live long and prosper!"
+        Human("Kirk")   ; "Hello!"
     }
 }
 ```
