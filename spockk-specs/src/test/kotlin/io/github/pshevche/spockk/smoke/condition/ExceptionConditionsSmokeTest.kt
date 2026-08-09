@@ -18,27 +18,31 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.runtime.InvalidSpecException
+import org.spockframework.runtime.UnallowedExceptionThrownError
+import org.spockframework.runtime.WrongExceptionThrownError
 import spock.lang.FailsWith
 import spock.lang.Specification
+import java.io.IOException
 
 /**
- * Pins the *current* behavior of Spock's `thrown()`/`notThrown()`/`noExceptionThrown()`
- * exception-condition helpers under Spockk, mirroring the scenarios covered by Spock's own
- * `ExceptionConditions` spec.
+ * Exercises Spock's exception-condition helpers - `thrown()`, `notThrown()`, `noExceptionThrown()`
+ * - mirroring the scenarios covered by Spock's own `ExceptionConditions` spec. A `when` block
+ * paired with a `then` block containing one of these calls has its statements wrapped in a
+ * try/catch that records the thrown exception on `SpecificationContext`
+ * ([io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter]);
+ * `thrown(Type::class.java)` is rewritten to call Spock's own already-shaded
+ * `SpecInternals.checkExceptionThrown`
+ * ([io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter]).
  *
- * Unlike real Spock, Spockk's `when` blocks are never wrapped in a try/catch that records the
- * thrown exception on `SpecificationContext` (see `FeatureRewriter`/`ConditionRewriter`, which
- * have no equivalent of Spock's `SpecRewriter.rewriteWhenBlockForExceptionCondition`). As a
- * result none of these helpers work as documented yet: `when`-block exceptions always propagate
- * raw instead of being caught, `thrown()` unconditionally throws `InvalidSpecException` (its
- * un-rewritten fallback body), and `notThrown()`/`noExceptionThrown()` silently no-op because
- * `getThrownException()` is never populated. These tests document that gap as a regression
- * baseline rather than the intended behavior.
+ * Deliberately out of scope (see the design doc, `_docs/specs/2026-08-09-exception-conditions-design.md`):
+ * zero-arg `thrown()` with type inferred from a `val` declaration, chained `then` blocks after one
+ * `when`, and nested (non-top-level) exception-condition calls.
  */
 class ExceptionConditionsSmokeTest : Specification() {
 
-  @FailsWith(IndexOutOfBoundsException::class)
-  fun `thrown() does not catch the when-block exception`() {
+  private class CustomError : Error()
+
+  fun `catches the thrown exception`() {
     `when`
     "".substring(5)
 
@@ -46,16 +50,81 @@ class ExceptionConditionsSmokeTest : Specification() {
     thrown(IndexOutOfBoundsException::class.java)
   }
 
-  @FailsWith(InvalidSpecException::class)
-  fun `thrown() always throws even when the when-block does not throw`() {
+  fun `captures the thrown exception into a variable`() {
     `when`
-    val x = 1
+    "".substring(5)
 
     then
-    thrown(RuntimeException::class.java)
+    val e: IndexOutOfBoundsException = thrown(IndexOutOfBoundsException::class.java)
+    e.message != null
   }
 
-  fun `noExceptionThrown() passes, but only vacuously since it never observes the when-block`() {
+  fun `catches a RuntimeException`() {
+    `when`
+    throw IllegalStateException("boom")
+
+    then
+    thrown(IllegalStateException::class.java)
+  }
+
+  fun `catches a checked Exception`() {
+    `when`
+    throw IOException("boom")
+
+    then
+    thrown(IOException::class.java)
+  }
+
+  fun `catches an Error`() {
+    `when`
+    throw CustomError()
+
+    then
+    thrown(CustomError::class.java)
+  }
+
+  fun `catches the base Throwable type`() {
+    `when`
+    throw IllegalStateException("boom")
+
+    then
+    val t: Throwable = thrown(Throwable::class.java)
+    t is IllegalStateException
+  }
+
+  @FailsWith(WrongExceptionThrownError::class)
+  fun `rejects the wrong exception type`() {
+    `when`
+    throw IllegalStateException("boom")
+
+    then
+    thrown(IllegalArgumentException::class.java)
+  }
+
+  @FailsWith(InvalidSpecException::class)
+  fun `thrown(null) fails since the type cannot be inferred`() {
+    `when`
+    throw IllegalStateException("boom")
+
+    then
+    thrown<RuntimeException>(null)
+  }
+
+  fun `each when-then pair catches its own exception independently`() {
+    `when`
+    throw IOException("first")
+
+    then
+    thrown(IOException::class.java)
+
+    `when`
+    throw IllegalStateException("second")
+
+    then
+    thrown(IllegalStateException::class.java)
+  }
+
+  fun `noExceptionThrown passes when nothing is thrown`() {
     `when`
     val x = 1
 
@@ -63,8 +132,8 @@ class ExceptionConditionsSmokeTest : Specification() {
     noExceptionThrown()
   }
 
-  @FailsWith(IllegalStateException::class)
-  fun `noExceptionThrown() does not catch the exception it should reject`() {
+  @FailsWith(UnallowedExceptionThrownError::class)
+  fun `noExceptionThrown rejects any thrown exception`() {
     `when`
     throw IllegalStateException("boom")
 
@@ -72,8 +141,16 @@ class ExceptionConditionsSmokeTest : Specification() {
     noExceptionThrown()
   }
 
-  @FailsWith(IllegalStateException::class)
-  fun `notThrown() does not catch the exception it should reject`() {
+  fun `notThrown passes when nothing is thrown`() {
+    `when`
+    val x = 1
+
+    then
+    notThrown(IllegalStateException::class.java)
+  }
+
+  @FailsWith(UnallowedExceptionThrownError::class)
+  fun `notThrown rejects a matching exception`() {
     `when`
     throw IllegalStateException("boom")
 
@@ -81,11 +158,18 @@ class ExceptionConditionsSmokeTest : Specification() {
     notThrown(IllegalStateException::class.java)
   }
 
-  fun `notThrown() passes, but only vacuously since it never observes the when-block`() {
+  @FailsWith(IllegalStateException::class)
+  fun `notThrown rethrows an exception of a different type`() {
     `when`
-    val x = 1
+    throw IllegalStateException("boom")
 
     then
     notThrown(IllegalArgumentException::class.java)
+  }
+
+  @FailsWith(InvalidSpecException::class)
+  fun `thrown() in an expect block is not rewritten and always throws`() {
+    expect
+    thrown(RuntimeException::class.java)
   }
 }
