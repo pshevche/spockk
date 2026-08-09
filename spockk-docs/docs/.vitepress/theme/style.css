@@ -46,13 +46,53 @@
   --vp-code-font-size: var(--spockk-code-size);
 
   --vp-nav-height: 72px;
-  --vp-nav-logo-height: 28px;
+  --vp-nav-logo-height: 30px;
 }
 
 .dark {
   --vp-c-brand-1: #a67bfd;
   --vp-c-brand-2: #9163fd;
   --vp-c-brand-3: #844dfd;
+}
+
+/* ---------------------------------------------------------------- */
+/* Navbar content sizing                                             */
+/* ---------------------------------------------------------------- */
+/* --vp-nav-height/--vp-nav-logo-height only control the bar's own
+   height and the logo image: menu links, the search button, and the
+   social icon are hardcoded px sizes in VitePress's own scoped
+   component styles, which outrank a plain class override on
+   specificity alone, so these need !important to actually win. */
+.VPNavBarMenuLink {
+  font-size: 15px !important;
+}
+
+.VPSocialLink {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.VPSocialLink > svg,
+.VPSocialLink > [class^='vpi-social-'] {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.DocSearch-Button .DocSearch-Button-Placeholder {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .DocSearch-Button .DocSearch-Search-Icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.DocSearch-Button .DocSearch-Button-Key {
+  height: 24px;
+  line-height: 24px;
+  font-size: 13px;
 }
 
 /* ---------------------------------------------------------------- */
