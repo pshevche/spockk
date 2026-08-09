@@ -9,7 +9,7 @@ description: Spock's expressive specification syntax, natively in Kotlin.
   <div>
     <h1 class="spockk-hero-title">Spock specs, <span class="gradient-text">written the way Kotlin wants them</span>.</h1>
     <p class="spockk-hero-tagline">
-      Spockk is a compiler plugin that brings Spock's <code>given</code>/<code>when</code>/<code>then</code>
+      Spockk is a compiler plugin that brings Spock's expressive <code>given</code>/<code>when</code>/<code>then</code>
       specification syntax natively into Kotlin: no Groovy, no string DSLs, just real Kotlin code that compiles
       down to genuine Spock specifications.
     </p>
@@ -25,10 +25,7 @@ description: Spock's expressive specification syntax, natively in Kotlin.
 
 ```kotlin
 class WelcomeSpec : Specification() {
-  fun `welcome to Spockk`(
-    visitor: Being,
-    greeting: String
-  ) {
+  fun `welcome to Spockk`(visitor: Being, greeting: String) {
     given
     val spock = Vulcan("Spock")
 
