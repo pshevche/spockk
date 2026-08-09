@@ -79,9 +79,20 @@
   margin-top: 0;
 }
 
+/* Used on the home page's hero wrapper: the hero already ends with its
+   own visual weight (buttons, code window), so it needs less trailing
+   space than a text page does before the next section starts. */
+.page-container-hero {
+  padding-bottom: 1.5rem;
+}
+
 @media (max-width: 768px) {
   .page-container {
     padding: 1.5rem 24px 3rem;
+  }
+
+  .page-container-hero {
+    padding-bottom: 0.5rem;
   }
 }
 
@@ -93,10 +104,7 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: 2.5rem;
   align-items: center;
-  padding: 0.5rem 0 2.5rem;
-  /* Clips the glow's horizontal bleed (see .spockk-hero-visual::before)
-     so it can't add horizontal scroll on narrow viewports. */
-  overflow-x: hidden;
+  padding: 0.5rem 0 1rem;
 }
 
 .spockk-hero-title {
@@ -159,10 +167,13 @@
 .spockk-hero-visual::before {
   content: '';
   position: absolute;
-  inset: -10%;
+  top: -20%;
+  right: -35%;
+  bottom: -55%;
+  left: -15%;
   background: var(--spockk-gradient);
-  opacity: 0.18;
-  filter: blur(60px);
+  opacity: 0.16;
+  filter: blur(80px);
   z-index: -1;
   border-radius: 50%;
 }
@@ -181,6 +192,15 @@
 
   .spockk-hero-actions {
     justify-content: center;
+  }
+
+  /* Narrower than the desktop bleed: .spockk-hero-visual spans almost the
+     full viewport width here, so the same right/left offsets would push
+     the glow past the edge and force horizontal scroll. */
+  .spockk-hero-visual::before {
+    right: -5%;
+    bottom: -25%;
+    left: -5%;
   }
 }
 

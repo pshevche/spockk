@@ -4,7 +4,7 @@ title: Spockk
 description: Spock's expressive specification syntax, natively in Kotlin.
 ---
 
-<div class="page-container">
+<div class="page-container page-container-hero">
 <section class="spockk-hero">
   <div>
     <h1 class="spockk-hero-title">Spock specs, <span class="gradient-text">written the way<br>Kotlin wants them</span>.</h1>
