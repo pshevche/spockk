@@ -146,7 +146,7 @@
 /* Landing page hero                                                  */
 /* ---------------------------------------------------------------- */
 /* The code column is sized to what its widest line actually needs
-   (520-620px, see the code snippet in index.md), not a fraction of the
+   (540-660px, see the code snippet in index.md), not a fraction of the
    container: giving it a fr share ties it to the same growth as the
    text column, which either starves the code window on narrow
    viewports or leaves the text column stuck at a fixed fraction while
@@ -154,7 +154,7 @@
    column absorb whatever width the code column isn't using. */
 .spockk-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(520px, 620px);
+  grid-template-columns: minmax(0, 1fr) minmax(540px, 660px);
   gap: 2.5rem;
   align-items: center;
   padding: 0.5rem 0 1rem;
