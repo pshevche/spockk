@@ -44,6 +44,9 @@
 
   --vp-font-family-mono: 'JetBrains Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
   --vp-code-font-size: var(--spockk-code-size);
+
+  --vp-nav-height: 72px;
+  --vp-nav-logo-height: 28px;
 }
 
 .dark {
