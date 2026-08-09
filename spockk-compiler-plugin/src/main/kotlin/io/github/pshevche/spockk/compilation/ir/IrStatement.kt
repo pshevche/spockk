@@ -101,3 +101,19 @@ internal fun IrStatement.isAssertCall(): Boolean {
   val owner = (this as? IrCall)?.symbol?.owner ?: return false
   return owner.fqNameWhenAvailable == IrIdentifiers.Kotlin.ASSERT_FQN
 }
+
+private val EXCEPTION_CONDITION_FQNS = setOf(
+  IrIdentifiers.Spock.THROWN_FQN,
+  IrIdentifiers.Spock.NOT_THROWN_FQN,
+  IrIdentifiers.Spock.NO_EXCEPTION_THROWN_FQN
+)
+
+internal fun IrStatement.isExceptionConditionCall(): Boolean {
+  val owner = (this as? IrCall)?.symbol?.owner ?: return false
+  return owner.fqNameWhenAvailable in EXCEPTION_CONDITION_FQNS
+}
+
+internal fun IrStatement.isThrownCall(): Boolean {
+  val owner = (this as? IrCall)?.symbol?.owner ?: return false
+  return owner.fqNameWhenAvailable == IrIdentifiers.Spock.THROWN_FQN
+}

@@ -61,6 +61,17 @@ internal class IrSpecificationContext(
     }
   }
 
+  fun irSetThrownException(builder: IrBuilder, specAccessor: IrValueParameter, exceptionExpr: IrExpression): IrExpression {
+    val specificationContextInstance = getSpecificationContextInstance(builder, specAccessor)
+    val setThrownException = specificationContextClass.functionByName("setThrownException")
+    return with(builder) {
+      irCall(setThrownException).apply {
+        dispatchReceiver = specificationContextInstance
+        arguments[1] = exceptionExpr
+      }
+    }
+  }
+
   fun irGetSharedInstance(
     builder: IrBuilder,
     specAccessor: IrValueParameter

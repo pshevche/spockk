@@ -31,6 +31,9 @@ internal object IrIdentifiers {
     val SPECIFICATION_FQN = LANG_PKG_FQN.child("Specification")
     val WILDCARD_FQN = SPECIFICATION_FQN.child("_")
     val SHARED_ANNOTATION_FQN = LANG_PKG_FQN.child("Shared")
+    val THROWN_FQN = SPECIFICATION_FQN.child("thrown")
+    val NOT_THROWN_FQN = SPECIFICATION_FQN.child("notThrown")
+    val NO_EXCEPTION_THROWN_FQN = SPECIFICATION_FQN.child("noExceptionThrown")
 
     private val RUNTIME_PKG_FQN = FqName("org.spockframework.runtime")
     val ERROR_COLLECTOR_FQN = RUNTIME_PKG_FQN.child("ErrorCollector")
