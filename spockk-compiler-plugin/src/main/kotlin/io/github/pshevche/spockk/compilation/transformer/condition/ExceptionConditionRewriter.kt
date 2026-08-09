@@ -63,12 +63,18 @@ internal class ExceptionConditionRewriter(
       feature.requiredThisParameter(),
       exceptionTypeArg
     )
-    val castCall = builder.irAs(rewrittenCall, occurrence.call.type)
 
     return when (occurrence) {
-      is ExceptionConditionOccurrence.BareStatement -> statements.map { if (it === occurrence.call) castCall else it }
+      is ExceptionConditionOccurrence.BareStatement -> {
+        // Discarded value: nullability doesn't matter, cast to the original call's own type.
+        val castCall = builder.irAs(rewrittenCall, occurrence.call.type)
+        statements.map { if (it === occurrence.statement) castCall else it }
+      }
+
       is ExceptionConditionOccurrence.VariableInitializer -> {
-        occurrence.variable.initializer = castCall
+        // Cast to the variable's declared type (not the unwrapped call's flexibly-nullable type),
+        // preserving whatever non-null assertion the original initializer had.
+        occurrence.variable.initializer = builder.irAs(rewrittenCall, occurrence.variable.type)
         statements
       }
     }

@@ -14,7 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.condition
 
-import io.github.pshevche.spockk.compilation.ir.isExceptionConditionCall
+import io.github.pshevche.spockk.compilation.ir.asExceptionConditionCall
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
@@ -22,19 +22,26 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 /**
  * A top-level `thrown`/`notThrown`/`noExceptionThrown` call found in a `then` block's own
  * statement list - either a bare statement, or the initializer of a `val`/`var` declaration
- * (`val e = thrown(...)`).
+ * (`val e = thrown(...)`). [call] is the unwrapped call (see
+ * [io.github.pshevche.spockk.compilation.ir.asExceptionConditionCall]) usable for classifying and
+ * rewriting; [BareStatement.statement] is the original (possibly coercion-wrapped) list entry,
+ * needed to find and replace it in place.
  */
 internal sealed class ExceptionConditionOccurrence(val call: IrCall) {
-  internal class BareStatement(call: IrCall) : ExceptionConditionOccurrence(call)
+  internal class BareStatement(val statement: IrStatement, call: IrCall) : ExceptionConditionOccurrence(call)
   internal class VariableInitializer(val variable: IrVariable, call: IrCall) : ExceptionConditionOccurrence(call)
 }
 
 internal fun List<IrStatement>.findExceptionConditionOccurrences(): List<ExceptionConditionOccurrence> =
   mapNotNull { statement ->
+    val bareCall = statement.asExceptionConditionCall()
+    val initializerCall = (statement as? IrVariable)?.initializer?.asExceptionConditionCall()
     when {
-      statement.isExceptionConditionCall() -> ExceptionConditionOccurrence.BareStatement(statement as IrCall)
-      statement is IrVariable && statement.initializer?.isExceptionConditionCall() == true ->
-        ExceptionConditionOccurrence.VariableInitializer(statement, statement.initializer as IrCall)
+      bareCall != null -> ExceptionConditionOccurrence.BareStatement(statement, bareCall)
+
+      statement is IrVariable && initializerCall != null ->
+        ExceptionConditionOccurrence.VariableInitializer(statement, initializerCall)
+
       else -> null
     }
   }
