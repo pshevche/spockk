@@ -28,6 +28,7 @@ internal object InternalIdentifiers {
   val VALUE_RECORDER_VAR = Name.identifier($$"$spock_valueRecorder")
   val VERIFY_ALL_ERROR_COLLECTOR_VAR = Name.identifier($$"$spock_verifyAllErrorCollector")
   val CONDITION_THROWABLE_VAR = Name.identifier($$"$spock_condition_throwable")
+  val WHEN_BLOCK_THROWABLE_VAR = Name.identifier($$"$spock_when_throwable")
 
   fun getFeatureName(context: FeatureContext): String =
     $$"$spock_feature_$${context.specDepth}_$${context.ordinal}"
