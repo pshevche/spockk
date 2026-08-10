@@ -64,6 +64,7 @@ import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.isArray
+import org.jetbrains.kotlin.ir.types.makeNullable
 import org.jetbrains.kotlin.ir.types.typeWith
 import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
 import org.jetbrains.kotlin.ir.util.file
@@ -343,7 +344,7 @@ internal class WhereBlockRewriter(
   private fun createDataProcessorParameter(nextDataVariableIndex: Int): IrValueParameter =
     dataProcessorMethod.addValueParameter(
       Name.identifier("spock_p$nextDataVariableIndex"),
-      irBuiltIns.anyType
+      irBuiltIns.anyType.makeNullable()
     )
 
   private fun createDataProcessorVariable(featureVariable: IrValueParameter): IrVariable =
@@ -504,7 +505,7 @@ internal class WhereBlockRewriter(
       dataProcessorMethod.annotations += createDataProcessorAnnotation(this)
       dataProcessorMethod
         .mutableStatements()
-        ?.add(irReturn(irArrayOf(irBuiltIns.anyType, dataProcessorVars.map { irGet(it) })))
+        ?.add(irReturn(irArrayOf(irBuiltIns.anyType.makeNullable(), dataProcessorVars.map { irGet(it) })))
     }
   }
 

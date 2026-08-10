@@ -61,13 +61,13 @@ class MultiPipeMultiVariableSpec : spock.lang.Specification() {
   }
 
   @org.spockframework.runtime.model.DataProcessorMetadata(dataVariables = ["a", "b", "c"])
-  fun `$spock_feature_0_0proc`(spock_p0: Any, spock_p1: Any, spock_p2: Any): Any {
+  fun `$spock_feature_0_0proc`(spock_p0: Any?, spock_p1: Any?, spock_p2: Any?): Any {
     var a: Int
     a = (( spock_p0 ) as Int)
     var b: Int
     b = (( spock_p1 ) as Int)
     var c: Int
     c = (( spock_p2 ) as Int)
-    return arrayOf<Any>(a, b, c)
+    return arrayOf<Any?>(a, b, c)
   }
 }

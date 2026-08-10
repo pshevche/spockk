@@ -50,10 +50,10 @@ class WildcardDataTableSpec : spock.lang.Specification() {
   }
 
   @org.spockframework.runtime.model.DataProcessorMetadata(dataVariables = ["a"])
-  fun `$spock_feature_0_0proc`(spock_p0: Any): Any {
+  fun `$spock_feature_0_0proc`(spock_p0: Any?): Any {
     var a: Int
     a = (( spock_p0 ) as Int)
-    return arrayOf<Any>(a)
+    return arrayOf<Any?>(a)
   }
 
   @org.spockframework.runtime.model.FeatureMetadata(
@@ -113,12 +113,12 @@ class WildcardDataTableSpec : spock.lang.Specification() {
   }
 
   @org.spockframework.runtime.model.DataProcessorMetadata(dataVariables = ["a", "_"])
-  fun `$spock_feature_0_1proc`(spock_p0: Any, spock_p1: Any): Any {
+  fun `$spock_feature_0_1proc`(spock_p0: Any?, spock_p1: Any?): Any {
     var a: Int
     a = (( spock_p0 ) as Int)
     var `_`: Any
     `_` = (( spock_p1 ) as Any)
-    return arrayOf<Any>(a, `_`)
+    return arrayOf<Any?>(a, `_`)
   }
 }
 

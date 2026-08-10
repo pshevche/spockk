@@ -80,9 +80,9 @@ class CleanupBlockWithWhere : spock.lang.Specification() {
   }
 
   @org.spockframework.runtime.model.DataProcessorMetadata(dataVariables = ["a"])
-  fun `$spock_feature_0_0proc`(spock_p0: Any): Any {
+  fun `$spock_feature_0_0proc`(spock_p0: Any?): Any {
     var a: Int
     a = ((spock_p0) as Int)
-    return arrayOf<Any>(a)
+    return arrayOf<Any?>(a)
   }
 }

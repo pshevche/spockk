@@ -52,11 +52,11 @@ class ReferenceFeatureVariableInDataPipeSpec : spock.lang.Specification() {
   }
 
   @org.spockframework.runtime.model.DataProcessorMetadata(dataVariables = ["a", "b"])
-  fun `$spock_feature_0_0proc`(spock_p0: Any): Any {
+  fun `$spock_feature_0_0proc`(spock_p0: Any?): Any {
     var a: Int
     a = (( spock_p0 ) as Int)
     var b: Int
     b = (( a + 1 ) as Int)
-    return arrayOf<Any>(a, b)
+    return arrayOf<Any?>(a, b)
   }
 }
