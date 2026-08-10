@@ -134,7 +134,7 @@ Review and approve the spec and plan before implementation starts.
 - **Gradle Plugin Portal**: spockk-gradle-plugin (ID: `io.github.pshevche.spockk`)
 - **JetBrains Marketplace**: spockk-intellij-plugin
 - **GitHub Pages**: spockk-docs
-- Version defined in `gradle.properties` (currently `0.5.0`)
+- Version defined in `gradle.properties`
 
 ## Git Conventions
 
