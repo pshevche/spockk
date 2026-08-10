@@ -7,6 +7,11 @@ title: Changelog
 
 # Changelog
 
+## v0.5.1
+
+- [Core] Support nullable data provider arguments
+- Regular dependency management
+
 ## v0.5.0
 
 - [Core] Added support for implicit conditions in expectation blocks

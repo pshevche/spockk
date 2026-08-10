@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.where
+import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
 import kotlin.math.max
@@ -104,5 +105,21 @@ class DataPipesSmokeTest : Specification() {
     variable(a).from(0)
     variable(b).from(a + 1)
     variable(c).from(b + 1)
+  }
+
+  @Issue("https://github.com/pshevche/spockk/issues/276")
+  fun `data pipes with optional arguments`(
+    actual: Boolean?,
+    expected: Boolean?
+  ) {
+    expect
+    specificationContext.currentIteration.estimatedNumIterations == 3
+    actual == expected
+
+    where
+    variables(actual, expected).from(
+      listOf(false, true, null),
+      listOf(false, true, null)
+    )
   }
 }

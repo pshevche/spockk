@@ -48,6 +48,6 @@ class SingleVariableSingleValueSpec : spock.lang.Specification() {
   fun `$spock_feature_0_0proc`(): Any {
     var a: Int
     a = (( 1 ) as Int)
-    return arrayOf<Any>(a)
+    return arrayOf<Any?>(a)
   }
 }
