@@ -35,8 +35,8 @@ import java.io.IOException
  * ([io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter]).
  *
  * Deliberately out of scope (see the design doc, `_docs/specs/2026-08-09-exception-conditions-design.md`):
- * zero-arg `thrown()` with type inferred from a `val` declaration, chained `then` blocks after one
- * `when`, and nested (non-top-level) exception-condition calls.
+ * zero-arg `thrown()` with type inferred from a `val` declaration, and nested (non-top-level)
+ * exception-condition calls.
  */
 class ExceptionConditionsSmokeTest : Specification() {
 
@@ -171,5 +171,25 @@ class ExceptionConditionsSmokeTest : Specification() {
   fun `thrown() in an expect block is not rewritten and always throws`() {
     expect
     thrown(RuntimeException::class.java)
+  }
+
+  @FailsWith(IllegalStateException::class)
+  fun `thrown() nested inside an if is not rewritten, so the raw exception propagates`() {
+    `when`
+    throw IllegalStateException("boom")
+
+    then
+    if (true) {
+      thrown(IllegalStateException::class.java)
+    }
+  }
+
+  @FailsWith(IllegalStateException::class)
+  fun `thrown() used as a function argument is not rewritten, so the raw exception propagates`() {
+    `when`
+    throw IllegalStateException("boom")
+
+    then
+    println(thrown(IllegalStateException::class.java))
   }
 }

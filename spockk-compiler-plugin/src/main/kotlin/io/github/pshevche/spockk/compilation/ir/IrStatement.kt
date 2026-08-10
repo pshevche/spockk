@@ -120,11 +120,9 @@ private tailrec fun IrSimpleFunction.originalDeclaration(): IrSimpleFunction {
   return overridden.originalDeclaration()
 }
 
-// A bare top-level call with a non-Unit return type is wrapped in an implicit-coercion-to-Unit
-// type operator (mirroring isConditionStatement's use of unwrapImplicitCoercionToUnit for the same
-// reason); a val/var initializer assigning a flexibly-nullable Java generic return (like
-// Specification.thrown<T>()'s T) to a non-null declared type is instead wrapped in an
-// implicit-notnull type operator. Unwrap through either before attempting to recognize the call.
+// A bare non-Unit-typed statement gets an implicit-coercion-to-Unit wrapper; a val/var initializer
+// assigning thrown<T>()'s flexibly-nullable Java generic return to a non-null type gets an
+// implicit-notnull wrapper instead. Unwrap through either before recognizing the call.
 private tailrec fun IrExpression.unwrapForExceptionConditionDetection(): IrExpression {
   val operatorCall = this as? IrTypeOperatorCall ?: return this
   return when (operatorCall.operator) {

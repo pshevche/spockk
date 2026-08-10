@@ -165,12 +165,17 @@ working via wrapping alone; at-most-one-per-then-block validation; `expect`-bloc
   compiles (inherited real method, generic return type inferred by Kotlin) and still triggers when-block-wrapping
   detection (harmless - the wrap just isn't exercised by a rewritten call), but the call itself isn't rewritten -
   falls through to today's `InvalidSpecException` fallback, unchanged from current behavior.
-- **Chained `then` blocks** after one `when` (`when: ...` `then: ...` `then: ...`) - only the immediately-following
-  `then` block (`behaviorBlocks[i+1]`) is wrapped/validated. A second consecutive `then` block's exception-condition
-  call silently falls through to the fallback body.
-- **Fully general "must be top-level" diagnostics** (e.g. `thrown()` nested inside an `if`) - not specially detected;
-  falls through to today's fallback-throw behavior. Less precise error message than Spock's dedicated diagnostic, not
-  a functional regression.
+- **Fully general "must be top-level" diagnostics** (e.g. `thrown()` nested inside an `if`, or passed as a function
+  argument) - not specially detected; falls through to today's fallback-throw behavior (a bare `thrown()` throws
+  `InvalidSpecException`; the preceding `when` block, having no top-level exception condition, isn't wrapped either,
+  so the underlying exception - if any - propagates raw). Less precise error message than Spock's dedicated
+  diagnostic, not a functional regression: this degrades no worse than the pre-existing baseline.
+
+Chained `then` blocks after one `when` (`when: ...` `then: ...` `then: ...`, without an intervening `and`) were
+initially scoped as a deferred limitation, but turn out not to be reachable at all: Spockk's pre-existing
+`BlockOrderValidatingFeatureStatementsCollector` grammar already rejects a `then` block immediately following another
+`then` block as a compile error, unrelated to this feature - so `behaviorBlocks[i+1]` always being the correct paired
+`then` block for a `when` is not just an assumption, it's enforced upstream.
 
 ### Spock Source References
 

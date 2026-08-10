@@ -46,6 +46,50 @@ class ExceptionConditionValidationTest : BaseCompilationTest() {
     result.compilation.messages.contains("A 'then' block may only have a single exception condition")
   }
 
+  fun `rejects a captured thrown() alongside a different bare notThrown()`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          "".substring(5)
+
+          io.github.pshevche.spockk.lang.then
+          val e = thrown(StringIndexOutOfBoundsException::class.java)
+          notThrown(IllegalArgumentException::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+  }
+
+  fun `rejects the same thrown() call appearing twice`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          "".substring(5)
+
+          io.github.pshevche.spockk.lang.then
+          thrown(StringIndexOutOfBoundsException::class.java)
+          thrown(StringIndexOutOfBoundsException::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+  }
+
   fun `accepts a single exception condition alongside an ordinary condition`() {
     `when`
     val result =
