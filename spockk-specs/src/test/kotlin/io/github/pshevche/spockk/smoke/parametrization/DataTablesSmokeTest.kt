@@ -241,5 +241,4 @@ class DataTablesSmokeTest : Specification() {
     true   ; true
     null   ; null
   }
-
 }
