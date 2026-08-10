@@ -1,4 +1,3 @@
 <ul>
-    <li>Added syntax support for implicit condition statements.</li>
-    <li>Regular dependency management.</li>
+    <li>Regular dependency management</li>
 </ul>
