@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
+import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
 import kotlin.math.max
@@ -224,4 +225,21 @@ class DataTablesSmokeTest : Specification() {
     3 ; y ; y + z
     4 ; y ; y + z
   }
+
+  @Issue("https://github.com/pshevche/spockk/issues/276")
+  fun `data tables with optional arguments`(
+    actual: Boolean?,
+    expected: Boolean?
+  ) {
+    expect
+    specificationContext.currentIteration.estimatedNumIterations == 3
+    actual == expected
+
+    where
+    actual ; expected
+    false  ; false
+    true   ; true
+    null   ; null
+  }
+
 }
