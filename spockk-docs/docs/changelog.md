@@ -7,6 +7,11 @@ title: Changelog
 
 # Changelog
 
+## v0.6.0
+
+- [Core] Added support for `thrown`/`notThrown`/`noExceptionThrown` exception conditions
+- Regular dependency management
+
 ## v0.5.1
 
 - [Core] Support nullable data provider arguments

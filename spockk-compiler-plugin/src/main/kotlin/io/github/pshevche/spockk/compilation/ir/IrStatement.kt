@@ -22,16 +22,19 @@ import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator.IMPLICIT_COERCION_TO_UNIT
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrValueParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
+import org.jetbrains.kotlin.ir.util.isFakeOverride
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.FqName
 
@@ -101,3 +104,37 @@ internal fun IrStatement.isAssertCall(): Boolean {
   val owner = (this as? IrCall)?.symbol?.owner ?: return false
   return owner.fqNameWhenAvailable == IrIdentifiers.Kotlin.ASSERT_FQN
 }
+
+private val EXCEPTION_CONDITION_FQNS = setOf(
+  IrIdentifiers.Spock.THROWN_FQN,
+  IrIdentifiers.Spock.NOT_THROWN_FQN,
+  IrIdentifiers.Spock.NO_EXCEPTION_THROWN_FQN
+)
+
+// thrown/notThrown/noExceptionThrown are inherited from spock.lang.Specification, so a call site
+// resolves to a [fake_override] declared in the user's spec subclass, whose own fqNameWhenAvailable
+// points at the subclass, not Specification - unwrap to the real declaration before comparing.
+private tailrec fun IrSimpleFunction.originalDeclaration(): IrSimpleFunction {
+  if (!isFakeOverride) return this
+  val overridden = overriddenSymbols.firstOrNull()?.owner ?: return this
+  return overridden.originalDeclaration()
+}
+
+// A bare non-Unit-typed statement gets an implicit-coercion-to-Unit wrapper; a val/var initializer
+// assigning thrown<T>()'s flexibly-nullable Java generic return to a non-null type gets an
+// implicit-notnull wrapper instead. Unwrap through either before recognizing the call.
+private tailrec fun IrExpression.unwrapForExceptionConditionDetection(): IrExpression {
+  val operatorCall = this as? IrTypeOperatorCall ?: return this
+  return when (operatorCall.operator) {
+    IMPLICIT_COERCION_TO_UNIT, IrTypeOperator.IMPLICIT_NOTNULL -> operatorCall.argument.unwrapForExceptionConditionDetection()
+    else -> this
+  }
+}
+
+internal fun IrStatement.asExceptionConditionCall(): IrCall? {
+  val call = (this as? IrExpression)?.unwrapForExceptionConditionDetection() as? IrCall ?: return null
+  return call.takeIf { it.symbol.owner.originalDeclaration().fqNameWhenAvailable in EXCEPTION_CONDITION_FQNS }
+}
+
+internal fun IrCall.isThrownCall(): Boolean =
+  symbol.owner.originalDeclaration().fqNameWhenAvailable == IrIdentifiers.Spock.THROWN_FQN

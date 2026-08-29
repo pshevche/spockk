@@ -30,7 +30,10 @@ import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
+import io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter
+import io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter
 import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
+import io.github.pshevche.spockk.compilation.transformer.condition.hasExceptionCondition
 import io.github.pshevche.spockk.compilation.transformer.condition.irStaticErrorCollectorDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.irValueRecorderDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
@@ -140,27 +143,46 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
       if (hasConditions) irStaticErrorCollectorDeclaration(builder, feature).also { add(it) } else null
 
     addAll(featureBody.anonymousStatements)
-    featureBody.behaviorBlocks.forEach {
-      if (it.element.label == FeatureBlockLabel.EXPECT || it.element.label == FeatureBlockLabel.THEN) {
-        val conditionRewriter =
-          ConditionRewriter(rewriterContext, builder, feature, it.ordinal, valueRecorderVar, errorCollectorVar)
-        addAll(conditionRewriter.rewrite(it.statements))
-      } else {
-        add(
-          rewriterContext.spockRuntime.irCallBlockEntered(
-            builder,
-            feature.requiredThisParameter(),
-            it.ordinal
+    val behaviorBlocks = featureBody.behaviorBlocks
+    behaviorBlocks.forEachIndexed { index, it ->
+      when (it.element.label) {
+        FeatureBlockLabel.THEN -> {
+          // A WHEN block is always immediately followed by exactly one THEN block (enforced at
+          // collection time), so an exception condition found here was already used to decide
+          // whether the preceding WHEN block needed WhenBlockRewriter below.
+          val statements = ExceptionConditionRewriter(rewriterContext, feature).rewrite(it.statements)
+          val conditionRewriter =
+            ConditionRewriter(rewriterContext, builder, feature, it.ordinal, valueRecorderVar, errorCollectorVar)
+          addAll(conditionRewriter.rewrite(statements))
+        }
+
+        FeatureBlockLabel.EXPECT -> {
+          val conditionRewriter =
+            ConditionRewriter(rewriterContext, builder, feature, it.ordinal, valueRecorderVar, errorCollectorVar)
+          addAll(conditionRewriter.rewrite(it.statements))
+        }
+
+        FeatureBlockLabel.WHEN if behaviorBlocks.getOrNull(index + 1)?.statements?.hasExceptionCondition() == true -> {
+          addAll(WhenBlockRewriter(rewriterContext, feature, it).rewrite())
+        }
+
+        else -> {
+          add(
+            rewriterContext.spockRuntime.irCallBlockEntered(
+              builder,
+              feature.requiredThisParameter(),
+              it.ordinal
+            )
           )
-        )
-        addAll(it.statements)
-        add(
-          rewriterContext.spockRuntime.irCallBlockExited(
-            builder,
-            feature.requiredThisParameter(),
-            it.ordinal
+          addAll(it.statements)
+          add(
+            rewriterContext.spockRuntime.irCallBlockExited(
+              builder,
+              feature.requiredThisParameter(),
+              it.ordinal
+            )
           )
-        )
+        }
       }
     }
   }
