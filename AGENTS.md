@@ -21,9 +21,9 @@ Spockk is a Kotlin compiler plugin that brings Spock-style BDD testing syntax to
 ## Tech Stack
 
 - Kotlin 2.4.10, JDK 21 (toolchain)
-- Gradle 9.6.1 with version catalog (`gradle/libs.versions.toml`)
+- Gradle 9.7.1 with version catalog (`gradle/libs.versions.toml`)
 - Convention plugins in `gradle/plugins/`
-- JUnit Platform 6.0.3, Spock 2.4-groovy-5.0
+- JUnit Platform 6.1.3, Spock 2.4-groovy-5.0
 
 ## Build Commands
 
