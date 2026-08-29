@@ -14,18 +14,24 @@
 
 package io.github.pshevche.spockk.compilation.transformer.condition
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
+import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.isThrownCall
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
+import org.jetbrains.kotlin.backend.jvm.ir.kClassReference
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irAs
+import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
+import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.file
 
 /**
@@ -39,8 +45,10 @@ import org.jetbrains.kotlin.ir.util.file
  * unchanged - including its handling of `thrown(null)` and non-`Throwable` types. `notThrown`/
  * `noExceptionThrown` are left untouched: their inherited bodies on `Specification` already read
  * the exception [WhenBlockRewriter] records correctly, with no rewrite needed. A zero-arg
- * `thrown()` is detected (for when-block-wrapping and validation purposes) but not rewritten - see
- * the design doc's deferred scope.
+ * `thrown()` assigned to a `val`/`var` infers its exception type from the declaration's own
+ * declared type (`val e: IOException = thrown()`); a zero-arg `thrown()` used as a bare statement
+ * has no declared type to infer from and is left unrewritten - see the design doc's deferred
+ * scope.
  */
 internal class ExceptionConditionRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
@@ -48,6 +56,8 @@ internal class ExceptionConditionRewriter(
 ) : SpockkIrRewriter {
 
   private val builder = irBuilder(feature.symbol)
+  private val kClassJavaPropGetter =
+    rewriterContext.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
 
   fun rewrite(statements: List<IrStatement>): List<IrStatement> {
     val occurrences = statements.findExceptionConditionOccurrences()
@@ -59,9 +69,11 @@ internal class ExceptionConditionRewriter(
     val occurrence = occurrences.singleOrNull() ?: return statements
     if (!occurrence.call.isThrownCall()) return statements
 
-    // Zero-arg `thrown()`: not rewritten, falls through to its real (unconditionally throwing)
-    // fallback body - see design doc's deferred scope.
-    val exceptionTypeArg = occurrence.call.arguments.getOrNull(1) ?: return statements
+    // Zero-arg `thrown()` as a bare statement: not rewritten, falls through to its real
+    // (unconditionally throwing) fallback body - see design doc's deferred scope.
+    val exceptionTypeArg = occurrence.call.arguments.getOrNull(1)
+      ?: occurrence.inferredExceptionTypeArg()
+      ?: return statements
 
     val rewrittenCall = rewriterContext.specInternals.irCheckExceptionThrown(
       builder,
@@ -86,6 +98,18 @@ internal class ExceptionConditionRewriter(
         occurrence.variable.initializer = builder.irAs(rewrittenCall, occurrence.variable.type)
         statements
       }
+    }
+  }
+
+  // Synthesizes `Type::class.java` from a `val`/`var` declaration's own declared type, the same
+  // `KClass<T>.java` idiom MockingApiTransformer.inferMockType uses. Null for a bare statement
+  // (no declared type) or a non-class declared type.
+  private fun ExceptionConditionOccurrence.inferredExceptionTypeArg(): IrExpression? {
+    val variable = (this as? ExceptionConditionOccurrence.VariableInitializer)?.variable ?: return null
+    val declaredTypeClass = variable.type.classOrNull ?: return null
+    return builder.irCall(kClassJavaPropGetter.symbol, variable.type).apply {
+      arguments.clear()
+      arguments.add(builder.kClassReference(declaredTypeClass.defaultType))
     }
   }
 }

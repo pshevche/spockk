@@ -140,7 +140,12 @@ pipeline - zero risk to the already-shipped `verify`/`verifyAll`/`verifyEach` fe
   declaration's initializer (mirrors `ImplicitAssertionHelperCall.kt`'s FqName-matching technique, extended to also
   look at `IrVariable.initializer`).
 - Rewrites a matched `thrown(Type::class.java)` call in place (substituting the statement, or the variable's
-  initializer) to `irAs(IrSpecInternals.irCheckExceptionThrown(...), originalCall.type)`.
+  initializer) to `irAs(IrSpecInternals.irCheckExceptionThrown(...), originalCall.type)`. A zero-arg `thrown()`
+  assigned to a `val`/`var` (`val e: IOException = thrown()`) is rewritten the same way, synthesizing the missing
+  type argument as `DeclaredType::class.java` from the variable's own declared type - the same `KClass<T>.java`
+  idiom `MockingApiTransformer.inferMockType` already uses to infer `Mock()`/`Stub()`/`Spy()`'s type from a variable
+  declaration. A zero-arg `thrown()` used as a bare statement has no declared type to infer from and is left
+  unrewritten (see deferred scope below).
 - Leaves `notThrown`/`noExceptionThrown` calls untouched (no rewrite needed, per simplification #2) - detection only
   drives when-block-wrapping and validation.
 - Validates at most one exception-condition call per `then` block: `CompilationException` otherwise, via a new
@@ -155,16 +160,19 @@ that case.
 
 ### Scope (v1)
 
-**In scope:** when-block wrapping; `thrown(Type::class.java)` rewriting; `notThrown(Type::class.java)`/`noExceptionThrown()`
-working via wrapping alone; at-most-one-per-then-block validation; `expect`-block usage unchanged (already correct).
+**In scope:** when-block wrapping; `thrown(Type::class.java)` rewriting; zero-arg `thrown()` type inference from a
+`val`/`var` declaration's declared type; `notThrown(Type::class.java)`/`noExceptionThrown()` working via wrapping
+alone; at-most-one-per-then-block validation; `expect`-block usage unchanged (already correct).
 
 **Deferred, documented as known limitations (not silent gaps):**
 
-- **Zero-arg `thrown()` with type inferred from a `val` declaration's static type.** Purely a Groovy ergonomic;
-  Kotlin's explicit `thrown(Type::class.java)` is the idiomatic, fully-supported spelling. A bare `thrown()` still
-  compiles (inherited real method, generic return type inferred by Kotlin) and still triggers when-block-wrapping
-  detection (harmless - the wrap just isn't exercised by a rewritten call), but the call itself isn't rewritten -
-  falls through to today's `InvalidSpecException` fallback, unchanged from current behavior.
+- **Zero-arg `thrown()` used as a bare statement** (no `val`/`var` declaration to infer a type from, e.g.
+  `then { thrown() }`). Kotlin's explicit `thrown(Type::class.java)` is the idiomatic, fully-supported spelling for
+  this case. A bare `thrown()` still compiles (inherited real method, generic return type inferred by Kotlin as
+  `Nothing`/`Throwable`) and still triggers when-block-wrapping detection (harmless - the wrap just isn't exercised
+  by a rewritten call), but the call itself isn't rewritten - falls through to today's `InvalidSpecException`
+  fallback, unchanged from current behavior. (Assigning the result to a `val`/`var` first and using that, as in
+  `val e: IOException = thrown()`, is not affected by this limitation - see above.)
 - **Fully general "must be top-level" diagnostics** (e.g. `thrown()` nested inside an `if`, or passed as a function
   argument) - not specially detected; falls through to today's fallback-throw behavior (a bare `thrown()` throws
   `InvalidSpecException`; the preceding `when` block, having no top-level exception condition, isn't wrapped either,
@@ -194,7 +202,7 @@ initially scoped as a deferred limitation, but turn out not to be reachable at a
 - `spockk-compiler-plugin/.../transformer/ir/IrSpecificationContext.kt` - new `irSetThrownException`
 - `spockk-compiler-plugin/.../transformer/ir/IrSpecInternals.kt` - new, wraps `SpecInternals.checkExceptionThrown`
 - `spockk-compiler-plugin/.../transformer/condition/WhenBlockRewriter.kt` - new, the when-block try/catch wrapper
-- `spockk-compiler-plugin/.../transformer/condition/ExceptionConditionRewriter.kt` - new, the then-block-scoped detection/rewrite/validation pass
+- `spockk-compiler-plugin/.../transformer/condition/ExceptionConditionRewriter.kt` - new, the then-block-scoped detection/rewrite/validation pass, including zero-arg `thrown()` type inference for `val`/`var` declarations via the `KClass<T>.java` idiom shared with `MockingApiTransformer`
 - `spockk-compiler-plugin/.../transformer/condition/InvalidExceptionConditionExceptionFactory.kt` - new, mirrors `InvalidParametrizationExceptionFactory`
 - `spockk-compiler-plugin/.../transformer/FeatureRewriter.kt` - pre-scan for WHEN/THEN pairing, route matching WHEN blocks through `WhenBlockRewriter`, run `ExceptionConditionRewriter` on matching THEN blocks before the existing `ConditionRewriter`
 - `spockk-specs/.../smoke/condition/ExceptionConditionsSmokeTest.kt` - flip pinned-broken-behavior assertions to real expected outcomes

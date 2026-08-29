@@ -35,8 +35,8 @@ import java.io.IOException
  * ([io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter]).
  *
  * Deliberately out of scope (see the design doc, `_docs/specs/2026-08-09-exception-conditions-design.md`):
- * zero-arg `thrown()` with type inferred from a `val` declaration, and nested (non-top-level)
- * exception-condition calls.
+ * zero-arg `thrown()` used as a bare statement (no `val`/`var` to infer a type from), and nested
+ * (non-top-level) exception-condition calls.
  */
 class ExceptionConditionsSmokeTest : Specification() {
 
@@ -57,6 +57,24 @@ class ExceptionConditionsSmokeTest : Specification() {
     then
     val e: IndexOutOfBoundsException = thrown(IndexOutOfBoundsException::class.java)
     e.message != null
+  }
+
+  fun `infers the exception type from a zero-arg thrown() assigned to a val`() {
+    `when`
+    "".substring(5)
+
+    then
+    val e: IndexOutOfBoundsException = thrown()
+    e.message != null
+  }
+
+  @FailsWith(InvalidSpecException::class)
+  fun `zero-arg thrown() as a bare statement is not rewritten and always throws`() {
+    `when`
+    "".substring(5)
+
+    then
+    thrown<IndexOutOfBoundsException>()
   }
 
   fun `catches a RuntimeException`() {

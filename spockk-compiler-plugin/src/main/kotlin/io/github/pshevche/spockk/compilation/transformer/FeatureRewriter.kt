@@ -145,8 +145,8 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     addAll(featureBody.anonymousStatements)
     val behaviorBlocks = featureBody.behaviorBlocks
     behaviorBlocks.forEachIndexed { index, it ->
-      when(it.element.label) {
-        FeatureBlockLabel.THEN->{
+      when (it.element.label) {
+        FeatureBlockLabel.THEN -> {
           // A WHEN block is always immediately followed by exactly one THEN block (enforced at
           // collection time), so an exception condition found here was already used to decide
           // whether the preceding WHEN block needed WhenBlockRewriter below.
@@ -155,15 +155,18 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
             ConditionRewriter(rewriterContext, builder, feature, it.ordinal, valueRecorderVar, errorCollectorVar)
           addAll(conditionRewriter.rewrite(statements))
         }
-        FeatureBlockLabel.EXPECT->{
+
+        FeatureBlockLabel.EXPECT -> {
           val conditionRewriter =
             ConditionRewriter(rewriterContext, builder, feature, it.ordinal, valueRecorderVar, errorCollectorVar)
           addAll(conditionRewriter.rewrite(it.statements))
         }
-        FeatureBlockLabel.WHEN if behaviorBlocks.getOrNull(index + 1)?.statements?.hasExceptionCondition() == true->{
+
+        FeatureBlockLabel.WHEN if behaviorBlocks.getOrNull(index + 1)?.statements?.hasExceptionCondition() == true -> {
           addAll(WhenBlockRewriter(rewriterContext, feature, it).rewrite())
         }
-        else->{
+
+        else -> {
           add(
             rewriterContext.spockRuntime.irCallBlockEntered(
               builder,
