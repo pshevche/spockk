@@ -21,6 +21,9 @@ import io.github.pshevche.spockk.compilation.ir.irTry
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.CONDITION_THROWABLE_VAR
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
+import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionStatementsRewriter
+import io.github.pshevche.spockk.compilation.transformer.interaction.asInteractionStatement
+import io.github.pshevche.spockk.compilation.transformer.interaction.asNoMoreInteractionsCall
 import io.github.pshevche.spockk.compilation.transformer.ir.IrErrorCollector
 import io.github.pshevche.spockk.compilation.transformer.ir.IrValueRecorder
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
@@ -48,6 +51,14 @@ import org.jetbrains.kotlin.ir.util.file
  * the outer level - this is what makes nesting and helper-method bodies compose correctly), `false`
  * only for a plain helper method's own top-level statements, where only calls to
  * `verify`/`verifyAll`/`verifyEach` are recognized.
+ *
+ * [allowInteractionStatements] governs whether an interaction statement (`N * target.method(args)`,
+ * `noMoreInteractions(...)`) is recognized at *this* statement-list level: `true` for `expect`/`then`
+ * blocks and a plain helper method's own top-level statements (both genuine instance methods on the
+ * spec, so [io.github.pshevche.spockk.compilation.ir.requiredThisParameter] resolves), `false` for a
+ * `verify`/`verifyAll`/`verifyEach` lambda body - a lambda captures the enclosing `this` rather than
+ * declaring its own dispatch receiver, so interaction statements there are left unrecognized (not
+ * silently mishandled: they simply fall through unrewritten, the same as today).
  */
 internal class ConditionStatementsRewriter(
   override val rewriterContext: SpockkIrRewriterContext
@@ -59,19 +70,30 @@ internal class ConditionStatementsRewriter(
     builder: DeclarationIrBuilder,
     valueRecorderVar: IrVariable?,
     errorCollectorVar: IrVariable?,
-    treatAsConditionScope: Boolean
-  ): List<IrStatement> = statements.map { statement ->
+    treatAsConditionScope: Boolean,
+    allowInteractionStatements: Boolean = false
+  ): List<IrStatement> = statements.flatMap { statement ->
     val helperCall = statement.asImplicitAssertionHelperCall()
+    val interaction = if (allowInteractionStatements) statement.asInteractionStatement() else null
+    val noMoreInteractionsCall = if (allowInteractionStatements) statement.asNoMoreInteractionsCall() else null
     when {
       helperCall != null -> {
         rewriteHelperCallLambdaBody(helperCall, valueRecorderVar!!, errorCollectorVar!!)
-        statement
+        listOf(statement)
       }
 
-      statement.isConditionStatement(irBuiltIns, treatAsConditionScope) ->
-        rewriteConditionStatement(statement as IrExpression, enclosingFunction, builder, valueRecorderVar!!, errorCollectorVar!!)
+      // Ordering matters: an interaction statement's wrapped call can itself have a Boolean return
+      // type (e.g. `1 * obj.isValid()`), so it must never fall through to condition treatment below.
+      interaction != null ->
+        InteractionStatementsRewriter(rewriterContext, enclosingFunction).rewrite(interaction)
 
-      else -> statement
+      noMoreInteractionsCall != null ->
+        InteractionStatementsRewriter(rewriterContext, enclosingFunction).rewriteNoMoreInteractions(noMoreInteractionsCall)
+
+      statement.isConditionStatement(irBuiltIns, treatAsConditionScope) ->
+        listOf(rewriteConditionStatement(statement as IrExpression, enclosingFunction, builder, valueRecorderVar!!, errorCollectorVar!!))
+
+      else -> listOf(statement)
     }
   }
 

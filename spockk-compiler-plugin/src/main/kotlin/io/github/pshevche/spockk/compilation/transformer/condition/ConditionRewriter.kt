@@ -55,7 +55,8 @@ internal class ConditionRewriter(
         builder = builder,
         valueRecorderVar = valueRecorderVar,
         errorCollectorVar = errorCollectorVar,
-        treatAsConditionScope = true
+        treatAsConditionScope = true,
+        allowInteractionStatements = true
       )
     )
     add(
