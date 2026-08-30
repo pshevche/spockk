@@ -15,6 +15,7 @@
 package io.github.pshevche.spockk.smoke.mock
 
 import io.github.pshevche.spockk.lang.Mock
+import io.github.pshevche.spockk.lang.Spy
 import io.github.pshevche.spockk.lang.Stub
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.anyMethod
@@ -42,10 +43,20 @@ interface Greeter {
   fun getUsername(): String
 }
 
+open class GreeterImpl : Greeter {
+  private var name = "default"
+
+  override fun setName(name: String) {
+    this.name = name
+  }
+
+  override fun getUsername(): String = name
+}
+
 /**
  * Exercises the interaction-based testing preview end to end: `N * target.method(args)` cardinality,
  * `any()`/`anyMethod()` matchers, `does`/`did`/`returns`/`returned` responses, `capture`/`slot`
- * argument capture, `noMoreInteractions(...)` sugar, and the `Mock`/`Stub` trailing builder-block
+ * argument capture, `noMoreInteractions(...)` sugar, and the `Mock`/`Stub`/`Spy` trailing builder-block
  * syntax - see the design doc, `_docs/specs/2026-08-30-interaction-based-testing-design.md`. No
  * matching/verification logic is reimplemented here; every scenario below is really exercising
  * Spock's own `InteractionBuilder`/`MockController` runtime, reached through the compiler plugin's
@@ -263,6 +274,32 @@ class InteractionsSmokeTest : Specification() {
 
     then
     slot.captured == "Alice"
+  }
+
+  fun `then block interaction verifies calls on a plain Spy, delegating to the real method by default`() {
+    given
+    val spy = Spy(GreeterImpl::class.java)
+
+    `when`
+    spy.setName("Alice")
+    val result = spy.getUsername()
+
+    then
+    1 * spy.setName("Alice")
+    result == "Alice"
+  }
+
+  fun `Spy builder block stubs one method while others still delegate to the real implementation`() {
+    given
+    val spy = Spy(GreeterImpl::class.java) {
+      getUsername() returns "Overridden"
+    }
+
+    `when`
+    spy.setName("Alice")
+
+    then
+    spy.getUsername() == "Overridden"
   }
 
   fun `Mock builder block still works when the feature also has a cleanup block`() {

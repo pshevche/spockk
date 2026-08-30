@@ -101,6 +101,7 @@ internal object IrIdentifiers {
     // detects by name+declaring-class - these are plain top-level functions, detected by FQN instead.
     val MOCK_BUILDER_BLOCK_FQN = LANG_PKG_FQN.child("Mock")
     val STUB_BUILDER_BLOCK_FQN = LANG_PKG_FQN.child("Stub")
+    val SPY_BUILDER_BLOCK_FQN = LANG_PKG_FQN.child("Spy")
 
     // Misc
     val FROM_FQN_REGEX = "io\\.github\\.pshevche\\.spockk\\.lang\\.DataVariable.+\\.from".toRegex()
