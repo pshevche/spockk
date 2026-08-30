@@ -94,7 +94,8 @@ internal class MockingApiTransformer(
 
     private val BUILDER_BLOCK_MOCK_METHODS = mapOf(
       IrIdentifiers.Spockk.MOCK_BUILDER_BLOCK_FQN to Name.identifier("MockImpl"),
-      IrIdentifiers.Spockk.STUB_BUILDER_BLOCK_FQN to Name.identifier("StubImpl")
+      IrIdentifiers.Spockk.STUB_BUILDER_BLOCK_FQN to Name.identifier("StubImpl"),
+      IrIdentifiers.Spockk.SPY_BUILDER_BLOCK_FQN to Name.identifier("SpyImpl")
     )
   }
 

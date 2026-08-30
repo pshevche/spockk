@@ -89,14 +89,18 @@ fun <T> capture(slot: CapturedArg<T>): T = throwIllegalInteractionUsageException
 fun noMoreInteractions(vararg mocks: Any?): Unit = throwIllegalInteractionUsageException("noMoreInteractions")
 
 /**
- * `Mock`/`Stub` with a trailing builder block for eager stub/mock configuration - Spockk-only
- * overloads (different arity from the inherited, real `MockingApi.Mock(Class)`/`Stub(Class)`, so no
- * ambiguity), since a Kotlin lambda can't be passed where the real Groovy `Mock(Class, Closure)`
- * overload expects a `groovy.lang.Closure`. Each statement in [block] is itself an interaction
- * statement (`does`/`did`/`returns`/`returned`-wrapped, or bare) - registered directly, once, right
- * after the mock is constructed, not scope-wrapped like a `then:` block's interactions.
+ * `Mock`/`Stub`/`Spy` with a trailing builder block for eager stub/mock configuration - Spockk-only
+ * overloads (different arity from the inherited, real `MockingApi.Mock(Class)`/`Stub(Class)`/
+ * `Spy(Class)`, so no ambiguity), since a Kotlin lambda can't be passed where the real Groovy
+ * `Mock(Class, Closure)` overload expects a `groovy.lang.Closure`. Each statement in [block] is
+ * itself an interaction statement (`does`/`did`/`returns`/`returned`-wrapped, or bare) - registered
+ * directly, once, right after the mock is constructed, not scope-wrapped like a `then:` block's
+ * interactions.
  */
 fun <T> Mock(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Mock")
 
 /** @see Mock */
 fun <T> Stub(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Stub")
+
+/** @see Mock */
+fun <T> Spy(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Spy")

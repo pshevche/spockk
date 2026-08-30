@@ -149,19 +149,21 @@ really run):
   by Groovy convention) get confirmed empirically during implementation, the same way condition-rendering's
   slot-packing algorithm was verified against real `Condition.getRendering()` output rather than derived by hand.
 
-### `Mock`/`Stub` builder-block syntax (given-block, eager registration)
+### `Mock`/`Stub`/`Spy` builder-block syntax (given-block, eager registration)
 
-Spock's real `MockingApi` has a `Stub(Class, Closure)` overload for exactly this Groovy pattern, but a Kotlin
-lambda doesn't SAM-convert to `groovy.lang.Closure` (that conversion only applies to Java functional interfaces),
-so it can't be passed directly. Instead, two new **Spockk-only** marker overloads, in the same `lang` package as
-the existing block labels, resolved by Kotlin's normal overload resolution (they don't collide with the inherited
-1-arg Groovy `Mock(Class)`/`Stub(Class)` members - different arity, no ambiguity):
+Spock's real `MockingApi` has a `Stub(Class, Closure)`/`Spy(Class, Closure)` overload for exactly this Groovy
+pattern, but a Kotlin lambda doesn't SAM-convert to `groovy.lang.Closure` (that conversion only applies to Java
+functional interfaces), so it can't be passed directly. Instead, three new **Spockk-only** marker overloads, in
+the same `lang` package as the existing block labels, resolved by Kotlin's normal overload resolution (they don't
+collide with the inherited 1-arg Groovy `Mock(Class)`/`Stub(Class)`/`Spy(Class)` members, or with Spy's other 2-arg
+overloads - different parameter types, no ambiguity):
 ```kotlin
 fun <T> Mock(type: Class<T>, block: T.() -> Unit): T = throw UnsupportedOperationException(...)
 fun <T> Stub(type: Class<T>, block: T.() -> Unit): T = throw UnsupportedOperationException(...)
+fun <T> Spy(type: Class<T>, block: T.() -> Unit): T = throw UnsupportedOperationException(...)
 ```
 `MockingApiTransformer` (already unconditionally enabled, untouched otherwise) is extended to recognize this
-2-arg shape: rewrite to the existing `MockImpl`/`StubImpl` construction (unchanged), then run the new interaction
+2-arg shape: rewrite to the existing `MockImpl`/`StubImpl`/`SpyImpl` construction (unchanged), then run the new interaction
 rewriter over `block`'s statements, registering each one directly via `mockController.addInteraction(...)` - no
 `enterScope`/`leaveScope` wrapping, since these interactions aren't verifying a call count against a `when:`
 stimulus, they're just configuring stub behavior for the rest of the iteration (Spock's own semantics for
@@ -191,18 +193,30 @@ stimulus, they're just configuring stub behavior for the rest of the iteration (
 
 ### Scope (v1 preview)
 
-**In scope:** `Mock`/`Stub` (not `Spy` - Spock discourages interactions on spies; same restriction, not a new one)
-construction; cardinality as exact count (`N`) or range (`a..b`); `any()`/`any<T>()` argument matcher; literal
-argument equality (any other literal value passed directly, no wrapper needed); `does`/`did`/`returns`/`returned`
-response specification; `capture`/`slot` argument capture; `anyMethod()` wildcard method matching;
-`noMoreInteractions(...)` sugar; when/then interaction scoping; given-block/`Stub{}`-block eager stub registration.
+**In scope:** `Mock`/`Stub`/`Spy` construction, including the `Spy(Type::class.java) { ... }` builder-block form
+(`SpecInternals.SpyImpl`'s first 8 overloads have the identical `(Specification, name, Type, [Map/Class], [Closure])`
+shape as `MockImpl`/`StubImpl` - the same generic `findMockImplMethod` resolution already used for `Mock`/`Stub`
+applies unchanged; Spy's two additional "wrap an existing instance" overloads are simply never matched by a
+`Spy(Type::class.java)`-shaped call, so nothing extra was needed for that case). Interactions on a `Spy` were
+initially scoped out on the assumption that Spock "discourages" the combination - checked against Spock's own docs
+during implementation: `1 * spy.method(_)` verification and stubbing are fully supported and documented
+(`interaction_based_testing.html`, including a dedicated `callRealMethod()` helper for "stub and still delegate to
+the real method"); the only actual caveat is a style note ("think twice before using this feature") aimed at Spy's
+general partial-mocking pattern, not a technical restriction Spockk needs to encode. Cardinality as exact count
+(`N`) or range (`a..b`); `any()`/`any<T>()` argument matcher; literal argument equality (any other literal value
+passed directly, no wrapper needed); `does`/`did`/`returns`/`returned` response specification; `capture`/`slot`
+argument capture; `anyMethod()` wildcard method matching; `noMoreInteractions(...)` sugar; when/then interaction
+scoping; given-block/`Stub{}`/`Spy{}`-block eager stub registration.
 
 **Out of scope, explicitly documented (not silent gaps):** regex method/property names; any-arity/wildcard
 argument-count matching (`(*_)`); true cross-mock wildcard target (`_._` beyond the per-mock `noMoreInteractions`
 sugar); `throws` as a dedicated response (expressible as `does { throw ... }`/`did { throw ... }`); chained
 `then:` blocks after one `when:`; ordering constraints between interactions (Spock's `then:`/`then:` chaining,
-already unreachable per the grammar above); iterable/sequential responses (`>> [1, 2, 3]`,
-`addIterableResponse`); interactions on `Spy`.
+already unreachable per the grammar above); iterable/sequential responses (`>> [1, 2, 3]`, `addIterableResponse`);
+`callRealMethod()` (needs an argument-aware response lambda shape `does`/`did` don't have - Spy interactions
+otherwise work, only this one delegate-and-compute pattern is deferred); `Spy(existingInstance) { ... }` (wrapping
+an already-constructed object rather than a `Class` token - the plain, non-builder-block `Spy(instance)` this
+overload sugars over was already out of this session's reach to verify and is left for a follow-up).
 
 ### Spock Source References
 
