@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("unused", "UnusedReceiverParameter", "UNUSED_PARAMETER")
+@file:Suppress("unused", "UnusedReceiverParameter", "UNUSED_PARAMETER", "FunctionNaming")
 
 package io.github.pshevche.spockk.lang
 
@@ -79,3 +79,16 @@ fun <T> capture(slot: CapturedArg<T>): T = throwIllegalInteractionUsageException
  * to `0 * mock.anyMethod()` for each mock.
  */
 fun noMoreInteractions(vararg mocks: Any?): Unit = throwIllegalInteractionUsageException("noMoreInteractions")
+
+/**
+ * `Mock`/`Stub` with a trailing builder block for eager stub/mock configuration - Spockk-only
+ * overloads (different arity from the inherited, real `MockingApi.Mock(Class)`/`Stub(Class)`, so no
+ * ambiguity), since a Kotlin lambda can't be passed where the real Groovy `Mock(Class, Closure)`
+ * overload expects a `groovy.lang.Closure`. Each statement in [block] is itself an interaction
+ * statement (`does`/`did`/`returns`/`returned`-wrapped, or bare) - registered directly, once, right
+ * after the mock is constructed, not scope-wrapped like a `then:` block's interactions.
+ */
+fun <T> Mock(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Mock")
+
+/** @see Mock */
+fun <T> Stub(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Stub")
