@@ -94,6 +94,12 @@ internal object IrIdentifiers {
     val CAPTURE_FQN = LANG_PKG_FQN.child("capture")
     val NO_MORE_INTERACTIONS_FQN = LANG_PKG_FQN.child("noMoreInteractions")
 
+    // The Spockk-only 2-arg builder-block overloads, distinct from the inherited 1-arg (or Spy's
+    // 2-arg-with-real-object) `MockingApi.Mock`/`Stub`/`Spy` members `MockingApiTransformer` already
+    // detects by name+declaring-class - these are plain top-level functions, detected by FQN instead.
+    val MOCK_BUILDER_BLOCK_FQN = LANG_PKG_FQN.child("Mock")
+    val STUB_BUILDER_BLOCK_FQN = LANG_PKG_FQN.child("Stub")
+
     // Misc
     val FROM_FQN_REGEX = "io\\.github\\.pshevche\\.spockk\\.lang\\.DataVariable.+\\.from".toRegex()
   }
