@@ -51,17 +51,20 @@ operator fun <T> Int.times(call: T): T = throwIllegalInteractionUsageException("
 operator fun <T> IntRange.times(call: T): T = throwIllegalInteractionUsageException("*")
 
 /**
- * Configures a stub's side effect, present tense - reads naturally in a `given:`/`Stub{}` block.
+ * Configures a stub's behavior, present tense - reads naturally in a `given:`/`Stub{}` block.
+ * [block] receives the real invocation's arguments, positionally, and its result becomes the mock's
+ * response - so it doubles as a side effect (ignore the argument, return `Unit`) or a response
+ * computed from the argument (e.g. `setName(any()) does { args -> greeting = "Hi, ${args[0]}" }`).
  * Semantically identical to [did]; the two names exist purely to read naturally in the block each
  * targets.
  */
-infix fun <T> T.does(block: () -> Unit): T = throwIllegalInteractionUsageException("does")
+infix fun <T> T.does(block: (List<Any?>) -> T): T = throwIllegalInteractionUsageException("does")
 
 /**
- * Asserts a mock's side effect already ran, past tense - reads naturally in a `then:`/`expect:`
- * block. Semantically identical to [does].
+ * Asserts a mock's behavior already ran, past tense - reads naturally in a `then:`/`expect:` block.
+ * Semantically identical to [does].
  */
-infix fun <T> T.did(block: () -> Unit): T = throwIllegalInteractionUsageException("did")
+infix fun <T> T.did(block: (List<Any?>) -> T): T = throwIllegalInteractionUsageException("did")
 
 /**
  * Configures a stub's return value, present tense - reads naturally in a `given:`/`Stub{}` block.

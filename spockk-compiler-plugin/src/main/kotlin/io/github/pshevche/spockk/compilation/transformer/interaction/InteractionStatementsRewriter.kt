@@ -225,8 +225,15 @@ internal class InteractionStatementsRewriter(
     return builder.irImplicitNotNull(fieldAccess, builder.irType(SPOCK_SPREAD_WILDCARD_FQN))
   }
 
-  private fun irResponseClosureCall(block: IrExpression): IrFunctionAccessExpression =
-    builder.irCall(responseClosureFn, closureType).apply { arguments[0] = block }
+  // block's type is Function1<List<Any?>, R> (does/did's declared parameter type, R already
+  // substituted for this call site) - its last type argument is R, responseClosure's own generic.
+  private fun irResponseClosureCall(block: IrExpression): IrFunctionAccessExpression {
+    val responseType = (block.type as IrSimpleType).arguments.last().typeOrFail
+    return builder.irCall(responseClosureFn, closureType).apply {
+      typeArguments[0] = responseType
+      arguments[0] = block
+    }
+  }
 
   private fun irCaptureClosureCall(captureCall: IrCall): IrFunctionAccessExpression {
     val slotExpr = requireNotNull(captureCall.singleRegularArg()) { "capture(slot) is missing its slot argument" }
