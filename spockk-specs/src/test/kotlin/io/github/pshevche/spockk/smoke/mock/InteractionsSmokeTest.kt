@@ -19,6 +19,7 @@ import io.github.pshevche.spockk.lang.Stub
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.anyMethod
 import io.github.pshevche.spockk.lang.capture
+import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.did
 import io.github.pshevche.spockk.lang.does
 import io.github.pshevche.spockk.lang.expect
@@ -250,6 +251,48 @@ class InteractionsSmokeTest : Specification() {
 
     then
     slot.captured == "Alice"
+  }
+
+  fun `Mock builder block still works when the feature also has a cleanup block`() {
+    // cleanup: intentionally doesn't reference `obj` - a given:-declared variable read from
+    // cleanup: hits a separate, pre-existing CleanupBlockRewriter codegen bug unrelated to
+    // interactions (reproduces with a plain `val`, no Mock/interaction involved at all; see PR
+    // description). This test's own concern is narrower: that a Mock builder block's spliced
+    // interaction statements still work correctly once CleanupBlockRewriter wraps the whole
+    // feature body in its own try/finally.
+    given
+    val obj = Mock(Greeter::class.java) {
+      setName("Alice") does { }
+    }
+
+    `when`
+    obj.setName("Alice")
+
+    then
+    noExceptionThrown()
+
+    cleanup
+    println("cleanup ran")
+  }
+
+  fun `Mock builder block declared inside a when block whose then has an exception condition`() {
+    given
+    var sideEffectRan = false
+
+    `when`
+    // A Mock/Stub builder block declared here nests one level deeper than the top-level statement
+    // list once WhenBlockRewriter wraps this when: block's statements in a try/catch (its paired
+    // then: block below has an exception condition) - proves that nesting doesn't defeat the
+    // interaction splice.
+    val inner = Mock(Greeter::class.java) {
+      setName("Alice") does { sideEffectRan = true }
+    }
+    inner.setName("Alice")
+    throw IllegalStateException("boom")
+
+    then
+    sideEffectRan
+    thrown(IllegalStateException::class.java)
   }
 
   fun `then block combines an interaction and a plain boolean condition`() {
