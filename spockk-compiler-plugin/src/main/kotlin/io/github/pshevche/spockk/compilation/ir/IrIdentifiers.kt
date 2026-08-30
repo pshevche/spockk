@@ -52,6 +52,16 @@ internal object IrIdentifiers {
     val FEATURE_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("FeatureMetadata")
     val FIELD_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("FieldMetadata")
     val SPEC_METADATA_FQN = RUNTIME_MODEL_PKG_FQN.child("SpecMetadata")
+
+    private val MOCK_PKG_FQN = FqName("org.spockframework.mock")
+    private val MOCK_RUNTIME_PKG_FQN = MOCK_PKG_FQN.child("runtime")
+    val INTERACTION_BUILDER_FQN = MOCK_RUNTIME_PKG_FQN.child("InteractionBuilder")
+    val MOCK_CONTROLLER_FQN = MOCK_RUNTIME_PKG_FQN.child("MockController")
+
+    // Spock's own interaction-matching sentinel (org.spockframework.lang.Wildcard) - distinct from
+    // the Spockk-unrelated Specification._ field already namespaced above as WILDCARD_FQN.
+    private val SPOCK_LANG_PKG_FQN = FqName("org.spockframework.lang")
+    val SPOCK_WILDCARD_FQN = SPOCK_LANG_PKG_FQN.child("Wildcard")
   }
 
   internal object Spockk {
@@ -73,6 +83,16 @@ internal object IrIdentifiers {
     val VERIFY_FQN = LANG_PKG_FQN.child("verify")
     val VERIFY_ALL_FQN = LANG_PKG_FQN.child("verifyAll")
     val VERIFY_EACH_FQN = LANG_PKG_FQN.child("verifyEach")
+
+    val ANY_FQN = LANG_PKG_FQN.child("any")
+    val ANY_METHOD_FQN = LANG_PKG_FQN.child("anyMethod")
+    val TIMES_FQN = LANG_PKG_FQN.child("times")
+    val DOES_FQN = LANG_PKG_FQN.child("does")
+    val DID_FQN = LANG_PKG_FQN.child("did")
+    val RETURNS_FQN = LANG_PKG_FQN.child("returns")
+    val RETURNED_FQN = LANG_PKG_FQN.child("returned")
+    val CAPTURE_FQN = LANG_PKG_FQN.child("capture")
+    val NO_MORE_INTERACTIONS_FQN = LANG_PKG_FQN.child("noMoreInteractions")
 
     // Misc
     val FROM_FQN_REGEX = "io\\.github\\.pshevche\\.spockk\\.lang\\.DataVariable.+\\.from".toRegex()
