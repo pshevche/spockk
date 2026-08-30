@@ -58,10 +58,12 @@ internal object IrIdentifiers {
     val INTERACTION_BUILDER_FQN = MOCK_RUNTIME_PKG_FQN.child("InteractionBuilder")
     val MOCK_CONTROLLER_FQN = MOCK_RUNTIME_PKG_FQN.child("MockController")
 
-    // Spock's own interaction-matching sentinel (org.spockframework.lang.Wildcard) - distinct from
-    // the Spockk-unrelated Specification._ field already namespaced above as WILDCARD_FQN.
+    // Spock's own interaction-matching sentinels (org.spockframework.lang.Wildcard/SpreadWildcard) -
+    // distinct from the Spockk-unrelated Specification._ field already namespaced above as
+    // WILDCARD_FQN.
     private val SPOCK_LANG_PKG_FQN = FqName("org.spockframework.lang")
     val SPOCK_WILDCARD_FQN = SPOCK_LANG_PKG_FQN.child("Wildcard")
+    val SPOCK_SPREAD_WILDCARD_FQN = SPOCK_LANG_PKG_FQN.child("SpreadWildcard")
   }
 
   internal object Spockk {

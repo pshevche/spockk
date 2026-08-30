@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionStatementsRewriter
@@ -36,6 +37,7 @@ import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrParameterKind
 import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
@@ -158,6 +160,11 @@ internal class MockingApiTransformer(
         spec.file,
         call
       )
+    // Unlike the inherited 1-arg Mock(Class)/Stub(Class) member (whose own dispatch receiver already
+    // supplies this slot), this 2-arg overload is a plain top-level function with no receiver of its
+    // own - findMockImplMethod/rewriteMockCall both assume `call.arguments` already starts with the
+    // spec instance, matching MockImpl's own (Specification, name, Type, Class) signature.
+    call.arguments.add(0, irBuilder(call.symbol).irGet(currentIrFunction.requiredThisParameter()))
 
     val implArgCount = call.arguments.size + 2
     val mockImplMethod = findMockImplMethod(mockImplMethodName, implArgCount, call) ?: return
@@ -166,13 +173,13 @@ internal class MockingApiTransformer(
     val lambdaStatements = blockArg.function.mutableStatements() ?: return
     val lambdaBuilder = irBuilder(blockArg.function.symbol)
     val interactionRewriter = InteractionStatementsRewriter(rewriterContext, currentIrFunction)
+    val lambdaReceiverParam = blockArg.function.parameters.first { it.kind == IrParameterKind.ExtensionReceiver }
 
     val builtStatements = lambdaStatements.flatMap { statement ->
-      // The block's own statements reference the mock via their implicit T receiver (`this`),
-      // valid only inside the lambda - rebind those references to the mock's own variable before
-      // moving the statements out into the enclosing function, where that receiver no longer
-      // exists.
-      val rebound = (statement as? IrExpression)?.rebindToVariable(declaration, lambdaBuilder) ?: statement
+      // The block's own statements reference the mock via their implicit T receiver, valid only
+      // inside the lambda - rebind those references to the mock's own variable before moving the
+      // statements out into the enclosing function, where that receiver no longer exists.
+      val rebound = (statement as? IrExpression)?.rebindToVariable(lambdaReceiverParam, declaration, lambdaBuilder) ?: statement
       val interaction = rebound.asInteractionStatement(allowBareCall = true) ?: return@flatMap emptyList()
       interactionRewriter.rewrite(interaction)
     }
@@ -276,17 +283,22 @@ internal class MockingApiTransformer(
   }
 }
 
-// A Mock/Stub builder block's own statements reference the mock via their implicit T receiver
-// ("<this>", the block lambda's own extension receiver parameter) - only valid inside that lambda.
-// Rebinds every such reference to `target` instead, mirroring
+// A Mock/Stub builder block's own statements reference the mock via [receiverParam] (the block
+// lambda's own extension receiver parameter - named "$this$Stub"/"$this$Mock" by convention, *not*
+// "<this>", which only applies to an ordinary member function's dispatch receiver), valid only
+// inside that lambda. Rebinds every such reference to `target` instead, mirroring
 // io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences (kept separate since
-// that helper's target is typed as an IrValueParameter, not the IrVariable a mock is declared into).
+// that helper matches by the "<this>" name, and its target is typed as an IrValueParameter, not the
+// IrVariable a mock is declared into).
 @OptIn(UnsafeDuringIrConstructionAPI::class)
-private fun IrExpression.rebindToVariable(target: IrVariable, builder: DeclarationIrBuilder): IrExpression {
+private fun IrExpression.rebindToVariable(
+  receiverParam: IrValueParameter,
+  target: IrVariable,
+  builder: DeclarationIrBuilder
+): IrExpression {
   val rebinder = object : IrElementTransformerVoid() {
     override fun visitGetValue(expression: IrGetValue): IrExpression {
-      val paramOwner = expression.symbol.owner
-      if (paramOwner is IrValueParameter && paramOwner.name.asString() == "<this>") {
+      if (expression.symbol == receiverParam.symbol) {
         return builder.irGet(target)
       }
       return super.visitGetValue(expression)

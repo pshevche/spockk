@@ -21,14 +21,17 @@ import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import org.jetbrains.kotlin.backend.jvm.functionByName
 import org.jetbrains.kotlin.ir.builders.IrBuilder
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
+import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irCallConstructor
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
+import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.constructors
+import org.jetbrains.kotlin.ir.util.functions
 
 /**
  * Wraps `org.spockframework.mock.runtime.InteractionBuilder`, a real Spock class shaded unmodified
@@ -68,6 +71,24 @@ internal class IrInteractionBuilder private constructor(
 
   fun irAddEqualMethodName(builder: IrBuilder, receiver: IrExpression, name: IrExpression): IrCall =
     chainedCall(builder, "addEqualMethodName", receiver) { arguments[1] = name }
+
+  // Real Spock: InteractionBuilder.argConstraints/argNames stay null - NullPointerException on the
+  // first addEqualArg/addCodeArg - until setArgListKind(isPositional, isMixed) initializes them;
+  // Spockk never supports named args, so this is always setArgListKind(true, false) (positional,
+  // not mixed). Two overloads share this name (a 1-arg one defaults isMixed to false), so it's
+  // looked up by parameter count rather than functionByName's single-match assumption.
+  fun irSetArgListKind(builder: IrBuilder, receiver: IrExpression): IrFunctionAccessExpression {
+    val setArgListKind = interactionBuilderClassSymbol.owner.functions.first {
+      it.name.asString() == "setArgListKind" && it.parameters.size == 3
+    }
+    return with(builder) {
+      irCall(setArgListKind.symbol).apply {
+        dispatchReceiver = receiver
+        arguments[1] = irBoolean(true)
+        arguments[2] = irBoolean(false)
+      }
+    }
+  }
 
   fun irAddEqualArg(builder: IrBuilder, receiver: IrExpression, arg: IrExpression): IrCall =
     chainedCall(builder, "addEqualArg", receiver) { arguments[1] = arg }
