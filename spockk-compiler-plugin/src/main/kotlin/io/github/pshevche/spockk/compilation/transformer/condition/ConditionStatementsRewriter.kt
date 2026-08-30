@@ -41,32 +41,15 @@ import org.jetbrains.kotlin.ir.util.file
 
 /**
  * Rewrites a flat statement list wherever conditions may appear: an `expect`/`then` block's own
- * statements, or the interior of a `verify`/`verifyAll`/`verifyEach` lambda body (recursively -
- * reached either directly from a block, or from a plain helper method's top-level statements). Used
+ * statements, or the interior of a `verify`/`verifyAll`/`verifyEach` lambda body (recursively). Used
  * by both [ConditionRewriter] (for `expect`/`then` blocks) and [HelperMethodRewriter].
  *
- * [treatAsConditionScope] governs whether a bare boolean/`assert(...)` statement at *this*
- * statement-list level is itself an implicit condition: `true` for `expect`/`then` blocks and for
- * every recursive call into a matched helper call's lambda body (regardless of the flag's value at
- * the outer level - this is what makes nesting and helper-method bodies compose correctly), `false`
- * only for a plain helper method's own top-level statements, where only calls to
- * `verify`/`verifyAll`/`verifyEach` are recognized.
- *
- * [allowInteractionStatements] governs whether an interaction statement (`N * target.method(args)`,
- * `noMoreInteractions(...)`) is recognized at *this* statement-list level: `true` for `expect`/`then`
- * blocks and a plain helper method's own top-level statements (both genuine instance methods on the
- * spec, so [io.github.pshevche.spockk.compilation.ir.requiredThisParameter] resolves), `false` for a
- * `verify`/`verifyAll`/`verifyEach` lambda body - a lambda captures the enclosing `this` rather than
- * declaring its own dispatch receiver, so interaction statements there are left unrecognized (not
- * silently mishandled: they simply fall through unrewritten, the same as today).
- *
- * An `expect` block's interactions (unlike a `then` block's, see
- * [io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScopeRewriter]) are
- * *not* extracted or scope-wrapped by [io.github.pshevche.spockk.compilation.transformer.FeatureRewriter]
- * - an `expect` block has no paired `when` block to bracket, so its interactions register directly,
- * once, into whatever scope is already active, exactly like a `given:`/`Stub{}` block's do. This
- * matches Spock's own interaction semantics, not a gap: an interaction only ever matches invocations
- * that happen *after* it's registered, in any block shape.
+ * [treatAsConditionScope]: `true` for `expect`/`then` blocks and every recursive call into a matched
+ * helper call's lambda body, `false` only for a plain helper method's own top-level statements (only
+ * `verify`/`verifyAll`/`verifyEach` calls are recognized there). [allowInteractionStatements]: `true`
+ * only where a genuine dispatch receiver is available to resolve interactions against (`expect`/`then`
+ * blocks, a helper method's own statements) - `false` inside a `verify`/`verifyAll`/`verifyEach`
+ * lambda, which captures the enclosing `this` rather than declaring its own.
  */
 internal class ConditionStatementsRewriter(
   override val rewriterContext: SpockkIrRewriterContext
