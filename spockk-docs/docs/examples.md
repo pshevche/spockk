@@ -123,6 +123,28 @@ class BridgeSystemsSpec : Specification() {
 
 </CarouselSlide>
 
+<CarouselSlide title="Interaction-based testing" description="Verify a collaborator was called, and stub its response - a preview of Spock's mocking syntax, natively in Kotlin.">
+
+<CodeWindow title="BridgeOperationsSpec.kt">
+
+```kotlin
+fun `raising shields draws power from the deflector grid`() {
+  given
+  val powerGrid = Mock(PowerGrid::class.java)
+  val enterprise = Enterprise(powerGrid)
+
+  `when`
+  enterprise.raiseShields()
+
+  then
+  1 * powerGrid.divertPower(200)
+}
+```
+
+</CodeWindow>
+
+</CarouselSlide>
+
 <CarouselSlide title="Experimental extension support" description="Spock's own extensions work in Spockk too.">
 
 <CodeWindow title="WarpCoreSpec.kt">
