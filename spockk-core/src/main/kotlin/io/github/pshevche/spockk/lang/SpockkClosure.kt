@@ -44,3 +44,25 @@ internal class SpockkClosure<R>(
   @Suppress("unused") // invoked reflectively by Groovy's Closure.call() dispatch, matched by arity alone
   fun doCall(vararg args: Any?): R = action(args)
 }
+
+/**
+ * Adapts a `does`/`did` block (a Kotlin `() -> Unit` lambda, already a real function value by the
+ * time the compiler plugin sees it - no lambda synthesis needed on the IR side) to the `Closure`
+ * [org.spockframework.mock.runtime.InteractionBuilder.addCodeResponse] expects.
+ */
+internal fun responseClosure(block: () -> Unit): Closure<Any?> = SpockkClosure {
+  block()
+  null
+}
+
+/**
+ * Adapts `capture(slot)` to the `Closure` [org.spockframework.mock.runtime.InteractionBuilder.addCodeArg]
+ * expects: records the single matched argument onto [slot] and always matches (Spock's own
+ * `CodeArgumentConstraint.isSatisfiedBy` only looks at whether the closure throws, never at its
+ * return value - confirmed against source - so there's nothing to signal beyond not throwing).
+ */
+internal fun <T> captureClosure(slot: CapturedArg<T>): Closure<Any?> = SpockkClosure { args ->
+  @Suppress("UNCHECKED_CAST")
+  slot.set(args[0] as T)
+  null
+}
