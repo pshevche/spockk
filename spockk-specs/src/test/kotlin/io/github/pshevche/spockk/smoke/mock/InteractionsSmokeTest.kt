@@ -41,6 +41,8 @@ interface Greeter {
   fun setName(name: String)
 
   fun getUsername(): String
+
+  fun greet(name: String): String
 }
 
 open class GreeterImpl : Greeter {
@@ -51,6 +53,8 @@ open class GreeterImpl : Greeter {
   }
 
   override fun getUsername(): String = name
+
+  override fun greet(name: String): String = "Hi, $name"
 }
 
 /**
@@ -186,6 +190,42 @@ class InteractionsSmokeTest : Specification() {
     then
     1 * obj.setName("Alice") did { sideEffectRan = true }
     sideEffectRan
+  }
+
+  fun `did receives the actual invocation arguments`() {
+    given
+    val obj = Mock(Greeter::class.java)
+    var receivedName: Any? = null
+
+    `when`
+    obj.setName("Alice")
+
+    then
+    1 * obj.setName(any()) did { args -> receivedName = args[0] }
+    receivedName == "Alice"
+  }
+
+  fun `does computes a response from the invocation arguments`() {
+    given
+    val obj = Stub(Greeter::class.java) {
+      greet(any()) does { args -> "Hi, ${args[0]}" }
+    }
+
+    expect
+    obj.greet("Alice") == "Hi, Alice"
+    obj.greet("Bob") == "Hi, Bob"
+  }
+
+  fun `then block interaction computes a response from the invocation arguments`() {
+    given
+    val obj = Mock(Greeter::class.java)
+
+    `when`
+    val result = obj.greet("Alice")
+
+    then
+    1 * obj.greet(any()) did { args -> "Hi, ${args[0]}" }
+    result == "Hi, Alice"
   }
 
   fun `capture records the actual invocation argument`() {

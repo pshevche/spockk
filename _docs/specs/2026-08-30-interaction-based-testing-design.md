@@ -113,7 +113,7 @@ val obj = Stub(Person::class.java) {
 | `_` (any arg) | `any()` / `any<T>()` | `T` inferred from the parameter, reified generic. `_` can't adapt its static type per call site in real Kotlin; `any()` is also the established idiom in MockK/Mockito-Kotlin, so it's not a foreign spelling. |
 | `N * target.method(args)` | `N * target.method(args)` (kept verbatim) | `operator fun <T> Int.times(call: T): T` type-checks legitimately - the call's real resolved return type flows straight through the marker. The IR rewriter deletes the whole statement and rebuilds it from the extracted `IrCall`, so `method` is never actually invoked - same "throws if left unrewritten" contract as `given`/`then`. Ranges (`1..3 * ...`) use the `IntRange` overload -> `setRangeCount`. |
 | `>> value` / `>> { closure }` | `returns value` / `does { }` (given/Stub-block context) and `returned value` / `did { }` (then/expect context) | Infix, not operator, so the response's type is checked against the call's real return type at compile time - something Spock's own runtime-only Groovy check can't do. Two tense-matched name pairs rather than one: `does`/`returns` read naturally when *configuring* a stub ahead of time (`given:`), `did`/`returned` read naturally when *asserting what already happened* (`then:`, past tense, after the `when:` stimulus ran). All four compile to the identical `addCodeResponse`/`addConstantResponse` call - purely a naming/readability layer, not a semantic split - so nothing stops using either pair in either block; the names just aim at the block where each reads best. |
-| (Groovy `>> { closure }` doubling as both side-effect-only and computed-value) | kept as one family (`does`/`did`) rather than split into a separate "computed value" flavor | Per product decision - not introducing a third `answers`-style name for this preview; `does { ... }`'s lambda body can still be the last expression influencing the mock's return value the same way Spock's own closure-as-response does. |
+| (Groovy `>> { closure }` doubling as both side-effect-only and computed-value, and `{ String message -> ... }` receiving the invocation's arguments) | kept as one family (`does`/`did`) rather than split into a separate "computed value" flavor, extended to receive the real invocation arguments | Per product decision - not introducing a third `answers`-style name; `does`/`did`'s block signature is `(List<Any?>) -> T` - it receives the invocation's actual arguments positionally, and its return value becomes the response, so it doubles as a side effect (ignore the argument, return `Unit`) or a response computed from the argument, matching Spock's own closure-as-response behavior (including argument access) without a separate name. |
 | `_._` (wildcard target) | *(out of scope - see Wildcards below)* | No literal Kotlin receiver to call `.method()` on without a real target value. |
 | `obj._(...)` (wildcard method name on a known target) | `obj.anyMethod()` | `fun <T> T.anyMethod(): Nothing`, a generic extension callable on any mock regardless of its real interface - type-checks trivially. The rewriter recognizes this specific symbol and emits `addEqualMethodName(Wildcard.INSTANCE.toString())` instead of a literal name. Usable standalone (`1 * obj.anyMethod()`, "exactly one call to obj total, any method") or via the `noMoreInteractions` sugar below. |
 | `0 * _._` used per-mock ("no other interactions on this mock") | `noMoreInteractions(obj, ...)` | Sugar recognized by the rewriter as exactly `0 * obj.anyMethod()` per argument - matches the idiom already familiar from Mockito's `verifyNoMoreInteractions`/MockK's `confirmVerified`, without needing a real "wildcard target" primitive at all (every real-world use of `_._` this preview needs to support is per-mock, not truly cross-mock). |
@@ -128,7 +128,7 @@ Two categories, matching the existing convention split in `Blocks.kt`/`Condition
 **Pure compile-time markers** (throw `UnsupportedOperationException` if reached - the compiler plugin always
 replaces the whole enclosing statement, so these bodies only run if the plugin didn't):
 `any<T>()`, `anyMethod<T>()` (extension), `operator fun <T> Int.times(call: T): T`, `operator fun <T> ClosedRange<Int>.times(call: T): T`,
-`infix fun <T> T.does(block: () -> Unit): T`, `infix fun <T> T.did(block: () -> Unit): T`,
+`infix fun <T> T.does(block: (List<Any?>) -> T): T`, `infix fun <T> T.did(block: (List<Any?>) -> T): T`,
 `infix fun <T> T.returns(value: T): T`, `infix fun <T> T.returned(value: T): T`,
 `fun <T> capture(slot: CapturedArg<T>): T`, `fun noMoreInteractions(vararg mocks: Any?)`.
 
@@ -138,15 +138,22 @@ generated *replacement* code the rewriter emits, and the value-capture/lambda-ad
 really run):
 - `class CapturedArg<T>` with a `val captured: T` (throws `IllegalStateException` if read before any invocation
   captured a value) and an internal setter the generated `addCodeArg` closure calls.
-- A small `groovy.lang.Closure` adapter wrapping a Kotlin lambda, used internally by the generated code for
-  `does`/`did`/`capture` (`does { }`'s lambda, `capture(slot)`'s match-and-record predicate). `groovy.lang.Closure`
-  is already a required transitive runtime dependency (see `AGENTS.md`, "Condition Rendering Internals" - Spock's
-  own `Specification`/`MockingApi` already expose it in their bytecode), so this isn't a new dependency, just a new
-  small adapter class. Groovy's closure-dispatch mechanics (how `CodeResponseGenerator`/`CodeArgumentConstraint`
-  decide what to pass the closure - confirmed for responses: reflects on `closure.getParameterTypes()`, passes the
-  `IMockInvocation` if the sole declared parameter is that type, otherwise `invocation.getArguments()`) need to be
-  matched precisely; exact subclassing mechanics (what method Groovy's `Closure.call()` dispatches to - `doCall`,
-  by Groovy convention) get confirmed empirically during implementation, the same way condition-rendering's
+- Two small `groovy.lang.Closure` adapters wrapping a Kotlin lambda, used internally by the generated code for
+  `does`/`did`/`capture`. `groovy.lang.Closure` is already a required transitive runtime dependency (see
+  `AGENTS.md`, "Condition Rendering Internals"), so these aren't a new dependency, just two small adapter classes.
+  Groovy's closure-dispatch mechanics needed to be matched precisely and were confirmed empirically (not just by
+  reading `CodeResponseGenerator`/`CodeArgumentConstraint`'s source): `CodeResponseGenerator` reflects on
+  `closure.getParameterTypes()` and only passes the real `IMockInvocation` object if the closure's *sole declared,
+  non-vararg* parameter is that type - a `vararg doCall(args: Any?)` (the shape `capture`'s closure uses, since
+  `CodeArgumentConstraint` always calls it with one raw argument value) does NOT qualify, and receives the whole
+  `Object[]` arguments array as a single wrapped vararg element instead of the array's own contents spread out -
+  confirmed by an early implementation attempt that reused the vararg-based adapter for responses too, which
+  produced a response closure whose `args[0]` was the entire arguments array, not the first argument. `does`/`did`'s
+  response adapter (`SpockkResponseClosure`) therefore declares a genuine single, non-vararg `IMockInvocation`
+  parameter instead, reading `invocation.arguments: List<Any?>` to hand the caller's block its arguments correctly;
+  `capture`'s adapter (`SpockkClosure`) keeps the vararg shape, which is correct for its own (different) dispatch
+  path. Exact subclassing mechanics (what method Groovy's `Closure.call()` dispatches to - `doCall`, by Groovy
+  convention) were likewise confirmed empirically, the same way condition-rendering's
   slot-packing algorithm was verified against real `Condition.getRendering()` output rather than derived by hand.
 
 ### `Mock`/`Stub`/`Spy` builder-block syntax (given-block, eager registration)
@@ -213,10 +220,13 @@ argument-count matching (`(*_)`); true cross-mock wildcard target (`_._` beyond 
 sugar); `throws` as a dedicated response (expressible as `does { throw ... }`/`did { throw ... }`); chained
 `then:` blocks after one `when:`; ordering constraints between interactions (Spock's `then:`/`then:` chaining,
 already unreachable per the grammar above); iterable/sequential responses (`>> [1, 2, 3]`, `addIterableResponse`);
-`callRealMethod()` (needs an argument-aware response lambda shape `does`/`did` don't have - Spy interactions
-otherwise work, only this one delegate-and-compute pattern is deferred); `Spy(existingInstance) { ... }` (wrapping
-an already-constructed object rather than a `Class` token - the plain, non-builder-block `Spy(instance)` this
-overload sugars over was already out of this session's reach to verify and is left for a follow-up).
+`callRealMethod()` (Spock's helper for "stub and still delegate to the real method" on a `Spy` - `does`/`did`'s
+block does now receive the real `IMockInvocation`'s arguments, so the earlier blocker no longer applies, but the
+block itself is still plain `(List<Any?>) -> T`, not `(IMockInvocation) -> T`, so there's no handle to call
+`callRealMethod()` through; a deliberate, separate omission now, left for a follow-up rather than folded into this
+change); `Spy(existingInstance) { ... }` (wrapping an already-constructed object rather than a `Class` token - the
+plain, non-builder-block `Spy(instance)` this overload sugars over was already out of this session's reach to
+verify and is left for a follow-up).
 
 ### Spock Source References
 

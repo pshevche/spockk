@@ -15,12 +15,13 @@
 package io.github.pshevche.spockk.lang
 
 import groovy.lang.Closure
+import org.spockframework.mock.IMockInvocation
 
 /**
- * Adapts a Kotlin lambda to a real `groovy.lang.Closure`, for generated code behind `does`/`did`/
- * `capture` to hand to Spock's own `InteractionBuilder.addCodeArg`/`addCodeResponse`. `doCall` must
- * be `vararg`: a fixed zero-arity `doCall()` throws Groovy's `MissingMethodException` the moment
- * Spock invokes it with real arguments (confirmed empirically against Spock's dispatch).
+ * Adapts a Kotlin lambda to a real `groovy.lang.Closure`, for generated code behind `capture` to
+ * hand to Spock's own `InteractionBuilder.addCodeArg`. `doCall` must be `vararg`: a fixed zero-arity
+ * `doCall()` throws Groovy's `MissingMethodException` the moment Spock invokes it with a real
+ * argument (confirmed empirically against Spock's dispatch).
  */
 internal class SpockkClosure<R>(
   private val action: (Array<out Any?>) -> R
@@ -30,10 +31,23 @@ internal class SpockkClosure<R>(
   fun doCall(vararg args: Any?): R = action(args)
 }
 
+/**
+ * Adapts a Kotlin lambda to a `groovy.lang.Closure` for `InteractionBuilder.addCodeResponse` -
+ * `doCall`'s single, non-vararg `IMockInvocation` parameter is what `CodeResponseGenerator` reflects
+ * on to decide to pass the real invocation object rather than its raw `Object[]` arguments as one
+ * value (confirmed empirically: a vararg `doCall` received that array as a single wrapped element).
+ */
+internal class SpockkResponseClosure<R>(
+  private val action: (IMockInvocation) -> R
+) : Closure<R>(null, null) {
+
+  @Suppress("unused") // invoked reflectively by Groovy's Closure.call() dispatch
+  fun doCall(invocation: IMockInvocation): R = action(invocation)
+}
+
 /** Adapts a `does`/`did` block to the `Closure` [org.spockframework.mock.runtime.InteractionBuilder.addCodeResponse] expects. */
-internal fun responseClosure(block: () -> Unit): Closure<Any?> = SpockkClosure {
-  block()
-  null
+internal fun <R> responseClosure(block: (List<Any?>) -> R): Closure<Any?> = SpockkResponseClosure { invocation ->
+  block(invocation.arguments)
 }
 
 /**
