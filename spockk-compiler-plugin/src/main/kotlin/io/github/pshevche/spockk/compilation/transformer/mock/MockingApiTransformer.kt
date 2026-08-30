@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
+import io.github.pshevche.spockk.compilation.ir.nestedStatementLists
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
@@ -44,11 +45,10 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
-import org.jetbrains.kotlin.ir.expressions.IrContainerExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
-import org.jetbrains.kotlin.ir.expressions.IrTry
+import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
@@ -79,7 +79,13 @@ internal class MockingApiTransformer(
   // BaseSpockkIrElementTransformer visit can only replace the node it's at, not insert siblings).
   private val pendingInteractionSplices = mutableListOf<PendingInteractionSplice>()
 
-  private class PendingInteractionSplice(val function: IrFunction, val variable: IrVariable, val statements: List<IrStatement>)
+  private class PendingInteractionSplice(val function: IrFunction, val variable: IrVariable, val statements: List<IrStatement>) {
+    // A hoisted mock declaration (irTryHoistingVariables) has no initializer of its own anymore -
+    // the real Mock()/Stub() assignment happens at a SET_VAR elsewhere. Splicing after the now-bare
+    // declaration instead would run the interaction before the mock is actually assigned.
+    fun matches(statement: IrStatement): Boolean =
+      if (variable.initializer != null) statement === variable else statement is IrSetValue && statement.symbol == variable.symbol
+  }
 
   companion object {
 
@@ -131,8 +137,8 @@ internal class MockingApiTransformer(
   private fun spliceInto(statements: MutableList<IrStatement>, pending: MutableList<PendingInteractionSplice>) {
     if (pending.isEmpty()) return
     val rewritten = statements.flatMap { statement ->
-      nestedStatementLists(statement).forEach { spliceInto(it, pending) }
-      val splice = pending.firstOrNull { it.variable === statement }
+      statement.nestedStatementLists().forEach { spliceInto(it, pending) }
+      val splice = pending.firstOrNull { it.matches(statement) }
       if (splice != null) {
         pending.remove(splice)
         listOf(statement) + splice.statements
@@ -144,39 +150,43 @@ internal class MockingApiTransformer(
     statements.addAll(rewritten)
   }
 
-  private fun nestedStatementLists(statement: IrStatement): List<MutableList<IrStatement>> = when (statement) {
-    is IrTry -> buildList {
-      (statement.tryResult as? IrContainerExpression)?.let { add(it.statements) }
-      statement.catches.forEach { (it.result as? IrContainerExpression)?.let { result -> add(result.statements) } }
-      (statement.finallyExpression as? IrContainerExpression)?.let { add(it.statements) }
-    }
-
-    is IrContainerExpression -> listOf(statement.statements)
-
-    else -> emptyList()
-  }
-
   override fun visitVariable(declaration: IrVariable): IrStatement {
     // We are searching for
     // var name:Type = Mock(<any-args>)
     // which will match the Mock() call as initializer, and left-hand-side as variable.
-    var init = declaration.initializer
+    if (tryRewriteMockInitializer(declaration.initializer, declaration)) {
+      return declaration // We already processed the initializer so do not continue with the children
+    }
+    return super.visitVariable(declaration)
+  }
+
+  // A hoisted mock declaration (irTryHoistingVariables splits `val name = Mock(...)` into a bare
+  // `var name` plus a SET_VAR elsewhere, when e.g. a cleanup: block reads the mock) has no
+  // initializer of its own to match here - the Mock()/Stub() call shows up as a SET_VAR's value
+  // instead, so it needs the same detection.
+  override fun visitSetValue(expression: IrSetValue): IrExpression {
+    val variable = expression.symbol.owner as? IrVariable
+    if (variable != null && tryRewriteMockInitializer(expression.value, variable)) {
+      return expression
+    }
+    return super.visitSetValue(expression)
+  }
+
+  private fun tryRewriteMockInitializer(initExpr: IrExpression?, variable: IrVariable): Boolean {
+    var init = initExpr
     if (init is IrTypeOperatorCall) {
       // This shall match/skip stuff like !! or implicit null checks after the Mock() initializer
       // var name = Mock(Runnable::class.java)!!
       init = init.argument
     }
-    if (init is IrCall) {
-      val builderBlockImplName = BUILDER_BLOCK_MOCK_METHODS[init.symbol.owner.fqNameWhenAvailable]
-      if (builderBlockImplName != null) {
-        rewriteBuilderBlockMockDeclaration(declaration, init, builderBlockImplName)
-      } else {
-        processCall(init, declaration)
-      }
-      return declaration // We already processed the initializer so do not continue with the
-      // children
+    if (init !is IrCall) return false
+    val builderBlockImplName = BUILDER_BLOCK_MOCK_METHODS[init.symbol.owner.fqNameWhenAvailable]
+    if (builderBlockImplName != null) {
+      rewriteBuilderBlockMockDeclaration(variable, init, builderBlockImplName)
+    } else {
+      processCall(init, variable)
     }
-    return super.visitVariable(declaration)
+    return true
   }
 
   private fun rewriteBuilderBlockMockDeclaration(declaration: IrVariable, call: IrCall, mockImplMethodName: Name) {

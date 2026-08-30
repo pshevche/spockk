@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.compilation.transformer.interaction
 
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
-import io.github.pshevche.spockk.compilation.ir.irTry
+import io.github.pshevche.spockk.compilation.ir.irTryHoistingVariables
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.WHEN_BLOCK_THROWABLE_VAR
@@ -48,7 +48,8 @@ internal class InteractionScopeRewriter(
   private val feature: IrFunction,
   private val whenBlock: FeatureBlock,
   private val addInteractionStatements: List<IrStatement>,
-  private val wrapExceptionHandling: Boolean
+  private val wrapExceptionHandling: Boolean,
+  private val thenBlockStatements: List<IrStatement>
 ) : SpockkIrRewriter {
 
   private val builder = irBuilder(feature.symbol)
@@ -66,7 +67,7 @@ internal class InteractionScopeRewriter(
       add(rewriterContext.mockController.irEnterScope(builder, controller))
       addAll(addInteractionStatements)
       if (wrapExceptionHandling) {
-        add(wrapInTryCatch(specAccessor, specificationContext))
+        addAll(wrapInTryCatch(specAccessor, specificationContext))
       } else {
         addAll(whenBlock.statements)
       }
@@ -77,14 +78,15 @@ internal class InteractionScopeRewriter(
   private fun wrapInTryCatch(
     specAccessor: IrValueParameter,
     specificationContext: IrSpecificationContext
-  ): IrStatement {
+  ): List<IrStatement> {
     val catchVar = irCatchParameter(WHEN_BLOCK_THROWABLE_VAR, irBuiltIns.throwableType).apply { parent = feature }
     val catchResult = specificationContext.irSetThrownException(builder, specAccessor, builder.irGet(catchVar))
 
-    return builder.irTry(
+    return builder.irTryHoistingVariables(
       tryExpressions = whenBlock.statements,
       catchExpressions = listOf(builder.irCatch(catchVar, builder.irBlock { +catchResult })),
-      finallyExpressions = listOf()
+      finallyExpressions = listOf(),
+      extraReaders = thenBlockStatements
     )
   }
 }
