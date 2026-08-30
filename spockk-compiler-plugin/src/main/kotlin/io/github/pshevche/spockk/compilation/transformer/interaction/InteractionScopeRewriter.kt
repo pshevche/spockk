@@ -35,29 +35,13 @@ import org.jetbrains.kotlin.ir.util.parentAsClass
 
 /**
  * Rewrites a `when` block paired with a `then` block that declares interactions - brackets it with
- * `mockController.enterScope()`/the interaction-building statements moved out of the `then` block
- * (via [InteractionStatementsRewriter.extractAndRewrite]), mirroring Spock's own
- * `SpecRewriter.moveInteractions`. The paired `then` block's own rewrite is expected to insert
- * `mockController.leaveScope()` as the first statement of its own output - this class only handles
- * the `when` side.
+ * `mockController.enterScope()`/the interaction-building statements moved out of the `then` block,
+ * mirroring Spock's own `SpecRewriter.moveInteractions`. The paired `then` block's own rewrite
+ * inserts `mockController.leaveScope()` as the first statement of its own output.
  *
- * When the same `then` block also declares an exception condition (`thrown`/`notThrown`/
- * `noExceptionThrown`), [wrapExceptionHandling] composes both concerns with the *interaction* scope
- * as the outer bracket and the *exception* try/catch nested inside it, around the `when` block's own
- * statements only - the interaction-building statements themselves run unconditionally, since
- * registering a stub/mock's expected interactions shouldn't depend on whether the stimulus that
- * follows happens to throw:
- * ```
- * specificationContext.setThrownException(null)
- * callBlockEntered(when)
- * mockController.enterScope()
- * <interaction-building statements, moved here from the then block>
- * try { <when-block statements, unchanged> } catch (t: Throwable) { specificationContext.setThrownException(t) }
- * callBlockExited(when)
- * ```
- * Without an exception condition, the `when` block's own statements run unwrapped (unchanged
- * behavior: an exception there still propagates raw, exactly as it does today with no interactions
- * involved at all).
+ * When the `then` block also declares an exception condition, [wrapExceptionHandling] nests the
+ * exception try/catch inside the interaction scope, around the `when` block's own statements only -
+ * interaction registration always runs, whether or not the stimulus that follows throws.
  */
 internal class InteractionScopeRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
@@ -106,9 +90,8 @@ internal class InteractionScopeRewriter(
 }
 
 /**
- * `mockController.leaveScope()`, inserted as the first statement of a `then` block paired with a
- * [InteractionScopeRewriter]-wrapped `when` block - this is what actually verifies the interactions
- * registered in that scope (Spock's own `MockController.leaveScope()` calls `verifyInteractions()`).
+ * `mockController.leaveScope()`, the first statement of a `then` block paired with an
+ * [InteractionScopeRewriter]-wrapped `when` block - verifies the interactions registered in that scope.
  */
 internal fun SpockkIrRewriter.irLeaveScopeStatement(feature: IrFunction, builder: DeclarationIrBuilder): IrStatement {
   val specAccessor = feature.requiredThisParameter()
