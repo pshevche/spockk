@@ -137,3 +137,14 @@ internal fun IrStatement.isInteractionStatement(): Boolean = asInteractionStatem
 
 internal fun List<IrStatement>.hasInteractionStatement(): Boolean =
   any { it.isInteractionStatement() || it.asNoMoreInteractionsCall() != null }
+
+/**
+ * The result of extracting interaction statements out of a block: [addInteractionStatements] are the
+ * real `mockController.addInteraction(...)` statements built from them (in original order);
+ * [remainingStatements] is the block's own statement list with those removed (also in original
+ * order, everything else untouched).
+ */
+internal class InteractionExtractionResult(
+  val addInteractionStatements: List<IrStatement>,
+  val remainingStatements: List<IrStatement>
+)
