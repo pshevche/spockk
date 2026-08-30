@@ -43,10 +43,8 @@ internal sealed class InteractionResponse {
 }
 
 /**
- * A parsed interaction statement, unwrapped down to its innermost pieces: the optional cardinality
- * prefix, the real `target.method(args)` call (or a call to the [IrIdentifiers.Spockk.ANY_METHOD_FQN]
- * marker, for `target.anyMethod()`), and the optional response suffix. [statement] is the original,
- * possibly coercion-wrapped, list entry - needed to find and replace/remove it in place.
+ * A parsed interaction statement, unwrapped to its optional cardinality, real `target.method(args)`
+ * call, and optional response. [statement] is the original list entry, for in-place replacement.
  */
 internal class InteractionStatement(
   val statement: IrStatement,
@@ -57,19 +55,13 @@ internal class InteractionStatement(
 
 /**
  * Recognizes an interaction statement and unwraps it down to [InteractionStatement]'s pieces.
+ * Kotlin's operator precedence puts the response infixes below `*`, so `1 * call() returned "x"`
+ * parses as `(1 * call()) returned "x"` - unwrapping proceeds outside-in: response, then cardinality.
  *
- * Kotlin's operator precedence puts the response infix functions (`does`/`did`/`returns`/`returned`)
- * *below* the `*` cardinality operator, so `1 * obj.getUsername() returned "Name"` parses as
- * `(1 * obj.getUsername()) returned "Name"` - the response wraps the cardinality call, not the other
- * way around. Unwrapping therefore proceeds outside-in: response first, then cardinality, then
- * whatever's left must be the real method call.
- *
- * [allowBareCall] accepts a statement with neither a cardinality nor a response wrapper as a
- * still-valid interaction whose innermost call is the statement itself - only correct for the
- * `Mock`/`Stub` builder-block context, where every top-level statement is guaranteed to be a call on
- * the mocked interface (see [io.github.pshevche.spockk.compilation.transformer.mock.MockingApiTransformer]);
- * `false` (the default, used for `then`/`expect` blocks) requires a recognized wrapper, so an ordinary
- * boolean condition or side-effecting call is never misidentified as an interaction.
+ * [allowBareCall] accepts a statement with no wrapper at all as an interaction whose innermost call
+ * is the statement itself - only correct for the `Mock`/`Stub` builder-block context (every top-level
+ * statement there is guaranteed to be a call on the mocked interface); `then`/`expect` blocks require
+ * a recognized wrapper, so an ordinary condition is never misidentified as an interaction.
  */
 internal fun IrStatement.asInteractionStatement(allowBareCall: Boolean = false): InteractionStatement? {
   val original = this

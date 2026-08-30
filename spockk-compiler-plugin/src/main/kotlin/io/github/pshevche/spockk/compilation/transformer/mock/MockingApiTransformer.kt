@@ -74,12 +74,12 @@ internal class MockingApiTransformer(
   private val kClassJavaPropGetter =
     rewriterContext.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
 
-  // Interaction statements built from a Mock/Stub builder block's trailing lambda, keyed by the
-  // IrVariable the mock is declared into - spliced into that variable's enclosing function's
-  // top-level statement list right after rewrite() finishes visiting every declaration (a
-  // BaseSpockkIrElementTransformer visit can only replace the node it's currently at, not insert
-  // siblings, so the splice is a deliberate second pass rather than happening inline).
-  private val pendingInteractionSplices = mutableListOf<Pair<IrVariable, List<IrStatement>>>()
+  // Interaction statements built from a Mock/Stub builder block's trailing lambda, spliced into the
+  // declaring function right after the mock's own IrVariable, in a deliberate second pass (a
+  // BaseSpockkIrElementTransformer visit can only replace the node it's at, not insert siblings).
+  private val pendingInteractionSplices = mutableListOf<PendingInteractionSplice>()
+
+  private class PendingInteractionSplice(val function: IrFunction, val variable: IrVariable, val statements: List<IrStatement>)
 
   companion object {
 
@@ -104,39 +104,38 @@ internal class MockingApiTransformer(
   }
 
   private fun spliceInteractionStatements() {
-    val unconsumed = pendingInteractionSplices.toMutableList()
-    spec.declarations.filterIsInstance<IrFunction>().forEach { function ->
+    pendingInteractionSplices.groupBy { it.function }.forEach { (function, splices) ->
       val statements = function.mutableStatements() ?: return@forEach
+      val unconsumed = splices.toMutableList()
       spliceInto(statements, unconsumed)
-    }
-    if (unconsumed.isNotEmpty()) {
-      // A Mock/Stub builder block whose declaration isn't found in any statement list reachable
-      // from its own function (nested inside an if/for/when-expression/etc.) - not silently
-      // dropping the interactions it configured, since that would leave a stub quietly answering
-      // with defaults instead of what the block actually declared.
-      throw CompilationException(
-        "Mock/Stub builder block interactions must be declared as a statement of a feature or fixture method body",
-        spec.file,
-        unconsumed.first().first
-      )
+      if (unconsumed.isNotEmpty()) {
+        // A Mock/Stub builder block whose declaration isn't found in any statement list reachable
+        // from its own function (nested inside an if/for/when-expression/etc.) - not silently
+        // dropping the interactions it configured, since that would leave a stub quietly answering
+        // with defaults instead of what the block actually declared.
+        throw CompilationException(
+          "Mock/Stub builder block interactions must be declared as a statement of a feature or fixture method body",
+          spec.file,
+          unconsumed.first().variable
+        )
+      }
     }
   }
 
-  // Splices each pending (declaration, builtStatements) pair in right after that declaration,
-  // wherever it's actually found - not just this list's own top-level statements, but recursively
+  // Splices each pending mock's built interaction statements in right after its own declaration,
+  // wherever that's actually found - not just this list's own top-level statements, but recursively
   // into every nested statement list reachable from it (a WhenBlockRewriter/InteractionScopeRewriter
   // try/catch around a paired then:'s exception condition, or CleanupBlockRewriter's try/finally
   // around the whole feature body when a cleanup: block is present, both nest the given: block's
-  // own statements - and therefore a Mock/Stub declaration in it - one level deeper before this
-  // splice pass ever runs).
-  private fun spliceInto(statements: MutableList<IrStatement>, pending: MutableList<Pair<IrVariable, List<IrStatement>>>) {
+  // own statements one level deeper before this splice pass ever runs).
+  private fun spliceInto(statements: MutableList<IrStatement>, pending: MutableList<PendingInteractionSplice>) {
     if (pending.isEmpty()) return
     val rewritten = statements.flatMap { statement ->
       nestedStatementLists(statement).forEach { spliceInto(it, pending) }
-      val splice = pending.firstOrNull { it.first === statement }
+      val splice = pending.firstOrNull { it.variable === statement }
       if (splice != null) {
         pending.remove(splice)
-        listOf(statement) + splice.second
+        listOf(statement) + splice.statements
       } else {
         listOf(statement)
       }
@@ -187,10 +186,9 @@ internal class MockingApiTransformer(
         spec.file,
         call
       )
-    // Unlike the inherited 1-arg Mock(Class)/Stub(Class) member (whose own dispatch receiver already
-    // supplies this slot), this 2-arg overload is a plain top-level function with no receiver of its
-    // own - findMockImplMethod/rewriteMockCall both assume `call.arguments` already starts with the
-    // spec instance, matching MockImpl's own (Specification, name, Type, Class) signature.
+    // Unlike the inherited 1-arg Mock(Class)/Stub(Class) member, this 2-arg overload has no dispatch
+    // receiver of its own - findMockImplMethod/rewriteMockCall assume `call.arguments` starts with
+    // the spec instance, matching MockImpl's (Specification, name, Type, Class) signature.
     call.arguments.add(0, irBuilder(call.symbol).irGet(currentIrFunction.requiredThisParameter()))
 
     val implArgCount = call.arguments.size + 2
@@ -217,7 +215,7 @@ internal class MockingApiTransformer(
       interactionRewriter.rewrite(interaction)
     }
     if (builtStatements.isNotEmpty()) {
-      pendingInteractionSplices += declaration to builtStatements
+      pendingInteractionSplices += PendingInteractionSplice(currentIrFunction, declaration, builtStatements)
     }
   }
 
@@ -316,13 +314,8 @@ internal class MockingApiTransformer(
   }
 }
 
-// A Mock/Stub builder block's own statements reference the mock via [receiverParam] (the block
-// lambda's own extension receiver parameter - named "$this$Stub"/"$this$Mock" by convention, *not*
-// "<this>", which only applies to an ordinary member function's dispatch receiver), valid only
-// inside that lambda. Rebinds every such reference to `target` instead, mirroring
-// io.github.pshevche.spockk.compilation.ir.rebindDispatchReceiverReferences (kept separate since
-// that helper matches by the "<this>" name, and its target is typed as an IrValueParameter, not the
-// IrVariable a mock is declared into).
+// Rebinds a Mock/Stub builder block's implicit-receiver references (valid only inside the block's
+// own lambda) to the mock's IrVariable, so the statements still resolve once moved into the caller.
 @OptIn(UnsafeDuringIrConstructionAPI::class)
 private fun IrExpression.rebindToVariable(
   receiverParam: IrValueParameter,
