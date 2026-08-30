@@ -264,16 +264,11 @@ internal fun DeclarationIrBuilder.irTry(
 )
 
 /**
- * Same as [irTry], but hoists any [IrVariable] declared in [tryExpressions] - at any nesting depth
- * reachable through an already-built inner try/catch/finally, e.g. one an earlier, narrower call to
- * this same function produced - that's actually referenced from [catchExpressions],
- * [finallyExpressions], or [extraReaders] (statements the caller will place after the returned list)
- * out to a declaration returned before the try, with a `SET_VAR` left in its place. A variable
- * declared inside a try's body isn't visible in its `catch`/`finally` handlers or in statements after
- * the try - the same reason a `val` assigned inside a try must be declared before it in ordinary
- * Kotlin source. Only variables actually read outside their own declaring block are hoisted. Reuses
- * the original [IrVariable] (and so its symbol) rather than declaring a new one, so every existing
- * reference elsewhere in the tree keeps resolving correctly without needing to be rewritten.
+ * Same as [irTry], but hoists any [IrVariable] in [tryExpressions] (at any nesting depth, e.g. inside
+ * an already-built inner try) that's referenced from [catchExpressions]/[finallyExpressions]/
+ * [extraReaders] out to a declaration returned before the try, with a `SET_VAR` left in its place -
+ * a try-body declaration isn't visible to its own catch/finally or to code after the try. Reuses the
+ * original [IrVariable]/symbol rather than declaring a new one, so existing references still resolve.
  */
 internal fun DeclarationIrBuilder.irTryHoistingVariables(
   tryExpressions: List<IrStatement>,

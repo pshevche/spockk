@@ -25,19 +25,11 @@ import spock.lang.Specification
 
 /**
  * Covers the when/then interaction scoping shape
- * ([io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScopeRewriter]) - the
- * "trickiest architectural piece" of the feature, since it *moves* interaction-building statements
- * out of the `then` block rather than rewriting in place. Asserts structurally (ordering of the real
- * calls in the IR dump) rather than via exact-dump comparison
- * ([io.github.pshevche.spockk.compilation.BaseCompilationTest]) - `getMockController()`'s reused,
- * already implicit-notnull-wrapped dispatch-receiver sub-expressions (carried over from the original
- * `then`-block statement, not something the rewriter itself adds) can't be reproduced byte-for-byte
- * by independently hand-written Kotlin, the same reason
- * [io.github.pshevche.spockk.compilation.condition.ExceptionConditionsCompilationTest] skips exact-dump
- * testing for `thrown(Type)`'s own rewrite. Response/capture markers (`responseClosure`/
- * `captureClosure`, both `internal` to `spockk-core`) aren't reachable from this test module's own
- * hand-written source at all; those, together with runtime pass/fail behavior, are covered by
- * [io.github.pshevche.spockk.smoke.mock.InteractionsSmokeTest] instead.
+ * ([io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScopeRewriter]), which
+ * *moves* interaction-building statements out of the `then` block rather than rewriting in place.
+ * Asserts structurally (call ordering) rather than via exact-dump comparison - some rewriter-produced
+ * sub-expressions can't be reproduced byte-for-byte by independently hand-written Kotlin. Runtime
+ * pass/fail behavior is covered separately by [io.github.pshevche.spockk.smoke.mock.InteractionsSmokeTest].
  */
 @OptIn(ExperimentalCompilerApi::class)
 class InteractionCompilationTest : Specification() {

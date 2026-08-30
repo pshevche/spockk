@@ -201,8 +201,7 @@ internal class MockingApiTransformer(
     // the spec instance, matching MockImpl's (Specification, name, Type, Class) signature.
     call.arguments.add(0, irBuilder(call.symbol).irGet(currentIrFunction.requiredThisParameter()))
 
-    val implArgCount = call.arguments.size + 2
-    val mockImplMethod = findMockImplMethod(mockImplMethodName, implArgCount, call) ?: return
+    val mockImplMethod = findMockImplMethod(mockImplMethodName, mockImplArgCount(call), call) ?: return
     rewriteMockCall(call, declaration, mockImplMethod)
 
     val lambdaStatements = blockArg.function.mutableStatements() ?: return
@@ -241,18 +240,18 @@ internal class MockingApiTransformer(
     if (mockMethodImplName != null) {
       val parent = owner.parent
       if (parent == spec) {
-        val implArgCount =
-          call.arguments.size +
-            2 // We need two more arguments for String inferredName, Type inferredType, see
-        // SpecInternals Spock class
         val mockImplMethod: IrSimpleFunction? =
-          findMockImplMethod(mockMethodImplName, implArgCount, call)
+          findMockImplMethod(mockMethodImplName, mockImplArgCount(call), call)
         if (mockImplMethod != null) {
           rewriteMockCall(call, variable, mockImplMethod)
         }
       }
     }
   }
+
+  // MockImpl/StubImpl (SpecInternals) always take two more arguments than the user-facing call: the
+  // inferred String name and Type, see SpecInternals.
+  private fun mockImplArgCount(call: IrCall): Int = call.arguments.size + 2
 
   private fun rewriteMockCall(
     expression: IrCall,

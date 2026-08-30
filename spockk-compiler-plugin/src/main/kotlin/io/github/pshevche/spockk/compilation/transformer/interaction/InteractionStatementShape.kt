@@ -67,9 +67,13 @@ internal fun IrStatement.asInteractionStatement(allowBareCall: Boolean = false):
   val original = this
   val topLevelCall = (this as? IrExpression)?.unwrapImplicitCoercionToUnit() as? IrCall ?: return null
 
-  val (afterResponse, response) = topLevelCall.unwrapResponse() ?: (topLevelCall to null)
-  val (methodCall, cardinality) = afterResponse.unwrapCardinality() ?: (afterResponse to null)
+  val (afterOuterResponse, outerResponse) = topLevelCall.unwrapResponse() ?: (topLevelCall to null)
+  val (afterCardinality, cardinality) = afterOuterResponse.unwrapCardinality() ?: (afterOuterResponse to null)
+  // A response can also end up nested inside the cardinality's operand rather than wrapping it, e.g.
+  // an explicitly parenthesized `1 * (obj.method() returned "x")` - try unwrapping it there too.
+  val (methodCall, innerResponse) = afterCardinality.unwrapResponse() ?: (afterCardinality to null)
 
+  val response = outerResponse ?: innerResponse
   if (cardinality == null && response == null && !allowBareCall) return null
   return InteractionStatement(original, cardinality, methodCall, response)
 }

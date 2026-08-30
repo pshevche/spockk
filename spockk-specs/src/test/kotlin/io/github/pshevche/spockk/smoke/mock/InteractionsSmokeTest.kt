@@ -152,6 +152,18 @@ class InteractionsSmokeTest : Specification() {
     result == "Alice"
   }
 
+  fun `an explicitly parenthesized response still unwraps correctly`() {
+    given
+    val obj = Mock(Greeter::class.java)
+
+    `when`
+    val result = obj.getUsername()
+
+    then
+    1 * (obj.getUsername() returned "Alice")
+    result == "Alice"
+  }
+
   fun `did runs its side effect`() {
     given
     val obj = Mock(Greeter::class.java)
