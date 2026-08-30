@@ -29,8 +29,16 @@ fun <T> any(): T = throwIllegalInteractionUsageException("any")
 /**
  * Matches any method call on the receiving mock, regardless of name or arguments - mirrors Spock's
  * `obj._(...)` wildcard method name. Standalone (`1 * obj.anyMethod()`) or via [noMoreInteractions].
+ *
+ * Returns `Unit`, not `Nothing`: `1 * obj.anyMethod()` needs `Int.times<T>(call: T): T` to infer a
+ * concrete `T` - a `Nothing`-typed argument is assignable to every built-in numeric `Int.times`
+ * overload equally (`Nothing` is a subtype of `Int`, `Long`, etc.), which makes that call ambiguous
+ * between this marker and those built-ins; `Unit` isn't assignable to any of them, so only this
+ * marker's overload ever applies.
  */
-fun <T> T.anyMethod(): Nothing = throwIllegalInteractionUsageException("anyMethod")
+fun <T> T.anyMethod() {
+  throwIllegalInteractionUsageException("anyMethod")
+}
 
 /**
  * Cardinality prefix for an interaction: `N * target.method(args)`. Kept verbatim from Spock's own

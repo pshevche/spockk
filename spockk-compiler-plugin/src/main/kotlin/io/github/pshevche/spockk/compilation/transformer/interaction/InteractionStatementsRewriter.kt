@@ -16,6 +16,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.interaction
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPOCK_SPREAD_WILDCARD_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPOCK_WILDCARD_FQN
 import io.github.pshevche.spockk.compilation.ir.findFieldByName
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
@@ -29,7 +30,6 @@ import io.github.pshevche.spockk.compilation.ir.sourceText
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import io.github.pshevche.spockk.compilation.transformer.ir.getSpecificationContext
-import org.jetbrains.kotlin.backend.jvm.functionByName
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irBoolean
@@ -40,11 +40,14 @@ import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrVararg
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.typeOrFail
@@ -67,7 +70,8 @@ internal class InteractionStatementsRewriter(
 
   private val builder = irBuilder(feature.symbol)
   private val wildcardClass = rewriterContext.findRequiredClassSymbol(SPOCK_WILDCARD_FQN)
-  private val intRangeClass = rewriterContext.findRequiredClassSymbol(INT_RANGE_FQN)
+  private val spreadWildcardClass = rewriterContext.findRequiredClassSymbol(SPOCK_SPREAD_WILDCARD_FQN)
+  private val intProgressionClass = rewriterContext.findRequiredClassSymbol(INT_PROGRESSION_FQN)
   private val responseClosureFn = rewriterContext.findUniqueFunctionSymbol(RESPONSE_CLOSURE_CALLABLE_ID)
   private val captureClosureFn = rewriterContext.findUniqueFunctionSymbol(CAPTURE_CLOSURE_CALLABLE_ID)
   private val closureType = builder.irType(CLOSURE_FQN)
@@ -159,15 +163,27 @@ internal class InteractionStatementsRewriter(
       MethodNameKind.Wildcard -> rewriterContext.interactionBuilder.irAddEqualMethodName(builder, chain, builder.irString("_"))
     }
 
-    for (arg in shape.args) {
-      chain = when {
-        (arg as? IrCall)?.isAnyMarkerCall() == true ->
-          rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irWildcardInstance())
+    // argConstraints/argNames stay null - NullPointerException on the first addEqualArg/addCodeArg -
+    // until this initializes them, even when shape.args is empty (anyMethod()/a bare no-arg call).
+    chain = rewriterContext.interactionBuilder.irSetArgListKind(builder, chain)
 
-        (arg as? IrCall)?.isCaptureMarkerCall() == true ->
-          rewriterContext.interactionBuilder.irAddCodeArg(builder, chain, irCaptureClosureCall(arg))
+    if (shape.methodName == MethodNameKind.Wildcard) {
+      // anyMethod() promises to match "any method call ... regardless of ... arguments": an empty
+      // arg-constraint list only matches a genuinely zero-arg invocation
+      // (PositionalArgumentListConstraint.areConstraintsSatisfiedBy), so match any argument list via
+      // Spock's own SpreadWildcard instead - the same sentinel Groovy's `_._(*_)` compiles to.
+      chain = rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irSpreadWildcardInstance())
+    } else {
+      for (arg in shape.args) {
+        chain = when {
+          (arg as? IrCall)?.isAnyMarkerCall() == true ->
+            rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irWildcardInstance())
 
-        else -> rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, arg)
+          (arg as? IrCall)?.isCaptureMarkerCall() == true ->
+            rewriterContext.interactionBuilder.irAddCodeArg(builder, chain, irCaptureClosureCall(arg))
+
+          else -> rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, arg)
+        }
       }
     }
 
@@ -189,10 +205,11 @@ internal class InteractionStatementsRewriter(
       parent = feature
       initializer = range
     }
-    val firstGetter = intRangeClass.functionByName("getFirst")
-    val lastGetter = intRangeClass.functionByName("getLast")
-    val minExpr = builder.irCall(firstGetter).apply { dispatchReceiver = builder.irGet(rangeVar) }
-    val maxExpr = builder.irCall(lastGetter).apply { dispatchReceiver = builder.irGet(rangeVar) }
+    // first/last are declared on IntProgression (IntRange's superclass) as properties, not plain
+    // functions - functionByName (meant for Java-style methods) can't find their getters, so look
+    // the properties up directly.
+    val minExpr = builder.irCall(intProgressionClass.propertyGetter("first")).apply { dispatchReceiver = builder.irGet(rangeVar) }
+    val maxExpr = builder.irCall(intProgressionClass.propertyGetter("last")).apply { dispatchReceiver = builder.irGet(rangeVar) }
     return Triple(rangeVar, minExpr, maxExpr)
   }
 
@@ -200,6 +217,12 @@ internal class InteractionStatementsRewriter(
     val instanceField = wildcardClass.findFieldByName("INSTANCE")
     val fieldAccess = builder.irGetField(null, instanceField).apply { superQualifierSymbol = wildcardClass }
     return builder.irImplicitNotNull(fieldAccess, builder.irType(SPOCK_WILDCARD_FQN))
+  }
+
+  private fun irSpreadWildcardInstance(): IrExpression {
+    val instanceField = spreadWildcardClass.findFieldByName("INSTANCE")
+    val fieldAccess = builder.irGetField(null, instanceField).apply { superQualifierSymbol = spreadWildcardClass }
+    return builder.irImplicitNotNull(fieldAccess, builder.irType(SPOCK_SPREAD_WILDCARD_FQN))
   }
 
   private fun irResponseClosureCall(block: IrExpression): IrFunctionAccessExpression =
@@ -231,10 +254,13 @@ internal class InteractionStatementsRewriter(
   }
 
   private companion object {
-    val INT_RANGE_FQN = FqName("kotlin.ranges.IntRange")
+    val INT_PROGRESSION_FQN = FqName("kotlin.ranges.IntProgression")
     val CLOSURE_FQN = FqName("groovy.lang.Closure")
     val LANG_PKG_FQN = FqName("io.github.pshevche.spockk.lang")
     val RESPONSE_CLOSURE_CALLABLE_ID = CallableId(LANG_PKG_FQN, Name.identifier("responseClosure"))
     val CAPTURE_CLOSURE_CALLABLE_ID = CallableId(LANG_PKG_FQN, Name.identifier("captureClosure"))
   }
 }
+
+private fun IrClassSymbol.propertyGetter(name: String): IrSimpleFunctionSymbol =
+  owner.declarations.filterIsInstance<IrProperty>().first { it.name.asString() == name }.getter!!.symbol
