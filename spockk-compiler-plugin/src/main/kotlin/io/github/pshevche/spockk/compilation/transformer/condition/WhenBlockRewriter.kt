@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.compilation.transformer.condition
 
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
-import io.github.pshevche.spockk.compilation.ir.irTry
+import io.github.pshevche.spockk.compilation.ir.irTryHoistingVariables
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.WHEN_BLOCK_THROWABLE_VAR
@@ -36,15 +36,15 @@ import org.jetbrains.kotlin.ir.util.parentAsClass
  * Rewrites a `when` block paired with a `then` block that contains a `thrown`/`notThrown`/
  * `noExceptionThrown` call: wraps the block's statements in a try/catch that records any thrown
  * exception on `SpecificationContext`, mirroring Spock's own
- * `SpecRewriter.rewriteWhenBlockForExceptionCondition`. No variable-declaration hoisting is
- * needed here (unlike Spock's Groovy-source-scoping workaround) - Kotlin IR resolves locals by
- * symbol, not lexical nesting, the same fact [io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter]
- * already relies on when it wraps the entire feature body's statements in a try.
+ * `SpecRewriter.rewriteWhenBlockForExceptionCondition`. A variable the `when` block declares that
+ * [thenBlockStatements] (or a later `cleanup:` block, via [irTryHoistingVariables]'s own recursion
+ * into an already-nested try like this one) reads is hoisted out of the try.
  */
 internal class WhenBlockRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
   private val feature: IrFunction,
-  private val whenBlock: FeatureBlock
+  private val whenBlock: FeatureBlock,
+  private val thenBlockStatements: List<IrStatement>
 ) : SpockkIrRewriter {
 
   private val builder = irBuilder(feature.symbol)
@@ -56,7 +56,7 @@ internal class WhenBlockRewriter(
     return buildList {
       add(specificationContext.irSetThrownException(builder, specAccessor, builder.irNull()))
       add(rewriterContext.spockRuntime.irCallBlockEntered(builder, specAccessor, whenBlock.ordinal))
-      add(wrapInTryCatch(specAccessor, specificationContext))
+      addAll(wrapInTryCatch(specAccessor, specificationContext))
       add(rewriterContext.spockRuntime.irCallBlockExited(builder, specAccessor, whenBlock.ordinal))
     }
   }
@@ -64,14 +64,15 @@ internal class WhenBlockRewriter(
   private fun wrapInTryCatch(
     specAccessor: IrValueParameter,
     specificationContext: IrSpecificationContext
-  ): IrStatement {
+  ): List<IrStatement> {
     val catchVar = irCatchParameter(WHEN_BLOCK_THROWABLE_VAR, irBuiltIns.throwableType).apply { parent = feature }
     val catchResult = specificationContext.irSetThrownException(builder, specAccessor, builder.irGet(catchVar))
 
-    return builder.irTry(
+    return builder.irTryHoistingVariables(
       tryExpressions = whenBlock.statements,
       catchExpressions = listOf(builder.irCatch(catchVar, builder.irBlock { +catchResult })),
-      finallyExpressions = listOf()
+      finallyExpressions = listOf(),
+      extraReaders = thenBlockStatements
     )
   }
 }

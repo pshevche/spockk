@@ -254,12 +254,6 @@ class InteractionsSmokeTest : Specification() {
   }
 
   fun `Mock builder block still works when the feature also has a cleanup block`() {
-    // cleanup: intentionally doesn't reference `obj` - a given:-declared variable read from
-    // cleanup: hits a separate, pre-existing CleanupBlockRewriter codegen bug unrelated to
-    // interactions (reproduces with a plain `val`, no Mock/interaction involved at all; see PR
-    // description). This test's own concern is narrower: that a Mock builder block's spliced
-    // interaction statements still work correctly once CleanupBlockRewriter wraps the whole
-    // feature body in its own try/finally.
     given
     val obj = Mock(Greeter::class.java) {
       setName("Alice") does { }
@@ -272,7 +266,7 @@ class InteractionsSmokeTest : Specification() {
     noExceptionThrown()
 
     cleanup
-    println("cleanup ran")
+    obj.getUsername()
   }
 
   fun `Mock builder block declared inside a when block whose then has an exception condition`() {

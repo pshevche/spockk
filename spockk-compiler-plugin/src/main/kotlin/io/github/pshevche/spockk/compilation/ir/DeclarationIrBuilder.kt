@@ -20,12 +20,14 @@ import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.ADD_SUPPRES
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.LIST_FQN
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
+import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irAnnotation
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irSet
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irTry
 import org.jetbrains.kotlin.ir.builders.irVararg
@@ -39,6 +41,7 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrTry
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
@@ -48,6 +51,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
+import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
 import org.jetbrains.kotlin.ir.types.IrSimpleType
@@ -64,6 +68,9 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.ir.util.toIrConst
+import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
+import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
@@ -255,3 +262,65 @@ internal fun DeclarationIrBuilder.irTry(
   catches = catchExpressions,
   finallyExpression = irBlock { +finallyExpressions }
 )
+
+/**
+ * Same as [irTry], but hoists any [IrVariable] declared in [tryExpressions] - at any nesting depth
+ * reachable through an already-built inner try/catch/finally, e.g. one an earlier, narrower call to
+ * this same function produced - that's actually referenced from [catchExpressions],
+ * [finallyExpressions], or [extraReaders] (statements the caller will place after the returned list)
+ * out to a declaration returned before the try, with a `SET_VAR` left in its place. A variable
+ * declared inside a try's body isn't visible in its `catch`/`finally` handlers or in statements after
+ * the try - the same reason a `val` assigned inside a try must be declared before it in ordinary
+ * Kotlin source. Only variables actually read outside their own declaring block are hoisted. Reuses
+ * the original [IrVariable] (and so its symbol) rather than declaring a new one, so every existing
+ * reference elsewhere in the tree keeps resolving correctly without needing to be rewritten.
+ */
+internal fun DeclarationIrBuilder.irTryHoistingVariables(
+  tryExpressions: List<IrStatement>,
+  catchExpressions: List<IrCatch>,
+  finallyExpressions: List<IrStatement>,
+  extraReaders: List<IrElement> = emptyList()
+): List<IrStatement> {
+  val readers: List<IrElement> = catchExpressions.map { it.result } + finallyExpressions + extraReaders
+  val hoisted = mutableListOf<IrVariable>()
+  val rewrittenTryExpressions = hoistReferencedVariables(tryExpressions, readers, hoisted)
+  return buildList {
+    addAll(hoisted)
+    add(irTry(rewrittenTryExpressions, catchExpressions, finallyExpressions))
+  }
+}
+
+private fun DeclarationIrBuilder.hoistReferencedVariables(
+  statements: List<IrStatement>,
+  readers: List<IrElement>,
+  hoisted: MutableList<IrVariable>
+): List<IrStatement> = statements.mapNotNull { statement ->
+  statement.nestedStatementLists().forEach { nested ->
+    val rewrittenNested = hoistReferencedVariables(nested, readers, hoisted)
+    nested.clear()
+    nested.addAll(rewrittenNested)
+  }
+  if (statement !is IrVariable || readers.none { it.referencesValue(statement.symbol) }) return@mapNotNull statement
+  hoisted += statement
+  val initializer = statement.initializer ?: return@mapNotNull null
+  statement.initializer = null
+  irSet(statement, initializer)
+}
+
+private fun IrElement.referencesValue(symbol: IrValueSymbol): Boolean {
+  var found = false
+  acceptVoid(object : IrVisitorVoid() {
+    override fun visitElement(element: IrElement) {
+      if (!found) element.acceptChildrenVoid(this)
+    }
+
+    override fun visitGetValue(expression: IrGetValue) {
+      if (expression.symbol == symbol) found = true else visitElement(expression)
+    }
+
+    override fun visitSetValue(expression: IrSetValue) {
+      if (expression.symbol == symbol) found = true else visitElement(expression)
+    }
+  })
+  return found
+}
