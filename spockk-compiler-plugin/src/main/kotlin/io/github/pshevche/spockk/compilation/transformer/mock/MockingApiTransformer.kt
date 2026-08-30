@@ -44,9 +44,11 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
+import org.jetbrains.kotlin.ir.expressions.IrContainerExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrTry
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
@@ -105,29 +107,54 @@ internal class MockingApiTransformer(
     val unconsumed = pendingInteractionSplices.toMutableList()
     spec.declarations.filterIsInstance<IrFunction>().forEach { function ->
       val statements = function.mutableStatements() ?: return@forEach
-      val rewritten = statements.flatMap { statement ->
-        val splice = unconsumed.firstOrNull { it.first === statement }
-        if (splice != null) {
-          unconsumed.remove(splice)
-          listOf(statement) + splice.second
-        } else {
-          listOf(statement)
-        }
-      }
-      statements.clear()
-      statements.addAll(rewritten)
+      spliceInto(statements, unconsumed)
     }
     if (unconsumed.isNotEmpty()) {
-      // A Mock/Stub builder block whose declaration isn't a direct top-level statement of the
-      // function it's in (nested inside an if/for/etc.) - not silently dropping the interactions
-      // it configured, since that would leave a stub quietly answering with defaults instead of
-      // what the block actually declared.
+      // A Mock/Stub builder block whose declaration isn't found in any statement list reachable
+      // from its own function (nested inside an if/for/when-expression/etc.) - not silently
+      // dropping the interactions it configured, since that would leave a stub quietly answering
+      // with defaults instead of what the block actually declared.
       throw CompilationException(
-        "Mock/Stub builder block interactions must be declared as a direct statement of a feature or fixture method body",
+        "Mock/Stub builder block interactions must be declared as a statement of a feature or fixture method body",
         spec.file,
         unconsumed.first().first
       )
     }
+  }
+
+  // Splices each pending (declaration, builtStatements) pair in right after that declaration,
+  // wherever it's actually found - not just this list's own top-level statements, but recursively
+  // into every nested statement list reachable from it (a WhenBlockRewriter/InteractionScopeRewriter
+  // try/catch around a paired then:'s exception condition, or CleanupBlockRewriter's try/finally
+  // around the whole feature body when a cleanup: block is present, both nest the given: block's
+  // own statements - and therefore a Mock/Stub declaration in it - one level deeper before this
+  // splice pass ever runs).
+  private fun spliceInto(statements: MutableList<IrStatement>, pending: MutableList<Pair<IrVariable, List<IrStatement>>>) {
+    if (pending.isEmpty()) return
+    val rewritten = statements.flatMap { statement ->
+      nestedStatementLists(statement).forEach { spliceInto(it, pending) }
+      val splice = pending.firstOrNull { it.first === statement }
+      if (splice != null) {
+        pending.remove(splice)
+        listOf(statement) + splice.second
+      } else {
+        listOf(statement)
+      }
+    }
+    statements.clear()
+    statements.addAll(rewritten)
+  }
+
+  private fun nestedStatementLists(statement: IrStatement): List<MutableList<IrStatement>> = when (statement) {
+    is IrTry -> buildList {
+      (statement.tryResult as? IrContainerExpression)?.let { add(it.statements) }
+      statement.catches.forEach { (it.result as? IrContainerExpression)?.let { result -> add(result.statements) } }
+      (statement.finallyExpression as? IrContainerExpression)?.let { add(it.statements) }
+    }
+
+    is IrContainerExpression -> listOf(statement.statements)
+
+    else -> emptyList()
   }
 
   override fun visitVariable(declaration: IrVariable): IrStatement {
@@ -180,7 +207,13 @@ internal class MockingApiTransformer(
       // inside the lambda - rebind those references to the mock's own variable before moving the
       // statements out into the enclosing function, where that receiver no longer exists.
       val rebound = (statement as? IrExpression)?.rebindToVariable(lambdaReceiverParam, declaration, lambdaBuilder) ?: statement
-      val interaction = rebound.asInteractionStatement(allowBareCall = true) ?: return@flatMap emptyList()
+      val interaction = rebound.asInteractionStatement(allowBareCall = true)
+        ?: throw CompilationException(
+          "Every statement in a Mock/Stub builder block must be an interaction statement (a call on the mock, " +
+            "optionally wrapped in does/did/returns/returned)",
+          spec.file,
+          statement
+        )
       interactionRewriter.rewrite(interaction)
     }
     if (builtStatements.isNotEmpty()) {

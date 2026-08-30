@@ -59,6 +59,14 @@ import org.jetbrains.kotlin.ir.util.file
  * `verify`/`verifyAll`/`verifyEach` lambda body - a lambda captures the enclosing `this` rather than
  * declaring its own dispatch receiver, so interaction statements there are left unrecognized (not
  * silently mishandled: they simply fall through unrewritten, the same as today).
+ *
+ * An `expect` block's interactions (unlike a `then` block's, see
+ * [io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScopeRewriter]) are
+ * *not* extracted or scope-wrapped by [io.github.pshevche.spockk.compilation.transformer.FeatureRewriter]
+ * - an `expect` block has no paired `when` block to bracket, so its interactions register directly,
+ * once, into whatever scope is already active, exactly like a `given:`/`Stub{}` block's do. This
+ * matches Spock's own interaction semantics, not a gap: an interaction only ever matches invocations
+ * that happen *after* it's registered, in any block shape.
  */
 internal class ConditionStatementsRewriter(
   override val rewriterContext: SpockkIrRewriterContext
@@ -72,28 +80,34 @@ internal class ConditionStatementsRewriter(
     errorCollectorVar: IrVariable?,
     treatAsConditionScope: Boolean,
     allowInteractionStatements: Boolean = false
-  ): List<IrStatement> = statements.flatMap { statement ->
-    val helperCall = statement.asImplicitAssertionHelperCall()
-    val interaction = if (allowInteractionStatements) statement.asInteractionStatement() else null
-    val noMoreInteractionsCall = if (allowInteractionStatements) statement.asNoMoreInteractionsCall() else null
-    when {
-      helperCall != null -> {
-        rewriteHelperCallLambdaBody(helperCall, valueRecorderVar!!, errorCollectorVar!!)
-        listOf(statement)
+  ): List<IrStatement> {
+    // Resolved once per statement list (not per statement) and only if actually needed - its
+    // constructor resolves several runtime class/function symbols (Wildcard, SpreadWildcard,
+    // IntProgression, responseClosure, captureClosure).
+    val interactionRewriter by lazy(LazyThreadSafetyMode.NONE) { InteractionStatementsRewriter(rewriterContext, enclosingFunction) }
+
+    return statements.flatMap { statement ->
+      val helperCall = statement.asImplicitAssertionHelperCall()
+      val interaction = if (allowInteractionStatements) statement.asInteractionStatement() else null
+      val noMoreInteractionsCall = if (allowInteractionStatements) statement.asNoMoreInteractionsCall() else null
+      when {
+        helperCall != null -> {
+          rewriteHelperCallLambdaBody(helperCall, valueRecorderVar!!, errorCollectorVar!!)
+          listOf(statement)
+        }
+
+        // Ordering matters: an interaction statement's wrapped call can itself have a Boolean
+        // return type (e.g. `1 * obj.isValid()`), so it must never fall through to condition
+        // treatment below.
+        interaction != null -> interactionRewriter.rewrite(interaction)
+
+        noMoreInteractionsCall != null -> interactionRewriter.rewriteNoMoreInteractions(noMoreInteractionsCall)
+
+        statement.isConditionStatement(irBuiltIns, treatAsConditionScope) ->
+          listOf(rewriteConditionStatement(statement as IrExpression, enclosingFunction, builder, valueRecorderVar!!, errorCollectorVar!!))
+
+        else -> listOf(statement)
       }
-
-      // Ordering matters: an interaction statement's wrapped call can itself have a Boolean return
-      // type (e.g. `1 * obj.isValid()`), so it must never fall through to condition treatment below.
-      interaction != null ->
-        InteractionStatementsRewriter(rewriterContext, enclosingFunction).rewrite(interaction)
-
-      noMoreInteractionsCall != null ->
-        InteractionStatementsRewriter(rewriterContext, enclosingFunction).rewriteNoMoreInteractions(noMoreInteractionsCall)
-
-      statement.isConditionStatement(irBuiltIns, treatAsConditionScope) ->
-        listOf(rewriteConditionStatement(statement as IrExpression, enclosingFunction, builder, valueRecorderVar!!, errorCollectorVar!!))
-
-      else -> listOf(statement)
     }
   }
 
