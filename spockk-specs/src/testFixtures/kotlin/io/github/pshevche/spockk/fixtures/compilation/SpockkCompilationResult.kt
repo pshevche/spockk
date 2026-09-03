@@ -22,4 +22,8 @@ import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 data class SpockkCompilationResult(val compilation: JvmCompilationResult, val irDump: String) {
 
   fun isSuccess() = (compilation.exitCode == KotlinCompilation.ExitCode.OK)
+
+  /** Number of times the Kotlin frontend's `UNUSED_EXPRESSION` diagnostic fired. */
+  fun unusedExpressionWarningCount() =
+    Regex(Regex.escape("Expression is unused")).findAll(compilation.messages).count()
 }

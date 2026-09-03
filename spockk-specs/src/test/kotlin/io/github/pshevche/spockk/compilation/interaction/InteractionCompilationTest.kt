@@ -142,4 +142,62 @@ class InteractionCompilationTest : Specification() {
       checkExceptionThrownIdx > leaveScopeIdx
     }
   }
+
+  /**
+   * Interaction statements are calls, never bare comparisons/references, so the compiler's
+   * `UNUSED_EXPRESSION` diagnostic (which the IDE's `UnusedExpression` inspection surfaces) never
+   * fires on them - covers both the `then` block and a `Stub{}` builder block.
+   */
+  fun `interaction statements never trigger the compiler's unused-expression warning`() {
+    given
+    val source = kotlin(
+      "NoUnusedExpressionWarnings.kt",
+      """
+      import io.github.pshevche.spockk.lang.*
+
+      interface Greeter {
+        fun setName(name: String)
+        fun getUsername(): String
+      }
+
+      class NoUnusedExpressionWarnings : spock.lang.Specification() {
+        fun `some feature`() {
+          io.github.pshevche.spockk.lang.given
+          val slot = slot<String>()
+          val obj = Mock(Greeter::class.java)
+          val stub = Stub(Greeter::class.java) {
+            getUsername() returns "Alice"
+            setName(any()) does { args -> println(args) }
+          }
+
+          io.github.pshevche.spockk.lang.`when`
+          obj.setName("Alice")
+          val result = obj.getUsername()
+
+          io.github.pshevche.spockk.lang.then
+          1 * obj.setName("Alice")
+          1 * obj.setName(any())
+          1 * obj.setName(capture(slot))
+          1 * obj.anyMethod()
+          noMoreInteractions(obj)
+          (1..3) * obj.setName("Alice")
+          1 * obj.getUsername() returned "Alice"
+          1 * obj.setName("Alice") did { args -> println(args) }
+          result == "Alice"
+        }
+      }
+      """.trimIndent()
+    )
+
+    `when`
+    val result = transform(source)
+
+    then
+    verifyAll {
+      result.isSuccess()
+      // exactly the 3 already-known block-label warnings (given/when/then), none contributed by
+      // the interaction statements themselves.
+      result.unusedExpressionWarningCount() == 3
+    }
+  }
 }
