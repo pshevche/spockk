@@ -78,6 +78,13 @@ internal object IrIdentifiers {
     val FROM_FQN_REGEX = "io\\.github\\.pshevche\\.spockk\\.lang\\.DataVariable.+\\.from".toRegex()
   }
 
+  internal object JUnit {
+    // FqName
+    private val JUNIT_PKG_FQN = FqName("org.junit")
+    val RULE_FQN = JUNIT_PKG_FQN.child("Rule")
+    val CLASS_RULE_FQN = JUNIT_PKG_FQN.child("ClassRule")
+  }
+
   internal object Kotlin {
     // FqName
     val LIST_FQN = COLLECTIONS_PACKAGE_FQ_NAME.child("List")

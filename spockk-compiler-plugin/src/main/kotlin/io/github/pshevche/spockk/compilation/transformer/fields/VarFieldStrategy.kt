@@ -36,7 +36,7 @@ internal class VarFieldStrategy(
   override fun rewrite(property: IrProperty) {
     val field = property.backingField ?: return
 
-    annotateField(field, fieldCtx)
+    annotateField(field, property, fieldCtx)
     field.makePrivate()
     property.makePrivate()
 

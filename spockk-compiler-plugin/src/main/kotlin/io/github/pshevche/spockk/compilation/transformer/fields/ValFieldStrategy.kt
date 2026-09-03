@@ -55,7 +55,7 @@ internal class ValFieldStrategy(
   override fun rewrite(property: IrProperty) {
     val field = property.backingField ?: return
 
-    annotateField(field, fieldCtx)
+    annotateField(field, property, fieldCtx)
 
     val newName = InternalIdentifiers.getFinalFieldName(fieldCtx.name)
     rename(field, property, newName)
