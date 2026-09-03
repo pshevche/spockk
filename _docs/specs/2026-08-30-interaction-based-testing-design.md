@@ -228,6 +228,18 @@ change); `Spy(existingInstance) { ... }` (wrapping an already-constructed object
 plain, non-builder-block `Spy(instance)` this overload sugars over was already out of this session's reach to
 verify and is left for a follow-up).
 
+### IntelliJ Plugin
+
+No suppression changes needed. `SpockkUnusedExpressionInspectionSuppressor` exists because the Kotlin compiler's
+`UNUSED_EXPRESSION` diagnostic (surfaced in the IDE as the `UnusedExpression` inspection) only fires on statement
+expressions with no possible side effect - a bare comparison, reference, or literal. Every interaction statement
+shape (`N * target.method(args)`, `does`/`did`/`returns`/`returned`, `capture`/`anyMethod`/`noMoreInteractions`, the
+`Mock`/`Stub`/`Spy` builder block) and every exception-condition statement (`thrown`/`notThrown`/`noExceptionThrown`)
+is a function/operator/infix call, which the compiler always assumes may have side effects - confirmed empirically
+by compiling representative specs and asserting the warning count against the real Kotlin frontend
+(`InteractionCompilationTest`/`ExceptionConditionsCompilationTest` in `spockk-specs`), not just by reading the
+inspection's source. The IntelliJ plugin module itself needed no changes.
+
 ### Spock Source References
 
 - [`InteractionBuilder.java`](https://github.com/spockframework/spock/blob/master/spock-core/src/main/java/org/spockframework/mock/runtime/InteractionBuilder.java) - full fluent API used to build `IMockInteraction`

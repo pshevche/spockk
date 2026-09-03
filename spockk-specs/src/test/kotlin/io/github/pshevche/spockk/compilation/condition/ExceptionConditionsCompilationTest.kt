@@ -15,8 +15,14 @@
 package io.github.pshevche.spockk.compilation.condition
 
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
+import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
+import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verifyAll
+import io.github.pshevche.spockk.lang.`when`
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
 /**
  * Covers the `when`-block wrapping mechanism ([io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter])
@@ -28,6 +34,7 @@ import io.github.pshevche.spockk.lang.expect
  * correctness is covered by [io.github.pshevche.spockk.smoke.condition.ExceptionConditionsSmokeTest]
  * (runtime pass/fail behavior) instead.
  */
+@OptIn(ExperimentalCompilerApi::class)
 class ExceptionConditionsCompilationTest : BaseCompilationTest() {
 
   fun `when block wrapped for a paired notThrown call`() {
@@ -43,5 +50,79 @@ class ExceptionConditionsCompilationTest : BaseCompilationTest() {
   fun `when block is left unwrapped without a paired exception condition`() {
     expect
     assertTransformation(sampleFromResource("condition/NoExceptionConditionNoWrapping"))
+  }
+
+  /**
+   * `thrown`/`notThrown`/`noExceptionThrown` are calls, never bare comparisons/references, so the
+   * compiler's `UNUSED_EXPRESSION` diagnostic (which the IDE's `UnusedExpression` inspection
+   * surfaces) never fires on them.
+   */
+  fun `thrown never triggers the compiler's unused-expression warning`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          "".substring(5)
+
+          io.github.pshevche.spockk.lang.then
+          thrown(StringIndexOutOfBoundsException::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    verifyAll {
+      result.isSuccess()
+      result.unusedExpressionWarningCount() == 2
+    }
+  }
+
+  fun `notThrown never triggers the compiler's unused-expression warning`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          check(true)
+
+          io.github.pshevche.spockk.lang.then
+          notThrown(IllegalArgumentException::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    verifyAll {
+      result.isSuccess()
+      result.unusedExpressionWarningCount() == 2
+    }
+  }
+
+  fun `noExceptionThrown never triggers the compiler's unused-expression warning`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          check(true)
+
+          io.github.pshevche.spockk.lang.then
+          noExceptionThrown()
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    verifyAll {
+      result.isSuccess()
+      result.unusedExpressionWarningCount() == 2
+    }
   }
 }
