@@ -342,6 +342,33 @@ class InteractionsSmokeTest : Specification() {
     spy.getUsername() == "Overridden"
   }
 
+  fun `Spy on an existing instance verifies calls, delegating to the real method by default`() {
+    given
+    val real = GreeterImpl()
+    val spy = Spy(real)
+
+    `when`
+    spy.setName("Alice")
+    val result = spy.getUsername()
+
+    then
+    1 * spy.setName("Alice")
+    result == "Alice"
+  }
+
+  fun `Spy on an existing instance can still be stubbed via a then block`() {
+    given
+    val real = GreeterImpl()
+    val spy = Spy(real)
+
+    `when`
+    val result = spy.getUsername()
+
+    then
+    1 * spy.getUsername() returned "Overridden"
+    result == "Overridden"
+  }
+
   fun `Mock builder block still works when the feature also has a cleanup block`() {
     given
     val obj = Mock(Greeter::class.java) {
