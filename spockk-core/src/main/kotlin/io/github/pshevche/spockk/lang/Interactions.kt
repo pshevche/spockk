@@ -22,28 +22,20 @@ private fun throwIllegalInteractionUsageException(label: String): Nothing = thro
 
 /**
  * Matches any argument value, mirroring Spock's `_`. `T` is inferred from the parameter it's passed
- * for; a reified generic isn't needed here since the compiler plugin never actually calls this body.
+ * for.
  */
 fun <T> any(): T = throwIllegalInteractionUsageException("any")
 
 /**
  * Matches any method call on the receiving mock, regardless of name or arguments - mirrors Spock's
  * `obj._(...)` wildcard method name. Standalone (`1 * obj.anyMethod()`) or via [noMoreInteractions].
- *
- * Returns `Unit`, not `Nothing`: `1 * obj.anyMethod()` needs `Int.times<T>(call: T): T` to infer a
- * concrete `T` - a `Nothing`-typed argument is assignable to every built-in numeric `Int.times`
- * overload equally (`Nothing` is a subtype of `Int`, `Long`, etc.), which makes that call ambiguous
- * between this marker and those built-ins; `Unit` isn't assignable to any of them, so only this
- * marker's overload ever applies.
  */
 fun <T> T.anyMethod() {
   throwIllegalInteractionUsageException("anyMethod")
 }
 
 /**
- * Cardinality prefix for an interaction: `N * target.method(args)`. Kept verbatim from Spock's own
- * syntax - the call's real resolved return type flows straight through this marker, so it type-checks
- * legitimately. The compiler plugin deletes the whole statement and rebuilds it from the wrapped call.
+ * Cardinality prefix for an interaction: `N * target.method(args)`.
  */
 operator fun <T> Int.times(call: T): T = throwIllegalInteractionUsageException("*")
 
@@ -79,19 +71,14 @@ infix fun <T> T.returns(value: T): T = throwIllegalInteractionUsageException("re
 infix fun <T> T.returned(value: T): T = throwIllegalInteractionUsageException("returned")
 
 /**
- * Sugar for asserting no interaction happened on [mocks] beyond the ones already declared earlier in
+ * Assert no interaction happened on [mocks] beyond the ones already declared earlier in
  * the same scope - mirrors Mockito's `verifyNoMoreInteractions`/MockK's `confirmVerified`. Equivalent
  * to `0 * mock.anyMethod()` for each mock.
  */
 fun noMoreInteractions(vararg mocks: Any?): Unit = throwIllegalInteractionUsageException("noMoreInteractions")
 
 /**
- * `Mock`/`Stub` with a trailing builder block for eager stub/mock configuration - Spockk-only
- * overloads (different arity from the inherited, real `MockingApi.Mock(Class)`/`Stub(Class)`, so no
- * ambiguity), since a Kotlin lambda can't be passed where the real Groovy `Mock(Class, Closure)`
- * overload expects a `groovy.lang.Closure`. Each statement in [block] is itself an interaction
- * statement (`does`/`did`/`returns`/`returned`-wrapped, or bare) - registered directly, once, right
- * after the mock is constructed, not scope-wrapped like a `then:` block's interactions.
+ * `Mock`/`Stub` with a trailing builder block for eager stub/mock configuration.
  */
 fun <T> Mock(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Mock")
 
@@ -99,15 +86,6 @@ fun <T> Mock(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUs
 fun <T> Stub(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Stub")
 
 /**
- * Same as [Mock], but for spying on [instance] - an already-constructed object rather than a `Class`
- * token, since a real `Spy`, unlike `Mock`/`Stub`, delegates to a real object instead of a bytecode
- * proxy Spock builds from scratch. A single overload taking the instance directly (no `Class<T>`
- * builder-block sibling): `Spy(GreeterImpl::class.java) { ... }` and `Spy(instance: T, block)` would
- * be ambiguous at the Kotlin source level if both existed - confirmed empirically, `T` here is
- * unconstrained enough that a `Class<Foo>` argument satisfies it too, and unlike the plain 1-arg
- * `Spy(Class<T>)`/`Spy(T)` pair (where Kotlin's overload resolution does pick the more specific
- * `Class<T>` candidate), adding the second, identically-shaped `block: T.() -> Unit` parameter makes
- * the two candidates incomparable, so Kotlin reports an outright ambiguity error rather than picking
- * one. Construct the instance directly instead: `Spy(GreeterImpl()) { ... }`.
+ * Same as [Mock], but for spying on [instance] - an already-constructed object rather than a `Class` token.
  */
 fun <T> Spy(instance: T, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Spy")
