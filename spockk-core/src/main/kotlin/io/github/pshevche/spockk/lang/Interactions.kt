@@ -107,3 +107,18 @@ fun <T> Stub(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUs
 
 /** @see Mock */
 fun <T> Spy(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Spy")
+
+/**
+ * Wraps [instance] for use with the [Spy] builder-block overload that spies on an already-constructed
+ * object instead of a `Class` token - needed only to disambiguate from `Spy(Class<T>, block)`: Kotlin
+ * can't otherwise tell `Spy(type: Class<T>, ...)` and `Spy(instance: T, ...)` apart, since `T` in the
+ * latter is unconstrained enough to match a `Class<Foo>` argument too.
+ */
+class ExistingInstance<T> internal constructor(internal val value: T)
+
+/** Marks [instance] as the target to wrap for [Spy]'s "existing instance" builder-block overload. */
+fun <T> existing(instance: T): ExistingInstance<T> = ExistingInstance(instance)
+
+/** Same as [Spy], wrapping an already-constructed instance instead of a `Class` token. */
+fun <T> Spy(existingInstance: ExistingInstance<T>, block: T.() -> Unit): T =
+  throwIllegalInteractionUsageException("Spy")

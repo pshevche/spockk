@@ -209,7 +209,18 @@ argument's real IR type can be checked against - so `Spy(existingInstance)` sile
 crashed at runtime against the raw inherited `MockingApi.Spy(T)`. Fixed by special-casing a parameter typed as the
 candidate's own type parameter to match unconditionally, tried only after every candidate with a fully concrete
 parameter shape has been tried and rejected, so overload selection stays correct regardless of `SpecInternals`'
-declaration order). Interactions on a `Spy` were
+declaration order); `Spy(existing(instance)) { ... }` (the builder-block form wrapping an
+already-constructed object - a new Spockk-only `fun <T> Spy(instance: ExistingInstance<T>, block: T.() -> Unit): T`
+overload alongside `Spy(type: Class<T>, ...)`. `Spy(instance: T, ...)` directly, without the `ExistingInstance<T>`
+wrapper, is ambiguous with `Spy(type: Class<T>, ...)` at the Kotlin source level - confirmed empirically: `T` in an
+unwrapped instance overload is unconstrained enough that a `Class<Foo>` argument satisfies it too, and unlike the
+plain 1-arg case (where Kotlin's overload resolution does pick the more specific `Class<T>` candidate), adding the
+second, identically-shaped `block: T.() -> Unit` parameter makes the two candidates incomparable, so Kotlin reports
+an outright ambiguity error rather than picking one. `existing(instance)` wraps the value in `ExistingInstance<T>`,
+a distinct concrete type from `Class<T>`, which resolves the ambiguity; the compiler plugin unwraps it back to the
+real instance by matching the argument's IR type (not the literal `existing(...)` call shape, so it also works when
+the wrapped value is held in a variable first) and calling `ExistingInstance.value`'s getter, mirroring how
+`capture(slot)` already reads `CapturedArg`'s generic type argument). Interactions on a `Spy` were
 initially scoped out on the assumption that Spock "discourages" the combination - checked against Spock's own docs
 during implementation: `1 * spy.method(_)` verification and stubbing are fully supported and documented
 (`interaction_based_testing.html`, including a dedicated `callRealMethod()` helper for "stub and still delegate to
@@ -229,10 +240,7 @@ already unreachable per the grammar above); iterable/sequential responses (`>> [
 block does now receive the real `IMockInvocation`'s arguments, so the earlier blocker no longer applies, but the
 block itself is still plain `(List<Any?>) -> T`, not `(IMockInvocation) -> T`, so there's no handle to call
 `callRealMethod()` through; a deliberate, separate omission now, left for a follow-up rather than folded into this
-change); `Spy(existingInstance) { ... }` (the builder-block sugar - wrapping an already-constructed object rather
-than a `Class` token needs a new Spockk-only `fun <T> Spy(instance: T, block: T.() -> Unit): T` marker overload
-alongside the existing `Spy(type: Class<T>, ...)`, left for a follow-up; the plain, non-builder-block
-`Spy(existingInstance)` this would sugar over is now supported, see above).
+change).
 
 ### IntelliJ Plugin
 

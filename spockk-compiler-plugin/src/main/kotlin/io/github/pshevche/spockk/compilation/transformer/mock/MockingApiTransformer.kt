@@ -52,15 +52,19 @@ import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
+import org.jetbrains.kotlin.ir.types.typeOrFail
 import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isSubtypeOf
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.name.CallableId
+import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -74,6 +78,9 @@ internal class MockingApiTransformer(
     rewriterContext.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
   private val kClassJavaPropGetter =
     rewriterContext.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
+  private val existingInstanceValueGetter = rewriterContext.findPropertyGetter(
+    CallableId(ClassId.topLevel(IrIdentifiers.Spockk.EXISTING_INSTANCE_CLASS_FQN), Name.identifier("value"))
+  )
 
   // Interaction statements built from a Mock/Stub builder block's trailing lambda, spliced into the
   // declaring function right after the mock's own IrVariable, in a deliberate second pass (a
@@ -198,6 +205,16 @@ internal class MockingApiTransformer(
         spec.file,
         call
       )
+    // Spy(existing(instance)) { ... }: ExistingInstance only exists to disambiguate this overload
+    // from Spy(Class<T>, block) at the source level (see its kdoc) - SpecInternals.SpyImpl takes the
+    // real instance directly, so unwrap it here, matching by IR type rather than call shape.
+    val firstArg = call.arguments.firstOrNull()
+    if (firstArg != null && firstArg.type.classOrNull?.owner?.fqNameWhenAvailable == IrIdentifiers.Spockk.EXISTING_INSTANCE_CLASS_FQN) {
+      val wrappedType = (firstArg.type as IrSimpleType).arguments.single().typeOrFail
+      call.arguments[0] = irBuilder(call.symbol).irCall(existingInstanceValueGetter.symbol, wrappedType).apply {
+        arguments[0] = firstArg
+      }
+    }
     // Unlike the inherited 1-arg Mock(Class)/Stub(Class) member, this 2-arg overload has no dispatch
     // receiver of its own - findMockImplMethod/rewriteMockCall assume `call.arguments` starts with
     // the spec instance, matching MockImpl's (Specification, name, Type, Class) signature.

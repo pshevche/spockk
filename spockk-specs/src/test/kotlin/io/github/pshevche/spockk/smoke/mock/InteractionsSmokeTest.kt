@@ -23,6 +23,7 @@ import io.github.pshevche.spockk.lang.capture
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.did
 import io.github.pshevche.spockk.lang.does
+import io.github.pshevche.spockk.lang.existing
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.noMoreInteractions
@@ -367,6 +368,35 @@ class InteractionsSmokeTest : Specification() {
     then
     1 * spy.getUsername() returned "Overridden"
     result == "Overridden"
+  }
+
+  fun `Spy builder block on an existing instance stubs one method while others still delegate`() {
+    given
+    val real = GreeterImpl()
+    val spy = Spy(existing(real)) {
+      getUsername() returns "Overridden"
+    }
+
+    `when`
+    spy.setName("Alice")
+
+    then
+    spy.getUsername() == "Overridden"
+  }
+
+  fun `Spy builder block still wraps the right instance when existing() is held in a variable`() {
+    given
+    val real = GreeterImpl()
+    val wrapped = existing(real)
+    val spy = Spy(wrapped) {
+      getUsername() returns "Overridden"
+    }
+
+    `when`
+    spy.setName("Alice")
+
+    then
+    spy.getUsername() == "Overridden"
   }
 
   fun `Mock builder block still works when the feature also has a cleanup block`() {
