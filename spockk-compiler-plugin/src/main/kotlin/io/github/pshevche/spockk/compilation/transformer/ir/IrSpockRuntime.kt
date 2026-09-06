@@ -17,6 +17,8 @@ package io.github.pshevche.spockk.compilation.transformer.ir
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPOCK_RUNTIME_FQN
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.isAssertCall
+import io.github.pshevche.spockk.compilation.ir.sourceLineColumn
+import io.github.pshevche.spockk.compilation.ir.sourceText
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.jvm.functionByName
 import org.jetbrains.kotlin.ir.builders.IrBuilder
@@ -71,9 +73,7 @@ internal class IrSpockRuntime private constructor(
     file: IrFile
   ): IrCall {
     val verifyCondition = spockRuntimeClassSymbol.functionByName("verifyCondition")
-    val startOffset = statement.effectiveStartOffset()
-    val line = file.fileEntry.getLineNumber(startOffset) + 1
-    val column = file.fileEntry.getColumnNumber(startOffset) + 1
+    val (line, column) = statement.sourceLineColumn(file)
     val conditionValueRecorder = ConditionValueRecordingTransformer(builder, irValueRecorder)
     return with(builder) {
       irCall(verifyCondition).apply {
@@ -100,9 +100,7 @@ internal class IrSpockRuntime private constructor(
     conditionThrowable: IrVariable
   ): IrCall {
     val conditionFailedWithException = spockRuntimeClassSymbol.functionByName("conditionFailedWithException")
-    val startOffset = statement.effectiveStartOffset()
-    val line = file.fileEntry.getLineNumber(startOffset) + 1
-    val column = file.fileEntry.getColumnNumber(startOffset) + 1
+    val (line, column) = statement.sourceLineColumn(file)
     return with(builder) {
       irCall(conditionFailedWithException).apply {
         arguments[0] = irGet(errorCollectorVar)
@@ -116,30 +114,10 @@ internal class IrSpockRuntime private constructor(
     }
   }
 
-  private fun irStatementText(builder: DeclarationIrBuilder, statement: IrExpression, file: IrFile): IrConst = try {
-    val startOffset =
-      if (statement.isAssertCall()) statement.effectiveStartOffset() + "assert".length else statement.effectiveStartOffset()
-    sourceTextCache.get(file)
-      .substring(startOffset, statement.endOffset)
-      .toIrConst(builder.context.irBuiltIns.stringType)
-  } catch (_: Exception) {
-    builder.irNull()
-  }
-
-  // For a bare top-level call (e.g. `str.startsWith("xyz")`), Kotlin offsets the IrCall at the
-  // callee, not the receiver, so walk into receivers to find the condition's true start.
-  @OptIn(UnsafeDuringIrConstructionAPI::class)
-  private fun IrExpression.effectiveStartOffset(): Int = when (this) {
-    is IrTypeOperatorCall -> argument.effectiveStartOffset()
-
-    is IrCall ->
-      symbol.owner.parameters
-        .asSequence()
-        .withIndex()
-        .filter { (_, parameter) -> parameter.kind == IrParameterKind.DispatchReceiver || parameter.kind == IrParameterKind.ExtensionReceiver }
-        .fold(startOffset) { minOffset, (index, _) -> minOf(minOffset, arguments[index]?.effectiveStartOffset() ?: minOffset) }
-
-    else -> startOffset
+  private fun irStatementText(builder: DeclarationIrBuilder, statement: IrExpression, file: IrFile): IrConst {
+    val skipPrefixLength = if (statement.isAssertCall()) "assert".length else 0
+    val text = statement.sourceText(file, sourceTextCache, skipPrefixLength)
+    return text?.toIrConst(builder.context.irBuiltIns.stringType) ?: builder.irNull()
   }
 
   companion object {

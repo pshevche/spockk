@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation.condition
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.lang.expect
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
 /**
  * Covers the `when`-block wrapping mechanism ([io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter])
@@ -28,6 +29,7 @@ import io.github.pshevche.spockk.lang.expect
  * correctness is covered by [io.github.pshevche.spockk.smoke.condition.ExceptionConditionsSmokeTest]
  * (runtime pass/fail behavior) instead.
  */
+@OptIn(ExperimentalCompilerApi::class)
 class ExceptionConditionsCompilationTest : BaseCompilationTest() {
 
   fun `when block wrapped for a paired notThrown call`() {

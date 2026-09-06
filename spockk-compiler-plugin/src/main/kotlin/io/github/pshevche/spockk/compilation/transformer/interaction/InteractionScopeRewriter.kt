@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.compilation.transformer.condition
+package io.github.pshevche.spockk.compilation.transformer.interaction
 
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
 import io.github.pshevche.spockk.compilation.ir.irTryHoistingVariables
@@ -23,6 +23,7 @@ import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.IrSpecificationContext
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import io.github.pshevche.spockk.compilation.transformer.ir.getSpecificationContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.common.lower.irCatch
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irBlock
@@ -33,17 +34,21 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.util.parentAsClass
 
 /**
- * Rewrites a `when` block paired with a `then` block that contains a `thrown`/`notThrown`/
- * `noExceptionThrown` call: wraps the block's statements in a try/catch that records any thrown
- * exception on `SpecificationContext`, mirroring Spock's own
- * `SpecRewriter.rewriteWhenBlockForExceptionCondition`. A variable the `when` block declares that
- * [thenBlockStatements] (or a later `cleanup:` block, via [irTryHoistingVariables]'s own recursion
- * into an already-nested try like this one) reads is hoisted out of the try.
+ * Rewrites a `when` block paired with a `then` block that declares interactions - brackets it with
+ * `mockController.enterScope()`/the interaction-building statements moved out of the `then` block,
+ * mirroring Spock's own `SpecRewriter.moveInteractions`. The paired `then` block's own rewrite
+ * inserts `mockController.leaveScope()` as the first statement of its own output.
+ *
+ * When the `then` block also declares an exception condition, [wrapExceptionHandling] nests the
+ * exception try/catch inside the interaction scope, around the `when` block's own statements only -
+ * interaction registration always runs, whether or not the stimulus that follows throws.
  */
-internal class WhenBlockRewriter(
+internal class InteractionScopeRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
   private val feature: IrFunction,
   private val whenBlock: FeatureBlock,
+  private val addInteractionStatements: List<IrStatement>,
+  private val wrapExceptionHandling: Boolean,
   private val thenBlockStatements: List<IrStatement>
 ) : SpockkIrRewriter {
 
@@ -52,11 +57,20 @@ internal class WhenBlockRewriter(
   fun rewrite(): List<IrStatement> {
     val specAccessor = feature.requiredThisParameter()
     val specificationContext = feature.parentAsClass.getSpecificationContext(rewriterContext)
+    val controller = specificationContext.irGetMockController(builder, specAccessor)
 
     return buildList {
-      add(specificationContext.irSetThrownException(builder, specAccessor, builder.irNull()))
+      if (wrapExceptionHandling) {
+        add(specificationContext.irSetThrownException(builder, specAccessor, builder.irNull()))
+      }
       add(rewriterContext.spockRuntime.irCallBlockEntered(builder, specAccessor, whenBlock.ordinal))
-      addAll(wrapInTryCatch(specAccessor, specificationContext))
+      add(rewriterContext.mockController.irEnterScope(builder, controller))
+      addAll(addInteractionStatements)
+      if (wrapExceptionHandling) {
+        addAll(wrapInTryCatch(specAccessor, specificationContext))
+      } else {
+        addAll(whenBlock.statements)
+      }
       add(rewriterContext.spockRuntime.irCallBlockExited(builder, specAccessor, whenBlock.ordinal))
     }
   }
@@ -75,4 +89,15 @@ internal class WhenBlockRewriter(
       extraReaders = thenBlockStatements
     )
   }
+}
+
+/**
+ * `mockController.leaveScope()`, the first statement of a `then` block paired with an
+ * [InteractionScopeRewriter]-wrapped `when` block - verifies the interactions registered in that scope.
+ */
+internal fun SpockkIrRewriter.irLeaveScopeStatement(feature: IrFunction, builder: DeclarationIrBuilder): IrStatement {
+  val specAccessor = feature.requiredThisParameter()
+  val specificationContext = feature.parentAsClass.getSpecificationContext(rewriterContext)
+  val controller = specificationContext.irGetMockController(builder, specAccessor)
+  return rewriterContext.mockController.irLeaveScope(builder, controller)
 }

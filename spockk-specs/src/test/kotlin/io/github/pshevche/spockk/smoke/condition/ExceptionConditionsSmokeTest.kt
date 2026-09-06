@@ -77,6 +77,16 @@ class ExceptionConditionsSmokeTest : Specification() {
     thrown<IndexOutOfBoundsException>()
   }
 
+  fun `a variable declared in when is still readable from then once the when block is try-wrapped`() {
+    `when`
+    val message = "boom"
+    throw IllegalStateException(message)
+
+    then
+    val e = thrown(IllegalStateException::class.java)
+    e.message == message
+  }
+
   fun `catches a RuntimeException`() {
     `when`
     throw IllegalStateException("boom")
