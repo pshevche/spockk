@@ -36,6 +36,7 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.IrAnnotation
+import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
@@ -46,11 +47,15 @@ import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrTry
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
+import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
@@ -91,6 +96,34 @@ internal fun DeclarationIrBuilder.irStringArray(elements: List<String>) =
 
 internal fun DeclarationIrBuilder.irType(typeFqn: FqName): IrType =
   context.findRequiredClassSymbol(typeFqn).defaultType
+
+/**
+ * `classSymbol::class.java`, shaped exactly as the frontend would elaborate that literal source
+ * text: both the call's own type (`Class<classSymbol>`, not the type of whatever variable/expression
+ * the result ends up feeding into) and the `::class` receiver's type (`KClass<classSymbol>`, not the
+ * star-projected `KClass<*>` [kClassReference] uses for JVM-lowering-internal class literals) match
+ * what ordinary hand-written Kotlin source calling the same `KClass<T>.java` property the same way
+ * would produce, so this call's IR is reproducible byte-for-byte by hand.
+ */
+internal fun DeclarationIrBuilder.irKClassJavaLiteral(
+  kClassJavaPropGetter: IrSimpleFunctionSymbol,
+  classSymbol: IrClassSymbol
+): IrCall {
+  val classType = classSymbol.defaultType
+  val javaClassType = context.findRequiredClassSymbol(IrIdentifiers.Kotlin.JAVA_LANG_CLASS_FQN).typeWith(classType)
+  val classReference = IrClassReferenceImpl(
+    startOffset,
+    endOffset,
+    context.irBuiltIns.kClassClass.typeWith(classType),
+    classSymbol,
+    classType
+  )
+  return irCall(kClassJavaPropGetter, javaClassType, origin = IrStatementOrigin.GET_PROPERTY).apply {
+    typeArguments[0] = classType
+    arguments.clear()
+    arguments.add(classReference)
+  }
+}
 
 internal fun DeclarationIrBuilder.irEnumValue(
   value: String,

@@ -79,12 +79,6 @@ infix fun <T> T.returns(value: T): T = throwIllegalInteractionUsageException("re
 infix fun <T> T.returned(value: T): T = throwIllegalInteractionUsageException("returned")
 
 /**
- * Matches any argument value (like [any]) while also recording it onto [slot], readable via
- * [CapturedArg.captured] once the interaction's invocation has happened.
- */
-fun <T> capture(slot: CapturedArg<T>): T = throwIllegalInteractionUsageException("capture")
-
-/**
  * Sugar for asserting no interaction happened on [mocks] beyond the ones already declared earlier in
  * the same scope - mirrors Mockito's `verifyNoMoreInteractions`/MockK's `confirmVerified`. Equivalent
  * to `0 * mock.anyMethod()` for each mock.
@@ -92,33 +86,28 @@ fun <T> capture(slot: CapturedArg<T>): T = throwIllegalInteractionUsageException
 fun noMoreInteractions(vararg mocks: Any?): Unit = throwIllegalInteractionUsageException("noMoreInteractions")
 
 /**
- * `Mock`/`Stub`/`Spy` with a trailing builder block for eager stub/mock configuration - Spockk-only
- * overloads (different arity from the inherited, real `MockingApi.Mock(Class)`/`Stub(Class)`/
- * `Spy(Class)`, so no ambiguity), since a Kotlin lambda can't be passed where the real Groovy
- * `Mock(Class, Closure)` overload expects a `groovy.lang.Closure`. Each statement in [block] is
- * itself an interaction statement (`does`/`did`/`returns`/`returned`-wrapped, or bare) - registered
- * directly, once, right after the mock is constructed, not scope-wrapped like a `then:` block's
- * interactions.
+ * `Mock`/`Stub` with a trailing builder block for eager stub/mock configuration - Spockk-only
+ * overloads (different arity from the inherited, real `MockingApi.Mock(Class)`/`Stub(Class)`, so no
+ * ambiguity), since a Kotlin lambda can't be passed where the real Groovy `Mock(Class, Closure)`
+ * overload expects a `groovy.lang.Closure`. Each statement in [block] is itself an interaction
+ * statement (`does`/`did`/`returns`/`returned`-wrapped, or bare) - registered directly, once, right
+ * after the mock is constructed, not scope-wrapped like a `then:` block's interactions.
  */
 fun <T> Mock(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Mock")
 
 /** @see Mock */
 fun <T> Stub(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Stub")
 
-/** @see Mock */
-fun <T> Spy(type: Class<T>, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Spy")
-
 /**
- * Wraps [instance] for use with the [Spy] builder-block overload that spies on an already-constructed
- * object instead of a `Class` token - needed only to disambiguate from `Spy(Class<T>, block)`: Kotlin
- * can't otherwise tell `Spy(type: Class<T>, ...)` and `Spy(instance: T, ...)` apart, since `T` in the
- * latter is unconstrained enough to match a `Class<Foo>` argument too.
+ * Same as [Mock], but for spying on [instance] - an already-constructed object rather than a `Class`
+ * token, since a real `Spy`, unlike `Mock`/`Stub`, delegates to a real object instead of a bytecode
+ * proxy Spock builds from scratch. A single overload taking the instance directly (no `Class<T>`
+ * builder-block sibling): `Spy(GreeterImpl::class.java) { ... }` and `Spy(instance: T, block)` would
+ * be ambiguous at the Kotlin source level if both existed - confirmed empirically, `T` here is
+ * unconstrained enough that a `Class<Foo>` argument satisfies it too, and unlike the plain 1-arg
+ * `Spy(Class<T>)`/`Spy(T)` pair (where Kotlin's overload resolution does pick the more specific
+ * `Class<T>` candidate), adding the second, identically-shaped `block: T.() -> Unit` parameter makes
+ * the two candidates incomparable, so Kotlin reports an outright ambiguity error rather than picking
+ * one. Construct the instance directly instead: `Spy(GreeterImpl()) { ... }`.
  */
-class ExistingInstance<T> internal constructor(internal val value: T)
-
-/** Marks [instance] as the target to wrap for [Spy]'s "existing instance" builder-block overload. */
-fun <T> existing(instance: T): ExistingInstance<T> = ExistingInstance(instance)
-
-/** Same as [Spy], wrapping an already-constructed instance instead of a `Class` token. */
-fun <T> Spy(existingInstance: ExistingInstance<T>, block: T.() -> Unit): T =
-  throwIllegalInteractionUsageException("Spy")
+fun <T> Spy(instance: T, block: T.() -> Unit): T = throwIllegalInteractionUsageException("Spy")

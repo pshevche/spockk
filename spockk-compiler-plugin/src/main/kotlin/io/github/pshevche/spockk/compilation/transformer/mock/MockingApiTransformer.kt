@@ -19,6 +19,7 @@ package io.github.pshevche.spockk.compilation.transformer.mock
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
+import io.github.pshevche.spockk.compilation.ir.irKClassJavaLiteral
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.ir.nestedStatementLists
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
@@ -29,7 +30,6 @@ import io.github.pshevche.spockk.compilation.transformer.interaction.asInteracti
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
-import org.jetbrains.kotlin.backend.jvm.ir.kClassReference
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -52,19 +52,14 @@ import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.classifierOrNull
-import org.jetbrains.kotlin.ir.types.defaultType
-import org.jetbrains.kotlin.ir.types.typeOrFail
 import org.jetbrains.kotlin.ir.util.file
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isSubtypeOf
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.name.Name
 
 @OptIn(UnsafeDuringIrConstructionAPI::class)
@@ -78,9 +73,6 @@ internal class MockingApiTransformer(
     rewriterContext.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
   private val kClassJavaPropGetter =
     rewriterContext.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
-  private val existingInstanceValueGetter = rewriterContext.findPropertyGetter(
-    CallableId(ClassId.topLevel(IrIdentifiers.Spockk.EXISTING_INSTANCE_CLASS_FQN), Name.identifier("value"))
-  )
 
   // Interaction statements built from a Mock/Stub builder block's trailing lambda, spliced into the
   // declaring function right after the mock's own IrVariable, in a deliberate second pass (a
@@ -205,16 +197,6 @@ internal class MockingApiTransformer(
         spec.file,
         call
       )
-    // Spy(existing(instance)) { ... }: ExistingInstance only exists to disambiguate this overload
-    // from Spy(Class<T>, block) at the source level (see its kdoc) - SpecInternals.SpyImpl takes the
-    // real instance directly, so unwrap it here, matching by IR type rather than call shape.
-    val firstArg = call.arguments.firstOrNull()
-    if (firstArg != null && firstArg.type.classOrNull?.owner?.fqNameWhenAvailable == IrIdentifiers.Spockk.EXISTING_INSTANCE_CLASS_FQN) {
-      val wrappedType = (firstArg.type as IrSimpleType).arguments.single().typeOrFail
-      call.arguments[0] = irBuilder(call.symbol).irCall(existingInstanceValueGetter.symbol, wrappedType).apply {
-        arguments[0] = firstArg
-      }
-    }
     // Unlike the inherited 1-arg Mock(Class)/Stub(Class) member, this 2-arg overload has no dispatch
     // receiver of its own - findMockImplMethod/rewriteMockCall assume `call.arguments` starts with
     // the spec instance, matching MockImpl's (Specification, name, Type, Class) signature.
@@ -278,6 +260,10 @@ internal class MockingApiTransformer(
     mockImplMethod: IrSimpleFunction
   ) {
     irBuilder(expression.symbol).let {
+      // MockImpl/StubImpl/SpyImpl are static: arg[0] is a plain parameter now, not a dispatch
+      // receiver - replace the original call's implicit-receiver-marked `this` with a plain
+      // reference, matching what calling the static method directly would look like.
+      expression.arguments[0] = it.irGet(currentIrFunction.requiredThisParameter())
       // inferredName argument
       expression.arguments.add(1, mockName(variable, it))
       // inferredType argument
@@ -287,16 +273,8 @@ internal class MockingApiTransformer(
   }
 
   private fun inferMockType(variable: IrVariable?, builder: DeclarationIrBuilder): IrExpression {
-    val classSym = variable?.type?.classOrNull
-    if (variable == null || classSym == null) {
-      return builder.irNull()
-    }
-
-    val call = builder.irCall(kClassJavaPropGetter.symbol, variable.type)
-    call.arguments.clear()
-    call.arguments.add(builder.kClassReference(classSym.defaultType))
-
-    return call
+    val classSym = variable?.type?.classOrNull ?: return builder.irNull()
+    return builder.irKClassJavaLiteral(kClassJavaPropGetter.symbol, classSym)
   }
 
   private fun mockName(variable: IrVariable?, builder: DeclarationIrBuilder): IrConst {

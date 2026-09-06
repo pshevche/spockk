@@ -106,8 +106,6 @@ internal fun IrCall.isAnyMarkerCall(): Boolean = fqName() == IrIdentifiers.Spock
 
 internal fun IrCall.isAnyMethodMarkerCall(): Boolean = fqName() == IrIdentifiers.Spockk.ANY_METHOD_FQN
 
-internal fun IrCall.isCaptureMarkerCall(): Boolean = fqName() == IrIdentifiers.Spockk.CAPTURE_FQN
-
 internal fun IrStatement.asNoMoreInteractionsCall(): IrCall? {
   val call = (this as? IrExpression)?.unwrapImplicitCoercionToUnit() as? IrCall ?: return null
   return call.takeIf { it.fqName() == IrIdentifiers.Spockk.NO_MORE_INTERACTIONS_FQN }

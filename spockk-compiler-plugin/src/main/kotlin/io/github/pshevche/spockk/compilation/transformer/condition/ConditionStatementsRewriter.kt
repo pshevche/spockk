@@ -66,7 +66,7 @@ internal class ConditionStatementsRewriter(
   ): List<IrStatement> {
     // Resolved once per statement list (not per statement) and only if actually needed - its
     // constructor resolves several runtime class/function symbols (Wildcard, SpreadWildcard,
-    // IntProgression, responseClosure, captureClosure).
+    // IntProgression, responseClosure).
     val interactionRewriter by lazy(LazyThreadSafetyMode.NONE) { InteractionStatementsRewriter(rewriterContext, enclosingFunction) }
 
     return statements.flatMap { statement ->

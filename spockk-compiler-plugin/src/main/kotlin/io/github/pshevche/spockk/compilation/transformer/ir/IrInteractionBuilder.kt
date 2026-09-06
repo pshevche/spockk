@@ -18,8 +18,9 @@ package io.github.pshevche.spockk.compilation.transformer.ir
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.INTERACTION_BUILDER_FQN
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
+import io.github.pshevche.spockk.compilation.ir.irImplicitNotNull
 import org.jetbrains.kotlin.backend.jvm.functionByName
-import org.jetbrains.kotlin.ir.builders.IrBuilder
+import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
 import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
@@ -30,6 +31,8 @@ import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.types.defaultType
+import org.jetbrains.kotlin.ir.types.isNullable
 import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.functions
 
@@ -42,7 +45,7 @@ internal class IrInteractionBuilder private constructor(
   private val interactionBuilderClassSymbol: IrClassSymbol
 ) {
 
-  fun irNew(builder: IrBuilder, line: IrExpression, column: IrExpression, text: IrExpression): IrConstructorCall {
+  fun irNew(builder: IrBuilderWithScope, line: IrExpression, column: IrExpression, text: IrExpression): IrConstructorCall {
     val constructor = interactionBuilderClassSymbol.constructors.first()
     return builder.irCallConstructor(constructor, listOf()).apply {
       arguments[0] = line
@@ -51,11 +54,11 @@ internal class IrInteractionBuilder private constructor(
     }
   }
 
-  fun irSetFixedCount(builder: IrBuilder, receiver: IrExpression, count: IrExpression): IrCall =
+  fun irSetFixedCount(builder: IrBuilderWithScope, receiver: IrExpression, count: IrExpression): IrCall =
     chainedCall(builder, "setFixedCount", receiver) { arguments[1] = count }
 
   fun irSetRangeCount(
-    builder: IrBuilder,
+    builder: IrBuilderWithScope,
     receiver: IrExpression,
     minCount: IrExpression,
     maxCount: IrExpression,
@@ -66,10 +69,10 @@ internal class IrInteractionBuilder private constructor(
     arguments[3] = inclusive
   }
 
-  fun irAddEqualTarget(builder: IrBuilder, receiver: IrExpression, target: IrExpression): IrCall =
+  fun irAddEqualTarget(builder: IrBuilderWithScope, receiver: IrExpression, target: IrExpression): IrCall =
     chainedCall(builder, "addEqualTarget", receiver) { arguments[1] = target }
 
-  fun irAddEqualMethodName(builder: IrBuilder, receiver: IrExpression, name: IrExpression): IrCall =
+  fun irAddEqualMethodName(builder: IrBuilderWithScope, receiver: IrExpression, name: IrExpression): IrCall =
     chainedCall(builder, "addEqualMethodName", receiver) { arguments[1] = name }
 
   // Real Spock: InteractionBuilder.argConstraints/argNames stay null - NullPointerException on the
@@ -77,36 +80,33 @@ internal class IrInteractionBuilder private constructor(
   // Spockk never supports named args, so this is always setArgListKind(true, false) (positional,
   // not mixed). Two overloads share this name (a 1-arg one defaults isMixed to false), so it's
   // looked up by parameter count rather than functionByName's single-match assumption.
-  fun irSetArgListKind(builder: IrBuilder, receiver: IrExpression): IrFunctionAccessExpression {
+  fun irSetArgListKind(builder: IrBuilderWithScope, receiver: IrExpression): IrFunctionAccessExpression {
     val setArgListKind = interactionBuilderClassSymbol.owner.functions.first {
       it.name.asString() == "setArgListKind" && it.parameters.size == 3
     }
     return with(builder) {
       irCall(setArgListKind.symbol).apply {
-        dispatchReceiver = receiver
+        dispatchReceiver = nonNullReceiver(builder, receiver)
         arguments[1] = irBoolean(true)
         arguments[2] = irBoolean(false)
       }
     }
   }
 
-  fun irAddEqualArg(builder: IrBuilder, receiver: IrExpression, arg: IrExpression): IrCall =
+  fun irAddEqualArg(builder: IrBuilderWithScope, receiver: IrExpression, arg: IrExpression): IrCall =
     chainedCall(builder, "addEqualArg", receiver) { arguments[1] = arg }
 
-  fun irAddCodeArg(builder: IrBuilder, receiver: IrExpression, closure: IrExpression): IrCall =
-    chainedCall(builder, "addCodeArg", receiver) { arguments[1] = closure }
-
-  fun irAddConstantResponse(builder: IrBuilder, receiver: IrExpression, constant: IrExpression): IrCall =
+  fun irAddConstantResponse(builder: IrBuilderWithScope, receiver: IrExpression, constant: IrExpression): IrCall =
     chainedCall(builder, "addConstantResponse", receiver) { arguments[1] = constant }
 
-  fun irAddCodeResponse(builder: IrBuilder, receiver: IrExpression, closure: IrExpression): IrCall =
+  fun irAddCodeResponse(builder: IrBuilderWithScope, receiver: IrExpression, closure: IrExpression): IrCall =
     chainedCall(builder, "addCodeResponse", receiver) { arguments[1] = closure }
 
-  fun irBuild(builder: IrBuilder, receiver: IrExpression): IrCall =
+  fun irBuild(builder: IrBuilderWithScope, receiver: IrExpression): IrCall =
     chainedCall(builder, "build", receiver) { }
 
   private fun chainedCall(
-    builder: IrBuilder,
+    builder: IrBuilderWithScope,
     methodName: String,
     receiver: IrExpression,
     configureArgs: IrCall.() -> Unit
@@ -114,11 +114,24 @@ internal class IrInteractionBuilder private constructor(
     val function = interactionBuilderClassSymbol.functionByName(methodName)
     return with(builder) {
       irCall(function).apply {
-        dispatchReceiver = receiver
+        dispatchReceiver = nonNullReceiver(builder, receiver)
         configureArgs()
       }
     }
   }
+
+  // Every InteractionBuilder fluent method returns a Java platform type (InteractionBuilder!) -
+  // dereferencing it to call the next link in the chain is exactly what real hand-written Kotlin
+  // source does implicitly (`x.setFixedCount(1).addEqualTarget(...)`  inserts this same coercion at
+  // every `.`), so this matches what the frontend would produce rather than skipping the coercion
+  // this raw IR construction would otherwise silently omit. The constructor call starting the chain
+  // ([irNew]) is already non-null, so it's passed through unchanged.
+  private fun nonNullReceiver(builder: IrBuilderWithScope, receiver: IrExpression): IrExpression =
+    if (receiver.type.isNullable()) {
+      builder.irImplicitNotNull(receiver, interactionBuilderClassSymbol.defaultType)
+    } else {
+      receiver
+    }
 
   companion object {
     fun create(generatorContext: IrGeneratorContext): IrInteractionBuilder {

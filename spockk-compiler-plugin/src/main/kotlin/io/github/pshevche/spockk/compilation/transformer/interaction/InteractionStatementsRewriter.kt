@@ -45,6 +45,8 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.expressions.IrVararg
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
@@ -73,7 +75,6 @@ internal class InteractionStatementsRewriter(
   private val spreadWildcardClass = rewriterContext.findRequiredClassSymbol(SPOCK_SPREAD_WILDCARD_FQN)
   private val intProgressionClass = rewriterContext.findRequiredClassSymbol(INT_PROGRESSION_FQN)
   private val responseClosureFn = rewriterContext.findUniqueFunctionSymbol(RESPONSE_CLOSURE_CALLABLE_ID)
-  private val captureClosureFn = rewriterContext.findUniqueFunctionSymbol(CAPTURE_CLOSURE_CALLABLE_ID)
   private val closureType = builder.irType(CLOSURE_FQN)
 
   fun rewrite(interaction: InteractionStatement): List<IrStatement> {
@@ -175,14 +176,10 @@ internal class InteractionStatementsRewriter(
       chain = rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irSpreadWildcardInstance())
     } else {
       for (arg in shape.args) {
-        chain = when {
-          (arg as? IrCall)?.isAnyMarkerCall() == true ->
-            rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irWildcardInstance())
-
-          (arg as? IrCall)?.isCaptureMarkerCall() == true ->
-            rewriterContext.interactionBuilder.irAddCodeArg(builder, chain, irCaptureClosureCall(arg))
-
-          else -> rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, arg)
+        chain = if ((arg as? IrCall)?.isAnyMarkerCall() == true) {
+          rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irWildcardInstance())
+        } else {
+          rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, arg)
         }
       }
     }
@@ -235,15 +232,6 @@ internal class InteractionStatementsRewriter(
     }
   }
 
-  private fun irCaptureClosureCall(captureCall: IrCall): IrFunctionAccessExpression {
-    val slotExpr = requireNotNull(captureCall.singleRegularArg()) { "capture(slot) is missing its slot argument" }
-    val capturedType = (slotExpr.type as IrSimpleType).arguments.single().typeOrFail
-    return builder.irCall(captureClosureFn, closureType).apply {
-      typeArguments[0] = capturedType
-      arguments[0] = slotExpr
-    }
-  }
-
   private data class MethodShape(val target: IrExpression, val methodName: MethodNameKind, val args: List<IrExpression>)
 
   private sealed class MethodNameKind {
@@ -257,15 +245,21 @@ internal class InteractionStatementsRewriter(
     MethodShape(target, MethodNameKind.Wildcard, emptyList())
   } else {
     val target = requireNotNull(dispatchReceiverArg()) { "${symbol.owner.name} is missing its dispatch receiver" }
-    MethodShape(target, MethodNameKind.Literal(symbol.owner.name.asString()), regularArgs())
+    MethodShape(target.unwrapImplicitNotNull(), MethodNameKind.Literal(symbol.owner.name.asString()), regularArgs())
   }
+
+  // The interaction statement's own (never really invoked) `target.method(...)` call needs its
+  // dispatch receiver non-null to dispatch, same as any other member call - but `addEqualTarget`'s
+  // parameter is a plain nullable Object, so reusing that receiver as-is here would carry a
+  // not-null check the target argument never needed, left over from a call that's being deleted.
+  private fun IrExpression.unwrapImplicitNotNull(): IrExpression =
+    if (this is IrTypeOperatorCall && operator == IrTypeOperator.IMPLICIT_NOTNULL) argument else this
 
   private companion object {
     val INT_PROGRESSION_FQN = FqName("kotlin.ranges.IntProgression")
     val CLOSURE_FQN = FqName("groovy.lang.Closure")
     val LANG_PKG_FQN = FqName("io.github.pshevche.spockk.lang")
     val RESPONSE_CLOSURE_CALLABLE_ID = CallableId(LANG_PKG_FQN, Name.identifier("responseClosure"))
-    val CAPTURE_CLOSURE_CALLABLE_ID = CallableId(LANG_PKG_FQN, Name.identifier("captureClosure"))
   }
 }
 

@@ -19,17 +19,14 @@ import io.github.pshevche.spockk.lang.Spy
 import io.github.pshevche.spockk.lang.Stub
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.anyMethod
-import io.github.pshevche.spockk.lang.capture
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.did
 import io.github.pshevche.spockk.lang.does
-import io.github.pshevche.spockk.lang.existing
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.noMoreInteractions
 import io.github.pshevche.spockk.lang.returned
 import io.github.pshevche.spockk.lang.returns
-import io.github.pshevche.spockk.lang.slot
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
@@ -59,11 +56,11 @@ open class GreeterImpl : Greeter {
 }
 
 /**
- * Exercises the interaction-based testing preview end to end: `N * target.method(args)` cardinality,
- * `any()`/`anyMethod()` matchers, `does`/`did`/`returns`/`returned` responses, `capture`/`slot`
- * argument capture, `noMoreInteractions(...)` sugar, and the `Mock`/`Stub`/`Spy` trailing builder-block
- * syntax - see the design doc, `_docs/specs/2026-08-30-interaction-based-testing-design.md`. No
- * matching/verification logic is reimplemented here; every scenario below is really exercising
+ * Exercises interaction-based testing end to end: `N * target.method(args)` cardinality,
+ * `any()`/`anyMethod()` matchers, `does`/`did`/`returns`/`returned` responses (including reading the
+ * invocation's actual arguments), `noMoreInteractions(...)` sugar, and the `Mock`/`Stub`/`Spy` trailing
+ * builder-block syntax - see the design doc, `_docs/specs/2026-08-30-interaction-based-testing-design.md`.
+ * No matching/verification logic is reimplemented here; every scenario below is really exercising
  * Spock's own `InteractionBuilder`/`MockController` runtime, reached through the compiler plugin's
  * rewrite.
  */
@@ -229,19 +226,6 @@ class InteractionsSmokeTest : Specification() {
     result == "Hi, Alice"
   }
 
-  fun `capture records the actual invocation argument`() {
-    given
-    val slot = slot<String>()
-    val obj = Mock(Greeter::class.java)
-
-    `when`
-    obj.setName("Alice")
-
-    then
-    1 * obj.setName(capture(slot))
-    slot.captured == "Alice"
-  }
-
   fun `anyMethod matches any method name`() {
     given
     val obj = Mock(Greeter::class.java)
@@ -303,20 +287,6 @@ class InteractionsSmokeTest : Specification() {
     noExceptionThrown()
   }
 
-  fun `capture inside a Stub builder block records the invocation argument`() {
-    given
-    val slot = slot<String>()
-    val obj = Stub(Greeter::class.java) {
-      setName(capture(slot)) does { }
-    }
-
-    `when`
-    obj.setName("Alice")
-
-    then
-    slot.captured == "Alice"
-  }
-
   fun `then block interaction verifies calls on a plain Spy, delegating to the real method by default`() {
     given
     val spy = Spy(GreeterImpl::class.java)
@@ -332,7 +302,7 @@ class InteractionsSmokeTest : Specification() {
 
   fun `Spy builder block stubs one method while others still delegate to the real implementation`() {
     given
-    val spy = Spy(GreeterImpl::class.java) {
+    val spy = Spy(GreeterImpl()) {
       getUsername() returns "Overridden"
     }
 
@@ -368,35 +338,6 @@ class InteractionsSmokeTest : Specification() {
     then
     1 * spy.getUsername() returned "Overridden"
     result == "Overridden"
-  }
-
-  fun `Spy builder block on an existing instance stubs one method while others still delegate`() {
-    given
-    val real = GreeterImpl()
-    val spy = Spy(existing(real)) {
-      getUsername() returns "Overridden"
-    }
-
-    `when`
-    spy.setName("Alice")
-
-    then
-    spy.getUsername() == "Overridden"
-  }
-
-  fun `Spy builder block still wraps the right instance when existing() is held in a variable`() {
-    given
-    val real = GreeterImpl()
-    val wrapped = existing(real)
-    val spy = Spy(wrapped) {
-      getUsername() returns "Overridden"
-    }
-
-    `when`
-    spy.setName("Alice")
-
-    then
-    spy.getUsername() == "Overridden"
   }
 
   fun `Mock builder block still works when the feature also has a cleanup block`() {

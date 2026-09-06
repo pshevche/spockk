@@ -15,78 +15,39 @@
 package io.github.pshevche.spockk.compilation.interaction
 
 import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
+import io.github.pshevche.spockk.compilation.BaseCompilationTest
+import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import spock.lang.Specification
 
 /**
  * Covers the when/then interaction scoping shape
  * ([io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScopeRewriter]), which
  * *moves* interaction-building statements out of the `then` block rather than rewriting in place.
- * Asserts structurally (call ordering) rather than via exact-dump comparison - some rewriter-produced
- * sub-expressions can't be reproduced byte-for-byte by independently hand-written Kotlin. Runtime
- * pass/fail behavior is covered separately by [io.github.pshevche.spockk.smoke.mock.InteractionsSmokeTest].
+ * Runtime pass/fail behavior is covered separately by
+ * [io.github.pshevche.spockk.smoke.mock.InteractionsSmokeTest].
  */
 @OptIn(ExperimentalCompilerApi::class)
-class InteractionCompilationTest : Specification() {
+class InteractionCompilationTest : BaseCompilationTest() {
 
   fun `when block is bracketed with enterScope-leaveScope around a paired interaction`() {
-    given
-    val source = kotlin(
-      "BasicCardinality.kt",
-      """
-      import io.github.pshevche.spockk.lang.times
-
-      interface Greeter {
-        fun greet(name: String)
-      }
-
-      class BasicCardinality : spock.lang.Specification() {
-        fun `some feature`() {
-          io.github.pshevche.spockk.lang.given
-          val obj = Mock(Greeter::class.java)
-
-          io.github.pshevche.spockk.lang.`when`
-          obj.greet("Alice")
-
-          io.github.pshevche.spockk.lang.then
-          1 * obj.greet("Alice")
-        }
-      }
-      """.trimIndent()
-    )
-
-    `when`
-    val result = transform(source)
-    val dump = result.irDump
-
-    then
-    verifyAll {
-      result.isSuccess()
-      dump.contains("fun setFixedCount")
-      dump.contains("fun addEqualTarget")
-      dump.contains("fun addEqualMethodName")
-      dump.contains("value=\"greet\"")
-      dump.contains("fun addEqualArg")
-      dump.contains("value=\"Alice\"")
-    }
-    val enterScopeIdx = dump.indexOf("fun enterScope")
-    val addInteractionIdx = dump.indexOf("fun addInteraction")
-    val realGreetCallIdx = dump.indexOf("fun greet (name: kotlin.String): kotlin.Unit declared in <root>.Greeter")
-    val leaveScopeIdx = dump.indexOf("fun leaveScope")
-
-    verifyAll {
-      enterScopeIdx > 0
-      addInteractionIdx > enterScopeIdx
-      realGreetCallIdx > addInteractionIdx
-      leaveScopeIdx > realGreetCallIdx
-    }
+    expect
+    assertTransformation(sampleFromResource("interaction/BasicCardinality"))
   }
 
+  /**
+   * Asserted structurally (call ordering) rather than via exact-dump comparison, unlike the sibling
+   * test above: `thrown(Type)`'s own call-site rewrite carries a Java `@FlexibleNullability`
+   * platform-type marker that ordinary hand-written Kotlin source can't reproduce byte-for-byte -
+   * the same reason [io.github.pshevche.spockk.compilation.condition.ExceptionConditionsCompilationTest]
+   * doesn't snapshot-test `thrown(Type)` either. This test's own concern (interaction scope nesting
+   * *outside* the exception try/catch) is unaffected by that and unrelated to interactions themselves.
+   */
   fun `interaction scope is the outer bracket around a nested exception condition`() {
     given
     val source = kotlin(
@@ -140,64 +101,6 @@ class InteractionCompilationTest : Specification() {
       // rewritten check.
       leaveScopeIdx > realGreetCallIdx
       checkExceptionThrownIdx > leaveScopeIdx
-    }
-  }
-
-  /**
-   * Interaction statements are calls, never bare comparisons/references, so the compiler's
-   * `UNUSED_EXPRESSION` diagnostic (which the IDE's `UnusedExpression` inspection surfaces) never
-   * fires on them - covers both the `then` block and a `Stub{}` builder block.
-   */
-  fun `interaction statements never trigger the compiler's unused-expression warning`() {
-    given
-    val source = kotlin(
-      "NoUnusedExpressionWarnings.kt",
-      """
-      import io.github.pshevche.spockk.lang.*
-
-      interface Greeter {
-        fun setName(name: String)
-        fun getUsername(): String
-      }
-
-      class NoUnusedExpressionWarnings : spock.lang.Specification() {
-        fun `some feature`() {
-          io.github.pshevche.spockk.lang.given
-          val slot = slot<String>()
-          val obj = Mock(Greeter::class.java)
-          val stub = Stub(Greeter::class.java) {
-            getUsername() returns "Alice"
-            setName(any()) does { args -> println(args) }
-          }
-
-          io.github.pshevche.spockk.lang.`when`
-          obj.setName("Alice")
-          val result = obj.getUsername()
-
-          io.github.pshevche.spockk.lang.then
-          1 * obj.setName("Alice")
-          1 * obj.setName(any())
-          1 * obj.setName(capture(slot))
-          1 * obj.anyMethod()
-          noMoreInteractions(obj)
-          (1..3) * obj.setName("Alice")
-          1 * obj.getUsername() returned "Alice"
-          1 * obj.setName("Alice") did { args -> println(args) }
-          result == "Alice"
-        }
-      }
-      """.trimIndent()
-    )
-
-    `when`
-    val result = transform(source)
-
-    then
-    verifyAll {
-      result.isSuccess()
-      // exactly the 3 already-known block-label warnings (given/when/then), none contributed by
-      // the interaction statements themselves.
-      result.unusedExpressionWarningCount() == 3
     }
   }
 }
