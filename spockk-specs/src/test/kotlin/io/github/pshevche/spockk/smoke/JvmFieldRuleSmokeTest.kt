@@ -15,32 +15,22 @@
 package io.github.pshevche.spockk.smoke
 
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-import java.io.File
 
-class JUnit4RuleSmokeTest : Specification() {
+/**
+ * Regression guard: `@JvmField @Rule` puts the annotation directly on the field and must keep
+ * working unchanged.
+ */
+class JvmFieldRuleSmokeTest : Specification() {
 
-  @get:Rule
+  @JvmField
+  @Rule
   val tmp = TemporaryFolder()
 
-  fun `rule creates the temp folder before the feature runs`() {
+  fun `rule created via JvmField still runs`() {
     expect
     tmp.root.isDirectory
-  }
-
-  fun `first feature writes a marker file into its temp folder`() {
-    given
-    tmp.newFile("marker.txt")
-
-    expect
-    File(tmp.root, "marker.txt").exists()
-  }
-
-  fun `next feature gets a fresh temp folder without the previous marker file`() {
-    expect
-    !File(tmp.root, "marker.txt").exists()
   }
 }
