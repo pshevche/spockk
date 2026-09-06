@@ -95,6 +95,7 @@ internal object IrIdentifiers {
     val RETURNED_FQN = LANG_PKG_FQN.child("returned")
     val CAPTURE_FQN = LANG_PKG_FQN.child("capture")
     val NO_MORE_INTERACTIONS_FQN = LANG_PKG_FQN.child("noMoreInteractions")
+    val EXISTING_INSTANCE_CLASS_FQN = LANG_PKG_FQN.child("ExistingInstance")
 
     // The Spockk-only 2-arg builder-block overloads, distinct from the inherited 1-arg (or Spy's
     // 2-arg-with-real-object) `MockingApi.Mock`/`Stub`/`Spy` members `MockingApiTransformer` already
