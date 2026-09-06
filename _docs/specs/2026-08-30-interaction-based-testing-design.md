@@ -200,11 +200,16 @@ stimulus, they're just configuring stub behavior for the rest of the iteration (
 
 ### Scope (v1 preview)
 
-**In scope:** `Mock`/`Stub`/`Spy` construction, including the `Spy(Type::class.java) { ... }` builder-block form
-(`SpecInternals.SpyImpl`'s first 8 overloads have the identical `(Specification, name, Type, [Map/Class], [Closure])`
-shape as `MockImpl`/`StubImpl` - the same generic `findMockImplMethod` resolution already used for `Mock`/`Stub`
-applies unchanged; Spy's two additional "wrap an existing instance" overloads are simply never matched by a
-`Spy(Type::class.java)`-shaped call, so nothing extra was needed for that case). Interactions on a `Spy` were
+**In scope:** `Mock`/`Stub`/`Spy` construction, including the `Spy(Type::class.java) { ... }` builder-block form and
+plain `Spy(existingInstance)` (no builder block - `SpecInternals.SpyImpl`'s 10 overloads mix 8 with the identical
+`(Specification, name, Type, [Map/Class], [Closure])` shape as `MockImpl`/`StubImpl` and 2 "wrap an existing
+instance" ones typed `(..., T)`/`(..., T, Closure)`; `findMockImplMethod`'s subtype-per-parameter matching couldn't
+select the `T`-typed overloads at all - `T` is the candidate's own unbound type parameter, not a concrete type an
+argument's real IR type can be checked against - so `Spy(existingInstance)` silently fell through unrewritten and
+crashed at runtime against the raw inherited `MockingApi.Spy(T)`. Fixed by special-casing a parameter typed as the
+candidate's own type parameter to match unconditionally, tried only after every candidate with a fully concrete
+parameter shape has been tried and rejected, so overload selection stays correct regardless of `SpecInternals`'
+declaration order). Interactions on a `Spy` were
 initially scoped out on the assumption that Spock "discourages" the combination - checked against Spock's own docs
 during implementation: `1 * spy.method(_)` verification and stubbing are fully supported and documented
 (`interaction_based_testing.html`, including a dedicated `callRealMethod()` helper for "stub and still delegate to
@@ -224,9 +229,10 @@ already unreachable per the grammar above); iterable/sequential responses (`>> [
 block does now receive the real `IMockInvocation`'s arguments, so the earlier blocker no longer applies, but the
 block itself is still plain `(List<Any?>) -> T`, not `(IMockInvocation) -> T`, so there's no handle to call
 `callRealMethod()` through; a deliberate, separate omission now, left for a follow-up rather than folded into this
-change); `Spy(existingInstance) { ... }` (wrapping an already-constructed object rather than a `Class` token - the
-plain, non-builder-block `Spy(instance)` this overload sugars over was already out of this session's reach to
-verify and is left for a follow-up).
+change); `Spy(existingInstance) { ... }` (the builder-block sugar - wrapping an already-constructed object rather
+than a `Class` token needs a new Spockk-only `fun <T> Spy(instance: T, block: T.() -> Unit): T` marker overload
+alongside the existing `Spy(type: Class<T>, ...)`, left for a follow-up; the plain, non-builder-block
+`Spy(existingInstance)` this would sugar over is now supported, see above).
 
 ### IntelliJ Plugin
 

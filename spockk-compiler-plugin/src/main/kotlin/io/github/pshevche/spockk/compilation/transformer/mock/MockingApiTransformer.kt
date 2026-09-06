@@ -50,13 +50,14 @@ import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
+import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.types.classifierOrNull
 import org.jetbrains.kotlin.ir.types.defaultType
 import org.jetbrains.kotlin.ir.util.file
-import org.jetbrains.kotlin.ir.util.findDeclaration
 import org.jetbrains.kotlin.ir.util.fqNameWhenAvailable
 import org.jetbrains.kotlin.ir.util.isSubtypeOf
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
@@ -298,29 +299,27 @@ internal class MockingApiTransformer(
     call: IrCall
   ): IrSimpleFunction? {
     val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(rewriterContext.irBuiltIns)
-    val mockImplMethod: IrSimpleFunction? =
-      specInternalsClass.owner.findDeclaration { m: IrSimpleFunction ->
-        if (m.name == mockMethodImplName && m.parameters.size == implArgCount) {
-          // We ignore the first three arguments: Spec, inferredName and inferredType
-          for (i in 3..<implArgCount) {
-            val callArg =
-              call.arguments[
-                i - 2
-              ] // We only skip two inferredName and inferredType, because the Spec
-            // is passed as first argument.
+    val candidates = specInternalsClass.owner.declarations
+      .filterIsInstance<IrSimpleFunction>()
+      .filter { it.name == mockMethodImplName && it.parameters.size == implArgCount }
 
-            val callType = callArg?.type
-            val methodParam = m.parameters[i]
-            val paramType = methodParam.type
-            if (callType != null && !callType.isSubtypeOf(paramType, ctx)) {
-              return@findDeclaration false
-            }
-          }
-          return@findDeclaration true
+    // We ignore the first three parameters: Spec, inferredName and inferredType. A parameter typed
+    // as the candidate's own unbound type parameter (SpyImpl's "wrap an existing instance" overload)
+    // matches any argument instead of being subtype-checked; concrete-typed candidates are tried
+    // first so that slot can never mask a real, more specific match regardless of declaration order.
+    fun matches(m: IrSimpleFunction, allowTypeParameterSlot: Boolean) =
+      (3..<implArgCount).all { i ->
+        val callType = call.arguments[i - 2]?.type
+        val paramType = m.parameters[i].type
+        if (paramType.classifierOrNull is IrTypeParameterSymbol) {
+          allowTypeParameterSlot
+        } else {
+          callType == null || callType.isSubtypeOf(paramType, ctx)
         }
-        false
       }
-    return mockImplMethod
+
+    return candidates.firstOrNull { matches(it, allowTypeParameterSlot = false) }
+      ?: candidates.firstOrNull { matches(it, allowTypeParameterSlot = true) }
   }
 }
 
