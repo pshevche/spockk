@@ -67,7 +67,7 @@ internal class SharedFieldStrategy(
     val field = property.backingField ?: return
     val isOverride = property.overriddenSymbols.isNotEmpty()
 
-    annotateField(field, fieldCtx)
+    annotateField(field, property, fieldCtx)
 
     val newName = InternalIdentifiers.getSharedFieldName(fieldCtx.name)
     rename(field, property, newName, isOverride)

@@ -17,6 +17,8 @@
 package io.github.pshevche.spockk.compilation.transformer.fields
 
 import io.github.pshevche.spockk.compilation.ir.IrDeclarationOriginWrapper
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.JUnit.CLASS_RULE_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.JUnit.RULE_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.FIELD_METADATA_FQN
 import io.github.pshevche.spockk.compilation.ir.addMemberFunction
 import io.github.pshevche.spockk.compilation.ir.irAnnotation
@@ -44,6 +46,7 @@ import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
+import org.jetbrains.kotlin.ir.util.getAnnotation
 import org.jetbrains.kotlin.name.Name
 
 internal abstract class FieldStrategyBase(
@@ -54,7 +57,7 @@ internal abstract class FieldStrategyBase(
 
   // --- Annotation ---
 
-  protected fun annotateField(field: IrField, fieldCtx: FieldContext) {
+  protected fun annotateField(field: IrField, property: IrProperty, fieldCtx: FieldContext) {
     with(irBuilder(field.symbol)) {
       field.annotations += irAnnotation(
         FIELD_METADATA_FQN,
@@ -63,6 +66,18 @@ internal abstract class FieldStrategyBase(
         irInt(fieldCtx.line),
         irBoolean(fieldCtx.hasInitializer)
       )
+    }
+    copyRuleAnnotationsFromGetterToField(field, property)
+  }
+
+  // spock-junit4's RuleExtension discovers @Rule/@ClassRule by reflecting on the spec's
+  // declared fields (FieldInfo wraps java.lang.reflect.Field), never on methods. A `@get:`
+  // use-site target puts the annotation on the property's getter instead, where the
+  // extension never looks - copy it onto the backing field so the rule is found.
+  private fun copyRuleAnnotationsFromGetterToField(field: IrField, property: IrProperty) {
+    val getter = property.getter ?: return
+    listOf(RULE_FQN, CLASS_RULE_FQN).forEach { fqn ->
+      getter.getAnnotation(fqn)?.let { field.annotations += it }
     }
   }
 
