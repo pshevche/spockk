@@ -50,6 +50,16 @@ class SpockkUnreachableCodeSuppressorTest : BaseSpockkIntelliJPluginTestCase() {
   }
 
   @Test
+  fun testSuppressUnreachableCodeWarningsForThenBlockStatements() {
+    assertTrue(isSuppressedFor("thenStatement"))
+  }
+
+  @Test
+  fun testSuppressUnreachableCodeWarningsForExpectBlockStatements() {
+    assertTrue(isSuppressedFor("expectStatement"))
+  }
+
+  @Test
   fun testDoesNotSuppressUnreachableCodeOutsideSpecialBlocks() {
     assertFalse(isSuppressedFor("regularStatement"))
   }

@@ -9,7 +9,7 @@ const has = [
   'Explicit and implicit conditions, with Spock-style failure diagrams',
   'Data tables and data pipes',
   'Fixture methods (setup/cleanup/setupSpec/cleanupSpec)',
-  'Interaction-based testing (<code>1 * mock.method()</code>, stubbed responses), as a preview',
+  'Interaction-based testing (<code>1 * mock.method()</code>, stubbed responses)',
   "Runs on Spock's own JUnit Platform engine, with full IDE/report integration"
 ]
 

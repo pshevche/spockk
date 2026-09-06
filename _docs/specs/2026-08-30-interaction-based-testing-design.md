@@ -39,7 +39,7 @@ setRangeCount(Object minCount, Object maxCount, boolean inclusive)
 addEqualTarget(Object target)
 addEqualMethodName(String name)     // special-cases name.equals(Wildcard.INSTANCE.toString()) -> WildcardMethodNameConstraint
 addEqualArg(Object arg)             // special-cases a Wildcard instance -> WildcardArgumentConstraint (matches anything)
-addCodeArg(Closure closure)         // custom per-argument predicate, used for capture()
+addCodeArg(Closure closure)         // custom per-argument predicate - unused (no argument-capture primitive)
 addConstantResponse(Object constant)
 addCodeResponse(Closure closure)    // computed per-invocation response/side effect
 build()
@@ -97,10 +97,9 @@ then
 
 ```kotlin
 given
-val nameSlot = slot<String>()
 val obj = Stub(Person::class.java) {
-  setUsername(capture(nameSlot)) does {           // response infix in a given/Stub-block: present tense
-    println("setUsername called with ${nameSlot.captured}")
+  setUsername(any()) does { args ->           // response infix in a given/Stub-block: present tense
+    println("setUsername called with ${args[0]}")
   }
   getUsername() returns "Name"
 }
@@ -119,7 +118,7 @@ val obj = Stub(Person::class.java) {
 | `0 * _._` used per-mock ("no other interactions on this mock") | `noMoreInteractions(obj, ...)` | Sugar recognized by the rewriter as exactly `0 * obj.anyMethod()` per argument - matches the idiom already familiar from Mockito's `verifyNoMoreInteractions`/MockK's `confirmVerified`, without needing a real "wildcard target" primitive at all (every real-world use of `_._` this preview needs to support is per-mock, not truly cross-mock). |
 | `obj.method(*_)` (any number of args, regardless of arity) | **not supported** | Genuinely infeasible: Kotlin resolves `obj.method(...)` against one specific overload at compile time, fixing arity the moment the call type-checks. Spock's own mechanism for this is Groovy's spread operator matched against a `SpreadWildcard` sentinel - a dynamic-dispatch trick with no Kotlin equivalent. `obj.anyMethod()` (any method, args irrelevant since it isn't a real call to the real method at all) covers the practical "catch-all" use case instead. |
 | regex method/arg names | **not supported** | Explicitly out of scope per product decision - keeps method/property matching to equality + the one `anyMethod()` wildcard. |
-| argument capture (Spock: read `IMockInvocation.arguments` inside a `>> { }` closure) | `slot<T>()` + `capture(slot)` | Spock has no dedicated capture primitive of its own (closures just read raw invocation args); this is a Spockk-only convenience, mirroring MockK's `slot`/Mockito's `ArgumentCaptor`. Maps to `addCodeArg(closure)` where the closure both matches (returns `true`, i.e. equivalent to `any()`) and records the observed value onto the given `CapturedArg<T>`. |
+| argument capture (Spock: read `IMockInvocation.arguments` inside a `>> { }` closure) | **not a separate primitive** - use `does`/`did`'s own `(List<Any?>) -> T` block argument, e.g. `setUsername(any()) does { args -> ... args[0] ... }` | Per product decision (dropped from the initial iteration to keep the API simpler): a dedicated `capture`/`slot` pair (mirroring MockK's `slot`/Mockito's `ArgumentCaptor`) was prototyped and worked, but `does`/`did` already receiving the invocation's real arguments makes it redundant - the same value is reachable without a second primitive, so this preview doesn't ship one. |
 
 ### Runtime pieces needed in `spockk-core`
 
@@ -130,30 +129,24 @@ replaces the whole enclosing statement, so these bodies only run if the plugin d
 `any<T>()`, `anyMethod<T>()` (extension), `operator fun <T> Int.times(call: T): T`, `operator fun <T> ClosedRange<Int>.times(call: T): T`,
 `infix fun <T> T.does(block: (List<Any?>) -> T): T`, `infix fun <T> T.did(block: (List<Any?>) -> T): T`,
 `infix fun <T> T.returns(value: T): T`, `infix fun <T> T.returned(value: T): T`,
-`fun <T> capture(slot: CapturedArg<T>): T`, `fun noMoreInteractions(vararg mocks: Any?)`.
+`fun noMoreInteractions(vararg mocks: Any?)`.
 
 **Real runtime pieces** (these genuinely execute later, when a stubbed mock method is actually invoked - not
 rewritten away, because they're not statements the plugin recognizes as *interaction declarations*, they're the
-generated *replacement* code the rewriter emits, and the value-capture/lambda-adapter logic behind them has to
-really run):
-- `class CapturedArg<T>` with a `val captured: T` (throws `IllegalStateException` if read before any invocation
-  captured a value) and an internal setter the generated `addCodeArg` closure calls.
-- Two small `groovy.lang.Closure` adapters wrapping a Kotlin lambda, used internally by the generated code for
-  `does`/`did`/`capture`. `groovy.lang.Closure` is already a required transitive runtime dependency (see
-  `AGENTS.md`, "Condition Rendering Internals"), so these aren't a new dependency, just two small adapter classes.
+generated *replacement* code the rewriter emits, and the lambda-adapter logic behind them has to really run):
+- A small `groovy.lang.Closure` adapter (`SpockkResponseClosure`) wrapping a Kotlin lambda, used internally by the
+  generated code for `does`/`did`. `groovy.lang.Closure` is already a required transitive runtime dependency (see
+  `AGENTS.md`, "Condition Rendering Internals"), so this isn't a new dependency, just one small adapter class.
   Groovy's closure-dispatch mechanics needed to be matched precisely and were confirmed empirically (not just by
-  reading `CodeResponseGenerator`/`CodeArgumentConstraint`'s source): `CodeResponseGenerator` reflects on
-  `closure.getParameterTypes()` and only passes the real `IMockInvocation` object if the closure's *sole declared,
-  non-vararg* parameter is that type - a `vararg doCall(args: Any?)` (the shape `capture`'s closure uses, since
-  `CodeArgumentConstraint` always calls it with one raw argument value) does NOT qualify, and receives the whole
-  `Object[]` arguments array as a single wrapped vararg element instead of the array's own contents spread out -
-  confirmed by an early implementation attempt that reused the vararg-based adapter for responses too, which
-  produced a response closure whose `args[0]` was the entire arguments array, not the first argument. `does`/`did`'s
-  response adapter (`SpockkResponseClosure`) therefore declares a genuine single, non-vararg `IMockInvocation`
-  parameter instead, reading `invocation.arguments: List<Any?>` to hand the caller's block its arguments correctly;
-  `capture`'s adapter (`SpockkClosure`) keeps the vararg shape, which is correct for its own (different) dispatch
-  path. Exact subclassing mechanics (what method Groovy's `Closure.call()` dispatches to - `doCall`, by Groovy
-  convention) were likewise confirmed empirically, the same way condition-rendering's
+  reading `CodeResponseGenerator`'s source): it reflects on `closure.getParameterTypes()` and only passes the real
+  `IMockInvocation` object if the closure's *sole declared, non-vararg* parameter is that type - a `vararg
+  doCall(args: Any?)` does NOT qualify, and receives the whole `Object[]` arguments array as a single wrapped
+  vararg element instead of the array's own contents spread out - confirmed by an early implementation attempt
+  that used a vararg-based adapter for responses, which produced a response closure whose `args[0]` was the entire
+  arguments array, not the first argument. `does`/`did`'s response adapter therefore declares a genuine single,
+  non-vararg `IMockInvocation` parameter instead, reading `invocation.arguments: List<Any?>` to hand the caller's
+  block its arguments correctly. Exact subclassing mechanics (what method Groovy's `Closure.call()` dispatches to -
+  `doCall`, by Groovy convention) were likewise confirmed empirically, the same way condition-rendering's
   slot-packing algorithm was verified against real `Condition.getRendering()` output rather than derived by hand.
 
 ### `Mock`/`Stub`/`Spy` builder-block syntax (given-block, eager registration)
@@ -167,8 +160,18 @@ overloads - different parameter types, no ambiguity):
 ```kotlin
 fun <T> Mock(type: Class<T>, block: T.() -> Unit): T = throw UnsupportedOperationException(...)
 fun <T> Stub(type: Class<T>, block: T.() -> Unit): T = throw UnsupportedOperationException(...)
-fun <T> Spy(type: Class<T>, block: T.() -> Unit): T = throw UnsupportedOperationException(...)
+fun <T> Spy(instance: T, block: T.() -> Unit): T = throw UnsupportedOperationException(...)
 ```
+`Spy`'s builder-block overload takes the instance directly rather than a `Class<T>` token - a real `Spy`, unlike
+`Mock`/`Stub`, delegates to a genuine object rather than a bytecode proxy Spock builds from scratch, so there's
+nothing for a separate `Class<T>` overload to add: construct the instance directly (`Spy(GreeterImpl()) { ... }`)
+instead of asking Spock to construct a default one. A `Spy(type: Class<T>, block)` sibling was tried first, but a
+`Class<Foo>` argument satisfies `Spy(instance: T, block)`'s unconstrained `T` too, and unlike the plain 1-arg
+`Spy(Class<T>)`/`Spy(T)` pair (where Kotlin's overload resolution does pick the more specific `Class<T>`
+candidate), the second, identically-shaped `block: T.() -> Unit` parameter makes the two 2-arg candidates
+incomparable, so Kotlin reported an outright ambiguity error rather than picking one (confirmed empirically) - collapsing
+to the single `Spy(instance: T, block)` overload removes the ambiguity, and the extra `Class<T>` convenience it
+would have added is redundant with just constructing the instance directly.
 `MockingApiTransformer` (already unconditionally enabled, untouched otherwise) is extended to recognize this
 2-arg shape: rewrite to the existing `MockImpl`/`StubImpl`/`SpyImpl` construction (unchanged), then run the new interaction
 rewriter over `block`'s statements, registering each one directly via `mockController.addInteraction(...)` - no
@@ -200,36 +203,27 @@ stimulus, they're just configuring stub behavior for the rest of the iteration (
 
 ### Scope (v1 preview)
 
-**In scope:** `Mock`/`Stub`/`Spy` construction, including the `Spy(Type::class.java) { ... }` builder-block form and
-plain `Spy(existingInstance)` (no builder block - `SpecInternals.SpyImpl`'s 10 overloads mix 8 with the identical
-`(Specification, name, Type, [Map/Class], [Closure])` shape as `MockImpl`/`StubImpl` and 2 "wrap an existing
-instance" ones typed `(..., T)`/`(..., T, Closure)`; `findMockImplMethod`'s subtype-per-parameter matching couldn't
-select the `T`-typed overloads at all - `T` is the candidate's own unbound type parameter, not a concrete type an
-argument's real IR type can be checked against - so `Spy(existingInstance)` silently fell through unrewritten and
-crashed at runtime against the raw inherited `MockingApi.Spy(T)`. Fixed by special-casing a parameter typed as the
-candidate's own type parameter to match unconditionally, tried only after every candidate with a fully concrete
-parameter shape has been tried and rejected, so overload selection stays correct regardless of `SpecInternals`'
-declaration order); `Spy(existing(instance)) { ... }` (the builder-block form wrapping an
-already-constructed object - a new Spockk-only `fun <T> Spy(instance: ExistingInstance<T>, block: T.() -> Unit): T`
-overload alongside `Spy(type: Class<T>, ...)`. `Spy(instance: T, ...)` directly, without the `ExistingInstance<T>`
-wrapper, is ambiguous with `Spy(type: Class<T>, ...)` at the Kotlin source level - confirmed empirically: `T` in an
-unwrapped instance overload is unconstrained enough that a `Class<Foo>` argument satisfies it too, and unlike the
-plain 1-arg case (where Kotlin's overload resolution does pick the more specific `Class<T>` candidate), adding the
-second, identically-shaped `block: T.() -> Unit` parameter makes the two candidates incomparable, so Kotlin reports
-an outright ambiguity error rather than picking one. `existing(instance)` wraps the value in `ExistingInstance<T>`,
-a distinct concrete type from `Class<T>`, which resolves the ambiguity; the compiler plugin unwraps it back to the
-real instance by matching the argument's IR type (not the literal `existing(...)` call shape, so it also works when
-the wrapped value is held in a variable first) and calling `ExistingInstance.value`'s getter, mirroring how
-`capture(slot)` already reads `CapturedArg`'s generic type argument). Interactions on a `Spy` were
+**In scope:** `Mock`/`Stub`/`Spy` construction, including the `Mock`/`Stub(Type::class.java) { ... }` builder-block
+form, `Spy(instance) { ... }` builder-block form (taking the instance directly rather than a `Class<T>` token - see
+above), and plain `Spy(existingInstance)` (no builder block - `SpecInternals.SpyImpl`'s 10 overloads mix 8 with the
+identical `(Specification, name, Type, [Map/Class], [Closure])` shape as `MockImpl`/`StubImpl` and 2 "wrap an
+existing instance" ones typed `(..., T)`/`(..., T, Closure)`; `findMockImplMethod`'s subtype-per-parameter matching
+couldn't select the `T`-typed overloads at all - `T` is the candidate's own unbound type parameter, not a concrete
+type an argument's real IR type can be checked against - so `Spy(existingInstance)` silently fell through
+unrewritten and crashed at runtime against the raw inherited `MockingApi.Spy(T)`. Fixed by special-casing a
+parameter typed as the candidate's own type parameter to match unconditionally, tried only after every candidate
+with a fully concrete parameter shape has been tried and rejected, so overload selection stays correct regardless
+of `SpecInternals`' declaration order). Interactions on a `Spy` were
 initially scoped out on the assumption that Spock "discourages" the combination - checked against Spock's own docs
 during implementation: `1 * spy.method(_)` verification and stubbing are fully supported and documented
 (`interaction_based_testing.html`, including a dedicated `callRealMethod()` helper for "stub and still delegate to
 the real method"); the only actual caveat is a style note ("think twice before using this feature") aimed at Spy's
 general partial-mocking pattern, not a technical restriction Spockk needs to encode. Cardinality as exact count
 (`N`) or range (`a..b`); `any()`/`any<T>()` argument matcher; literal argument equality (any other literal value
-passed directly, no wrapper needed); `does`/`did`/`returns`/`returned` response specification; `capture`/`slot`
-argument capture; `anyMethod()` wildcard method matching; `noMoreInteractions(...)` sugar; when/then interaction
-scoping; given-block/`Stub{}`/`Spy{}`-block eager stub registration.
+passed directly, no wrapper needed); `does`/`did`/`returns`/`returned` response specification (`does`/`did`'s block
+receiving the invocation's real arguments doubles as the argument-capture mechanism, see below); `anyMethod()`
+wildcard method matching; `noMoreInteractions(...)` sugar; when/then interaction scoping; given-block/`Stub{}`/
+`Spy{}`-block eager stub registration.
 
 **Out of scope, explicitly documented (not silent gaps):** regex method/property names; any-arity/wildcard
 argument-count matching (`(*_)`); true cross-mock wildcard target (`_._` beyond the per-mock `noMoreInteractions`
@@ -240,19 +234,27 @@ already unreachable per the grammar above); iterable/sequential responses (`>> [
 block does now receive the real `IMockInvocation`'s arguments, so the earlier blocker no longer applies, but the
 block itself is still plain `(List<Any?>) -> T`, not `(IMockInvocation) -> T`, so there's no handle to call
 `callRealMethod()` through; a deliberate, separate omission now, left for a follow-up rather than folded into this
-change).
+change); a dedicated `capture`/`slot` argument-capture primitive (prototyped and working, then cut per product
+decision - `does`/`did`'s block already receives the invocation's real arguments positionally, making a second,
+Spockk-only capture primitive redundant for this iteration).
 
 ### IntelliJ Plugin
 
-No suppression changes needed. `SpockkUnusedExpressionInspectionSuppressor` exists because the Kotlin compiler's
-`UNUSED_EXPRESSION` diagnostic (surfaced in the IDE as the `UnusedExpression` inspection) only fires on statement
-expressions with no possible side effect - a bare comparison, reference, or literal. Every interaction statement
-shape (`N * target.method(args)`, `does`/`did`/`returns`/`returned`, `capture`/`anyMethod`/`noMoreInteractions`, the
-`Mock`/`Stub`/`Spy` builder block) and every exception-condition statement (`thrown`/`notThrown`/`noExceptionThrown`)
-is a function/operator/infix call, which the compiler always assumes may have side effects - confirmed empirically
-by compiling representative specs and asserting the warning count against the real Kotlin frontend
-(`InteractionCompilationTest`/`ExceptionConditionsCompilationTest` in `spockk-specs`), not just by reading the
-inspection's source. The IntelliJ plugin module itself needed no changes.
+No `UnusedExpression` suppression changes needed: the Kotlin compiler's `UNUSED_EXPRESSION` diagnostic (surfaced in
+the IDE as the `UnusedExpression` inspection) only fires on statement expressions with no possible side effect - a
+bare comparison, reference, or literal. Every interaction statement shape (`N * target.method(args)`,
+`does`/`did`/`returns`/`returned`, `anyMethod`/`noMoreInteractions`, the `Mock`/`Stub`/`Spy` builder block) and
+every exception-condition statement (`thrown`/`notThrown`/`noExceptionThrown`) is a function/operator/infix call,
+which the compiler always assumes may have side effects.
+
+This is verified at the IDE-inspection level, not by asserting a compiler warning count: what matters is whether
+`SpockkUnusedExpressionInspectionSuppressor` suppresses the *IDE* inspection, since that inspection can be muted
+independently of whatever the compiler itself warns about (and Spockk's rewritten code inevitably produces some
+frontend warnings on the original, unrewritten source regardless). `SpockkUnusedExpressionInspectionSuppressorTest`
+covers this directly. One real gap did surface this way: `KotlinUnreachableCode` was suppressed for
+`given`/`when`/`then`/... block-label references, `where:`, and `cleanup:` statements, but not for `then:`/`expect:`
+statements - extended to cover those too (`isPartOfThenOrExpectBlock()`), with matching
+`SpockkUnreachableCodeSuppressorTest` coverage. The IntelliJ plugin module needed no other changes.
 
 ### Spock Source References
 

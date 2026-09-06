@@ -18,20 +18,6 @@ import groovy.lang.Closure
 import org.spockframework.mock.IMockInvocation
 
 /**
- * Adapts a Kotlin lambda to a real `groovy.lang.Closure`, for generated code behind `capture` to
- * hand to Spock's own `InteractionBuilder.addCodeArg`. `doCall` must be `vararg`: a fixed zero-arity
- * `doCall()` throws Groovy's `MissingMethodException` the moment Spock invokes it with a real
- * argument (confirmed empirically against Spock's dispatch).
- */
-internal class SpockkClosure<R>(
-  private val action: (Array<out Any?>) -> R
-) : Closure<R>(null, null) {
-
-  @Suppress("unused") // invoked reflectively by Groovy's Closure.call() dispatch, matched by arity alone
-  fun doCall(vararg args: Any?): R = action(args)
-}
-
-/**
  * Adapts a Kotlin lambda to a `groovy.lang.Closure` for `InteractionBuilder.addCodeResponse` -
  * `doCall`'s single, non-vararg `IMockInvocation` parameter is what `CodeResponseGenerator` reflects
  * on to decide to pass the real invocation object rather than its raw `Object[]` arguments as one
@@ -48,15 +34,4 @@ internal class SpockkResponseClosure<R>(
 /** Adapts a `does`/`did` block to the `Closure` [org.spockframework.mock.runtime.InteractionBuilder.addCodeResponse] expects. */
 internal fun <R> responseClosure(block: (List<Any?>) -> R): Closure<Any?> = SpockkResponseClosure { invocation ->
   block(invocation.arguments)
-}
-
-/**
- * Adapts `capture(slot)` to the `Closure` [org.spockframework.mock.runtime.InteractionBuilder.addCodeArg]
- * expects: records the matched argument and always matches (Spock's `CodeArgumentConstraint` only
- * checks whether the closure throws, never its return value).
- */
-internal fun <T> captureClosure(slot: CapturedArg<T>): Closure<Any?> = SpockkClosure { args ->
-  @Suppress("UNCHECKED_CAST")
-  slot.set(args[0] as T)
-  null
 }

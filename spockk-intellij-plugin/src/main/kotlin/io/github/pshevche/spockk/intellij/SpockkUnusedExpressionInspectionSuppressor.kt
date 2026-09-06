@@ -33,7 +33,10 @@ class SpockkUnusedExpressionInspectionSuppressor : InspectionSuppressor {
     }
 
     if (toolId == "KotlinUnreachableCode") {
-      return element.isSpockkBlock() || element.isPartOfDataProviderBlock() || element.isPartOfCleanupBlock()
+      return element.isSpockkBlock() ||
+        element.isPartOfDataProviderBlock() ||
+        element.isPartOfCleanupBlock() ||
+        element.isPartOfThenOrExpectBlock()
     }
 
     if (toolId == "UnusedEquals" ||
