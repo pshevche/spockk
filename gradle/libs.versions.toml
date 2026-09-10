@@ -11,7 +11,7 @@ intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.18.1"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.37.0" }
 node = { id = "com.github.node-gradle.node", version = "7.1.0" }
-plugin-publish = { id = "com.gradle.plugin-publish", version = "2.2.0" }
+plugin-publish = { id = "com.gradle.plugin-publish", version = "2.2.1" }
 shadow = { id = "com.gradleup.shadow", version = "9.6.1" }
 spotless = { id = "com.diffplug.spotless", version = "8.10.2" }
 
