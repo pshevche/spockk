@@ -20,6 +20,7 @@ internal data class FeatureBody(
   val anonymousStatements: List<IrStatement>,
   val behaviorBlocks: List<FeatureBlock>,
   val behaviorSteps: List<BehaviorStep>,
+  val hasConditions: Boolean,
   val dataProviderBlocks: List<FeatureBlock>,
   val cleanupBlock: FeatureBlock?
 ) {

@@ -31,10 +31,8 @@ import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
 import io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter
-import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
 import io.github.pshevche.spockk.compilation.transformer.condition.irStaticErrorCollectorDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.irValueRecorderDeclaration
-import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
 import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionStatementsRewriter
 import io.github.pshevche.spockk.compilation.transformer.interaction.irLeaveScopeStatement
@@ -131,17 +129,11 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     feature: IrFunction,
     featureBody: FeatureBody
   ): List<IrStatement> = buildList {
-    // Declared once per feature (matching Spock), shared across every condition-bearing block. A
-    // literal-lambda verify/verifyAll/verifyEach call also counts, even though it isn't itself a
-    // bare condition statement.
-    val hasConditions = featureBody.behaviorBlocks.any { block ->
-      block.statements.any { it.isConditionStatement(irBuiltIns) } ||
-        block.statements.containsImplicitAssertionHelperCall()
-    }
+    // Declared once per feature (matching Spock), shared across every condition-bearing block.
     val valueRecorderVar =
-      if (hasConditions) irValueRecorderDeclaration(builder, feature).also { add(it) } else null
+      if (featureBody.hasConditions) irValueRecorderDeclaration(builder, feature).also { add(it) } else null
     val errorCollectorVar =
-      if (hasConditions) irStaticErrorCollectorDeclaration(builder, feature).also { add(it) } else null
+      if (featureBody.hasConditions) irStaticErrorCollectorDeclaration(builder, feature).also { add(it) } else null
 
     addAll(featureBody.anonymousStatements)
 

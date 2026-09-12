@@ -78,3 +78,11 @@ internal fun IrStatement.isConditionStatement(irBuiltIns: IrBuiltIns, treatAsCon
   val expr = (this as? IrExpression)?.unwrapImplicitCoercionToUnit() ?: return false
   return expr.isAssertCall() || expr.type == irBuiltIns.booleanType
 }
+
+/**
+ * Whether a block's statements need the shared `valueRecorder`/`errorCollector` declared for the
+ * whole feature: a bare condition statement, or a literal-lambda verify/verifyAll/verifyEach call
+ * (which isn't itself a condition statement but rewrites to one).
+ */
+internal fun List<IrStatement>.hasConditionStatement(irBuiltIns: IrBuiltIns): Boolean =
+  any { it.isConditionStatement(irBuiltIns) } || containsImplicitAssertionHelperCall()

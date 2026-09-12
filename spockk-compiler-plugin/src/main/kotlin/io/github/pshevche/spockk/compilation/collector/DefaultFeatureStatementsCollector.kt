@@ -19,10 +19,15 @@ import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabelIrElement
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
+import io.github.pshevche.spockk.compilation.transformer.condition.hasConditionStatement
+import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 
-internal class DefaultFeatureStatementsCollector(private val file: IrFile) : FeatureStatementsCollector {
+internal class DefaultFeatureStatementsCollector(
+  private val file: IrFile,
+  private val irBuiltIns: IrBuiltIns
+) : FeatureStatementsCollector {
 
   companion object {
     private val SEPARATOR_LABELS = setOf(FeatureBlockLabel.CLEANUP, FeatureBlockLabel.WHERE)
@@ -57,6 +62,7 @@ internal class DefaultFeatureStatementsCollector(private val file: IrFile) : Fea
       anonymousStatements.toList(),
       behaviorBlocks,
       pairBehaviorBlocks(behaviorBlocks),
+      behaviorBlocks.any { it.statements.hasConditionStatement(irBuiltIns) },
       dataProviderBlocks,
       cleanupBlock
     )
