@@ -192,14 +192,17 @@ stimulus, they're just configuring stub behavior for the rest of the iteration (
   new rewriter instead of treating it as a boolean condition. (`given:`/`Stub{}`-block interactions go through a
   separate, simpler, non-recursive path from `MockingApiTransformer` - see above - since they're never mixed with
   plain conditions.)
-- **`FeatureRewriter`**/**new `InteractionScopeRewriter`** (or an extension of the existing `WhenBlockRewriter`):
-  extends the existing WHEN/THEN lookahead (already used for `hasExceptionCondition()`) with a parallel
-  `hasInteractionStatement()` check, and when a `then:` block has interactions, brackets the preceding `when:`
-  block with `enterScope()`/moved-interaction-registration-statements before, and inserts `leaveScope()` at the
-  start of the `then:` block - the exact shape Spock's own `SpecRewriter.moveInteractions` produces (see above).
-  Chained `then:` blocks after one `when:` (Spock's `addBarrier()` case) are out of scope for this preview, same as
-  they're already out of scope for exception conditions - `BlockOrderValidatingFeatureStatementsCollector` already
-  rejects a `then:` immediately following another `then:` as a compile error upstream, so this isn't reachable.
+- **`FeatureRewriter`**, dispatching over `BehaviorStep`s pre-paired and pre-classified at collection time
+  (`pairBehaviorBlocks`, called once from `SpockkTransformationContextCollector` - see
+  `_docs/plans/2026-08-30-interaction-based-testing.md`'s follow-up refactor note): a `when`/`then` pair whose
+  `then` block has interactions is bracketed with `enterScope()`/moved-interaction-registration-statements before
+  the `when` block, and `leaveScope()` at the start of the `then` block's own rewrite - the exact shape Spock's own
+  `SpecRewriter.moveInteractions` produces (see above), now built by the same `WhenBlockRewriter` that also handles
+  the exception-condition case (`_docs/specs/2026-08-09-exception-conditions-design.md`), parameterized rather than
+  duplicated. Chained `then:` blocks after one `when:` (Spock's `addBarrier()` case) are out of scope for this
+  preview, same as they're already out of scope for exception conditions -
+  `BlockOrderValidatingFeatureStatementsCollector` already rejects a `then:` immediately following another `then:`
+  as a compile error upstream, so this isn't reachable.
 
 ### Scope (v1 preview)
 
@@ -272,9 +275,13 @@ statements - extended to cover those too (`isPartOfThenOrExpectBlock()`), with m
   construction rewriting, extended (not replaced) for the new 2-arg builder-block overloads
 - `spockk-compiler-plugin/.../compilation/transformer/condition/ConditionStatementsRewriter.kt` - gains
   `isInteractionStatement()` routing
-- `spockk-compiler-plugin/.../compilation/transformer/condition/WhenBlockRewriter.kt`,
-  `spockk-compiler-plugin/.../compilation/transformer/FeatureRewriter.kt` - lookahead pattern this design's
-  when/then interaction scoping directly reuses (see `_docs/specs/2026-08-09-exception-conditions-design.md`)
+- `spockk-compiler-plugin/.../compilation/transformer/WhenBlockRewriter.kt`,
+  `spockk-compiler-plugin/.../compilation/transformer/FeatureRewriter.kt` - the when/then pairing and scope
+  wrapping this design's interaction scoping shares with the exception-condition case (see
+  `_docs/specs/2026-08-09-exception-conditions-design.md`); the two rewriters that separately built this shape for
+  each case (`condition/WhenBlockRewriter`, `interaction/InteractionScopeRewriter`) were later merged into one
+  parameterized `WhenBlockRewriter`, with the when/then pairing itself moved to
+  `collector/BehaviorSteps.kt#pairBehaviorBlocks` (collection time, not rewrite time)
 - `spockk-compiler-plugin/.../compilation/transformer/ir/IrSpecInternals.kt`,
   `.../transformer/ir/IrSpecificationContext.kt` - the one-wrapper-class-per-Spock-class convention this design's
   new `IrInteractionBuilder`/`IrMockController` wrappers follow
