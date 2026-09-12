@@ -25,7 +25,7 @@ import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
 /**
- * Covers the `when`-block wrapping mechanism ([io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter])
+ * Covers the `when`-block wrapping mechanism ([io.github.pshevche.spockk.compilation.transformer.WhenBlockRewriter])
  * with exact-IR-shape snapshots. `thrown(Type)`'s own call-site rewrite
  * ([io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter]) is
  * deliberately not snapshot-tested here: the rewritten cast target type carries a Java

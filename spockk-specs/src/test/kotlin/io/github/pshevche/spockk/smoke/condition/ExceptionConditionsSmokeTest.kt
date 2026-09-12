@@ -29,7 +29,7 @@ import java.io.IOException
  * - mirroring the scenarios covered by Spock's own `ExceptionConditions` spec. A `when` block
  * paired with a `then` block containing one of these calls has its statements wrapped in a
  * try/catch that records the thrown exception on `SpecificationContext`
- * ([io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter]);
+ * ([io.github.pshevche.spockk.compilation.transformer.WhenBlockRewriter]);
  * `thrown(Type::class.java)` is rewritten to call Spock's own already-shaded
  * `SpecInternals.checkExceptionThrown`
  * ([io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter]).

@@ -25,7 +25,7 @@ import spock.lang.Specification
 
 /**
  * Covers the when/then interaction scoping shape
- * ([io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScopeRewriter]), which
+ * ([io.github.pshevche.spockk.compilation.transformer.WhenBlockRewriter]), which
  * *moves* interaction-building statements out of the `then` block rather than rewriting in place.
  * Asserts structurally (call ordering) rather than via exact-dump comparison - some rewriter-produced
  * sub-expressions can't be reproduced byte-for-byte by independently hand-written Kotlin. Runtime
@@ -84,6 +84,50 @@ class InteractionCompilationTest : Specification() {
       addInteractionIdx > enterScopeIdx
       realGreetCallIdx > addInteractionIdx
       leaveScopeIdx > realGreetCallIdx
+    }
+  }
+
+  /**
+   * `noMoreInteractions()` called with zero mocks is a no-op (it builds no `addInteraction`
+   * statements at all), but the `then` block still had an interaction-shaped statement, so
+   * `enterScope`/`leaveScope` must still be emitted as a pair - otherwise the paired `then` block's
+   * unconditional `leaveScope()` pops a scope nothing ever pushed.
+   */
+  fun `when block still gets enterScope-leaveScope for a then block whose only interaction is a no-op`() {
+    given
+    val source = kotlin(
+      "NoOpNoMoreInteractions.kt",
+      """
+      import io.github.pshevche.spockk.lang.noMoreInteractions
+
+      interface Greeter {
+        fun greet(name: String)
+      }
+
+      class NoOpNoMoreInteractions : spock.lang.Specification() {
+        fun `some feature`() {
+          io.github.pshevche.spockk.lang.given
+          val obj = Mock(Greeter::class.java)
+
+          io.github.pshevche.spockk.lang.`when`
+          obj.greet("Alice")
+
+          io.github.pshevche.spockk.lang.then
+          noMoreInteractions()
+        }
+      }
+      """.trimIndent()
+    )
+
+    `when`
+    val result = transform(source)
+    val dump = result.irDump
+
+    then
+    verifyAll {
+      result.isSuccess()
+      dump.indexOf("fun enterScope") > 0
+      dump.indexOf("fun leaveScope") > 0
     }
   }
 

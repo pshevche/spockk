@@ -30,6 +30,7 @@ import io.github.pshevche.spockk.compilation.ir.sourceText
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import io.github.pshevche.spockk.compilation.transformer.ir.getSpecificationContext
+import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irBoolean
@@ -271,3 +272,15 @@ internal class InteractionStatementsRewriter(
 
 private fun IrClassSymbol.propertyGetter(name: String): IrSimpleFunctionSymbol =
   owner.declarations.filterIsInstance<IrProperty>().first { it.name.asString() == name }.getter!!.symbol
+
+/**
+ * `mockController.leaveScope()`, the first statement of a `then` block paired with a
+ * [io.github.pshevche.spockk.compilation.transformer.WhenBlockRewriter]-wrapped `when` block -
+ * verifies the interactions registered in that scope.
+ */
+internal fun SpockkIrRewriter.irLeaveScopeStatement(feature: IrFunction, builder: DeclarationIrBuilder): IrStatement {
+  val specAccessor = feature.requiredThisParameter()
+  val specificationContext = feature.parentAsClass.getSpecificationContext(rewriterContext)
+  val controller = specificationContext.irGetMockController(builder, specAccessor)
+  return rewriterContext.mockController.irLeaveScope(builder, controller)
+}

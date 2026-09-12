@@ -139,10 +139,10 @@ internal class MockingApiTransformer(
 
   // Splices each pending mock's built interaction statements in right after its own declaration,
   // wherever that's actually found - not just this list's own top-level statements, but recursively
-  // into every nested statement list reachable from it (a WhenBlockRewriter/InteractionScopeRewriter
-  // try/catch around a paired then:'s exception condition, or CleanupBlockRewriter's try/finally
-  // around the whole feature body when a cleanup: block is present, both nest the given: block's
-  // own statements one level deeper before this splice pass ever runs).
+  // into every nested statement list reachable from it (a WhenBlockRewriter try/catch around a
+  // paired then:'s exception condition, or CleanupBlockRewriter's try/finally around the whole
+  // feature body when a cleanup: block is present, both nest the given: block's own statements one
+  // level deeper before this splice pass ever runs).
   private fun spliceInto(statements: MutableList<IrStatement>, pending: MutableList<PendingInteractionSplice>) {
     if (pending.isEmpty()) return
     val rewritten = statements.flatMap { statement ->

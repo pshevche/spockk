@@ -56,6 +56,7 @@ internal class DefaultFeatureStatementsCollector(private val file: IrFile) : Fea
     return FeatureBody(
       anonymousStatements.toList(),
       behaviorBlocks,
+      pairBehaviorBlocks(behaviorBlocks),
       dataProviderBlocks,
       cleanupBlock
     )

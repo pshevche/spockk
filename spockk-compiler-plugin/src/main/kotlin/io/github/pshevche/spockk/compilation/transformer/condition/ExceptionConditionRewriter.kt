@@ -44,7 +44,8 @@ import org.jetbrains.kotlin.ir.util.file
  * (already shaded into `spockk-core`), reusing its exception-matching/error-selection logic
  * unchanged - including its handling of `thrown(null)` and non-`Throwable` types. `notThrown`/
  * `noExceptionThrown` are left untouched: their inherited bodies on `Specification` already read
- * the exception [WhenBlockRewriter] records correctly, with no rewrite needed. A zero-arg
+ * the exception [io.github.pshevche.spockk.compilation.transformer.WhenBlockRewriter] records
+ * correctly, with no rewrite needed. A zero-arg
  * `thrown()` assigned to a `val`/`var` infers its exception type from the declaration's own
  * declared type (`val e: IOException = thrown()`); a zero-arg `thrown()` used as a bare statement
  * has no declared type to infer from and is left unrewritten - see the design doc's deferred

@@ -25,23 +25,18 @@ import io.github.pshevche.spockk.compilation.ir.irStringArray
 import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
+import io.github.pshevche.spockk.compilation.shared.BehaviorStep
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
-import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
 import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
 import io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter
-import io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter
 import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
-import io.github.pshevche.spockk.compilation.transformer.condition.hasExceptionCondition
 import io.github.pshevche.spockk.compilation.transformer.condition.irStaticErrorCollectorDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.irValueRecorderDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
-import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionExtractionResult
-import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScopeRewriter
 import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionStatementsRewriter
-import io.github.pshevche.spockk.compilation.transformer.interaction.hasInteractionStatement
 import io.github.pshevche.spockk.compilation.transformer.interaction.irLeaveScopeStatement
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
@@ -50,6 +45,7 @@ import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irVararg
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrAnnotation
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -148,79 +144,66 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
       if (hasConditions) irStaticErrorCollectorDeclaration(builder, feature).also { add(it) } else null
 
     addAll(featureBody.anonymousStatements)
-    val behaviorBlocks = featureBody.behaviorBlocks
 
-    // Pre-extracted once per THEN block that declares interactions (never mutated during the main
-    // loop below), keyed by that THEN block's own ordinal - both the paired WHEN block's branch
-    // (needs the built addInteraction statements, to move them ahead of the when-block's own
-    // statements) and that THEN block's own branch (needs the interaction-free remainder) read the
-    // same split, matching Spock's own SpecRewriter.moveInteractions.
-    val interactionSplitsByThenOrdinal: Map<Int, InteractionExtractionResult> = behaviorBlocks
-      .filter { it.element.label == FeatureBlockLabel.THEN && it.statements.hasInteractionStatement() }
-      .associate { it.ordinal to InteractionStatementsRewriter(rewriterContext, feature).extractAndRewrite(it.statements) }
+    featureBody.behaviorSteps.forEach { step ->
+      when (step) {
+        is BehaviorStep.Plain -> addAll(rewritePlainBlock(builder, feature, step.block))
 
-    behaviorBlocks.forEachIndexed { index, it ->
-      when (it.element.label) {
-        FeatureBlockLabel.THEN -> {
-          // A WHEN block is always immediately followed by exactly one THEN block (enforced at
-          // collection time), so an exception condition/interaction split found here was already
-          // used to decide whether the preceding WHEN block needed wrapping below.
-          val interactionSplit = interactionSplitsByThenOrdinal[it.ordinal]
-          val rawStatements = if (interactionSplit != null) {
-            listOf(irLeaveScopeStatement(feature, builder)) + interactionSplit.remainingStatements
-          } else {
-            it.statements
-          }
-          val statements = ExceptionConditionRewriter(rewriterContext, feature).rewrite(rawStatements)
+        is BehaviorStep.Condition -> {
           val conditionRewriter =
-            ConditionRewriter(rewriterContext, builder, feature, it.ordinal, valueRecorderVar, errorCollectorVar)
-          addAll(conditionRewriter.rewrite(statements))
+            ConditionRewriter(rewriterContext, builder, feature, step.block.ordinal, valueRecorderVar, errorCollectorVar)
+          addAll(conditionRewriter.rewrite(step.block.statements))
         }
 
-        FeatureBlockLabel.EXPECT -> {
-          val conditionRewriter =
-            ConditionRewriter(rewriterContext, builder, feature, it.ordinal, valueRecorderVar, errorCollectorVar)
-          addAll(conditionRewriter.rewrite(it.statements))
-        }
-
-        FeatureBlockLabel.WHEN if behaviorBlocks.getOrNull(index + 1)?.let { then -> interactionSplitsByThenOrdinal.containsKey(then.ordinal) } == true -> {
-          val thenBlock = behaviorBlocks[index + 1]
-          val addInteractionStatements = interactionSplitsByThenOrdinal.getValue(thenBlock.ordinal).addInteractionStatements
-          val hasExceptionCondition = thenBlock.statements.hasExceptionCondition()
-          addAll(
-            InteractionScopeRewriter(
-              rewriterContext,
-              feature,
-              it,
-              addInteractionStatements,
-              hasExceptionCondition,
-              thenBlock.statements
-            ).rewrite()
-          )
-        }
-
-        FeatureBlockLabel.WHEN if behaviorBlocks.getOrNull(index + 1)?.statements?.hasExceptionCondition() == true -> {
-          addAll(WhenBlockRewriter(rewriterContext, feature, it, behaviorBlocks[index + 1].statements).rewrite())
-        }
-
-        else -> {
-          add(
-            rewriterContext.spockRuntime.irCallBlockEntered(
-              builder,
-              feature.requiredThisParameter(),
-              it.ordinal
-            )
-          )
-          addAll(it.statements)
-          add(
-            rewriterContext.spockRuntime.irCallBlockExited(
-              builder,
-              feature.requiredThisParameter(),
-              it.ordinal
-            )
-          )
-        }
+        is BehaviorStep.WhenThen -> addAll(rewriteWhenThen(builder, feature, step, valueRecorderVar, errorCollectorVar))
       }
     }
+  }
+
+  private fun rewritePlainBlock(builder: DeclarationIrBuilder, feature: IrFunction, block: FeatureBlock): List<IrStatement> =
+    buildList {
+      val specAccessor = feature.requiredThisParameter()
+      add(rewriterContext.spockRuntime.irCallBlockEntered(builder, specAccessor, block.ordinal))
+      addAll(block.statements)
+      add(rewriterContext.spockRuntime.irCallBlockExited(builder, specAccessor, block.ordinal))
+    }
+
+  // Mirrors Spock's own SpecRewriter.moveInteractions: a THEN block's interactions are extracted
+  // and moved ahead of its paired WHEN block's own statements (built once here, never twice - the
+  // WHEN's rewrite needs the built addInteraction statements, the THEN's rewrite needs what's left).
+  private fun rewriteWhenThen(
+    builder: DeclarationIrBuilder,
+    feature: IrFunction,
+    step: BehaviorStep.WhenThen,
+    valueRecorderVar: IrVariable?,
+    errorCollectorVar: IrVariable?
+  ): List<IrStatement> = buildList {
+    val interactionSplit = if (step.thenHasInteractions) {
+      InteractionStatementsRewriter(rewriterContext, feature).extractAndRewrite(step.thenBlock.statements)
+    } else {
+      null
+    }
+
+    addAll(
+      WhenBlockRewriter(
+        rewriterContext,
+        feature,
+        step.whenBlock,
+        wrapExceptionHandling = step.thenHasExceptionCondition,
+        hasInteractions = step.thenHasInteractions,
+        addInteractionStatements = interactionSplit?.addInteractionStatements ?: emptyList(),
+        thenBlockStatements = step.thenBlock.statements
+      ).rewrite()
+    )
+
+    val rawThenStatements = if (interactionSplit != null) {
+      listOf(irLeaveScopeStatement(feature, builder)) + interactionSplit.remainingStatements
+    } else {
+      step.thenBlock.statements
+    }
+    val thenStatements = ExceptionConditionRewriter(rewriterContext, feature).rewrite(rawThenStatements)
+    val conditionRewriter =
+      ConditionRewriter(rewriterContext, builder, feature, step.thenBlock.ordinal, valueRecorderVar, errorCollectorVar)
+    addAll(conditionRewriter.rewrite(thenStatements))
   }
 }

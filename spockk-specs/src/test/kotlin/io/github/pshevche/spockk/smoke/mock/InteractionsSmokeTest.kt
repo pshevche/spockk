@@ -279,6 +279,23 @@ class InteractionsSmokeTest : Specification() {
     noMoreInteractions(obj)
   }
 
+  fun `a zero-argument noMoreInteractions is a no-op that does not disturb a later when-then pair`() {
+    given
+    val obj = Mock(Greeter::class.java)
+
+    `when`
+    obj.setName("Alice")
+
+    then
+    noMoreInteractions()
+
+    `when`
+    obj.setName("Bob")
+
+    then
+    1 * obj.setName("Bob")
+  }
+
   fun `Stub builder block interactions are active for the whole feature, not scope-limited`() {
     given
     val obj = Stub(Greeter::class.java) {
