@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.smoke.fixture
 
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.setup
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
@@ -52,5 +53,42 @@ class CleanupBlockSmokeTest : Specification() {
 
     then
     y == 43
+  }
+
+  fun `cleanup block reads a variable declared in given`() {
+    given
+    val resource = "handle"
+
+    expect
+    resource == "handle"
+
+    cleanup
+    println("closing $resource")
+  }
+
+  fun `cleanup block reads a variable declared in when`() {
+    given
+    val resource = "handle"
+
+    `when`
+    val opened = "$resource-opened"
+
+    then
+    opened == "handle-opened"
+
+    cleanup
+    println("closing $opened")
+  }
+
+  fun `cleanup block reads a when-declared variable that then never references, alongside an exception condition`() {
+    `when`
+    val opened = "handle-opened"
+    throw IllegalStateException("boom")
+
+    then
+    thrown(IllegalStateException::class.java)
+
+    cleanup
+    println("closing $opened")
   }
 }

@@ -20,12 +20,14 @@ import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.ADD_SUPPRES
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.LIST_FQN
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
+import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.IrBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irAnnotation
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irSet
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irTry
 import org.jetbrains.kotlin.ir.builders.irVararg
@@ -34,20 +36,27 @@ import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
 import org.jetbrains.kotlin.ir.expressions.IrAnnotation
+import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
 import org.jetbrains.kotlin.ir.expressions.IrTry
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrVararg
+import org.jetbrains.kotlin.ir.expressions.impl.IrClassReferenceImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrThrowImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrVarargImpl
+import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
+import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
 import org.jetbrains.kotlin.ir.types.IrSimpleType
@@ -64,6 +73,9 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.isVararg
 import org.jetbrains.kotlin.ir.util.toIrConst
+import org.jetbrains.kotlin.ir.visitors.IrVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
+import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
@@ -84,6 +96,34 @@ internal fun DeclarationIrBuilder.irStringArray(elements: List<String>) =
 
 internal fun DeclarationIrBuilder.irType(typeFqn: FqName): IrType =
   context.findRequiredClassSymbol(typeFqn).defaultType
+
+/**
+ * `classSymbol::class.java`, shaped exactly as the frontend would elaborate that literal source
+ * text: both the call's own type (`Class<classSymbol>`, not the type of whatever variable/expression
+ * the result ends up feeding into) and the `::class` receiver's type (`KClass<classSymbol>`, not the
+ * star-projected `KClass<*>` [kClassReference] uses for JVM-lowering-internal class literals) match
+ * what ordinary hand-written Kotlin source calling the same `KClass<T>.java` property the same way
+ * would produce, so this call's IR is reproducible byte-for-byte by hand.
+ */
+internal fun DeclarationIrBuilder.irKClassJavaLiteral(
+  kClassJavaPropGetter: IrSimpleFunctionSymbol,
+  classSymbol: IrClassSymbol
+): IrCall {
+  val classType = classSymbol.defaultType
+  val javaClassType = context.findRequiredClassSymbol(IrIdentifiers.Kotlin.JAVA_LANG_CLASS_FQN).typeWith(classType)
+  val classReference = IrClassReferenceImpl(
+    startOffset,
+    endOffset,
+    context.irBuiltIns.kClassClass.typeWith(classType),
+    classSymbol,
+    classType
+  )
+  return irCall(kClassJavaPropGetter, javaClassType, origin = IrStatementOrigin.GET_PROPERTY).apply {
+    typeArguments[0] = classType
+    arguments.clear()
+    arguments.add(classReference)
+  }
+}
 
 internal fun DeclarationIrBuilder.irEnumValue(
   value: String,
@@ -255,3 +295,60 @@ internal fun DeclarationIrBuilder.irTry(
   catches = catchExpressions,
   finallyExpression = irBlock { +finallyExpressions }
 )
+
+/**
+ * Same as [irTry], but hoists any [IrVariable] in [tryExpressions] (at any nesting depth, e.g. inside
+ * an already-built inner try) that's referenced from [catchExpressions]/[finallyExpressions]/
+ * [extraReaders] out to a declaration returned before the try, with a `SET_VAR` left in its place -
+ * a try-body declaration isn't visible to its own catch/finally or to code after the try. Reuses the
+ * original [IrVariable]/symbol rather than declaring a new one, so existing references still resolve.
+ */
+internal fun DeclarationIrBuilder.irTryHoistingVariables(
+  tryExpressions: List<IrStatement>,
+  catchExpressions: List<IrCatch>,
+  finallyExpressions: List<IrStatement>,
+  extraReaders: List<IrElement> = emptyList()
+): List<IrStatement> {
+  val readers: List<IrElement> = catchExpressions.map { it.result } + finallyExpressions + extraReaders
+  val hoisted = mutableListOf<IrVariable>()
+  val rewrittenTryExpressions = hoistReferencedVariables(tryExpressions, readers, hoisted)
+  return buildList {
+    addAll(hoisted)
+    add(irTry(rewrittenTryExpressions, catchExpressions, finallyExpressions))
+  }
+}
+
+private fun DeclarationIrBuilder.hoistReferencedVariables(
+  statements: List<IrStatement>,
+  readers: List<IrElement>,
+  hoisted: MutableList<IrVariable>
+): List<IrStatement> = statements.mapNotNull { statement ->
+  statement.nestedStatementLists().forEach { nested ->
+    val rewrittenNested = hoistReferencedVariables(nested, readers, hoisted)
+    nested.clear()
+    nested.addAll(rewrittenNested)
+  }
+  if (statement !is IrVariable || readers.none { it.referencesValue(statement.symbol) }) return@mapNotNull statement
+  hoisted += statement
+  val initializer = statement.initializer ?: return@mapNotNull null
+  statement.initializer = null
+  irSet(statement, initializer)
+}
+
+private fun IrElement.referencesValue(symbol: IrValueSymbol): Boolean {
+  var found = false
+  acceptVoid(object : IrVisitorVoid() {
+    override fun visitElement(element: IrElement) {
+      if (!found) element.acceptChildrenVoid(this)
+    }
+
+    override fun visitGetValue(expression: IrGetValue) {
+      if (expression.symbol == symbol) found = true else visitElement(expression)
+    }
+
+    override fun visitSetValue(expression: IrSetValue) {
+      if (expression.symbol == symbol) found = true else visitElement(expression)
+    }
+  })
+  return found
+}

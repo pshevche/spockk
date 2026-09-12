@@ -42,7 +42,8 @@ internal class HelperMethodRewriter(
       builder = builder,
       valueRecorderVar = valueRecorderVar,
       errorCollectorVar = errorCollectorVar,
-      treatAsConditionScope = false
+      treatAsConditionScope = false,
+      allowInteractionStatements = true
     )
 
     statements.clear()

@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.compilation.ir.irAddSuppressed
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
 import io.github.pshevche.spockk.compilation.ir.irThrow
 import io.github.pshevche.spockk.compilation.ir.irTry
+import io.github.pshevche.spockk.compilation.ir.irTryHoistingVariables
 import io.github.pshevche.spockk.compilation.ir.irVar
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
@@ -59,12 +60,16 @@ internal class CleanupBlockRewriter(
 
   fun rewrite(): List<IrStatement> {
     val featureThrowableVar = declareFeatureThrowableVar()
-    val tryBehaviorStatementsAndCleanup = builder.irTry(
+    // Any given:/when:-declared variable in behaviorStatements that cleanup: reads must be hoisted
+    // out of this try - a variable declared inside a try's body isn't visible from its finally
+    // handler (where cleanup:'s statements run), the same reason a val assigned inside a try must be
+    // declared before it in ordinary Kotlin source.
+    val tryBehaviorStatementsAndCleanup = builder.irTryHoistingVariables(
       tryExpressions = behaviorStatements,
       catchExpressions = captureFeatureFailure(featureThrowableVar),
       finallyExpressions = tryCleanupStatementsAndRestoreSpecContext(featureThrowableVar)
     )
-    return listOf(featureThrowableVar, tryBehaviorStatementsAndCleanup)
+    return listOf(featureThrowableVar) + tryBehaviorStatementsAndCleanup
   }
 
   private fun tryCleanupStatementsAndRestoreSpecContext(featureThrowableVar: IrVariable): List<IrStatement> {
