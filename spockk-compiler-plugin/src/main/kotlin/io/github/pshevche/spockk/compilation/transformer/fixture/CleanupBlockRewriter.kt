@@ -60,10 +60,9 @@ internal class CleanupBlockRewriter(
 
   fun rewrite(): List<IrStatement> {
     val featureThrowableVar = declareFeatureThrowableVar()
-    // Any given:/when:-declared variable in behaviorStatements that cleanup: reads must be hoisted
-    // out of this try - a variable declared inside a try's body isn't visible from its finally
-    // handler (where cleanup:'s statements run), the same reason a val assigned inside a try must be
-    // declared before it in ordinary Kotlin source.
+    // cleanup block may reference variables defined in prior blocks
+    // those need to be hoisted out the try statement to make them available both in the behavior block statements (e.g., inside try/catch)
+    // and in the cleanup block's final statements
     val tryBehaviorStatementsAndCleanup = builder.irTryHoistingVariables(
       tryExpressions = behaviorStatements,
       catchExpressions = captureFeatureFailure(featureThrowableVar),

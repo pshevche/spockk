@@ -15,11 +15,13 @@
 package io.github.pshevche.spockk.compilation.collector
 
 import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
+import io.github.pshevche.spockk.compilation.shared.BehaviorStep
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabelIrElement
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
-import io.github.pshevche.spockk.compilation.transformer.condition.hasConditionStatement
+import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
+import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
 import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -61,7 +63,7 @@ internal class DefaultFeatureStatementsCollector(
     return FeatureBody(
       anonymousStatements.toList(),
       behaviorBlocks,
-      pairBehaviorBlocks(behaviorBlocks),
+      BehaviorStep.fromFeatureBlocks(behaviorBlocks),
       behaviorBlocks.any { it.statements.hasConditionStatement(irBuiltIns) },
       dataProviderBlocks,
       cleanupBlock
@@ -95,4 +97,7 @@ internal class DefaultFeatureStatementsCollector(
       )
     }
   }
+
+  private fun List<IrStatement>.hasConditionStatement(irBuiltIns: IrBuiltIns): Boolean =
+    any { it.isConditionStatement(irBuiltIns) } || containsImplicitAssertionHelperCall()
 }

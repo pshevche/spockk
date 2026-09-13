@@ -12,8 +12,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(UnsafeDuringIrConstructionAPI::class)
-
 package io.github.pshevche.spockk.compilation.transformer.condition
 
 import io.github.pshevche.spockk.compilation.ir.irCatchParameter
@@ -36,25 +34,26 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrCatch
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.util.file
 
 /**
  * Rewrites a flat statement list wherever conditions may appear: an `expect`/`then` block's own
  * statements, or the interior of a `verify`/`verifyAll`/`verifyEach` lambda body (recursively). Used
  * by both [ConditionRewriter] (for `expect`/`then` blocks) and [HelperMethodRewriter].
- *
- * [treatAsConditionScope]: `true` for `expect`/`then` blocks and every recursive call into a matched
- * helper call's lambda body, `false` only for a plain helper method's own top-level statements (only
- * `verify`/`verifyAll`/`verifyEach` calls are recognized there). [allowInteractionStatements]: `true`
- * only where a genuine dispatch receiver is available to resolve interactions against (`expect`/`then`
- * blocks, a helper method's own statements) - `false` inside a `verify`/`verifyAll`/`verifyEach`
- * lambda, which captures the enclosing `this` rather than declaring its own.
  */
 internal class ConditionStatementsRewriter(
   override val rewriterContext: SpockkIrRewriterContext
 ) : SpockkIrRewriter {
 
+  /**
+   * [treatAsConditionScope]:
+   * `true` for `expect`/`then` blocks and every recursive call into a matched helper call's lambda body
+   * `false` for a plain helper method's own top-level statements (only `verify`/`verifyAll`/`verifyEach` calls are recognized there).
+   *
+   * [allowInteractionStatements]:
+   * `true` only where a genuine dispatch receiver is available to resolve interactions against (`expect`/`then` blocks, a helper method's own statements)
+   * `false` inside a `verify`/`verifyAll`/`verifyEach` lambda, which captures the enclosing `this` rather than declaring its own.
+   */
   fun rewrite(
     statements: List<IrStatement>,
     enclosingFunction: IrFunction,
@@ -63,28 +62,33 @@ internal class ConditionStatementsRewriter(
     treatAsConditionScope: Boolean,
     allowInteractionStatements: Boolean = false
   ): List<IrStatement> {
-    // Resolved once per statement list (not per statement) and only if actually needed - its
-    // constructor resolves several runtime class/function symbols (Wildcard, SpreadWildcard,
-    // IntProgression, responseClosure).
-    val interactionRewriter by lazy(LazyThreadSafetyMode.NONE) { InteractionStatementsRewriter(rewriterContext, enclosingFunction) }
+    // resolved lazily to prevent eager resolution of class/function symbols
+    val interactionRewriter by lazy(LazyThreadSafetyMode.NONE) {
+      InteractionStatementsRewriter(
+        rewriterContext,
+        enclosingFunction
+      )
+    }
 
     return statements.flatMap { statement ->
       val helperCall = statement.asImplicitAssertionHelperCall()
       val interaction = if (allowInteractionStatements) statement.asInteraction() else null
       val noMoreInteractionsCall = if (allowInteractionStatements) statement.asNoMoreInteractionsCall() else null
       when {
+        // verify/verifyEach/verifyAll
         helperCall != null -> {
           rewriteHelperCallLambdaBody(helperCall, statement.requireRecorders(recorders))
           listOf(statement)
         }
 
-        // Ordering matters: an interaction statement's wrapped call can itself have a Boolean
-        // return type (e.g. `1 * obj.isValid()`), so it must never fall through to condition
-        // treatment below.
+        // 1 * obj.isValid()
+        // rewritten before conditions as some of the interactions can be recognized as conditions
         interaction != null -> interactionRewriter.rewrite(interaction)
 
+        // noMoreInteractions()
         noMoreInteractionsCall != null -> interactionRewriter.rewriteNoMoreInteractions(noMoreInteractionsCall)
 
+        // actual == expected
         statement.isConditionStatement(irBuiltIns, treatAsConditionScope) ->
           listOf(
             rewriteConditionStatement(
@@ -146,7 +150,15 @@ internal class ConditionStatementsRewriter(
     val errorCollectorVar = recorders.errorCollector
     return with(builder) {
       irTry(
-        tryExpressions = listOf(verifyConditionCall(builder, enclosingFunction, statement, irValueRecorder, errorCollectorVar)),
+        tryExpressions = listOf(
+          verifyConditionCall(
+            builder,
+            enclosingFunction,
+            statement,
+            irValueRecorder,
+            errorCollectorVar
+          )
+        ),
         catchExpressions = listOf(
           conditionFailedWithAnExceptionCall(builder, enclosingFunction, statement, irValueRecorder, errorCollectorVar)
         ),
