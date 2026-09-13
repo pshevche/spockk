@@ -19,7 +19,7 @@ package io.github.pshevche.spockk.compilation.ir
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.builders.IrGeneratorContext
-import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
@@ -31,7 +31,7 @@ internal fun IrGeneratorContext.findRequiredClassSymbol(classFqn: FqName): IrCla
   irBuiltIns.symbolFinder.findClass(ClassId.topLevel(classFqn))
     ?: throw CompilationException("Cannot find class ${classFqn.asString()}", null, null, null)
 
-internal fun IrGeneratorContext.findPropertyGetter(callableId: CallableId): IrFunction =
+internal fun IrGeneratorContext.findPropertyGetter(callableId: CallableId): IrSimpleFunction =
   irBuiltIns.symbolFinder.findProperties(callableId).first().owner.getter!!
 
 internal fun IrGeneratorContext.findUniqueFunctionSymbol(callableId: CallableId): IrFunctionSymbol =

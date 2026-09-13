@@ -21,7 +21,9 @@ import org.jetbrains.kotlin.ir.builders.declarations.addFunction
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
+import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.util.createDispatchReceiverParameterWithClassParent
@@ -41,6 +43,17 @@ internal fun IrClassSymbol.findFieldByName(name: String): IrField =
 
 internal fun IrClassSymbol.findFieldByFqName(name: FqName): IrField =
   getBackingFields().single { it.symbol.owner.fqNameWhenAvailable == name }
+
+/**
+ * The getter of a Kotlin property declared on this class. Kotlin properties have no Java-style
+ * getter method to look up by name, so `functionByName` cannot find them.
+ */
+internal fun IrClassSymbol.findPropertyGetter(name: String): IrSimpleFunctionSymbol =
+  owner.declarations
+    .filterIsInstance<IrProperty>()
+    .single { it.name.asString() == name }
+    .getter!!
+    .symbol
 
 private fun IrClassSymbol.getBackingFields(): List<IrField> = owner
   .declarations

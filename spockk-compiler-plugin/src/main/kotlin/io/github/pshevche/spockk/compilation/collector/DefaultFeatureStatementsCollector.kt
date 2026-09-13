@@ -15,14 +15,21 @@
 package io.github.pshevche.spockk.compilation.collector
 
 import io.github.pshevche.spockk.compilation.ir.asIrBlockLabel
+import io.github.pshevche.spockk.compilation.shared.BehaviorStep
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabel
 import io.github.pshevche.spockk.compilation.shared.FeatureBlockLabelIrElement
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
+import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
+import io.github.pshevche.spockk.compilation.transformer.condition.isConditionStatement
+import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.declarations.IrFile
 
-internal class DefaultFeatureStatementsCollector(private val file: IrFile) : FeatureStatementsCollector {
+internal class DefaultFeatureStatementsCollector(
+  private val file: IrFile,
+  private val irBuiltIns: IrBuiltIns
+) : FeatureStatementsCollector {
 
   companion object {
     private val SEPARATOR_LABELS = setOf(FeatureBlockLabel.CLEANUP, FeatureBlockLabel.WHERE)
@@ -56,6 +63,8 @@ internal class DefaultFeatureStatementsCollector(private val file: IrFile) : Fea
     return FeatureBody(
       anonymousStatements.toList(),
       behaviorBlocks,
+      BehaviorStep.fromFeatureBlocks(behaviorBlocks),
+      behaviorBlocks.any { it.statements.hasConditionStatement(irBuiltIns) },
       dataProviderBlocks,
       cleanupBlock
     )
@@ -88,4 +97,7 @@ internal class DefaultFeatureStatementsCollector(private val file: IrFile) : Fea
       )
     }
   }
+
+  private fun List<IrStatement>.hasConditionStatement(irBuiltIns: IrBuiltIns): Boolean =
+    any { it.isConditionStatement(irBuiltIns) } || containsImplicitAssertionHelperCall()
 }

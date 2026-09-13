@@ -36,8 +36,7 @@ internal class ConditionRewriter(
   private val builder: DeclarationIrBuilder,
   private val feature: IrFunction,
   private val blockOrdinal: Int,
-  private val valueRecorderVar: IrVariable?,
-  private val errorCollectorVar: IrVariable?
+  private val recorders: ConditionRecorders?
 ) : SpockkIrRewriter {
 
   fun rewrite(statements: List<IrStatement>): List<IrStatement> = buildList {
@@ -53,9 +52,9 @@ internal class ConditionRewriter(
         statements = statements,
         enclosingFunction = feature,
         builder = builder,
-        valueRecorderVar = valueRecorderVar,
-        errorCollectorVar = errorCollectorVar,
-        treatAsConditionScope = true
+        recorders = recorders,
+        treatAsConditionScope = true,
+        allowInteractionStatements = true
       )
     )
     add(

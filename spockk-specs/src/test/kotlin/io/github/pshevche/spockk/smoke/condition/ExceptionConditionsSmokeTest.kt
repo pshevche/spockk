@@ -29,7 +29,7 @@ import java.io.IOException
  * - mirroring the scenarios covered by Spock's own `ExceptionConditions` spec. A `when` block
  * paired with a `then` block containing one of these calls has its statements wrapped in a
  * try/catch that records the thrown exception on `SpecificationContext`
- * ([io.github.pshevche.spockk.compilation.transformer.condition.WhenBlockRewriter]);
+ * ([io.github.pshevche.spockk.compilation.transformer.WhenBlockRewriter]);
  * `thrown(Type::class.java)` is rewritten to call Spock's own already-shaded
  * `SpecInternals.checkExceptionThrown`
  * ([io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter]).
@@ -75,6 +75,16 @@ class ExceptionConditionsSmokeTest : Specification() {
 
     then
     thrown<IndexOutOfBoundsException>()
+  }
+
+  fun `a variable declared in when is still readable from then once the when block is try-wrapped`() {
+    `when`
+    val message = "boom"
+    throw IllegalStateException(message)
+
+    then
+    val e = thrown(IllegalStateException::class.java)
+    e.message == message
   }
 
   fun `catches a RuntimeException`() {

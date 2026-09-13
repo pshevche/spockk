@@ -1,9 +1,9 @@
-import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.`when`
 
 class Spec {
 
   fun `regular feature`() {
-    expect
+    `when`
     throw RuntimeException("Boom!")
     val regularStatement = "hello"
   }

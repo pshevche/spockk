@@ -23,5 +23,7 @@ internal class SpockkIrRewriterContext(
   private val defaultGenerator: IrGeneratorContext,
   val sourceTextCache: SourceTextCache = SourceTextCache(),
   val spockRuntime: IrSpockRuntime = IrSpockRuntime.create(defaultGenerator, sourceTextCache),
-  val specInternals: IrSpecInternals = IrSpecInternals.create(defaultGenerator)
+  val specInternals: IrSpecInternals = IrSpecInternals.create(defaultGenerator),
+  val interactionBuilder: IrInteractionBuilder = IrInteractionBuilder.create(defaultGenerator),
+  val mockController: IrMockController = IrMockController.create(defaultGenerator)
 ) : IrGeneratorContext by defaultGenerator

@@ -33,21 +33,23 @@ internal class HelperMethodRewriter(
     val statements = function.mutableStatements() ?: return
     val builder = irBuilder(function.symbol)
 
-    val valueRecorderVar = irValueRecorderDeclaration(builder, function)
-    val errorCollectorVar = irStaticErrorCollectorDeclaration(builder, function)
+    val recorders = ConditionRecorders(
+      valueRecorder = irValueRecorderDeclaration(builder, function),
+      errorCollector = irStaticErrorCollectorDeclaration(builder, function)
+    )
 
     val rewritten = ConditionStatementsRewriter(rewriterContext).rewrite(
       statements = statements.toList(),
       enclosingFunction = function,
       builder = builder,
-      valueRecorderVar = valueRecorderVar,
-      errorCollectorVar = errorCollectorVar,
-      treatAsConditionScope = false
+      recorders = recorders,
+      treatAsConditionScope = false,
+      allowInteractionStatements = true
     )
 
     statements.clear()
-    statements.add(valueRecorderVar)
-    statements.add(errorCollectorVar)
+    statements.add(recorders.valueRecorder)
+    statements.add(recorders.errorCollector)
     statements.addAll(rewritten)
   }
 }

@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementVisitor
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.MutableSpockkTransformationContext
 import io.github.pshevche.spockk.compilation.transformer.condition.containsImplicitAssertionHelperCall
+import org.jetbrains.kotlin.ir.IrBuiltIns
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -32,7 +33,8 @@ import org.jetbrains.kotlin.ir.util.isFakeOverride
 import org.jetbrains.kotlin.ir.util.parentAsClass
 
 internal class SpockkTransformationContextCollector(
-  private val context: MutableSpockkTransformationContext
+  private val context: MutableSpockkTransformationContext,
+  private val irBuiltIns: IrBuiltIns
 ) : BaseSpockkIrElementVisitor() {
 
   override fun visitClassNew(declaration: IrClass) {
@@ -92,5 +94,5 @@ internal class SpockkTransformationContextCollector(
   }
 
   private fun createFeatureStatementsCollector(file: IrFile) =
-    BlockOrderValidatingFeatureStatementsCollector(file, DefaultFeatureStatementsCollector(file))
+    BlockOrderValidatingFeatureStatementsCollector(file, DefaultFeatureStatementsCollector(file, irBuiltIns))
 }

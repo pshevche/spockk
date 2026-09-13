@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.compilation.transformer.ir
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.MOCK_CONTROLLER_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPECIFICATION_CONTEXT_FQN
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import org.jetbrains.kotlin.backend.jvm.functionByName
@@ -39,6 +40,8 @@ internal class IrSpecificationContext(
 ) {
   private val specificationContextClass: IrClassSymbol =
     rewriterContext.findRequiredClassSymbol(SPECIFICATION_CONTEXT_FQN)
+  private val mockControllerClass: IrClassSymbol =
+    rewriterContext.findRequiredClassSymbol(MOCK_CONTROLLER_FQN)
 
   fun irGetCurrentBlock(builder: IrBuilder, specAccessor: IrValueParameter): IrCall {
     val specificationContextInstance = getSpecificationContextInstance(builder, specAccessor)
@@ -70,6 +73,21 @@ internal class IrSpecificationContext(
         arguments[1] = exceptionExpr
       }
     }
+  }
+
+  // SpecificationContext.getMockController() declares its return type as the narrower
+  // IMockController interface, which only declares handle(IMockInvocation) - the concrete
+  // MockController class (already resolved above) is what actually declares
+  // addInteraction/enterScope/leaveScope, so callers need the cast this performs.
+  fun irGetMockController(builder: IrBuilder, specAccessor: IrValueParameter): IrExpression {
+    val specificationContextInstance = getSpecificationContextInstance(builder, specAccessor)
+    val getMockController = specificationContextClass.functionByName("getMockController")
+    val call = with(builder) {
+      irCall(getMockController).apply {
+        dispatchReceiver = specificationContextInstance
+      }
+    }
+    return builder.irAs(call, mockControllerClass.defaultType)
   }
 
   fun irGetSharedInstance(

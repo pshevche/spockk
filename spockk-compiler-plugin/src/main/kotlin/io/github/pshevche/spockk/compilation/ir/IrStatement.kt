@@ -25,9 +25,11 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrContainerExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
+import org.jetbrains.kotlin.ir.expressions.IrTry
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperator.IMPLICIT_COERCION_TO_UNIT
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
@@ -100,6 +102,17 @@ internal fun IrExpression.unwrapImplicitCoercionToUnit(): IrExpression = (this a
   if (it.operator == IMPLICIT_COERCION_TO_UNIT) it.argument else it
 } ?: this
 
+internal fun IrStatement.isCoercedToUnit(): Boolean =
+  this is IrTypeOperatorCall && operator == IMPLICIT_COERCION_TO_UNIT
+
+/**
+ * Drops the not-null check the frontend inserts when a platform-typed expression is dereferenced.
+ * Reusing such an expression somewhere that accepts a nullable value would otherwise carry a check
+ * the new position never needed.
+ */
+internal fun IrExpression.unwrapImplicitNotNull(): IrExpression =
+  if (this is IrTypeOperatorCall && operator == IrTypeOperator.IMPLICIT_NOTNULL) argument else this
+
 internal fun IrStatement.isAssertCall(): Boolean {
   val owner = (this as? IrCall)?.symbol?.owner ?: return false
   return owner.fqNameWhenAvailable == IrIdentifiers.Kotlin.ASSERT_FQN
@@ -138,3 +151,16 @@ internal fun IrStatement.asExceptionConditionCall(): IrCall? {
 
 internal fun IrCall.isThrownCall(): Boolean =
   symbol.owner.originalDeclaration().fqNameWhenAvailable == IrIdentifiers.Spock.THROWN_FQN
+
+/** The mutable statement lists directly nested one level inside a try/catch/finally or block. */
+internal fun IrStatement.nestedStatementLists(): List<MutableList<IrStatement>> = when (this) {
+  is IrTry -> buildList {
+    (tryResult as? IrContainerExpression)?.let { add(it.statements) }
+    catches.forEach { (it.result as? IrContainerExpression)?.let { result -> add(result.statements) } }
+    (finallyExpression as? IrContainerExpression)?.let { add(it.statements) }
+  }
+
+  is IrContainerExpression -> listOf(statements)
+
+  else -> emptyList()
+}

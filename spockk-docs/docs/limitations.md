@@ -9,11 +9,11 @@ const has = [
   'Explicit and implicit conditions, with Spock-style failure diagrams',
   'Data tables and data pipes',
   'Fixture methods (setup/cleanup/setupSpec/cleanupSpec)',
+  'Interaction-based testing (<code>1 * mock.method()</code>, stubbed responses)',
   "Runs on Spock's own JUnit Platform engine, with full IDE/report integration"
 ]
 
 const lacks = [
-  'No interaction-based testing syntax (<code>1 * mock.method()</code>)',
   'Spock extensions (<code>@IgnoreIf</code>, <code>@Requires</code>, ...) are only experimentally supported',
   "More than 10 years of features waiting to be ported to Kotlin 😁"
 ]

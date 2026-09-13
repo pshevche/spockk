@@ -19,9 +19,8 @@ package io.github.pshevche.spockk.compilation.transformer.condition
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.ERROR_COLLECTOR_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.ERROR_RETHROWER_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.VALUE_RECORDER_FQN
-import io.github.pshevche.spockk.compilation.ir.findFieldByName
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
-import io.github.pshevche.spockk.compilation.ir.irImplicitNotNull
+import io.github.pshevche.spockk.compilation.ir.irJavaSingletonInstance
 import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.irVal
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.ERROR_COLLECTOR_VAR
@@ -59,17 +58,10 @@ internal fun SpockkIrRewriter.irValueRecorderDeclaration(builder: DeclarationIrB
  * value that can ever be referenced here - the same is true of Spock's own generated code.
  */
 internal fun SpockkIrRewriter.irStaticErrorCollectorDeclaration(builder: DeclarationIrBuilder, enclosingFunction: IrFunction): IrVariable {
-  val errorCollectorType = builder.irType(ERROR_COLLECTOR_FQN)
-  val errorRethrowerType = builder.irType(ERROR_RETHROWER_FQN)
   val errorRethrowerClass = rewriterContext.findRequiredClassSymbol(ERROR_RETHROWER_FQN)
-  val instanceField = errorRethrowerClass.findFieldByName("INSTANCE")
-
-  val instanceFieldAccess = builder.irGetField(null, instanceField).apply {
-    superQualifierSymbol = errorRethrowerClass
-  }
-  return irVal(ERROR_COLLECTOR_VAR, errorCollectorType).apply {
+  return irVal(ERROR_COLLECTOR_VAR, builder.irType(ERROR_COLLECTOR_FQN)).apply {
     parent = enclosingFunction
-    initializer = builder.irImplicitNotNull(instanceFieldAccess, errorRethrowerType)
+    initializer = builder.irJavaSingletonInstance(errorRethrowerClass)
   }
 }
 
