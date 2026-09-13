@@ -41,6 +41,16 @@ class InteractionCompilationTest : BaseCompilationTest() {
   }
 
   /**
+   * A mocked method returning a numeric primitive resolves `N * mock.method()` to Kotlin's own
+   * `Int.times` member rather than Spockk's extension, so pin that it still compiles to the same
+   * cardinality-plus-response chain as any other return type.
+   */
+  fun `a primitive-returning method still gets its cardinality and response`() {
+    expect
+    assertTransformation(sampleFromResource("interaction/PrimitiveReturnCardinality"))
+  }
+
+  /**
    * `noMoreInteractions()` called with zero mocks is a no-op (it builds no `addInteraction`
    * statements at all), but the `then` block still had an interaction-shaped statement, so
    * `enterScope`/`leaveScope` must still be emitted as a pair - otherwise the paired `then` block's
