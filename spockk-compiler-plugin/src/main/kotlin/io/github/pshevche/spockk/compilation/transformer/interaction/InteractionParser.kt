@@ -17,6 +17,7 @@
 package io.github.pshevche.spockk.compilation.transformer.interaction
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.INT_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.INT_TIMES_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.ANY_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.ANY_METHOD_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.DID_FQN
@@ -116,8 +117,16 @@ private fun IrCall.unwrapResponse(): Pair<IrCall, InteractionResponse?> {
 }
 
 private fun IrCall.unwrapCardinality(): Pair<IrCall, InteractionCardinality?> {
-  if (fqName() != TIMES_FQN) return this to null
-  val count = extensionReceiverArg() ?: return this to null
+  val count = when (fqName()) {
+    TIMES_FQN -> extensionReceiverArg()
+
+    // `N * mock.method()` resolves to Kotlin's own `Int.times` member, not Spockk's `Int.times(T)`
+    // extension, whenever the mocked method returns a numeric primitive (members beat extensions),
+    // so the multiplication itself carries the cardinality: `N` is its dispatch receiver.
+    INT_TIMES_FQN -> dispatchReceiverArg()
+
+    else -> return this to null
+  } ?: return this to null
   val wrappedCall = singleRegularArg() as? IrCall ?: return this to null
   val cardinality = if (count.type.classFqName == INT_FQN) {
     InteractionCardinality.Fixed(count)

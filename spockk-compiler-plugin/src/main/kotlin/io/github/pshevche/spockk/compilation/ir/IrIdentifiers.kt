@@ -146,6 +146,7 @@ internal object IrIdentifiers {
     val INT_PROGRESSION_FQN = RANGES_PACKAGE_FQ_NAME.child("IntProgression")
     val ASSERT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("assert")
     val BOOLEAN_NOT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("Boolean").child("not")
+    val INT_TIMES_FQN = INT_FQN.child("times")
     val JAVA_LANG_CLASS_FQN = FqName("java.lang.Class")
 
     private val JVM_PKG_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("jvm")
