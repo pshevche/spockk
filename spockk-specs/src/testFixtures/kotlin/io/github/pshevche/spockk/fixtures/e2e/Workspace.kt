@@ -25,12 +25,12 @@ import java.nio.file.Paths
 
 class Workspace {
 
+  // Created atomically rather than from a timestamp: features run in parallel, and two workspaces
+  // sharing a directory leak one feature's sources into the other's build.
   private val projectDir: Path =
-    Files.createDirectories(
-      Paths.get(
-        System.getProperty("spockk.workspaceDir"),
-        "workspace-${System.currentTimeMillis()}"
-      )
+    Files.createTempDirectory(
+      Files.createDirectories(Paths.get(System.getProperty("spockk.workspaceDir"))),
+      "workspace-"
     )
   private val settingsFile = projectDir.resolve("settings.gradle.kts").toFile()
   private val buildFile = projectDir.resolve("build.gradle.kts").toFile()
