@@ -29,6 +29,7 @@ import io.github.pshevche.spockk.lang.returned
 import io.github.pshevche.spockk.lang.returns
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
+import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.TooFewInvocationsError
 import org.spockframework.mock.TooManyInvocationsError
@@ -55,10 +56,34 @@ open class GreeterImpl : Greeter {
   override fun greet(name: String): String = "Hi, $name"
 }
 
+data class User(val name: String, val age: Int)
+
+/** Deliberately not a data class: identity, not structural equality. */
+class Greeting(val text: String)
+
+class Audit {
+  val events = mutableListOf<String>()
+
+  fun record(event: String) {
+    events += event
+  }
+}
+
+interface UserRepository {
+  fun findUser(name: String): User
+
+  fun findMissing(name: String): User?
+
+  fun listUsers(): List<User>
+
+  fun render(user: User): Greeting
+}
+
 /**
  * Exercises interaction-based testing end to end: `N * target.method(args)` cardinality,
  * `any()`/`anyMethod()` matchers, `does`/`did`/`returns`/`returned` responses (including reading the
- * invocation's actual arguments), `noMoreInteractions(...)` sugar, and the `Mock`/`Stub`/`Spy` trailing
+ * invocation's actual arguments, returning custom types, and invoking other mocks or real
+ * collaborators), `noMoreInteractions(...)` sugar, and the `Mock`/`Stub`/`Spy` trailing
  * builder-block syntax - see the design doc, `_docs/specs/2026-08-30-interaction-based-testing-design.md`.
  * No matching/verification logic is reimplemented here; every scenario below is really exercising
  * Spock's own `InteractionBuilder`/`MockController` runtime, reached through the compiler plugin's
@@ -446,5 +471,139 @@ class InteractionsSmokeTest : Specification() {
 
     then
     1 * obj.setName("Bob")
+  }
+
+  fun `returned produces a custom type instance`() {
+    given
+    val repo = Mock(UserRepository::class.java)
+
+    `when`
+    val result = repo.findUser("Alice")
+
+    then
+    1 * repo.findUser("Alice") returned User("Alice", 30)
+    result == User("Alice", 30)
+  }
+
+  fun `returns produces custom type instances, including a generic and a null one`() {
+    given
+    val repo = Stub(UserRepository::class.java) {
+      findUser(any()) returns User("Alice", 30)
+      listUsers() returns listOf(User("Alice", 30), User("Bob", 40))
+      findMissing(any()) returns null
+    }
+
+    expect
+    verifyAll {
+      repo.findUser("anyone") == User("Alice", 30)
+      repo.listUsers() == listOf(User("Alice", 30), User("Bob", 40))
+      repo.findMissing("nobody") == null
+    }
+  }
+
+  fun `does computes a custom type instance from the invocation arguments`() {
+    given
+    val repo = Stub(UserRepository::class.java) {
+      findUser(any()) does { args -> User(args[0] as String, 30) }
+    }
+
+    expect
+    repo.findUser("Alice") == User("Alice", 30)
+    repo.findUser("Bob") == User("Bob", 30)
+  }
+
+  fun `did produces a custom type instance`() {
+    given
+    val repo = Mock(UserRepository::class.java)
+
+    `when`
+    val result = repo.findUser("Alice")
+
+    then
+    1 * repo.findUser("Alice") did { User("Alice", 30) }
+    result == User("Alice", 30)
+  }
+
+  /** The stubbed instance is handed through as-is, not copied or re-created. */
+  fun `returned hands back the very instance it was given`() {
+    given
+    val repo = Mock(UserRepository::class.java)
+    val greeting = Greeting("Hi, Alice")
+
+    `when`
+    val result = repo.render(User("Alice", 30))
+
+    then
+    1 * repo.render(any()) returned greeting
+    result === greeting
+  }
+
+  fun `a custom type argument matches by equality`() {
+    given
+    val repo = Mock(UserRepository::class.java)
+
+    `when`
+    repo.render(User("Alice", 30))
+
+    then
+    1 * repo.render(User("Alice", 30))
+  }
+
+  fun `a did side effect invokes a method on another mock`() {
+    given
+    val greeter = Mock(Greeter::class.java)
+    val repo = Mock(UserRepository::class.java)
+
+    `when`
+    greeter.setName("Alice")
+
+    then
+    1 * greeter.setName("Alice") did { repo.findUser("Alice") }
+    1 * repo.findUser("Alice")
+  }
+
+  fun `a does side effect invokes a method on a real collaborator`() {
+    given
+    val audit = Audit()
+    val greeter = Stub(Greeter::class.java) {
+      setName(any()) does { args -> audit.record("setName(${args[0]})") }
+    }
+
+    `when`
+    greeter.setName("Alice")
+    greeter.setName("Bob")
+
+    then
+    audit.events == listOf("setName(Alice)", "setName(Bob)")
+  }
+
+  /** The re-entrant call is itself intercepted, so its own interaction supplies the response. */
+  fun `a did side effect invokes another method on the same mock`() {
+    given
+    val greeter = Mock(Greeter::class.java)
+
+    `when`
+    val result = greeter.greet("Alice")
+
+    then
+    1 * greeter.greet("Alice") did { greeter.getUsername() }
+    1 * greeter.getUsername() returned "Bob"
+    result == "Bob"
+  }
+
+  /** `getUsername()` still reads "default", so the side effect replaced the real `setName`. */
+  fun `a does side effect on a Spy replaces the real implementation`() {
+    given
+    val audit = Audit()
+    val spy = Spy(GreeterImpl()) {
+      setName(any()) does { args -> audit.record("setName(${args[0]})") }
+    }
+
+    `when`
+    spy.setName("Alice")
+
+    then
+    audit.events == listOf("setName(Alice)")
+    spy.getUsername() == "default"
   }
 }
