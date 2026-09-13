@@ -1,3 +1,4 @@
 <ul>
-    <li>Regular dependency management</li>
+    <li>Suppress false-positive unreachable code warnings in "then" and "expect" block statements.</li>
+    <li>Regular dependency management.</li>
 </ul>

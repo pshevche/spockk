@@ -9,7 +9,11 @@ title: Changelog
 
 ## v0.6.0
 
-- [Core] Added support for `thrown`/`notThrown`/`noExceptionThrown` exception conditions
+- [Core] Support interaction-based testing: Mock/Stub/Spy verification and stubbing syntax
+- [Core] Support `thrown`/`notThrown`/`noExceptionThrown` exception conditions
+- [Core] Retain `@get:Rule`/`@get:ClassRule` that were previously dropped during field rewriting, which silently disabled JUnit4
+  rules
+- [IntelliJ Plugin] Suppress false-positive unreachable code warnings in `then`/`expect` block statements
 - Regular dependency management
 
 ## v0.5.1

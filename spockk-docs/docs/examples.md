@@ -123,7 +123,7 @@ class BridgeSystemsSpec : Specification() {
 
 </CarouselSlide>
 
-<CarouselSlide title="Interaction-based testing" description="Verify a collaborator was called, and stub its response - a preview of Spock's mocking syntax, natively in Kotlin.">
+<CarouselSlide title="Interaction-based testing" description="Verify a collaborator was called, and stub its response - Spock's mocking syntax, natively in Kotlin.">
 
 <CodeWindow title="BridgeOperationsSpec.kt">
 
