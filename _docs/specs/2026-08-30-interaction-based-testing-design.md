@@ -181,13 +181,18 @@ stimulus, they're just configuring stub behavior for the rest of the iteration (
 
 ### Where the rewriter plugs into the existing pipeline
 
-- **New `InteractionStatementsRewriter`** (`compilation/transformer/interaction/`), parallel to the existing
-  `ConditionStatementsRewriter`: recognizes the `Int.times(...)`/`ClosedRange<Int>.times(...)` marker call shape (or
-  a bare `does`/`did`/`returns`/`returned`-wrapped call with no cardinality, for the `given:`-block case) at the top
-  of a statement, walks the wrapped `IrCall` to extract target/method/args/response, and builds the real
-  `InteractionBuilder` chain + `MockController.addInteraction(...)` call using the real Spock runtime classes above
-  (mirrors how condition rendering reuses `SpockRuntime`/`Condition` instead of reimplementing anything).
-- **`ConditionStatementsRewriter`** gains an `isInteractionStatement()` check alongside its existing
+- **New `compilation/transformer/interaction/` package**, parallel to the existing `condition/`, split so that
+  recognizing an interaction and generating its IR never mix:
+  - `InteractionParser` recognizes the `Int.times(...)`/`ClosedRange<Int>.times(...)` marker call shape (or a bare
+    `does`/`did`/`returns`/`returned`-wrapped call with no cardinality, for the `given:`-block case) and unwraps it
+    into an `Interaction`: cardinality, target, method, argument matchers and response, all resolved up front.
+  - `InteractionStatementsRewriter` builds the real `InteractionBuilder` chain (through the fluent
+    `InteractionChain`) and the `MockController.addInteraction(...)` call from that `Interaction`, using the real
+    Spock runtime classes above - mirroring how condition rendering reuses `SpockRuntime`/`Condition` instead of
+    reimplementing anything. It parses nothing.
+  - `FeatureMockController` is the one place that reaches a feature's `MockController`, emitting the
+    `addInteraction`/`enterScope`/`leaveScope` statements its three callers need.
+- **`ConditionStatementsRewriter`** gains an interaction check alongside its existing
   `isConditionStatement()`/helper-call checks, so a `then`/`expect` block routes an interaction statement to the
   new rewriter instead of treating it as a boolean condition. (`given:`/`Stub{}`-block interactions go through a
   separate, simpler, non-recursive path from `MockingApiTransformer` - see above - since they're never mixed with
@@ -195,10 +200,12 @@ stimulus, they're just configuring stub behavior for the rest of the iteration (
 - **`FeatureRewriter`**, dispatching over `BehaviorStep`s pre-paired and pre-classified at collection time
   (`pairBehaviorBlocks`, called once from `SpockkTransformationContextCollector` - see
   `_docs/plans/2026-08-30-interaction-based-testing.md`'s follow-up refactor note): a `when`/`then` pair whose
-  `then` block has interactions is bracketed with `enterScope()`/moved-interaction-registration-statements before
-  the `when` block, and `leaveScope()` at the start of the `then` block's own rewrite - the exact shape Spock's own
-  `SpecRewriter.moveInteractions` produces (see above), now built by the same `WhenBlockRewriter` that also handles
-  the exception-condition case (`_docs/specs/2026-08-09-exception-conditions-design.md`), parameterized rather than
+  `then` block has interactions gets an `InteractionScope`, which opens with `enterScope()` and the moved
+  registrations before the `when` block and closes with `leaveScope()` at the start of the `then` block's own
+  rewrite - the exact shape Spock's own `SpecRewriter.moveInteractions` produces (see above). Both sides come from
+  that one value, so a scope can never be opened without being closed (a zero-argument `noMoreInteractions()`
+  registers nothing but still opens one). It is built by the same `WhenBlockRewriter` that also handles the
+  exception-condition case (`_docs/specs/2026-08-09-exception-conditions-design.md`), parameterized rather than
   duplicated. Chained `then:` blocks after one `when:` (Spock's `addBarrier()` case) are out of scope for this
   preview, same as they're already out of scope for exception conditions -
   `BlockOrderValidatingFeatureStatementsCollector` already rejects a `then:` immediately following another `then:`
@@ -273,8 +280,8 @@ statements - extended to cover those too (`isPartOfThenOrExpectBlock()`), with m
 
 - `spockk-compiler-plugin/.../compilation/transformer/mock/MockingApiTransformer.kt` - existing `Mock`/`Stub`/`Spy`
   construction rewriting, extended (not replaced) for the new 2-arg builder-block overloads
-- `spockk-compiler-plugin/.../compilation/transformer/condition/ConditionStatementsRewriter.kt` - gains
-  `isInteractionStatement()` routing
+- `spockk-compiler-plugin/.../compilation/transformer/condition/ConditionStatementsRewriter.kt` - gains interaction
+  routing
 - `spockk-compiler-plugin/.../compilation/transformer/WhenBlockRewriter.kt`,
   `spockk-compiler-plugin/.../compilation/transformer/FeatureRewriter.kt` - the when/then pairing and scope
   wrapping this design's interaction scoping shares with the exception-condition case (see

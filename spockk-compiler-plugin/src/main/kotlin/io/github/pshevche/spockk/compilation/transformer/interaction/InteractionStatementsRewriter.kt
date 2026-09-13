@@ -16,55 +16,48 @@
 
 package io.github.pshevche.spockk.compilation.transformer.interaction
 
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Groovy.CLOSURE_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.INT_PROGRESSION_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPOCK_SPREAD_WILDCARD_FQN
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPOCK_WILDCARD_FQN
-import io.github.pshevche.spockk.compilation.ir.findFieldByName
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.WILDCARD_METHOD_NAME
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.RESPONSE_CLOSURE_CALLABLE_ID
+import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.findUniqueFunctionSymbol
-import io.github.pshevche.spockk.compilation.ir.irImplicitNotNull
+import io.github.pshevche.spockk.compilation.ir.irJavaSingletonInstance
 import io.github.pshevche.spockk.compilation.ir.irType
 import io.github.pshevche.spockk.compilation.ir.irVal
-import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
+import io.github.pshevche.spockk.compilation.ir.singleRegularArg
 import io.github.pshevche.spockk.compilation.ir.sourceLineColumn
 import io.github.pshevche.spockk.compilation.ir.sourceText
+import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.INTERACTION_RANGE_VAR
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
-import io.github.pshevche.spockk.compilation.transformer.ir.getSpecificationContext
-import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.irBoolean
 import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
-import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irInt
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrProperty
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression
-import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
-import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.expressions.IrVararg
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
 import org.jetbrains.kotlin.ir.types.IrSimpleType
 import org.jetbrains.kotlin.ir.types.typeOrFail
 import org.jetbrains.kotlin.ir.util.file
-import org.jetbrains.kotlin.ir.util.parentAsClass
-import org.jetbrains.kotlin.name.CallableId
-import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 
 /**
- * Builds real `InteractionBuilder`/`MockController.addInteraction` IR from a parsed
- * [InteractionStatement] (or a [noMoreInteractions][io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.NO_MORE_INTERACTIONS_FQN]
- * call) - no matching/verification logic is reimplemented, mirroring how condition rendering reuses
- * `SpockRuntime`/`Condition` instead of reimplementing anything.
+ * Builds the `mockController.addInteraction(new InteractionBuilder(...)...build())` statements a
+ * parsed [Interaction] compiles to.
+ *
+ * No matching or verification logic is implemented here: the generated code drives Spock's own
+ * `InteractionBuilder` and `MockController`, shaded unmodified into `spockk-core`, the same way
+ * condition rendering reuses Spock's own `SpockRuntime`.
  */
 internal class InteractionStatementsRewriter(
   override val rewriterContext: SpockkIrRewriterContext,
@@ -72,160 +65,135 @@ internal class InteractionStatementsRewriter(
 ) : SpockkIrRewriter {
 
   private val builder = irBuilder(feature.symbol)
+  private val mockController = FeatureMockController(rewriterContext, feature)
   private val wildcardClass = rewriterContext.findRequiredClassSymbol(SPOCK_WILDCARD_FQN)
   private val spreadWildcardClass = rewriterContext.findRequiredClassSymbol(SPOCK_SPREAD_WILDCARD_FQN)
   private val intProgressionClass = rewriterContext.findRequiredClassSymbol(INT_PROGRESSION_FQN)
   private val responseClosureFn = rewriterContext.findUniqueFunctionSymbol(RESPONSE_CLOSURE_CALLABLE_ID)
   private val closureType = builder.irType(CLOSURE_FQN)
 
-  fun rewrite(interaction: InteractionStatement): List<IrStatement> {
-    val shape = interaction.methodCall.toMethodShape()
-    val (extraStatements, interactionExpr) = buildInteractionExpr(
-      positionSource = interaction.statement as IrExpression,
-      cardinality = interaction.cardinality,
-      shape = shape,
-      response = interaction.response
-    )
-    return extraStatements + irAddInteractionCall(interactionExpr)
+  /**
+   * Moves a `then` block's interactions out of it: they become the [InteractionScope] registered
+   * ahead of the paired `when` block, leaving the block's other statements in source order,
+   * mirroring Spock's own `SpecRewriter.moveInteractions`.
+   */
+  fun extractScope(statements: List<IrStatement>): InteractionExtractionResult {
+    val registrations = mutableListOf<IrStatement>()
+    val remainingStatements = mutableListOf<IrStatement>()
+    statements.forEach { statement ->
+      val interaction = statement.asInteraction()
+      val noMoreInteractionsCall = statement.asNoMoreInteractionsCall()
+      when {
+        interaction != null -> registrations += rewrite(interaction)
+        noMoreInteractionsCall != null -> registrations += rewriteNoMoreInteractions(noMoreInteractionsCall)
+        else -> remainingStatements += statement
+      }
+    }
+    return InteractionExtractionResult(InteractionScope(mockController, registrations), remainingStatements)
   }
 
+  fun rewrite(interaction: Interaction): List<IrStatement> = buildList {
+    val chain = interactionChain(interaction.source)
+
+    when (val cardinality = interaction.cardinality) {
+      null -> Unit
+
+      is InteractionCardinality.Fixed -> chain.fixedCount(cardinality.count)
+
+      is InteractionCardinality.Range -> {
+        val range = hoistRange(cardinality.range)
+        add(range.declaration)
+        chain.rangeCount(range.first, range.last)
+      }
+    }
+
+    chain.equalTarget(interaction.target)
+    chain.equalMethodName(interaction.method.matchedName())
+    chain.positionalArgList()
+    interaction.argMatchers().forEach { chain.equalArg(it) }
+
+    when (val response = interaction.response) {
+      null -> Unit
+      is InteractionResponse.Code -> chain.codeResponse(irResponseClosure(response.block))
+      is InteractionResponse.Constant -> chain.constantResponse(response.value)
+    }
+
+    add(mockController.irAddInteraction(chain.build()))
+  }
+
+  /** `noMoreInteractions(a, b)`: every listed mock expects zero calls to any of its methods. */
   fun rewriteNoMoreInteractions(call: IrCall): List<IrStatement> {
-    val mockExprs = (call.singleRegularArg() as? IrVararg)?.elements?.filterIsInstance<IrExpression>().orEmpty()
-    return mockExprs.flatMap { mockExpr ->
-      val shape = MethodShape(target = mockExpr, methodName = MethodNameKind.Wildcard, args = emptyList())
-      val (extraStatements, interactionExpr) = buildInteractionExpr(
-        positionSource = call,
-        cardinality = InteractionCardinality.Fixed(builder.irInt(0)),
-        shape = shape,
-        response = null
+    val mocks = (call.singleRegularArg() as? IrVararg)?.elements?.filterIsInstance<IrExpression>().orEmpty()
+    return mocks.flatMap { mock ->
+      rewrite(
+        Interaction(
+          source = call,
+          cardinality = InteractionCardinality.Fixed(builder.irInt(0)),
+          target = mock,
+          method = InteractionMethod.Wildcard,
+          args = emptyList(),
+          response = null
+        )
       )
-      extraStatements + irAddInteractionCall(interactionExpr)
+    }
+  }
+
+  private fun interactionChain(source: IrStatement): InteractionChain {
+    val positionSource = source as IrExpression
+    val (line, column) = positionSource.sourceLineColumn(feature.file)
+    val text = positionSource.sourceText(feature.file, rewriterContext.sourceTextCache)
+    return InteractionChain(
+      interactionBuilder = rewriterContext.interactionBuilder,
+      builder = builder,
+      line = line,
+      column = column,
+      text = text?.let { builder.irString(it) } ?: builder.irNull()
+    )
+  }
+
+  private fun InteractionMethod.matchedName(): String = when (this) {
+    is InteractionMethod.Named -> name
+    InteractionMethod.Wildcard -> WILDCARD_METHOD_NAME
+  }
+
+  private fun Interaction.argMatchers(): List<IrExpression> = when (method) {
+    // An empty constraint list only matches a genuinely zero-argument call
+    // (PositionalArgumentListConstraint), so matching any argument list takes Spock's own
+    // SpreadWildcard sentinel - what Groovy's `_._(*_)` compiles to.
+    InteractionMethod.Wildcard -> listOf(builder.irJavaSingletonInstance(spreadWildcardClass))
+
+    is InteractionMethod.Named -> args.map { arg ->
+      when (arg) {
+        InteractionArg.Wildcard -> builder.irJavaSingletonInstance(wildcardClass)
+        is InteractionArg.EqualTo -> arg.value
+      }
     }
   }
 
   /**
-   * Splits a block's statements into the real `addInteraction` statements built from every
-   * interaction/[noMoreInteractions][io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.NO_MORE_INTERACTIONS_FQN]
-   * statement (in original order), and the remaining statements with those removed (also in
-   * original order) - mirrors Spock's own `block.getAst().removeIf(interactions::contains)`.
+   * Declares the range as a temp `val` so reading its `first` and `last` evaluates the range
+   * expression once rather than twice.
    */
-  fun extractAndRewrite(statements: List<IrStatement>): InteractionExtractionResult {
-    val builtStatements = mutableListOf<IrStatement>()
-    val remainingStatements = mutableListOf<IrStatement>()
-    for (statement in statements) {
-      val interaction = statement.asInteractionStatement()
-      val noMoreInteractionsCall = statement.asNoMoreInteractionsCall()
-      when {
-        interaction != null -> builtStatements += rewrite(interaction)
-        noMoreInteractionsCall != null -> builtStatements += rewriteNoMoreInteractions(noMoreInteractionsCall)
-        else -> remainingStatements += statement
-      }
-    }
-    return InteractionExtractionResult(builtStatements, remainingStatements)
-  }
-
-  private fun irAddInteractionCall(interactionExpr: IrExpression): IrCall {
-    val specAccessor = feature.requiredThisParameter()
-    val controller = feature.parentAsClass.getSpecificationContext(rewriterContext).irGetMockController(builder, specAccessor)
-    return rewriterContext.mockController.irAddInteraction(builder, controller, interactionExpr)
-  }
-
-  private fun buildInteractionExpr(
-    positionSource: IrExpression,
-    cardinality: InteractionCardinality?,
-    shape: MethodShape,
-    response: InteractionResponse?
-  ): Pair<List<IrStatement>, IrExpression> {
-    val extraStatements = mutableListOf<IrStatement>()
-    val (line, column) = positionSource.sourceLineColumn(feature.file)
-    val text = positionSource.sourceText(feature.file, rewriterContext.sourceTextCache)
-    val textExpr = text?.let { builder.irString(it) } ?: builder.irNull()
-
-    var chain: IrExpression =
-      rewriterContext.interactionBuilder.irNew(builder, builder.irInt(line), builder.irInt(column), textExpr)
-
-    chain = when (cardinality) {
-      null -> chain
-
-      is InteractionCardinality.Fixed -> rewriterContext.interactionBuilder.irSetFixedCount(builder, chain, cardinality.count)
-
-      is InteractionCardinality.Range -> {
-        val (rangeVar, minExpr, maxExpr) = irRangeBounds(cardinality.range)
-        extraStatements += rangeVar
-        rewriterContext.interactionBuilder.irSetRangeCount(builder, chain, minExpr, maxExpr, builder.irBoolean(true))
-      }
-    }
-
-    chain = rewriterContext.interactionBuilder.irAddEqualTarget(builder, chain, shape.target)
-    chain = when (val methodName = shape.methodName) {
-      is MethodNameKind.Literal -> rewriterContext.interactionBuilder.irAddEqualMethodName(builder, chain, builder.irString(methodName.name))
-
-      // InteractionBuilder.addEqualMethodName special-cases name == Wildcard.INSTANCE.toString() ("_")
-      // into a WildcardMethodNameConstraint - no need to reference the real Wildcard singleton here.
-      MethodNameKind.Wildcard -> rewriterContext.interactionBuilder.irAddEqualMethodName(builder, chain, builder.irString("_"))
-    }
-
-    // argConstraints/argNames stay null - NullPointerException on the first addEqualArg/addCodeArg -
-    // until this initializes them, even when shape.args is empty (anyMethod()/a bare no-arg call).
-    chain = rewriterContext.interactionBuilder.irSetArgListKind(builder, chain)
-
-    if (shape.methodName == MethodNameKind.Wildcard) {
-      // anyMethod() promises to match "any method call ... regardless of ... arguments": an empty
-      // arg-constraint list only matches a genuinely zero-arg invocation
-      // (PositionalArgumentListConstraint.areConstraintsSatisfiedBy), so match any argument list via
-      // Spock's own SpreadWildcard instead - the same sentinel Groovy's `_._(*_)` compiles to.
-      chain = rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irSpreadWildcardInstance())
-    } else {
-      for (arg in shape.args) {
-        chain = if ((arg as? IrCall)?.isAnyMarkerCall() == true) {
-          rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, irWildcardInstance())
-        } else {
-          rewriterContext.interactionBuilder.irAddEqualArg(builder, chain, arg)
-        }
-      }
-    }
-
-    chain = when (response) {
-      null -> chain
-      is InteractionResponse.Code -> rewriterContext.interactionBuilder.irAddCodeResponse(builder, chain, irResponseClosureCall(response.block))
-      is InteractionResponse.Constant -> rewriterContext.interactionBuilder.irAddConstantResponse(builder, chain, response.value)
-    }
-
-    return extraStatements to rewriterContext.interactionBuilder.irBuild(builder, chain)
-  }
-
-  // `range` evaluates to an IntRange at runtime; declared once as a temp val so `.first`/`.last` each
-  // read it without evaluating (and potentially side-effecting) the range expression twice. Kotlin's
-  // `..`/`..<` for Int both always produce an inclusive IntRange (`..<`'s `last` is already
-  // `endExclusive - 1`), so `setRangeCount`'s `inclusive` is always `true` here.
-  private fun irRangeBounds(range: IrExpression): Triple<IrVariable, IrExpression, IrExpression> {
-    val rangeVar = irVal(Name.identifier("\$spock_interaction_range"), range.type).apply {
+  private fun hoistRange(range: IrExpression): HoistedRange {
+    val declaration = irVal(INTERACTION_RANGE_VAR, range.type).apply {
       parent = feature
       initializer = range
     }
-    // first/last are declared on IntProgression (IntRange's superclass) as properties, not plain
-    // functions - functionByName (meant for Java-style methods) can't find their getters, so look
-    // the properties up directly.
-    val minExpr = builder.irCall(intProgressionClass.propertyGetter("first")).apply { dispatchReceiver = builder.irGet(rangeVar) }
-    val maxExpr = builder.irCall(intProgressionClass.propertyGetter("last")).apply { dispatchReceiver = builder.irGet(rangeVar) }
-    return Triple(rangeVar, minExpr, maxExpr)
+    return HoistedRange(
+      declaration = declaration,
+      first = irReadRangeBound(declaration, "first"),
+      last = irReadRangeBound(declaration, "last")
+    )
   }
 
-  private fun irWildcardInstance(): IrExpression {
-    val instanceField = wildcardClass.findFieldByName("INSTANCE")
-    val fieldAccess = builder.irGetField(null, instanceField).apply { superQualifierSymbol = wildcardClass }
-    return builder.irImplicitNotNull(fieldAccess, builder.irType(SPOCK_WILDCARD_FQN))
-  }
+  private fun irReadRangeBound(rangeVar: IrVariable, bound: String): IrExpression =
+    builder.irCall(intProgressionClass.findPropertyGetter(bound)).apply {
+      dispatchReceiver = builder.irGet(rangeVar)
+    }
 
-  private fun irSpreadWildcardInstance(): IrExpression {
-    val instanceField = spreadWildcardClass.findFieldByName("INSTANCE")
-    val fieldAccess = builder.irGetField(null, instanceField).apply { superQualifierSymbol = spreadWildcardClass }
-    return builder.irImplicitNotNull(fieldAccess, builder.irType(SPOCK_SPREAD_WILDCARD_FQN))
-  }
-
-  // block's type is Function1<List<Any?>, R> (does/did's declared parameter type, R already
-  // substituted for this call site) - its last type argument is R, responseClosure's own generic.
-  private fun irResponseClosureCall(block: IrExpression): IrFunctionAccessExpression {
+  // A does/did block is typed Function1<List<Any?>, R>; responseClosure wraps it in the
+  // groovy.lang.Closure an InteractionBuilder code response expects, with R as its type argument.
+  private fun irResponseClosure(block: IrExpression): IrExpression {
     val responseType = (block.type as IrSimpleType).arguments.last().typeOrFail
     return builder.irCall(responseClosureFn, closureType).apply {
       typeArguments[0] = responseType
@@ -233,48 +201,14 @@ internal class InteractionStatementsRewriter(
     }
   }
 
-  private data class MethodShape(val target: IrExpression, val methodName: MethodNameKind, val args: List<IrExpression>)
-
-  private sealed class MethodNameKind {
-    class Literal(val name: String) : MethodNameKind()
-
-    data object Wildcard : MethodNameKind()
-  }
-
-  private fun IrCall.toMethodShape(): MethodShape = if (isAnyMethodMarkerCall()) {
-    val target = requireNotNull(extensionReceiverArg()) { "anyMethod() is missing its receiver" }
-    MethodShape(target, MethodNameKind.Wildcard, emptyList())
-  } else {
-    val target = requireNotNull(dispatchReceiverArg()) { "${symbol.owner.name} is missing its dispatch receiver" }
-    MethodShape(target.unwrapImplicitNotNull(), MethodNameKind.Literal(symbol.owner.name.asString()), regularArgs())
-  }
-
-  // The interaction statement's own (never really invoked) `target.method(...)` call needs its
-  // dispatch receiver non-null to dispatch, same as any other member call - but `addEqualTarget`'s
-  // parameter is a plain nullable Object, so reusing that receiver as-is here would carry a
-  // not-null check the target argument never needed, left over from a call that's being deleted.
-  private fun IrExpression.unwrapImplicitNotNull(): IrExpression =
-    if (this is IrTypeOperatorCall && operator == IrTypeOperator.IMPLICIT_NOTNULL) argument else this
-
-  private companion object {
-    val INT_PROGRESSION_FQN = FqName("kotlin.ranges.IntProgression")
-    val CLOSURE_FQN = FqName("groovy.lang.Closure")
-    val LANG_PKG_FQN = FqName("io.github.pshevche.spockk.lang")
-    val RESPONSE_CLOSURE_CALLABLE_ID = CallableId(LANG_PKG_FQN, Name.identifier("responseClosure"))
-  }
+  private class HoistedRange(val declaration: IrVariable, val first: IrExpression, val last: IrExpression)
 }
-
-private fun IrClassSymbol.propertyGetter(name: String): IrSimpleFunctionSymbol =
-  owner.declarations.filterIsInstance<IrProperty>().first { it.name.asString() == name }.getter!!.symbol
 
 /**
- * `mockController.leaveScope()`, the first statement of a `then` block paired with a
- * [io.github.pshevche.spockk.compilation.transformer.WhenBlockRewriter]-wrapped `when` block -
- * verifies the interactions registered in that scope.
+ * The outcome of moving a `then` block's interactions out of it: the [scope] they are registered
+ * in, and the block with those entries removed.
  */
-internal fun SpockkIrRewriter.irLeaveScopeStatement(feature: IrFunction, builder: DeclarationIrBuilder): IrStatement {
-  val specAccessor = feature.requiredThisParameter()
-  val specificationContext = feature.parentAsClass.getSpecificationContext(rewriterContext)
-  val controller = specificationContext.irGetMockController(builder, specAccessor)
-  return rewriterContext.mockController.irLeaveScope(builder, controller)
-}
+internal class InteractionExtractionResult(
+  val scope: InteractionScope,
+  val remainingStatements: List<IrStatement>
+)

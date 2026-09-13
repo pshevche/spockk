@@ -22,7 +22,7 @@ import io.github.pshevche.spockk.compilation.ir.mutableStatements
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.CONDITION_THROWABLE_VAR
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionStatementsRewriter
-import io.github.pshevche.spockk.compilation.transformer.interaction.asInteractionStatement
+import io.github.pshevche.spockk.compilation.transformer.interaction.asInteraction
 import io.github.pshevche.spockk.compilation.transformer.interaction.asNoMoreInteractionsCall
 import io.github.pshevche.spockk.compilation.transformer.ir.IrErrorCollector
 import io.github.pshevche.spockk.compilation.transformer.ir.IrValueRecorder
@@ -59,8 +59,7 @@ internal class ConditionStatementsRewriter(
     statements: List<IrStatement>,
     enclosingFunction: IrFunction,
     builder: DeclarationIrBuilder,
-    valueRecorderVar: IrVariable?,
-    errorCollectorVar: IrVariable?,
+    recorders: ConditionRecorders?,
     treatAsConditionScope: Boolean,
     allowInteractionStatements: Boolean = false
   ): List<IrStatement> {
@@ -71,11 +70,11 @@ internal class ConditionStatementsRewriter(
 
     return statements.flatMap { statement ->
       val helperCall = statement.asImplicitAssertionHelperCall()
-      val interaction = if (allowInteractionStatements) statement.asInteractionStatement() else null
+      val interaction = if (allowInteractionStatements) statement.asInteraction() else null
       val noMoreInteractionsCall = if (allowInteractionStatements) statement.asNoMoreInteractionsCall() else null
       when {
         helperCall != null -> {
-          rewriteHelperCallLambdaBody(helperCall, valueRecorderVar!!, errorCollectorVar!!)
+          rewriteHelperCallLambdaBody(helperCall, statement.requireRecorders(recorders))
           listOf(statement)
         }
 
@@ -87,26 +86,34 @@ internal class ConditionStatementsRewriter(
         noMoreInteractionsCall != null -> interactionRewriter.rewriteNoMoreInteractions(noMoreInteractionsCall)
 
         statement.isConditionStatement(irBuiltIns, treatAsConditionScope) ->
-          listOf(rewriteConditionStatement(statement as IrExpression, enclosingFunction, builder, valueRecorderVar!!, errorCollectorVar!!))
+          listOf(
+            rewriteConditionStatement(
+              statement as IrExpression,
+              enclosingFunction,
+              builder,
+              statement.requireRecorders(recorders)
+            )
+          )
 
         else -> listOf(statement)
       }
     }
   }
 
-  private fun rewriteHelperCallLambdaBody(
-    helperCall: ImplicitAssertionHelperCall,
-    valueRecorderVar: IrVariable,
-    errorCollectorVar: IrVariable
-  ) {
+  // The recorders are declared exactly when the enclosing method has something to record, which is
+  // decided by the same predicates this dispatches on - so reaching a condition without them means
+  // detection and rewriting have drifted apart.
+  private fun IrStatement.requireRecorders(recorders: ConditionRecorders?): ConditionRecorders =
+    requireNotNull(recorders) { "condition statement found in a method whose conditions were not detected: $this" }
+
+  private fun rewriteHelperCallLambdaBody(helperCall: ImplicitAssertionHelperCall, recorders: ConditionRecorders) {
     val lambda = helperCall.lambda
     val lambdaStatements = lambda.mutableStatements() ?: return
     val lambdaBuilder = irBuilder(lambda.symbol)
 
     when (helperCall.kind) {
       ImplicitAssertionHelperKind.VERIFY, ImplicitAssertionHelperKind.VERIFY_EACH -> {
-        val rewritten =
-          rewrite(lambdaStatements.toList(), lambda, lambdaBuilder, valueRecorderVar, errorCollectorVar, treatAsConditionScope = true)
+        val rewritten = rewrite(lambdaStatements.toList(), lambda, lambdaBuilder, recorders, treatAsConditionScope = true)
         lambdaStatements.clear()
         lambdaStatements.addAll(rewritten)
       }
@@ -114,8 +121,13 @@ internal class ConditionStatementsRewriter(
       ImplicitAssertionHelperKind.VERIFY_ALL -> {
         val freshErrorCollectorVar = irNewErrorCollectorDeclaration(lambdaBuilder, lambda)
         val freshErrorCollector = IrErrorCollector.create(rewriterContext, freshErrorCollectorVar)
-        val rewritten =
-          rewrite(lambdaStatements.toList(), lambda, lambdaBuilder, valueRecorderVar, freshErrorCollectorVar, treatAsConditionScope = true)
+        val rewritten = rewrite(
+          lambdaStatements.toList(),
+          lambda,
+          lambdaBuilder,
+          recorders.reportingTo(freshErrorCollectorVar),
+          treatAsConditionScope = true
+        )
         lambdaStatements.clear()
         lambdaStatements.add(freshErrorCollectorVar)
         lambdaStatements.addAll(rewritten)
@@ -128,10 +140,10 @@ internal class ConditionStatementsRewriter(
     statement: IrExpression,
     enclosingFunction: IrFunction,
     builder: DeclarationIrBuilder,
-    valueRecorderVar: IrVariable,
-    errorCollectorVar: IrVariable
+    recorders: ConditionRecorders
   ): IrStatement {
-    val irValueRecorder = IrValueRecorder.create(rewriterContext, valueRecorderVar)
+    val irValueRecorder = IrValueRecorder.create(rewriterContext, recorders.valueRecorder)
+    val errorCollectorVar = recorders.errorCollector
     return with(builder) {
       irTry(
         tryExpressions = listOf(verifyConditionCall(builder, enclosingFunction, statement, irValueRecorder, errorCollectorVar)),

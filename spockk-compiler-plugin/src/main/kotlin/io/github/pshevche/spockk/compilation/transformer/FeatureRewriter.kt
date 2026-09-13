@@ -29,13 +29,13 @@ import io.github.pshevche.spockk.compilation.shared.BehaviorStep
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.shared.FeatureBody
 import io.github.pshevche.spockk.compilation.shared.SpockkTransformationContext.FeatureContext
+import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRecorders
 import io.github.pshevche.spockk.compilation.transformer.condition.ConditionRewriter
 import io.github.pshevche.spockk.compilation.transformer.condition.ExceptionConditionRewriter
 import io.github.pshevche.spockk.compilation.transformer.condition.irStaticErrorCollectorDeclaration
 import io.github.pshevche.spockk.compilation.transformer.condition.irValueRecorderDeclaration
 import io.github.pshevche.spockk.compilation.transformer.fixture.CleanupBlockRewriter
 import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionStatementsRewriter
-import io.github.pshevche.spockk.compilation.transformer.interaction.irLeaveScopeStatement
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
@@ -130,10 +130,14 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
     featureBody: FeatureBody
   ): List<IrStatement> = buildList {
     // Declared once per feature (matching Spock), shared across every condition-bearing block.
-    val valueRecorderVar =
-      if (featureBody.hasConditions) irValueRecorderDeclaration(builder, feature).also { add(it) } else null
-    val errorCollectorVar =
-      if (featureBody.hasConditions) irStaticErrorCollectorDeclaration(builder, feature).also { add(it) } else null
+    val recorders = if (featureBody.hasConditions) {
+      ConditionRecorders(
+        valueRecorder = irValueRecorderDeclaration(builder, feature).also { add(it) },
+        errorCollector = irStaticErrorCollectorDeclaration(builder, feature).also { add(it) }
+      )
+    } else {
+      null
+    }
 
     addAll(featureBody.anonymousStatements)
 
@@ -142,12 +146,11 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
         is BehaviorStep.Plain -> addAll(rewritePlainBlock(builder, feature, step.block))
 
         is BehaviorStep.Condition -> {
-          val conditionRewriter =
-            ConditionRewriter(rewriterContext, builder, feature, step.block.ordinal, valueRecorderVar, errorCollectorVar)
+          val conditionRewriter = ConditionRewriter(rewriterContext, builder, feature, step.block.ordinal, recorders)
           addAll(conditionRewriter.rewrite(step.block.statements))
         }
 
-        is BehaviorStep.WhenThen -> addAll(rewriteWhenThen(builder, feature, step, valueRecorderVar, errorCollectorVar))
+        is BehaviorStep.WhenThen -> addAll(rewriteWhenThen(builder, feature, step, recorders))
       }
     }
   }
@@ -160,18 +163,17 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
       add(rewriterContext.spockRuntime.irCallBlockExited(builder, specAccessor, block.ordinal))
     }
 
-  // Mirrors Spock's own SpecRewriter.moveInteractions: a THEN block's interactions are extracted
-  // and moved ahead of its paired WHEN block's own statements (built once here, never twice - the
-  // WHEN's rewrite needs the built addInteraction statements, the THEN's rewrite needs what's left).
+  // Mirrors Spock's own SpecRewriter.moveInteractions: the THEN block's interactions are moved
+  // ahead of its paired WHEN block's own statements, so the WHEN block opens the scope they are
+  // registered in and the THEN block closes it before asserting anything else.
   private fun rewriteWhenThen(
     builder: DeclarationIrBuilder,
     feature: IrFunction,
     step: BehaviorStep.WhenThen,
-    valueRecorderVar: IrVariable?,
-    errorCollectorVar: IrVariable?
+    recorders: ConditionRecorders?
   ): List<IrStatement> = buildList {
-    val interactionSplit = if (step.thenHasInteractions) {
-      InteractionStatementsRewriter(rewriterContext, feature).extractAndRewrite(step.thenBlock.statements)
+    val interactions = if (step.thenHasInteractions) {
+      InteractionStatementsRewriter(rewriterContext, feature).extractScope(step.thenBlock.statements)
     } else {
       null
     }
@@ -182,20 +184,16 @@ internal class FeatureRewriter(override val rewriterContext: SpockkIrRewriterCon
         feature,
         step.whenBlock,
         wrapExceptionHandling = step.thenHasExceptionCondition,
-        hasInteractions = step.thenHasInteractions,
-        addInteractionStatements = interactionSplit?.addInteractionStatements ?: emptyList(),
+        interactionScope = interactions?.scope,
         thenBlockStatements = step.thenBlock.statements
       ).rewrite()
     )
 
-    val rawThenStatements = if (interactionSplit != null) {
-      listOf(irLeaveScopeStatement(feature, builder)) + interactionSplit.remainingStatements
-    } else {
-      step.thenBlock.statements
-    }
+    val rawThenStatements = interactions
+      ?.let { listOf(it.scope.irLeave()) + it.remainingStatements }
+      ?: step.thenBlock.statements
     val thenStatements = ExceptionConditionRewriter(rewriterContext, feature).rewrite(rawThenStatements)
-    val conditionRewriter =
-      ConditionRewriter(rewriterContext, builder, feature, step.thenBlock.ordinal, valueRecorderVar, errorCollectorVar)
+    val conditionRewriter = ConditionRewriter(rewriterContext, builder, feature, step.thenBlock.ordinal, recorders)
     addAll(conditionRewriter.rewrite(thenStatements))
   }
 }

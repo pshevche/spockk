@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.ir
 
 import org.jetbrains.kotlin.builtins.StandardNames.BUILT_INS_PACKAGE_FQ_NAME
 import org.jetbrains.kotlin.builtins.StandardNames.COLLECTIONS_PACKAGE_FQ_NAME
+import org.jetbrains.kotlin.builtins.StandardNames.RANGES_PACKAGE_FQ_NAME
 import org.jetbrains.kotlin.name.CallableId
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
@@ -58,6 +59,21 @@ internal object IrIdentifiers {
     val INTERACTION_BUILDER_FQN = MOCK_RUNTIME_PKG_FQN.child("InteractionBuilder")
     val MOCK_CONTROLLER_FQN = MOCK_RUNTIME_PKG_FQN.child("MockController")
 
+    // Name
+    // The mock factories a `Mock`/`Stub`/`Spy` call is rewritten to: static SpecInternals methods
+    // taking two more arguments (inferred name and type) than the MockingApi members they replace.
+    val MOCK_NAME = "Mock".asName()
+    val STUB_NAME = "Stub".asName()
+    val SPY_NAME = "Spy".asName()
+    val MOCK_IMPL_NAME = "MockImpl".asName()
+    val STUB_IMPL_NAME = "StubImpl".asName()
+    val SPY_IMPL_NAME = "SpyImpl".asName()
+
+    // Misc
+    // InteractionBuilder.addEqualMethodName special-cases this name (Wildcard.INSTANCE.toString())
+    // into a WildcardMethodNameConstraint, so matching any method name needs no Wildcard reference.
+    const val WILDCARD_METHOD_NAME = "_"
+
     // Spock's own interaction-matching sentinels (org.spockframework.lang.Wildcard/SpreadWildcard) -
     // distinct from the Spockk-unrelated Specification._ field already namespaced above as
     // WILDCARD_FQN.
@@ -95,6 +111,10 @@ internal object IrIdentifiers {
     val RETURNED_FQN = LANG_PKG_FQN.child("returned")
     val NO_MORE_INTERACTIONS_FQN = LANG_PKG_FQN.child("noMoreInteractions")
 
+    // CallableId
+    // Adapts a does/did lambda into the groovy.lang.Closure an InteractionBuilder code response takes.
+    val RESPONSE_CLOSURE_CALLABLE_ID = CallableId(LANG_PKG_FQN, "responseClosure".asName())
+
     // The Spockk-only 2-arg builder-block overloads, distinct from the inherited 1-arg (or Spy's
     // 2-arg-with-real-object) `MockingApi.Mock`/`Stub`/`Spy` members `MockingApiTransformer` already
     // detects by name+declaring-class - these are plain top-level functions, detected by FQN instead.
@@ -113,9 +133,17 @@ internal object IrIdentifiers {
     val CLASS_RULE_FQN = JUNIT_PKG_FQN.child("ClassRule")
   }
 
+  internal object Groovy {
+    // FqName
+    // Groovy is a required transitive runtime dependency: Spock's own mock responses are closures.
+    val CLOSURE_FQN = FqName("groovy.lang.Closure")
+  }
+
   internal object Kotlin {
     // FqName
     val LIST_FQN = COLLECTIONS_PACKAGE_FQ_NAME.child("List")
+    val INT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("Int")
+    val INT_PROGRESSION_FQN = RANGES_PACKAGE_FQ_NAME.child("IntProgression")
     val ASSERT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("assert")
     val BOOLEAN_NOT_FQN = BUILT_INS_PACKAGE_FQ_NAME.child("Boolean").child("not")
     val JAVA_LANG_CLASS_FQN = FqName("java.lang.Class")

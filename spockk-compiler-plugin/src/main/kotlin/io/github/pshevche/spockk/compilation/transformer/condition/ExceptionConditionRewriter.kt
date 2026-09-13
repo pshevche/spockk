@@ -16,19 +16,17 @@ package io.github.pshevche.spockk.compilation.transformer.condition
 
 import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
+import io.github.pshevche.spockk.compilation.ir.irCoerceToUnit
 import io.github.pshevche.spockk.compilation.ir.irKClassJavaLiteral
+import io.github.pshevche.spockk.compilation.ir.isCoercedToUnit
 import io.github.pshevche.spockk.compilation.ir.isThrownCall
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
-import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.irAs
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
-import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
-import org.jetbrains.kotlin.ir.expressions.impl.IrTypeOperatorCallImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.file
 
@@ -109,16 +107,3 @@ internal class ExceptionConditionRewriter(
     return builder.irKClassJavaLiteral(kClassJavaPropGetter.symbol, declaredTypeClass)
   }
 }
-
-private fun IrStatement.isCoercedToUnit(): Boolean =
-  this is IrTypeOperatorCall && operator == IrTypeOperator.IMPLICIT_COERCION_TO_UNIT
-
-private fun DeclarationIrBuilder.irCoerceToUnit(value: IrExpression): IrExpression =
-  IrTypeOperatorCallImpl(
-    startOffset,
-    endOffset,
-    context.irBuiltIns.unitType,
-    IrTypeOperator.IMPLICIT_COERCION_TO_UNIT,
-    context.irBuiltIns.unitType,
-    value
-  )

@@ -27,6 +27,7 @@ import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
 import org.jetbrains.kotlin.ir.builders.irAnnotation
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irCall
+import org.jetbrains.kotlin.ir.builders.irGetField
 import org.jetbrains.kotlin.ir.builders.irSet
 import org.jetbrains.kotlin.ir.builders.irString
 import org.jetbrains.kotlin.ir.builders.irTry
@@ -277,6 +278,32 @@ internal fun IrBuilderWithScope.irImplicitNotNull(value: IrExpression, type: IrT
     type,
     value
   )
+
+/**
+ * The coercion the frontend wraps a non-Unit expression in when it is used as a bare statement.
+ * Applied explicitly here so a rewritten statement keeps the shape equivalent source would have.
+ */
+internal fun IrBuilderWithScope.irCoerceToUnit(value: IrExpression): IrExpression =
+  IrTypeOperatorCallImpl(
+    startOffset,
+    endOffset,
+    context.irBuiltIns.unitType,
+    IrTypeOperator.IMPLICIT_COERCION_TO_UNIT,
+    context.irBuiltIns.unitType,
+    value
+  )
+
+/**
+ * Reads a Java class's static singleton field (`Wildcard.INSTANCE` and friends). The field is a
+ * platform type, so dereferencing it carries the same not-null check Kotlin source would insert.
+ */
+internal fun IrBuilderWithScope.irJavaSingletonInstance(classSymbol: IrClassSymbol): IrExpression {
+  val instanceField = classSymbol.findFieldByName(SINGLETON_INSTANCE_FIELD)
+  val fieldAccess = irGetField(null, instanceField).apply { superQualifierSymbol = classSymbol }
+  return irImplicitNotNull(fieldAccess, classSymbol.defaultType)
+}
+
+private const val SINGLETON_INSTANCE_FIELD = "INSTANCE"
 
 internal fun IrBuilder.irThrow(value: IrExpression): IrExpression = IrThrowImpl(
   startOffset,

@@ -102,6 +102,17 @@ internal fun IrExpression.unwrapImplicitCoercionToUnit(): IrExpression = (this a
   if (it.operator == IMPLICIT_COERCION_TO_UNIT) it.argument else it
 } ?: this
 
+internal fun IrStatement.isCoercedToUnit(): Boolean =
+  this is IrTypeOperatorCall && operator == IMPLICIT_COERCION_TO_UNIT
+
+/**
+ * Drops the not-null check the frontend inserts when a platform-typed expression is dereferenced.
+ * Reusing such an expression somewhere that accepts a nullable value would otherwise carry a check
+ * the new position never needed.
+ */
+internal fun IrExpression.unwrapImplicitNotNull(): IrExpression =
+  if (this is IrTypeOperatorCall && operator == IrTypeOperator.IMPLICIT_NOTNULL) argument else this
+
 internal fun IrStatement.isAssertCall(): Boolean {
   val owner = (this as? IrCall)?.symbol?.owner ?: return false
   return owner.fqNameWhenAvailable == IrIdentifiers.Kotlin.ASSERT_FQN

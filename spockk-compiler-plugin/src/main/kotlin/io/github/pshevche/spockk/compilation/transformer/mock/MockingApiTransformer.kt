@@ -12,27 +12,35 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalSymbolFinderAPI::class)
+@file:OptIn(InternalSymbolFinderAPI::class, UnsafeDuringIrConstructionAPI::class)
 
 package io.github.pshevche.spockk.compilation.transformer.mock
 
-import io.github.pshevche.spockk.compilation.ir.IrIdentifiers
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.MOCK_IMPL_NAME
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.MOCK_NAME
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPEC_INTERNALS_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPY_IMPL_NAME
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.SPY_NAME
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.STUB_IMPL_NAME
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spock.STUB_NAME
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.MOCK_BUILDER_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.SPY_BUILDER_BLOCK_FQN
+import io.github.pshevche.spockk.compilation.ir.IrIdentifiers.Spockk.STUB_BUILDER_BLOCK_FQN
 import io.github.pshevche.spockk.compilation.ir.findPropertyGetter
 import io.github.pshevche.spockk.compilation.ir.findRequiredClassSymbol
 import io.github.pshevche.spockk.compilation.ir.irKClassJavaLiteral
 import io.github.pshevche.spockk.compilation.ir.mutableStatements
-import io.github.pshevche.spockk.compilation.ir.nestedStatementLists
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.BaseSpockkIrElementTransformer
 import io.github.pshevche.spockk.compilation.transformer.SpockkIrRewriter
 import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionStatementsRewriter
-import io.github.pshevche.spockk.compilation.transformer.interaction.asInteractionStatement
+import io.github.pshevche.spockk.compilation.transformer.interaction.asInteraction
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import org.jetbrains.kotlin.backend.common.CompilationException
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.ir.InternalSymbolFinderAPI
 import org.jetbrains.kotlin.ir.IrStatement
-import org.jetbrains.kotlin.ir.builders.irCall
 import org.jetbrains.kotlin.ir.builders.irGet
 import org.jetbrains.kotlin.ir.builders.irNull
 import org.jetbrains.kotlin.ir.builders.irString
@@ -44,7 +52,6 @@ import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrCall
-import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
@@ -52,7 +59,6 @@ import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.symbols.IrTypeParameterSymbol
 import org.jetbrains.kotlin.ir.symbols.UnsafeDuringIrConstructionAPI
-import org.jetbrains.kotlin.ir.types.IrTypeSystemContext
 import org.jetbrains.kotlin.ir.types.IrTypeSystemContextImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.classifierOrNull
@@ -62,160 +68,117 @@ import org.jetbrains.kotlin.ir.util.isSubtypeOf
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.Name
 
-@OptIn(UnsafeDuringIrConstructionAPI::class)
+/**
+ * Redirects every `Mock`/`Stub`/`Spy` call to the matching static `SpecInternals` factory
+ * (`MockImpl`/`StubImpl`/`SpyImpl`), passing the name and type Spock infers from the declaration
+ * the mock is assigned to - what Spock's own Groovy AST transform does for the same call.
+ *
+ * The Spockk-only builder-block overloads (`Mock(Type::class.java) { ... }`) are redirected the
+ * same way, and the interactions their trailing lambda declares are registered right after the
+ * mock is assigned - see [MockBuilderBlockSplicer].
+ */
 internal class MockingApiTransformer(
   override val rewriterContext: SpockkIrRewriterContext,
   private val spec: IrClass
 ) : BaseSpockkIrElementTransformer(),
   SpockkIrRewriter {
 
-  private val specInternalsClass =
-    rewriterContext.findRequiredClassSymbol(IrIdentifiers.Spock.SPEC_INTERNALS_FQN)
-  private val kClassJavaPropGetter =
-    rewriterContext.findPropertyGetter(IrIdentifiers.Kotlin.KCLASS_JAVA_CALLABLE_ID)
-
-  // Interaction statements built from a Mock/Stub builder block's trailing lambda, spliced into the
-  // declaring function right after the mock's own IrVariable, in a deliberate second pass (a
-  // BaseSpockkIrElementTransformer visit can only replace the node it's at, not insert siblings).
-  private val pendingInteractionSplices = mutableListOf<PendingInteractionSplice>()
-
-  private class PendingInteractionSplice(val function: IrFunction, val variable: IrVariable, val statements: List<IrStatement>) {
-    // A hoisted mock declaration (irTryHoistingVariables) has no initializer of its own anymore -
-    // the real Mock()/Stub() assignment happens at a SET_VAR elsewhere. Splicing after the now-bare
-    // declaration instead would run the interaction before the mock is actually assigned.
-    fun matches(statement: IrStatement): Boolean =
-      if (variable.initializer != null) statement === variable else statement is IrSetValue && statement.symbol == variable.symbol
-  }
-
-  companion object {
-
-    private val MOCK_METHODS: Map<Name, Name> = setOf("Mock", "Stub", "Spy")
-      .associate { Name.identifier(it) to Name.identifier(it + "Impl") }
-
-    private val BUILDER_BLOCK_MOCK_METHODS = mapOf(
-      IrIdentifiers.Spockk.MOCK_BUILDER_BLOCK_FQN to Name.identifier("MockImpl"),
-      IrIdentifiers.Spockk.STUB_BUILDER_BLOCK_FQN to Name.identifier("StubImpl"),
-      IrIdentifiers.Spockk.SPY_BUILDER_BLOCK_FQN to Name.identifier("SpyImpl")
-    )
-  }
+  private val specInternalsClass = rewriterContext.findRequiredClassSymbol(SPEC_INTERNALS_FQN)
+  private val kClassJavaPropGetter = rewriterContext.findPropertyGetter(KCLASS_JAVA_CALLABLE_ID)
+  private val typeSystem = IrTypeSystemContextImpl(rewriterContext.irBuiltIns)
+  private val builderBlockSplicer = MockBuilderBlockSplicer(spec)
 
   fun rewrite() {
-    spec.declarations.forEach { declaration ->
-      if (declaration is IrFunction || declaration is IrProperty) {
-        declaration.accept(this, null)
-      }
-    }
-    if (pendingInteractionSplices.isNotEmpty()) {
-      spliceInteractionStatements()
-    }
+    spec.declarations
+      .filter { it is IrFunction || it is IrProperty }
+      .forEach { it.accept(this, null) }
+    builderBlockSplicer.splice()
   }
 
-  private fun spliceInteractionStatements() {
-    pendingInteractionSplices.groupBy { it.function }.forEach { (function, splices) ->
-      val statements = function.mutableStatements() ?: return@forEach
-      val unconsumed = splices.toMutableList()
-      spliceInto(statements, unconsumed)
-      if (unconsumed.isNotEmpty()) {
-        // A Mock/Stub builder block whose declaration isn't found in any statement list reachable
-        // from its own function (nested inside an if/for/when-expression/etc.) - not silently
-        // dropping the interactions it configured, since that would leave a stub quietly answering
-        // with defaults instead of what the block actually declared.
-        throw CompilationException(
-          "Mock/Stub builder block interactions must be declared as a statement of a feature or fixture method body",
-          spec.file,
-          unconsumed.first().variable
-        )
-      }
-    }
-  }
-
-  // Splices each pending mock's built interaction statements in right after its own declaration,
-  // wherever that's actually found - not just this list's own top-level statements, but recursively
-  // into every nested statement list reachable from it (a WhenBlockRewriter try/catch around a
-  // paired then:'s exception condition, or CleanupBlockRewriter's try/finally around the whole
-  // feature body when a cleanup: block is present, both nest the given: block's own statements one
-  // level deeper before this splice pass ever runs).
-  private fun spliceInto(statements: MutableList<IrStatement>, pending: MutableList<PendingInteractionSplice>) {
-    if (pending.isEmpty()) return
-    val rewritten = statements.flatMap { statement ->
-      statement.nestedStatementLists().forEach { spliceInto(it, pending) }
-      val splice = pending.firstOrNull { it.matches(statement) }
-      if (splice != null) {
-        pending.remove(splice)
-        listOf(statement) + splice.statements
-      } else {
-        listOf(statement)
-      }
-    }
-    statements.clear()
-    statements.addAll(rewritten)
-  }
-
+  // Matches `val name: Type = Mock(...)`: the call is the initializer, the mock's inferred name and
+  // type come from the variable it is assigned to.
   override fun visitVariable(declaration: IrVariable): IrStatement {
-    // We are searching for
-    // var name:Type = Mock(<any-args>)
-    // which will match the Mock() call as initializer, and left-hand-side as variable.
-    if (tryRewriteMockInitializer(declaration.initializer, declaration)) {
-      return declaration // We already processed the initializer so do not continue with the children
+    if (rewriteMockAssignment(declaration.initializer, declaration)) {
+      // The initializer is rewritten, so its children must not be visited again.
+      return declaration
     }
     return super.visitVariable(declaration)
   }
 
-  // A hoisted mock declaration (irTryHoistingVariables splits `val name = Mock(...)` into a bare
-  // `var name` plus a SET_VAR elsewhere, when e.g. a cleanup: block reads the mock) has no
-  // initializer of its own to match here - the Mock()/Stub() call shows up as a SET_VAR's value
-  // instead, so it needs the same detection.
+  // A hoisted declaration (see `irTryHoistingVariables`, e.g. when a cleanup block reads the mock)
+  // keeps no initializer: the `Mock()` call shows up as a later assignment instead.
   override fun visitSetValue(expression: IrSetValue): IrExpression {
     val variable = expression.symbol.owner as? IrVariable
-    if (variable != null && tryRewriteMockInitializer(expression.value, variable)) {
+    if (variable != null && rewriteMockAssignment(expression.value, variable)) {
       return expression
     }
     return super.visitSetValue(expression)
   }
 
-  private fun tryRewriteMockInitializer(initExpr: IrExpression?, variable: IrVariable): Boolean {
-    var init = initExpr
-    if (init is IrTypeOperatorCall) {
-      // This shall match/skip stuff like !! or implicit null checks after the Mock() initializer
-      // var name = Mock(Runnable::class.java)!!
-      init = init.argument
-    }
-    if (init !is IrCall) return false
-    val builderBlockImplName = BUILDER_BLOCK_MOCK_METHODS[init.symbol.owner.fqNameWhenAvailable]
-    if (builderBlockImplName != null) {
-      rewriteBuilderBlockMockDeclaration(variable, init, builderBlockImplName)
+  // A mock created without being assigned to anything: no name or type can be inferred.
+  override fun visitCall(expression: IrCall): IrExpression {
+    rewriteInheritedMockCall(expression, mock = null)
+    return super.visitCall(expression)
+  }
+
+  private fun rewriteMockAssignment(assignedValue: IrExpression?, mock: IrVariable): Boolean {
+    // Skips a `!!` or implicit null check around the call, as in `val m = Mock(Runnable::class.java)!!`.
+    val call = (assignedValue as? IrTypeOperatorCall)?.argument ?: assignedValue
+    if (call !is IrCall) return false
+
+    val builderBlockImpl = BUILDER_BLOCK_FACTORIES[call.symbol.owner.fqNameWhenAvailable]
+    if (builderBlockImpl != null) {
+      rewriteBuilderBlockMock(call, mock, builderBlockImpl)
     } else {
-      processCall(init, variable)
+      rewriteInheritedMockCall(call, mock)
     }
     return true
   }
 
-  private fun rewriteBuilderBlockMockDeclaration(declaration: IrVariable, call: IrCall, mockImplMethodName: Name) {
-    val blockArg = call.arguments.removeAt(call.arguments.lastIndex) as? IrFunctionExpression
+  /** `Mock`/`Stub`/`Spy` as inherited from `MockingApi`, with no builder block. */
+  private fun rewriteInheritedMockCall(call: IrCall, mock: IrVariable?) {
+    val factoryName = INHERITED_FACTORIES[call.symbol.owner.name] ?: return
+    // Only calls to the spec's own inherited member, not a same-named function from elsewhere.
+    if (call.symbol.owner.parent != spec) return
+    val factory = findFactory(factoryName, call) ?: return
+    redirectToFactory(call, mock, factory)
+  }
+
+  /**
+   * `Mock(Type::class.java) { ... }`: a Spockk top-level function, so unlike the inherited member
+   * it has no dispatch receiver of its own, and its trailing lambda has to be taken off the call
+   * before it can be redirected to a factory that knows nothing about it.
+   */
+  private fun rewriteBuilderBlockMock(call: IrCall, mock: IrVariable, factoryName: Name) {
+    val block = call.arguments.removeAt(call.arguments.lastIndex) as? IrFunctionExpression
       ?: throw CompilationException(
         "Mock/Stub builder block must be a literal lambda (`Mock(Type::class.java) { ... }`)",
         spec.file,
         call
       )
-    // Unlike the inherited 1-arg Mock(Class)/Stub(Class) member, this 2-arg overload has no dispatch
-    // receiver of its own - findMockImplMethod/rewriteMockCall assume `call.arguments` starts with
-    // the spec instance, matching MockImpl's (Specification, name, Type, Class) signature.
+    // The factories all expect the spec instance first, matching MockImpl's own signature.
     call.arguments.add(0, irBuilder(call.symbol).irGet(currentIrFunction.requiredThisParameter()))
 
-    val mockImplMethod = findMockImplMethod(mockImplMethodName, mockImplArgCount(call), call) ?: return
-    rewriteMockCall(call, declaration, mockImplMethod)
+    val factory = findFactory(factoryName, call) ?: return
+    redirectToFactory(call, mock, factory)
 
-    val lambdaStatements = blockArg.function.mutableStatements() ?: return
-    val lambdaBuilder = irBuilder(blockArg.function.symbol)
+    val interactions = buildBlockInteractions(block, mock)
+    if (interactions.isNotEmpty()) {
+      builderBlockSplicer.record(currentIrFunction, mock, interactions)
+    }
+  }
+
+  private fun buildBlockInteractions(block: IrFunctionExpression, mock: IrVariable): List<IrStatement> {
+    val blockStatements = block.function.mutableStatements() ?: return emptyList()
+    val blockBuilder = irBuilder(block.function.symbol)
+    val blockReceiver = block.function.parameters.first { it.kind == IrParameterKind.ExtensionReceiver }
     val interactionRewriter = InteractionStatementsRewriter(rewriterContext, currentIrFunction)
-    val lambdaReceiverParam = blockArg.function.parameters.first { it.kind == IrParameterKind.ExtensionReceiver }
 
-    val builtStatements = lambdaStatements.flatMap { statement ->
-      // The block's own statements reference the mock via their implicit T receiver, valid only
-      // inside the lambda - rebind those references to the mock's own variable before moving the
-      // statements out into the enclosing function, where that receiver no longer exists.
-      val rebound = (statement as? IrExpression)?.rebindToVariable(lambdaReceiverParam, declaration, lambdaBuilder) ?: statement
-      val interaction = rebound.asInteractionStatement(allowBareCall = true)
+    return blockStatements.flatMap { statement ->
+      // Inside the block the mock is the lambda's receiver, which does not exist once the
+      // statements move out into the enclosing method - rebind those references to the variable.
+      val rebound = (statement as? IrExpression)?.rebindReceiverTo(blockReceiver, mock, blockBuilder) ?: statement
+      val interaction = rebound.asInteraction(allowBareCall = true)
         ?: throw CompilationException(
           "Every statement in a Mock/Stub builder block must be an interaction statement (a call on the mock, " +
             "optionally wrapped in does/did/returns/returned)",
@@ -224,113 +187,84 @@ internal class MockingApiTransformer(
         )
       interactionRewriter.rewrite(interaction)
     }
-    if (builtStatements.isNotEmpty()) {
-      pendingInteractionSplices += PendingInteractionSplice(currentIrFunction, declaration, builtStatements)
+  }
+
+  /** Points the call at a `SpecInternals` factory, inserting the arguments Spock infers. */
+  private fun redirectToFactory(call: IrCall, mock: IrVariable?, factory: IrSimpleFunction) {
+    with(irBuilder(call.symbol)) {
+      // The factories are static, so what was an implicit dispatch receiver becomes argument zero.
+      call.arguments[0] = irGet(currentIrFunction.requiredThisParameter())
+      call.arguments.add(1, mock?.let { irString(it.name.asString()) } ?: irNull())
+      call.arguments.add(2, inferredMockType(mock))
+      call.symbol = factory.symbol
     }
   }
 
-  override fun visitCall(expression: IrCall): IrExpression {
-    processCall(expression, null)
-    return super.visitCall(expression)
+  private fun DeclarationIrBuilder.inferredMockType(mock: IrVariable?): IrExpression {
+    val mockClass = mock?.type?.classOrNull ?: return irNull()
+    return irKClassJavaLiteral(kClassJavaPropGetter.symbol, mockClass)
   }
 
-  private fun processCall(call: IrCall, variable: IrVariable?) {
-    val owner = call.symbol.owner
-    val methodName = owner.name
-    val mockMethodImplName = MOCK_METHODS[methodName]
-    if (mockMethodImplName != null) {
-      val parent = owner.parent
-      if (parent == spec) {
-        val mockImplMethod: IrSimpleFunction? =
-          findMockImplMethod(mockMethodImplName, mockImplArgCount(call), call)
-        if (mockImplMethod != null) {
-          rewriteMockCall(call, variable, mockImplMethod)
-        }
-      }
-    }
-  }
-
-  // MockImpl/StubImpl (SpecInternals) always take two more arguments than the user-facing call: the
-  // inferred String name and Type, see SpecInternals.
-  private fun mockImplArgCount(call: IrCall): Int = call.arguments.size + 2
-
-  private fun rewriteMockCall(
-    expression: IrCall,
-    variable: IrVariable?,
-    mockImplMethod: IrSimpleFunction
-  ) {
-    irBuilder(expression.symbol).let {
-      // MockImpl/StubImpl/SpyImpl are static: arg[0] is a plain parameter now, not a dispatch
-      // receiver - replace the original call's implicit-receiver-marked `this` with a plain
-      // reference, matching what calling the static method directly would look like.
-      expression.arguments[0] = it.irGet(currentIrFunction.requiredThisParameter())
-      // inferredName argument
-      expression.arguments.add(1, mockName(variable, it))
-      // inferredType argument
-      expression.arguments.add(2, inferMockType(variable, it))
-      expression.symbol = mockImplMethod.symbol
-    }
-  }
-
-  private fun inferMockType(variable: IrVariable?, builder: DeclarationIrBuilder): IrExpression {
-    val classSym = variable?.type?.classOrNull ?: return builder.irNull()
-    return builder.irKClassJavaLiteral(kClassJavaPropGetter.symbol, classSym)
-  }
-
-  private fun mockName(variable: IrVariable?, builder: DeclarationIrBuilder): IrConst {
-    val mockName: String?
-    if (variable != null) {
-      mockName = variable.name.toString()
-    } else {
-      mockName = null
-    }
-    val inferredName = mockName?.let { builder.irString(it) } ?: builder.irNull()
-    return inferredName
-  }
-
-  private fun findMockImplMethod(
-    mockMethodImplName: Name,
-    implArgCount: Int,
-    call: IrCall
-  ): IrSimpleFunction? {
-    val ctx: IrTypeSystemContext = IrTypeSystemContextImpl(rewriterContext.irBuiltIns)
+  /**
+   * The `SpecInternals` factory overload this call resolves to. The first three parameters (spec,
+   * inferred name, inferred type) are fixed, so only the rest are matched against the call.
+   *
+   * A parameter typed as the candidate's own type parameter - `SpyImpl`'s "wrap this instance"
+   * overloads - accepts anything, since there is no concrete type an argument could be checked
+   * against. Candidates whose parameters are all concrete are tried first, so that open slot can
+   * never shadow a more specific match, whatever order `SpecInternals` happens to declare them in.
+   */
+  private fun findFactory(factoryName: Name, call: IrCall): IrSimpleFunction? {
+    // Two arguments more than the call has: the inferred name and type.
+    val parameterCount = call.arguments.size + 2
     val candidates = specInternalsClass.owner.declarations
       .filterIsInstance<IrSimpleFunction>()
-      .filter { it.name == mockMethodImplName && it.parameters.size == implArgCount }
+      .filter { it.name == factoryName && it.parameters.size == parameterCount }
 
-    // We ignore the first three parameters: Spec, inferredName and inferredType. A parameter typed
-    // as the candidate's own unbound type parameter (SpyImpl's "wrap an existing instance" overload)
-    // matches any argument instead of being subtype-checked; concrete-typed candidates are tried
-    // first so that slot can never mask a real, more specific match regardless of declaration order.
-    fun matches(m: IrSimpleFunction, allowTypeParameterSlot: Boolean) =
-      (3..<implArgCount).all { i ->
-        val callType = call.arguments[i - 2]?.type
-        val paramType = m.parameters[i].type
-        if (paramType.classifierOrNull is IrTypeParameterSymbol) {
-          allowTypeParameterSlot
-        } else {
-          callType == null || callType.isSubtypeOf(paramType, ctx)
-        }
+    return candidates.firstOrNull { it.accepts(call, parameterCount, allowOpenSlot = false) }
+      ?: candidates.firstOrNull { it.accepts(call, parameterCount, allowOpenSlot = true) }
+  }
+
+  private fun IrSimpleFunction.accepts(call: IrCall, parameterCount: Int, allowOpenSlot: Boolean): Boolean =
+    (INFERRED_PARAMETER_COUNT..<parameterCount).all { index ->
+      val parameterType = parameters[index].type
+      val argumentType = call.arguments[index - 2]?.type
+      if (parameterType.classifierOrNull is IrTypeParameterSymbol) {
+        allowOpenSlot
+      } else {
+        argumentType == null || argumentType.isSubtypeOf(parameterType, typeSystem)
       }
+    }
 
-    return candidates.firstOrNull { matches(it, allowTypeParameterSlot = false) }
-      ?: candidates.firstOrNull { matches(it, allowTypeParameterSlot = true) }
+  private companion object {
+    /** Spec instance, inferred name and inferred type: the parameters no argument is matched to. */
+    const val INFERRED_PARAMETER_COUNT = 3
+
+    val INHERITED_FACTORIES = mapOf(
+      MOCK_NAME to MOCK_IMPL_NAME,
+      STUB_NAME to STUB_IMPL_NAME,
+      SPY_NAME to SPY_IMPL_NAME
+    )
+
+    // The builder-block overloads are plain top-level functions, so they are matched by FQN rather
+    // than by name and declaring class like the inherited members above.
+    val BUILDER_BLOCK_FACTORIES = mapOf(
+      MOCK_BUILDER_BLOCK_FQN to MOCK_IMPL_NAME,
+      STUB_BUILDER_BLOCK_FQN to STUB_IMPL_NAME,
+      SPY_BUILDER_BLOCK_FQN to SPY_IMPL_NAME
+    )
   }
 }
 
-// Rebinds a Mock/Stub builder block's implicit-receiver references (valid only inside the block's
-// own lambda) to the mock's IrVariable, so the statements still resolve once moved into the caller.
-@OptIn(UnsafeDuringIrConstructionAPI::class)
-private fun IrExpression.rebindToVariable(
-  receiverParam: IrValueParameter,
+/** Replaces reads of [receiver] with reads of [target]. */
+private fun IrExpression.rebindReceiverTo(
+  receiver: IrValueParameter,
   target: IrVariable,
   builder: DeclarationIrBuilder
 ): IrExpression {
   val rebinder = object : IrElementTransformerVoid() {
     override fun visitGetValue(expression: IrGetValue): IrExpression {
-      if (expression.symbol == receiverParam.symbol) {
-        return builder.irGet(target)
-      }
+      if (expression.symbol == receiver.symbol) return builder.irGet(target)
       return super.visitGetValue(expression)
     }
   }

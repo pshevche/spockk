@@ -19,6 +19,7 @@ import io.github.pshevche.spockk.compilation.ir.irTryHoistingVariables
 import io.github.pshevche.spockk.compilation.ir.requiredThisParameter
 import io.github.pshevche.spockk.compilation.shared.FeatureBlock
 import io.github.pshevche.spockk.compilation.transformer.InternalIdentifiers.WHEN_BLOCK_THROWABLE_VAR
+import io.github.pshevche.spockk.compilation.transformer.interaction.InteractionScope
 import io.github.pshevche.spockk.compilation.transformer.ir.IrSpecificationContext
 import io.github.pshevche.spockk.compilation.transformer.ir.SpockkIrRewriterContext
 import io.github.pshevche.spockk.compilation.transformer.ir.getSpecificationContext
@@ -33,21 +34,17 @@ import org.jetbrains.kotlin.ir.util.parentAsClass
 
 /**
  * Rewrites a `when` block, however its paired `then` block reads (a plain condition needs neither
- * kind of wrapping below, so such a `when` never reaches this rewriter - see `FeatureRewriter`):
+ * kind of wrapping below, so such a `when` never reaches this rewriter - see [FeatureRewriter]):
  *
  * - [wrapExceptionHandling] (paired `then` has a `thrown`/`notThrown`/`noExceptionThrown` call): the
  *   block's own statements are wrapped in a try/catch that records any thrown exception on
  *   `SpecificationContext`, mirroring Spock's own `SpecRewriter.rewriteWhenBlockForExceptionCondition`.
- * - [hasInteractions] (paired `then` declares interactions): brackets the block with
- *   `mockController.enterScope()`/[addInteractionStatements] (the interaction-building statements
- *   moved out of the `then` block), mirroring Spock's own `SpecRewriter.moveInteractions`. The paired
- *   `then` block's own rewrite inserts `mockController.leaveScope()` as the first statement of its
- *   own output - always together with [hasInteractions], even for a `then` block whose only
- *   interaction statement is a zero-argument `noMoreInteractions()` (a no-op, but still a scope to
- *   balance): [hasInteractions] tracks whether the `then` block had an interaction statement at all,
- *   not whether extracting it happened to produce any [addInteractionStatements].
+ * - [interactionScope] (paired `then` declares interactions): brackets the block with
+ *   `mockController.enterScope()` and the interaction registrations moved out of the `then` block,
+ *   mirroring Spock's own `SpecRewriter.moveInteractions`. [FeatureRewriter] closes the scope with
+ *   `leaveScope()` as the first statement of the paired `then` block.
  *
- * Both apply together when the `then` block has both - interaction registration always runs, whether
+ * Both apply together when the `then` block has both: registering interactions always runs, whether
  * or not the stimulus that follows throws, so the try/catch nests inside the scope, around the `when`
  * block's own statements only. A variable the `when` block declares that [thenBlockStatements] (or a
  * later `cleanup:` block, via [irTryHoistingVariables]'s own recursion into an already-nested try like
@@ -58,8 +55,7 @@ internal class WhenBlockRewriter(
   private val feature: IrFunction,
   private val whenBlock: FeatureBlock,
   private val wrapExceptionHandling: Boolean,
-  private val hasInteractions: Boolean,
-  private val addInteractionStatements: List<IrStatement> = emptyList(),
+  private val interactionScope: InteractionScope?,
   private val thenBlockStatements: List<IrStatement>
 ) : SpockkIrRewriter {
 
@@ -74,10 +70,9 @@ internal class WhenBlockRewriter(
         add(specificationContext.irSetThrownException(builder, specAccessor, builder.irNull()))
       }
       add(rewriterContext.spockRuntime.irCallBlockEntered(builder, specAccessor, whenBlock.ordinal))
-      if (hasInteractions) {
-        val controller = specificationContext.irGetMockController(builder, specAccessor)
-        add(rewriterContext.mockController.irEnterScope(builder, controller))
-        addAll(addInteractionStatements)
+      interactionScope?.let {
+        add(it.irEnter())
+        addAll(it.registrations)
       }
       addAll(
         if (wrapExceptionHandling) wrapInTryCatch(specAccessor, specificationContext) else whenBlock.statements
