@@ -14,11 +14,14 @@
 
 package io.github.pshevche.spockk.compilation.shared
 
+import io.github.pshevche.spockk.compilation.collector.BlockOrderValidatingFeatureStatementsCollector
+import io.github.pshevche.spockk.compilation.transformer.condition.hasExceptionCondition
+import io.github.pshevche.spockk.compilation.transformer.interaction.hasInteractionStatement
+
 /**
- * One unit of `FeatureRewriter`'s dispatch over a feature's behavior blocks - pre-paired and
- * pre-classified at collection time ([io.github.pshevche.spockk.compilation.collector.pairBehaviorBlocks])
- * so the rewrite phase never has to look ahead at neighboring blocks or re-scan statements to decide
- * what it's looking at.
+ * Feature blocks pre-classified at collection time
+ * so the rewrite phase never has to look ahead at neighboring blocks or re-scan statements to determine
+ * the rewriting strategy.
  */
 internal sealed interface BehaviorStep {
   /** `setup`/`given` (plus any merged `and`): entered/exited verbatim, no condition handling. */
@@ -29,9 +32,8 @@ internal sealed interface BehaviorStep {
 
   /**
    * A `when` block and the `then` block immediately following it - always paired, per the feature
-   * grammar ([io.github.pshevche.spockk.compilation.collector.BlockOrderValidatingFeatureStatementsCollector]
-   * rejects any other arrangement before this pairing ever runs). [thenHasInteractions] and
-   * [thenHasExceptionCondition] are computed once here, from the `then` block's original statements,
+   * grammar (see [io.github.pshevche.spockk.compilation.collector.BlockOrderValidatingFeatureStatementsCollector]).
+   * [thenHasInteractions] and [thenHasExceptionCondition] are computed once here, from the `then` block's original statements,
    * rather than re-derived by every rewriter that needs to know.
    */
   data class WhenThen(
@@ -40,4 +42,42 @@ internal sealed interface BehaviorStep {
     val thenHasInteractions: Boolean,
     val thenHasExceptionCondition: Boolean
   ) : BehaviorStep
+
+  companion object {
+    /**
+     * Pairs a feature's flat behavior blocks into [BehaviorStep]s: a `when` block with the `then` block
+     * immediately following it (always adjacent - [BlockOrderValidatingFeatureStatementsCollector] rejects
+     * every other arrangement before this ever runs), everything else standalone.
+     */
+    internal fun fromFeatureBlocks(blocks: List<FeatureBlock>): List<BehaviorStep> {
+      val steps = mutableListOf<BehaviorStep>()
+      var index = 0
+      while (index < blocks.size) {
+        val block = blocks[index]
+        when (block.element.label) {
+          FeatureBlockLabel.WHEN -> {
+            val thenBlock = blocks[index + 1]
+            steps += WhenThen(
+              whenBlock = block,
+              thenBlock = thenBlock,
+              thenHasInteractions = thenBlock.statements.hasInteractionStatement(),
+              thenHasExceptionCondition = thenBlock.statements.hasExceptionCondition()
+            )
+            index += 2
+          }
+
+          FeatureBlockLabel.EXPECT -> {
+            steps += Condition(block)
+            index += 1
+          }
+
+          else -> {
+            steps += Plain(block)
+            index += 1
+          }
+        }
+      }
+      return steps
+    }
+  }
 }

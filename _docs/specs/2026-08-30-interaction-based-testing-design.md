@@ -193,7 +193,7 @@ stimulus, they're just configuring stub behavior for the rest of the iteration (
   separate, simpler, non-recursive path from `MockingApiTransformer` - see above - since they're never mixed with
   plain conditions.)
 - **`FeatureRewriter`**, dispatching over `BehaviorStep`s pre-paired and pre-classified at collection time
-  (`pairBehaviorBlocks`, called once from `SpockkTransformationContextCollector` - see
+  (`fromFeatureBlocks`, called once from `SpockkTransformationContextCollector` - see
   `_docs/plans/2026-08-30-interaction-based-testing.md`'s follow-up refactor note): a `when`/`then` pair whose
   `then` block has interactions is bracketed with `enterScope()`/moved-interaction-registration-statements before
   the `when` block, and `leaveScope()` at the start of the `then` block's own rewrite - the exact shape Spock's own
