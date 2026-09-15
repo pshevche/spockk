@@ -1,6 +1,6 @@
 ---
 name: gh-issue
-description: Hand off a GitHub issue to a coding agent (OpenCode or Claude Code) for implementation. Fetches the issue, creates a worktree, then either starts implementation (type::task) or prepares design docs first (type::story).
+description: Hand off a GitHub issue to Claude Code for implementation. Fetches the issue, creates a worktree, then either starts implementation (type::task) or prepares design docs first (type::story).
 ---
 
 You are being asked to take ownership of a GitHub issue and drive it to completion.
@@ -30,11 +30,11 @@ All projects using these conventions follow the same labeling pattern.
 
 Proceed directly to implementation:
 
-1. Read `AGENTS.md` to orient yourself in the project.
+1. Read `CLAUDE.md` to orient yourself in the project.
 2. Understand the codebase relevant to the issue.
 3. Implement changes following project conventions.
-4. Run the project's formatting command (see `AGENTS.md`).
-5. Run the project's build command (see `AGENTS.md`).
+4. Run the project's formatting command (see `CLAUDE.md`).
+5. Run the project's build command (see `CLAUDE.md`).
 6. Commit with a conventional commit message referencing the issue: `feat: <summary> (#<number>)` (or `fix:` for bugs).
 7. Push the branch and create a PR:
 
@@ -57,11 +57,12 @@ EOF
 
 A design spec and implementation plan are required before coding.
 
-1. On OpenCode, load and run the `superpowers/brainstorming` skill via OpenCode's native `skill` tool. On Claude Code
-   (no equivalent plugin), run the same process manually: ask clarifying questions until the design is unambiguous,
-   then draft the documents yourself.
-2. Produce a design spec under `_docs/specs/` and an implementation plan under `_docs/plans/`.
-3. Ask the user to review and approve both documents.
+1. Run the Superpowers `brainstorming` skill. It classifies the request, asks clarifying questions one at a time,
+   proposes approaches, and presents the design section by section for approval.
+2. Save the approved design spec under `_docs/specs/` (this project's location, which overrides the skill's default).
+3. Run the Superpowers `writing-plans` skill to turn the approved spec into an implementation plan under
+   `_docs/plans/`.
+4. Ask the user to review and approve both documents.
 
 Do not start implementation until approval is explicit.
 
@@ -79,5 +80,5 @@ Ask the user whether to treat it as:
 ## Conventions reminder
 
 - Commit messages: Conventional Commits (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`)
-- Always run the project's formatting command before committing (see `AGENTS.md`)
-- Always run the project's build command before opening a PR (see `AGENTS.md`)
+- Always run the project's formatting command before committing (see `CLAUDE.md`)
+- Always run the project's build command before opening a PR (see `CLAUDE.md`)
