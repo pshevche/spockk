@@ -25,9 +25,10 @@ Before starting work on a significant change, please [open an issue](https://git
 
 ### Using an AI coding agent
 
-Project instructions live in [`AGENTS.md`](AGENTS.md), read by both [OpenCode](https://opencode.ai) and Claude Code
-(via `CLAUDE.md`). Reusable skills (`/gh-issue`, `spock-expert`, `ir-expert`, `grill-me`) live under
-`.opencode/skills/` and are symlinked into `.claude/skills/` so either tool can use them.
+Project instructions live in [`CLAUDE.md`](CLAUDE.md), read by Claude Code. Reusable skills (`/gh-issue`,
+`spock-expert`, `ir-expert`, `grill-me`) live under `.claude/skills/`. The
+[Superpowers](https://github.com/obra/superpowers) plugin is enabled via `.claude/settings.json` and provides the
+`brainstorming` and `writing-plans` skills used for `type::story` issues.
 
 ## Building and Testing
 
