@@ -24,7 +24,7 @@ junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher
 junit-platform-testkit = { module = "org.junit.platform:junit-platform-testkit", version.ref = "junit" }
 junit4 = { module = "junit:junit", version = "4.13.2" }
 
-kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.13.0" }
+kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.14.0" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
 spock-junit4 = { module = "org.spockframework:spock-junit4", version.ref = "spock" }
