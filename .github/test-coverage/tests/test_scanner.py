@@ -26,6 +26,11 @@ class ScannerTest(unittest.TestCase):
     def test_records_source_location_for_error_messages(self):
         self.assertIn("PortedTest.kt", self.cov["org.spockframework.smoke.A#one"].source)
 
+    def test_parens_inside_pending_reason_do_not_break_parsing(self):
+        c = self.cov["org.spockframework.smoke.C#nested parens in reason"]
+        self.assertEqual("pending", c.status)
+        self.assertEqual(326, c.gap)
+
 
 if __name__ == "__main__":
     unittest.main()
