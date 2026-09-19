@@ -35,6 +35,7 @@ class SpecClass:
     name: str
     base: str
     features: list[Feature] = field(default_factory=list)
+    body: str = ""
 
 
 def body_hash(text: str) -> str:
@@ -70,7 +71,8 @@ def parse_source(source: str, rel_path: str) -> list[SpecClass]:
 
         name = match.group('name')
         key = f"{package}.{name}" if package else name
-        classes.append(SpecClass(key=key, path=rel_path, name=name, base=match.group('base'), features=features))
+        classes.append(SpecClass(key=key, path=rel_path, name=name, base=match.group('base'),
+                                  features=features, body=body))
 
     return classes
 
