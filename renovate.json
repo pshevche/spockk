@@ -4,6 +4,7 @@
     "config:recommended",
     ":semanticCommits"
   ],
+  "minimumReleaseAge": "1 day",
   "packageRules": [
     {
       "groupName": "Kotlin monorepo, power-assert, and compile-testing",
