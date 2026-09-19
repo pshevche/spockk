@@ -292,3 +292,91 @@ def apply(mutations: list[Mutation], github) -> None:
             github.patch(f"/issues/{mutation.payload['issue']}", {"labels": remaining})
         elif mutation.kind == "rewrite_key":
             pass  # manifest key rewrites are applied to the manifest file, not to GitHub
+
+
+DEFAULT_MAX_MUTATIONS = 50
+
+
+class BlastRadiusExceeded(Exception):
+    pass
+
+
+def check_blast_radius(mutations: list, max_mutations: int) -> None:
+    if len(mutations) > max_mutations:
+        raise BlastRadiusExceeded(
+            f"{len(mutations)} mutations exceeds --max-mutations {max_mutations}; "
+            "a routine run wanting to touch this many issues is a bug, not a bootstrap. "
+            "Pass a higher --max-mutations explicitly if this is really the one-time bootstrap."
+        )
+
+
+def run(
+    manifest: dict,
+    coverage: dict[str, Coverage],
+    exclusions: dict[str, Exclusion],
+    existing_issues: dict[str, ExistingIssue],
+    github,
+    closed_gaps: set[int] = frozenset(),
+    dry_run: bool = False,
+    max_mutations: int = DEFAULT_MAX_MUTATIONS,
+) -> list[Mutation]:
+    mutations = plan(manifest, coverage, exclusions, existing_issues, closed_gaps=closed_gaps)
+
+    if dry_run:
+        for m in mutations:
+            print(f"{m.kind:14s} {m.target}: {m.reason}")
+        return mutations
+
+    check_blast_radius(mutations, max_mutations)
+    apply(mutations, github)
+    return mutations
+
+
+def main(argv: list[str]) -> int:
+    import argparse
+    import json
+    import os
+    from pathlib import Path
+
+    from exclusions import load_exclusions
+    from github_api import GitHub
+    from scanner import scan
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--max-mutations", type=int, default=DEFAULT_MAX_MUTATIONS)
+    args = parser.parse_args(argv)
+
+    repo_root = Path(__file__).parents[1]
+    manifest = json.loads((repo_root / "_docs" / "test-coverage" / "spock-inventory.json").read_text())
+    coverage = scan([repo_root / "spockk-specs" / "src" / "test", repo_root / "spockk-specs" / "src" / "testFixtures"])
+    exclusions = load_exclusions()
+
+    github = GitHub(token=os.environ["GH_TOKEN"], repo="pshevche/spockk")
+    raw_issues = github.paginate(f"/issues?labels={SPEC_LABEL}&state=all&per_page=100")
+    existing_issues = index_issues(raw_issues)
+    closed_gaps = {
+        issue["number"] for issue in github.paginate("/issues?state=closed&per_page=100")
+    }
+
+    try:
+        run(
+            manifest,
+            coverage,
+            exclusions,
+            existing_issues,
+            github,
+            closed_gaps=closed_gaps,
+            dry_run=args.dry_run,
+            max_mutations=args.max_mutations,
+        )
+    except BlastRadiusExceeded as e:
+        print(f"error: {e}")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+
+    sys.exit(main(sys.argv[1:]))
