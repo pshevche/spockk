@@ -4,6 +4,7 @@
 Everything between the `spockk-coverage` markers is generated and rewritten on every sync; anything
 outside is preserved, so a human can add notes without the job clobbering them (spec section 7.2).
 """
+import json
 import re
 from dataclasses import dataclass
 
@@ -11,7 +12,9 @@ from exclusions import Exclusion
 from scanner import Coverage
 
 BEGIN_RE = re.compile(r"<!--\s*spockk-coverage:begin[^>]*-->", re.I)
+BEGIN_KEY_RE = re.compile(r'<!--\s*spockk-coverage:begin\s+key="([^"]*)"\s*-->', re.I)
 END_RE = re.compile(r"<!--\s*spockk-coverage:end\s*-->", re.I)
+FEATURES_SNAPSHOT_RE = re.compile(r"<!--\s*spockk-coverage:features\s+(\{.*?\})\s*-->", re.I | re.S)
 
 UPSTREAM_BLOB_ROOT = "https://github.com/spockframework/spock/blob"
 
@@ -24,16 +27,27 @@ class Part:
     feature_names: list[str]
 
 
-def merge_generated_region(existing_body: str, new_region: str) -> str:
+def merge_generated_region(existing_body: str, new_region: str, key: str | None = None) -> str:
     begin = BEGIN_RE.search(existing_body)
     end = END_RE.search(existing_body)
-    region = f"<!-- spockk-coverage:begin -->\n{new_region}\n<!-- spockk-coverage:end -->"
+    begin_marker = f'<!-- spockk-coverage:begin key="{key}" -->' if key else "<!-- spockk-coverage:begin -->"
+    region = f"{begin_marker}\n{new_region}\n<!-- spockk-coverage:end -->"
 
     if begin and end and begin.start() < end.start():
         return existing_body[: begin.start()] + region + existing_body[end.end() :]
 
     separator = "\n\n" if existing_body.strip() else ""
     return existing_body + separator + region
+
+
+def parse_class_key(body: str) -> str | None:
+    match = BEGIN_KEY_RE.search(body)
+    return match.group(1) if match else None
+
+
+def parse_known_features(body: str) -> dict[str, str]:
+    match = FEATURES_SNAPSHOT_RE.search(body)
+    return json.loads(match.group(1)) if match else {}
 
 
 def _feature_line(name: str, key: str, coverage: dict[str, Coverage], exclusions: dict[str, Exclusion]) -> str:
@@ -71,6 +85,7 @@ def render_class_issue(
     if "area" in spec_class:
         header_lines.append(f"**Area:** {spec_class['area']}")
 
+    features_snapshot = json.dumps({f["name"]: f["hash"] for f in features}, sort_keys=True)
     region = "\n".join(
         [
             *header_lines,
@@ -78,11 +93,13 @@ def render_class_issue(
             f"### Features ({done}/{len(features)})",
             "",
             *lines,
+            "",
+            f"<!-- spockk-coverage:features {features_snapshot} -->",
         ]
     )
 
     title = f"Migrate {class_name}"
-    body = merge_generated_region("", region)
+    body = merge_generated_region("", region, key=class_key)
     return title, body
 
 

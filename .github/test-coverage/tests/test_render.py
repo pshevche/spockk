@@ -7,6 +7,8 @@ from render import (
     render_area_issue,
     render_dashboard,
     split_class,
+    parse_class_key,
+    parse_known_features,
 )
 
 
@@ -66,6 +68,11 @@ class RenderTest(unittest.TestCase):
         _, body = render_dashboard(["mocking", "conditions"])
         self.assertIn("mocking", body)
         self.assertIn("conditions", body)
+
+    def test_class_issue_body_round_trips_its_key_and_feature_hashes(self):
+        _, body = render_class_issue(CLASS, {}, {})
+        self.assertEqual(CLASS["key"], parse_class_key(body))
+        self.assertEqual({"one": "aaaa1111"}, parse_known_features(body))
 
 
 if __name__ == "__main__":
