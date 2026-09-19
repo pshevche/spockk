@@ -9,5 +9,6 @@ Therefore, the specifications have to be defined in a separate module.
 The `spockk.compiler-plugin-consumer` included build plugin takes care of adding the plugin-under-development to the compilation tasks.
 It applies the `spockk-compiler-plugin` directly rather than via the `spockk-gradle-plugin`.
 The latter would require the `spockk-gradle-plugin` to be an included build plugin, which complicates the entire project setup.
-Tests mostly use the built-in assertion framework from Kotlin together with the https://kotlinlang.org/docs/power-assert.html[power-assert compiler plugin].
-While the assertions are very limited at the moment, this setup will allow us to easily migrate to implicit assertions once they are implemented.
+Because the plugin-under-development is applied to this module, the specifications are themselves Spockk specs.
+Their assertions go through Spockk's own condition rewriting and render via the shaded Spock runtime, exactly as a user's spec does.
+There is no separate assertion mechanism for the framework's own tests.

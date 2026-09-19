@@ -268,7 +268,7 @@ automatically and deterministically, so the split is stable across runs.
 ```markdown
 <!-- spockk-migration:begin key=org.spockframework.smoke.condition.ConditionRendering -->
 **Upstream:** [`ConditionRendering.groovy`](https://github.com/spockframework/spock/blob/<sha>/...)
-**Recipe:** condition-rendering (see `/spock-migration`)
+**Recipe:** condition-rendering (see `/spock-test-coverage`)
 **Area:** conditions
 
 ### Features (3/58)
@@ -485,7 +485,7 @@ asking upstream for a webhook (not realistic).
 Weekly scheduled poll plus `workflow_dispatch`. Spock's test suite does not change fast enough to justify daily
 churn, and the manual trigger covers the case where it does.
 
-`.github/workflows/spock-migration-sync.yml`:
+`.github/workflows/test-coverage-sync.yml`:
 
 1. Shallow sparse clone of upstream `spock-specs`, recording the exact SHA.
 2. Regenerate the inventory.
@@ -519,7 +519,7 @@ reconciler treats it as a rename: it rewrites the key in the manifest and commen
 
 Rewrite rules are encoded as project skills in `.claude/skills/`, following the structure established in PR #314.
 
-### `spock-migration`
+### `spock-test-coverage`
 
 The router, invoked when working a `test-coverage::spec` ticket. `SKILL.md` covers the existing-coverage search that
 opens every ticket (section 9), classification, file placement and naming, the `@MigratedFrom` and
@@ -542,9 +542,9 @@ Each with a real before/after taken from an actual upstream class and its port.
 
   Condition rendering is not a divergence to document here: Spockk rewrites conditions through Spock's own
   rewriter and renders them with the shaded Spock runtime, so a ported condition should produce the same diagram
-  as the original. A rendering that differs is a bug to report, not a Kotlin quirk to work around. (Kotlin
-  power-assert is used for `spockk-specs`' own assertions and has nothing to do with how Spockk renders
-  conditions.)
+  as the original. A rendering that differs is a bug to report, not a Kotlin quirk to work around. This applies
+  to `spockk-specs` itself: the suite dogfoods Spockk, so its own assertions take the same path. There is one
+  condition-rendering mechanism in play everywhere, not two.
 
 - `references/fidelity.md` states what a faithful port is and, more usefully, what the failure modes look like: a
   test that passes because it asserts something weaker than the original, a test that no longer exercises the code
@@ -561,7 +561,7 @@ Invoked when a port fails. Covers deciding between gap, not-applicable, and port
 slug-based deduplication protocol; and what a good gap issue contains (minimal Kotlin reproducer, the Spock
 behavior it should match, upstream reference).
 
-Splitting this from `spock-migration` is deliberate. Triage is a different task with a different output (an issue,
+Splitting this from `spock-test-coverage` is deliberate. Triage is a different task with a different output (an issue,
 not a PR), it is invoked at a specific point rather than continuously, and keeping it separate stops the migration
 skill from growing a large branch that is irrelevant to the majority of tickets that simply succeed.
 
@@ -640,7 +640,7 @@ Each phase is independently useful and independently reviewable.
    pass over the 364 existing tests: they are annotated ticket by ticket as agents find them (section 9). To
    validate the mechanism before anything depends on it, annotate one or two existing tests by hand and confirm
    the scanner counts them and CI rejects a bad key.
-3. **Skills.** `spock-migration` with all recipe references, and `spock-gap-triage`. Validated by hand-porting two
+3. **Skills.** `spock-test-coverage` with all recipe references, and `spock-gap-triage`. Validated by hand-porting two
    classes of different recipes and checking the skill was sufficient.
 4. **Reconciler.** Dry-run first, then bootstrap the dashboard, areas and class issues.
 5. **Automation.** The weekly workflow, once the reconciler has been run manually at least once.

@@ -96,7 +96,8 @@ matches recorded values to tree nodes purely by position (a post-order traversal
 
 - Tests live in `spockk-specs/src/test/kotlin/`, organized by type: `compilation/`, `e2e/`, `runtime/`, `smoke/`
 - Test fixtures in `spockk-specs/src/testFixtures/`
-- Uses Kotlin power-assert for enhanced assertion messages
+- Assertions go through Spockk's own condition rewriting and render via the shaded Spock runtime, the same path
+  as a user's spec. The suite dogfoods Spockk, so there is no separate assertion mechanism for its own tests.
 - Parallel execution enabled (half available processors)
 
 ### Testing conventions
