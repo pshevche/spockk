@@ -1,0 +1,28 @@
+name: Test coverage
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run tooling unit tests
+        working-directory: .github/test-coverage
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Validate coverage annotations
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/test-coverage/validate.py

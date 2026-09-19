@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.smoke.condition
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import org.spockframework.runtime.ConditionFailedWithExceptionError
 import org.spockframework.runtime.ConditionNotSatisfiedError
@@ -27,6 +28,7 @@ import spock.lang.Specification
  */
 class TopLevelImplicitConditionSmokeTest : Specification() {
 
+  @MigratedFrom("org.spockframework.smoke.condition.SatisfiedConditions#boolean")
   fun `boolean literal condition`() {
     expect
     true
