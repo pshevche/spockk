@@ -789,10 +789,10 @@ git commit -m "feat: validate coverage annotations on every PR"
 Phase 3 produces prose, so its tasks have no unit tests. The deliverable is validated by using it: Task 11 ports
 two real classes and the skill is done when that port needed no information the skill did not contain.
 
-### Task 9: The `spock-migration` router skill
+### Task 9: The `spock-test-coverage` router skill
 
 **Files:**
-- Create: `.claude/skills/spock-migration/SKILL.md`
+- Create: `.claude/skills/spock-test-coverage/SKILL.md`
 
 - [ ] **Step 1: Write `SKILL.md`** with frontmatter `name` and `description` matching the style of the existing
   `.claude/skills/*/SKILL.md` files. It must cover, in this order, because it is the order an agent works in:
@@ -811,21 +811,21 @@ two real classes and the skill is done when that port needed no information the 
 - [ ] **Step 2: Commit.**
 
 ```bash
-git add .claude/skills/spock-migration
-git commit -m "docs: add the spock-migration router skill"
+git add .claude/skills/spock-test-coverage
+git commit -m "docs: add the spock-test-coverage router skill"
 ```
 
 ### Task 10: The recipe and technique references
 
 **Files:**
-- Create: `.claude/skills/spock-migration/references/recipe-smoke.md`
-- Create: `.claude/skills/spock-migration/references/recipe-engine-runtime.md`
-- Create: `.claude/skills/spock-migration/references/recipe-compile-error.md`
-- Create: `.claude/skills/spock-migration/references/recipe-ast-snapshot.md`
-- Create: `.claude/skills/spock-migration/references/recipe-condition-rendering.md`
-- Create: `.claude/skills/spock-migration/references/groovy-to-kotlin.md`
-- Create: `.claude/skills/spock-migration/references/fidelity.md`
-- Create: `.claude/skills/spock-migration/references/existing-coverage.md`
+- Create: `.claude/skills/spock-test-coverage/references/recipe-smoke.md`
+- Create: `.claude/skills/spock-test-coverage/references/recipe-engine-runtime.md`
+- Create: `.claude/skills/spock-test-coverage/references/recipe-compile-error.md`
+- Create: `.claude/skills/spock-test-coverage/references/recipe-ast-snapshot.md`
+- Create: `.claude/skills/spock-test-coverage/references/recipe-condition-rendering.md`
+- Create: `.claude/skills/spock-test-coverage/references/groovy-to-kotlin.md`
+- Create: `.claude/skills/spock-test-coverage/references/fidelity.md`
+- Create: `.claude/skills/spock-test-coverage/references/existing-coverage.md`
 
 - [ ] **Step 1: Write the five recipe references.** Each one carries a real before/after: a genuine upstream class
   from the clone, and the port as it would land. Do not invent examples. Take the upstream side from the sparse
@@ -842,8 +842,9 @@ git commit -m "docs: add the spock-migration router skill"
   overloading differences, property access versus getters, named and default arguments, and spread. Each entry is
   a Groovy snippet, the Kotlin equivalent, and the trap. **State plainly that condition rendering is not a
   divergence**: Spockk rewrites conditions through Spock's own rewriter and renders with the shaded Spock runtime,
-  so a ported condition should produce the same diagram and a difference is a bug to report. Note that Kotlin
-  power-assert backs `spockk-specs`' own assertions and is unrelated.
+  so a ported condition should produce the same diagram and a difference is a bug to report. This holds inside
+  `spockk-specs` too, which dogfoods Spockk and so routes its own assertions through the same path. There is one
+  condition-rendering mechanism, not two, and no Kotlin power-assert anywhere in the build.
 
 - [ ] **Step 3: Write `fidelity.md`** around the three failure modes from spec section 12: a test passing because
   it asserts something weaker than the original, a test no longer exercising the path the original targeted, and a
@@ -857,8 +858,8 @@ git commit -m "docs: add the spock-migration router skill"
 - [ ] **Step 5: Commit.**
 
 ```bash
-git add .claude/skills/spock-migration
-git commit -m "docs: add spock-migration recipe and technique references"
+git add .claude/skills/spock-test-coverage
+git commit -m "docs: add spock-test-coverage recipe and technique references"
 ```
 
 ### Task 11: The gap-triage skill, validated against real ports
@@ -1121,19 +1122,24 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: Check out this repository
+        uses: actions/checkout@v7
 
-      - name: Clone upstream spock-specs
-        run: |
-          git clone --depth 1 --filter=blob:none --sparse \
-            https://github.com/spockframework/spock.git /tmp/spock
-          cd /tmp/spock && git sparse-checkout set spock-specs
-          echo "UPSTREAM_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Check out upstream spock-specs
+        uses: actions/checkout@v7
+        with:
+          repository: spockframework/spock
+          path: upstream-spock
+          sparse-checkout: spock-specs
+          fetch-depth: 1
+
+      - name: Record the upstream SHA
+        run: echo "UPSTREAM_SHA=$(git -C upstream-spock rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Regenerate the inventory
         run: |
           python3 .github/test-coverage/inventory.py \
-            --upstream /tmp/spock --out _docs/test-coverage/spock-inventory.json
+            --upstream upstream-spock --out _docs/test-coverage/spock-inventory.json
 
       - name: Reconcile issues
         env:
