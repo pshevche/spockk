@@ -229,6 +229,14 @@ Exclusion is per package prefix, and every entry carries a written reason in the
 produces no issues but still appears in the dashboard footer, so the decision stays visible rather than becoming an
 invisible blind spot.
 
+### Deliberately in scope
+
+`util-api` (`spock.util.concurrent`: `BlockingVariable`, `PollingConditions`, `AsyncConditions`) is the one area
+that looks excludable and is not. These are user-facing APIs that Spockk users will reach for, and they will
+likely need Kotlin-native equivalents rather than the Java and Groovy originals. Porting their tests is how that
+need surfaces. Expect this area to produce gap issues rather than green ports, which is the intended outcome
+here, not a failed ticket. See section 15.
+
 ### Areas
 
 Areas are derived from package prefix and are the middle tier of the issue hierarchy. The mapping is data in
@@ -244,9 +252,9 @@ GitHub caps sub-issues at 100 per parent, so a flat dashboard with 365 children 
 is:
 
 ```
-Spock Test Migration Dashboard        (1 issue,  label migration::dashboard)
-  └─ Area: Mocking                    (~11 issues, label migration::area)
-       └─ Migrate InteractionScopes   (365 issues, label migration::spec)
+Spock Test Migration Dashboard        (1 issue,  label test-coverage::dashboard)
+  └─ Area: Mocking                    (~11 issues, label test-coverage::area)
+       └─ Migrate InteractionScopes   (365 issues, label test-coverage::spec)
 ```
 
 Both GitHub's native sub-issue progress bars and the generated body tables then work at every level.
@@ -294,20 +302,21 @@ couple unrelated ports into one PR and break the one-issue-one-file property tha
 
 | Label | Meaning |
 |---|---|
-| `migration::dashboard` | the single root issue |
-| `migration::area` | an area or sub-area roll-up |
-| `migration::spec` | a per-class (or per-part) porting ticket |
-| `migration::gap` | a Spockk deficiency found while porting |
-| `migration::blocked` | an agent tried this ticket and established it cannot be ported yet |
+| `test-coverage::dashboard` | the single root issue |
+| `test-coverage::area` | an area or sub-area roll-up |
+| `test-coverage::spec` | a per-class (or per-part) porting ticket |
+| `test-coverage::gap` | a Spockk deficiency found while porting |
+| `test-coverage::blocked` | an agent tried this ticket and established it cannot be ported yet |
+| `test-coverage::drift` | upstream changed a feature's body after it was ported (section 11.2) |
 
-`migration::blocked` is evidence, not a prediction. It is applied only after an agent has picked the ticket up and
+`test-coverage::blocked` is evidence, not a prediction. It is applied only after an agent has picked the ticket up and
 confirmed from an actual attempt that the remaining features cannot be ported, and it always points at the gap
 issues that establish why. The bootstrap never applies it, and the reconciler never infers it: guessing in advance
 which tickets are unworkable would bake today's assumptions about Spockk's surface into the tracker and hide
 ports that would in fact have succeeded.
 
 The reconciler does remove it, once every gap it cites is closed, which returns the ticket to the queue
-automatically. The delegation queue is `migration::spec` minus `migration::blocked`.
+automatically. The delegation queue is `test-coverage::spec` minus `test-coverage::blocked`.
 
 ---
 
@@ -411,7 +420,7 @@ Many features fail for the same underlying reason. Without discipline, 365 agent
 near-duplicate gap issues.
 
 Every gap carries a stable slug (`where-block-range-pipes`). Before opening one, an agent must search open issues
-labelled `migration::gap` for that slug and link to the existing one if found. The slug lives in the gap issue body
+labelled `test-coverage::gap` for that slug and link to the existing one if found. The slug lives in the gap issue body
 inside a marker comment, so the search is exact rather than fuzzy. The reconciler aggregates: each gap issue's body
 is regenerated with the list of features currently blocked by it, which gives an immediate impact ranking for
 prioritising Spockk work.
@@ -495,7 +504,7 @@ falls out naturally from section 3: issues are a rendered view, the manifest is 
 | New class | Create issue under its area |
 | New feature in existing class | Append to the generated list; comment on the issue if it was closed, and reopen |
 | Feature deleted | Strike through in the body, comment once; keep the port (harmless, and deleting a passing test to chase upstream is worse) |
-| Feature body changed (hash differs) but name same | Comment flagging the port as possibly stale, apply `migration::drift`; do not untick |
+| Feature body changed (hash differs) but name same | Comment flagging the port as possibly stale, apply `test-coverage::drift`; do not untick |
 | Feature renamed | See below |
 | Class deleted | Close the issue with a comment; leave the ported tests |
 
@@ -512,7 +521,7 @@ Rewrite rules are encoded as project skills in `.claude/skills/`, following the 
 
 ### `spock-migration`
 
-The router, invoked when working a `migration::spec` ticket. `SKILL.md` covers the existing-coverage search that
+The router, invoked when working a `test-coverage::spec` ticket. `SKILL.md` covers the existing-coverage search that
 opens every ticket (section 9), classification, file placement and naming, the `@MigratedFrom` and
 `@PendingFeature` conventions, the verification loop (including the `--rerun` caveat for
 `compileTestFixturesKotlin` already documented in `CLAUDE.md`), and the definition of done. Detail is pushed into
@@ -560,7 +569,7 @@ skill from growing a large branch that is irrelevant to the majority of tickets 
 
 ## 13. Delegation
 
-A ticket is handed off with the existing `/gh-issue` skill. `migration::spec` issues are labelled `type::task`, so
+A ticket is handed off with the existing `/gh-issue` skill. `test-coverage::spec` issues are labelled `type::task`, so
 they take the direct-implementation route and never trigger the design-spec path. The issue body links the recipe
 reference, so the agent loads only what it needs.
 
@@ -584,7 +593,7 @@ it is the largest and most likely to hit gaps.
 | Agents produce plausible but weak ports | `references/fidelity.md`, the PR must link upstream source, and review focuses on assertion strength |
 | An agent annotates an existing test that only resembles the upstream feature, turning a real gap into a false tick | `references/existing-coverage.md` sets the bar; a move shows the test body unchanged in the diff, so a reviewer can judge the match directly |
 | Gap issue flood | Slug-based dedup, enforced by the triage skill and visible in the aggregated gap bodies |
-| ~400 issues overwhelm the issue tracker | Three-tier hierarchy, areas roll up, and `migration::blocked` drains proven-unworkable tickets out of the queue as they are attempted |
+| ~400 issues overwhelm the issue tracker | Three-tier hierarchy, areas roll up, and `test-coverage::blocked` drains proven-unworkable tickets out of the queue as they are attempted |
 | Upstream renames silently reset progress | Hash-based rename detection (section 11.2) |
 | Reconciler bug mass-edits issues | `--dry-run` mutation plan in the PR body; rate limits and a mutation cap that aborts the run if it would touch more than a configured share of issues |
 
@@ -593,27 +602,31 @@ runs unattended.
 
 ---
 
-## 15. Open decisions
+## 15. Decisions settled in review
 
-Two remain open. Two were settled in review and are recorded here for the record.
+All four open questions were settled during review of this spec. Recorded here because the reasoning matters more
+than the outcomes.
 
-**Settled: bootstrap scope.** All 365 class issues are created at once, and none are pre-marked blocked. Whether
-a ticket is workable is established by attempting it, not predicted from today's reading of Spockk's surface
-(section 7.4).
+**Bootstrap scope.** All 365 class issues are created at once, and none are pre-marked blocked. Whether a ticket
+is workable is established by attempting it, not predicted from today's reading of Spockk's surface (section 7.4).
 
-**Settled: manifest location.** Generated data and the exclusions ledger live in `_docs/test-coverage/`, tooling
-and config in `.github/test-coverage/`. "Migration" implies an end state; measuring coverage against an upstream
-suite that keeps moving does not have one.
+**Manifest location.** Generated data and the exclusions ledger live in `_docs/test-coverage/`, tooling and config
+in `.github/test-coverage/`, and the issue labels are `test-coverage::*`. "Migration" implies an end state;
+measuring coverage against an upstream suite that keeps moving does not have one. The porting work does end, which
+is why this document is still titled a migration, but the tracker outlives it.
 
-Still open:
+**`util-api` stays in scope** (10 classes, 87 features). The draft proposed excluding it on the grounds that
+`spock.util.concurrent` (`BlockingVariable`, `PollingConditions`, `AsyncConditions`) works unchanged from Kotlin
+and so exercises no Spockk code. That reasoning was backwards. These are user-facing APIs that Spockk users will
+reach for, and they will likely need Kotlin-native equivalents rather than the Java and Groovy originals. Porting
+the tests is how that surfaces, most likely as a gap. Excluding them would have hidden exactly the kind of
+shortfall this programme exists to find.
 
-1. **`util-api` (10 classes, 87 features).** `spock.util.concurrent` (`BlockingVariable`, `PollingConditions`,
-   `AsyncConditions`) is a user-facing Spock API that works unchanged from Kotlin, so these tests are portable but
-   test Spock, not Spockk. *Recommendation: exclude. Passing tests that exercise no Spockk code inflate the
-   coverage number without informing it.*
+The area carries a standing expectation worth stating: these tickets are more likely than most to end in gap
+issues rather than green ports, and that is the intended outcome, not a failure of the ticket.
 
-2. **Splitting threshold.** 20 features per issue, giving roughly 40 extra part-issues. *Recommendation: start at
-   20, adjust after the first area completes and there is real data on how long a ticket takes.*
+**Splitting threshold.** 20 features per issue, giving roughly 40 extra part-issues. Revisit once the first area
+completes and there is real data on how long a ticket takes.
 
 ---
 
