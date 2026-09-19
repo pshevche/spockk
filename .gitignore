@@ -35,3 +35,6 @@ build
 node_modules
 spockk-docs/docs/.vitepress/cache
 spockk-docs/docs/.vitepress/dist
+
+# Ness config
+.ness.json
