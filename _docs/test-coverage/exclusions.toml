@@ -1,0 +1,16 @@
+# Deliberate decisions not to port an upstream feature, and features that
+# cannot be ported because they do not compile under Spockk.
+#
+# status = "not-applicable"  behavior that cannot exist in Kotlin. Permanent.
+#                            Requires a reason. Reviewed like documentation.
+# status = "blocked"         will not compile under Spockk today, so no test
+#                            can be committed at all. Requires a gap issue.
+#                            Temporary: delete the entry when the gap closes.
+#
+# A feature that compiles but fails at runtime does NOT belong here. It is
+# committed with @PendingFeature instead (spec section 9).
+
+[["org.spockframework.smoke.condition.ConditionRendering#renders GString diff"]]
+status = "not-applicable"
+reason = "Kotlin has no GString; string templates compile to concatenation"
+decided = "2026-09-19"
