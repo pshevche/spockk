@@ -10,11 +10,25 @@ class ParserTest(unittest.TestCase):
     def setUp(self):
         self.classes = {c.name: c for c in parse_file(FIXTURE, ROOT)}
 
-    def test_skips_abstract_classes(self):
-        self.assertNotIn("AbstractBase", self.classes)
+    def test_parses_abstract_classes_too(self):
+        # Spock allows a feature declared directly in an abstract base, run by every concrete
+        # subclass; inventory.py resolves that inheritance, so the parser itself must not drop
+        # abstract classes, only tag them.
+        self.assertIn("AbstractWithFeature", self.classes)
+        self.assertTrue(self.classes["AbstractWithFeature"].is_abstract)
+        self.assertFalse(self.classes["ConcreteFromAbstractBase"].is_abstract)
 
-    def test_finds_concrete_spec_classes(self):
-        self.assertEqual({"SimpleConditions", "EmbeddedConditions"}, set(self.classes))
+    def test_finds_every_class_matching_class_extends_including_feature_less_ones(self):
+        # A concrete class can inherit its entire feature set from an abstract base while
+        # declaring none of its own (ConcreteWithNoOwnFeatures); it must still be returned here,
+        # or inventory.py's inheritance resolution would never see it to attribute those
+        # inherited features to it.
+        self.assertEqual(
+            {"SimpleConditions", "AbstractWithNoSubclass", "AbstractWithFeature",
+             "ConcreteFromAbstractBase", "ConcreteWithNoOwnFeatures", "EmbeddedConditions"},
+            set(self.classes),
+        )
+        self.assertEqual([], self.classes["ConcreteWithNoOwnFeatures"].features)
 
     def test_key_is_package_qualified(self):
         self.assertEqual(

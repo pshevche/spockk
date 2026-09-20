@@ -35,10 +35,6 @@ def classify_source(source: str, base: str) -> str:
     return "smoke"
 
 
-def classify(spec_class, source_text: str) -> str:
-    return classify_source(source_text, spec_class.base)
-
-
 def area_for(class_key: str, config: dict) -> str | None:
     """Longest configured package prefix wins."""
     areas = config.get("area", {})

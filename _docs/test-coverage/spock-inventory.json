@@ -3,7 +3,7 @@
     "repo": "spockframework/spock",
     "ref": "master",
     "sha": "37e5e9a663ac6bc1ed1f72ac8374a81b879c66b0",
-    "generated_at": "2026-09-19T20:12:26Z"
+    "generated_at": "2026-09-20T12:22:37Z"
   },
   "classes": [
     {
@@ -2004,6 +2004,10 @@
       "area": "smoke-core",
       "features": [
         {
+          "name": "getters and setters generated for shared fields use the declared type of the field",
+          "hash": "b756fac9"
+        },
+        {
           "name": "can have name that starts with $",
           "hash": "1eb7814c"
         }
@@ -2327,6 +2331,10 @@
       "recipe": "engine-runtime",
       "area": "smoke-core",
       "features": [
+        {
+          "name": "let me fail",
+          "hash": "19f42981"
+        },
         {
           "name": "when creation of data provider fails, stack trace points to corresponding parameterization",
           "hash": "05dec7e5"
@@ -2981,6 +2989,31 @@
         {
           "name": "can be accessed from subclass",
           "hash": "38fef3f9"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.SharedFieldsInSuperclass",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SharedFieldsInSuperclass.groovy",
+      "base": "SharedFieldsInSuperclassBase",
+      "recipe": "smoke",
+      "area": "smoke-core",
+      "features": [
+        {
+          "name": "can access shared private field",
+          "hash": "a4a693af"
+        },
+        {
+          "name": "can access shared protected field",
+          "hash": "d9c11242"
+        },
+        {
+          "name": "can access shared public field",
+          "hash": "005bf455"
+        },
+        {
+          "name": "can access shared property",
+          "hash": "5a892898"
         }
       ]
     },
@@ -3879,6 +3912,128 @@
         {
           "name": "fails when verification method has a non-void or non-dynamic return value in Spec",
           "hash": "9df5d4d5"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/ast/condition/VerifyAllMethodsAstSpec.groovy",
+      "base": "BaseVerifyMethodsAstSpec",
+      "recipe": "ast-snapshot",
+      "area": "ast",
+      "features": [
+        {
+          "name": "transforms conditions in methods inside spec classes",
+          "hash": "3d65d696"
+        },
+        {
+          "name": "transforms conditions in methods outside of spec classes",
+          "hash": "da345734"
+        },
+        {
+          "name": "transforms conditions in private methods",
+          "hash": "db34ddd7"
+        },
+        {
+          "name": "transforms conditions in static methods",
+          "hash": "d3d4678b"
+        },
+        {
+          "name": "transforms explicit conditions",
+          "hash": "afe09901"
+        },
+        {
+          "name": "methods without condition declarations stay unchanged",
+          "hash": "2c0d42ea"
+        },
+        {
+          "name": "methods without condition declarations stay unchanged in specs",
+          "hash": "180c378f"
+        },
+        {
+          "name": "interactions are illegal in verify methods",
+          "hash": "759808d9"
+        },
+        {
+          "name": "interactions are illegal in verify methods in specs",
+          "hash": "f24bbde1"
+        },
+        {
+          "name": "ignores methods without annotation",
+          "hash": "d4e7037e"
+        },
+        {
+          "name": "transforms conditions at all nesting levels",
+          "hash": "0b04c518"
+        },
+        {
+          "name": "checks for invalid conditions",
+          "hash": "2a9b1a81"
+        },
+        {
+          "name": "ignores conditions in overwritten methods",
+          "hash": "b9daa595"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.ast.condition.VerifyMethodsAstSpec",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/ast/condition/VerifyMethodsAstSpec.groovy",
+      "base": "BaseVerifyMethodsAstSpec",
+      "recipe": "ast-snapshot",
+      "area": "ast",
+      "features": [
+        {
+          "name": "transforms conditions in methods inside spec classes",
+          "hash": "3d65d696"
+        },
+        {
+          "name": "transforms conditions in methods outside of spec classes",
+          "hash": "da345734"
+        },
+        {
+          "name": "transforms conditions in private methods",
+          "hash": "db34ddd7"
+        },
+        {
+          "name": "transforms conditions in static methods",
+          "hash": "d3d4678b"
+        },
+        {
+          "name": "transforms explicit conditions",
+          "hash": "afe09901"
+        },
+        {
+          "name": "methods without condition declarations stay unchanged",
+          "hash": "2c0d42ea"
+        },
+        {
+          "name": "methods without condition declarations stay unchanged in specs",
+          "hash": "180c378f"
+        },
+        {
+          "name": "interactions are illegal in verify methods",
+          "hash": "759808d9"
+        },
+        {
+          "name": "interactions are illegal in verify methods in specs",
+          "hash": "f24bbde1"
+        },
+        {
+          "name": "ignores methods without annotation",
+          "hash": "d4e7037e"
+        },
+        {
+          "name": "transforms conditions at all nesting levels",
+          "hash": "0b04c518"
+        },
+        {
+          "name": "checks for invalid conditions",
+          "hash": "2a9b1a81"
+        },
+        {
+          "name": "ignores conditions in overwritten methods",
+          "hash": "b9daa595"
         }
       ]
     },
@@ -5512,6 +5667,14 @@
       "area": "extensions",
       "features": [
         {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
           "name": "bar feature",
           "hash": "6d8c4928"
         }
@@ -5524,6 +5687,14 @@
       "recipe": "smoke",
       "area": "extensions",
       "features": [
+        {
+          "name": "bar",
+          "hash": "2dea7ec1"
+        },
+        {
+          "name": "baz",
+          "hash": "52aa37ac"
+        },
         {
           "name": "bar feature",
           "hash": "6d8c4928"
@@ -5571,6 +5742,14 @@
       "area": "extensions",
       "features": [
         {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
           "name": "bar feature",
           "hash": "6d8c4928"
         }
@@ -5596,6 +5775,14 @@
       "recipe": "smoke",
       "area": "extensions",
       "features": [
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
         {
           "name": "bar feature",
           "hash": "6d8c4928"
@@ -5763,6 +5950,10 @@
       "area": "extensions",
       "features": [
         {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
           "name": "ignoring base class has no effect on running derived class",
           "hash": "3a66cef7"
         }
@@ -5775,6 +5966,10 @@
       "recipe": "engine-runtime",
       "area": "extensions",
       "features": [
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
         {
           "name": "Ignore can be configured to be inherited",
           "hash": "58f94633"
@@ -5876,6 +6071,10 @@
       "recipe": "smoke",
       "area": "extensions",
       "features": [
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
         {
           "name": "foo feature",
           "hash": "4234976e"
@@ -6009,6 +6208,10 @@
       "area": "extensions",
       "features": [
         {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
           "name": "foo feature",
           "hash": "4234976e"
         }
@@ -6119,6 +6322,10 @@
       "recipe": "smoke",
       "area": "extensions",
       "features": [
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
         {
           "name": "foo feature",
           "hash": "4234976e"
@@ -6473,6 +6680,10 @@
       "recipe": "smoke",
       "area": "extensions",
       "features": [
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
         {
           "name": "foo feature",
           "hash": "4234976e"
@@ -6847,6 +7058,18 @@
       "recipe": "smoke",
       "area": "extensions",
       "features": [
+        {
+          "name": "class level tags",
+          "hash": "6a22757f"
+        },
+        {
+          "name": "method level tags",
+          "hash": "4cc2292e"
+        },
+        {
+          "name": "multi tags",
+          "hash": "6a8eb2c6"
+        },
         {
           "name": "inherited tags",
           "hash": "4bd94000"
@@ -7776,6 +7999,18 @@
       "area": "extensions",
       "features": [
         {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
+          "name": "bar feature",
+          "hash": "6d8c4928"
+        },
+        {
           "name": "test feature",
           "hash": "08a979e7"
         }
@@ -7788,6 +8023,30 @@
       "recipe": "engine-runtime",
       "area": "extensions",
       "features": [
+        {
+          "name": "feature is ignored if at least one IgnoreIf annotation is true",
+          "hash": "0f69028d"
+        },
+        {
+          "name": "feature is not ignored if all IgnoreIf annotations are false",
+          "hash": "c01e5822"
+        },
+        {
+          "name": "feature is ignored if data variable accessing IgnoreIf annotation is true",
+          "hash": "c14abcb1"
+        },
+        {
+          "name": "feature is ignored if at least one data variable accessing IgnoreIf annotation is true",
+          "hash": "9da2f474"
+        },
+        {
+          "name": "feature is ignored if non data variable accessing IgnoreIf annotation is true",
+          "hash": "5dc9cb14"
+        },
+        {
+          "name": "@IgnoreIf provides condition access to Specification shared fields",
+          "hash": "08c8017b"
+        },
         {
           "name": "test feature",
           "hash": "08a979e7"
@@ -7806,6 +8065,18 @@
       "area": "extensions",
       "features": [
         {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
+          "name": "bar feature",
+          "hash": "6d8c4928"
+        },
+        {
           "name": "test feature",
           "hash": "08a979e7"
         }
@@ -7818,6 +8089,18 @@
       "recipe": "smoke",
       "area": "extensions",
       "features": [
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
+          "name": "bar feature",
+          "hash": "6d8c4928"
+        },
         {
           "name": "test feature",
           "hash": "08a979e7"
@@ -8444,6 +8727,71 @@
       ]
     },
     {
+      "key": "org.spockframework.smoke.mock.GroovyMockBasics",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/MockBasics.groovy",
+      "base": "MockBasics",
+      "recipe": "engine-runtime",
+      "area": "mocking",
+      "features": [
+        {
+          "name": "can stub interface",
+          "hash": "540dcbb0"
+        },
+        {
+          "name": "can stub class",
+          "hash": "6107673f"
+        },
+        {
+          "name": "can stub call at creation time",
+          "hash": "7f0ea064"
+        },
+        {
+          "name": "can stub call beforehand",
+          "hash": "a85248b2"
+        },
+        {
+          "name": "can stub call in then-block",
+          "hash": "6a764feb"
+        },
+        {
+          "name": "can mock interface",
+          "hash": "9ff8f325"
+        },
+        {
+          "name": "can mock class",
+          "hash": "bdfa20f2"
+        },
+        {
+          "name": "can mock call at creation time",
+          "hash": "5f8b613f"
+        },
+        {
+          "name": "can stub and mock call at creation time",
+          "hash": "1a284d87"
+        },
+        {
+          "name": "can mock call beforehand",
+          "hash": "3b541939"
+        },
+        {
+          "name": "can stub and mock call beforehand",
+          "hash": "2539ddd7"
+        },
+        {
+          "name": "can mock call in then-block",
+          "hash": "ca0f63a8"
+        },
+        {
+          "name": "can stub and mock call in then-block",
+          "hash": "2b15a08a"
+        },
+        {
+          "name": "using >>_ returns stubbed value",
+          "hash": "6265e8f2"
+        }
+      ]
+    },
+    {
       "key": "org.spockframework.smoke.mock.GroovyMockClassWithPropertyMissingSpec",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/GroovyMockClassWithPropertyMissingSpec.groovy",
       "base": "Specification",
@@ -8900,12 +9248,97 @@
       "key": "org.spockframework.smoke.mock.GroovySpyBasics",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/SpyBasics.groovy",
       "base": "MockBasics",
-      "recipe": "smoke",
+      "recipe": "engine-runtime",
       "area": "mocking",
       "features": [
         {
+          "name": "can stub interface",
+          "hash": "540dcbb0"
+        },
+        {
+          "name": "can stub class",
+          "hash": "6107673f"
+        },
+        {
+          "name": "can stub call at creation time",
+          "hash": "7f0ea064"
+        },
+        {
+          "name": "can stub call beforehand",
+          "hash": "a85248b2"
+        },
+        {
+          "name": "can stub call in then-block",
+          "hash": "6a764feb"
+        },
+        {
+          "name": "can mock interface",
+          "hash": "9ff8f325"
+        },
+        {
+          "name": "can mock class",
+          "hash": "bdfa20f2"
+        },
+        {
+          "name": "can mock call at creation time",
+          "hash": "5f8b613f"
+        },
+        {
+          "name": "can stub and mock call at creation time",
+          "hash": "1a284d87"
+        },
+        {
+          "name": "can mock call beforehand",
+          "hash": "3b541939"
+        },
+        {
+          "name": "can stub and mock call beforehand",
+          "hash": "2539ddd7"
+        },
+        {
+          "name": "can mock call in then-block",
+          "hash": "ca0f63a8"
+        },
+        {
+          "name": "can stub and mock call in then-block",
+          "hash": "2b15a08a"
+        },
+        {
+          "name": "using >>_ returns stubbed value",
+          "hash": "6265e8f2"
+        },
+        {
           "name": "can disambiguate constructors with null arguments",
           "hash": "7f91c68f"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.mock.GroovyStubBasics",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/StubBasics.groovy",
+      "base": "StubBasics",
+      "recipe": "engine-runtime",
+      "area": "mocking",
+      "features": [
+        {
+          "name": "can stub interface",
+          "hash": "540dcbb0"
+        },
+        {
+          "name": "can stub class",
+          "hash": "6107673f"
+        },
+        {
+          "name": "can stub call at creation time",
+          "hash": "7f0ea064"
+        },
+        {
+          "name": "can stub call beforehand",
+          "hash": "a85248b2"
+        },
+        {
+          "name": "can stub call in then-block",
+          "hash": "6a764feb"
         }
       ]
     },
@@ -9157,6 +9590,71 @@
         {
           "name": "no static type specified",
           "hash": "d1a8ba6b"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.mock.JavaMockBasics",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/MockBasics.groovy",
+      "base": "MockBasics",
+      "recipe": "engine-runtime",
+      "area": "mocking",
+      "features": [
+        {
+          "name": "can stub interface",
+          "hash": "540dcbb0"
+        },
+        {
+          "name": "can stub class",
+          "hash": "6107673f"
+        },
+        {
+          "name": "can stub call at creation time",
+          "hash": "7f0ea064"
+        },
+        {
+          "name": "can stub call beforehand",
+          "hash": "a85248b2"
+        },
+        {
+          "name": "can stub call in then-block",
+          "hash": "6a764feb"
+        },
+        {
+          "name": "can mock interface",
+          "hash": "9ff8f325"
+        },
+        {
+          "name": "can mock class",
+          "hash": "bdfa20f2"
+        },
+        {
+          "name": "can mock call at creation time",
+          "hash": "5f8b613f"
+        },
+        {
+          "name": "can stub and mock call at creation time",
+          "hash": "1a284d87"
+        },
+        {
+          "name": "can mock call beforehand",
+          "hash": "3b541939"
+        },
+        {
+          "name": "can stub and mock call beforehand",
+          "hash": "2539ddd7"
+        },
+        {
+          "name": "can mock call in then-block",
+          "hash": "ca0f63a8"
+        },
+        {
+          "name": "can stub and mock call in then-block",
+          "hash": "2b15a08a"
+        },
+        {
+          "name": "using >>_ returns stubbed value",
+          "hash": "6265e8f2"
         }
       ]
     },
@@ -9459,8 +9957,93 @@
       "area": "mocking",
       "features": [
         {
+          "name": "can stub interface",
+          "hash": "540dcbb0"
+        },
+        {
+          "name": "can stub class",
+          "hash": "6107673f"
+        },
+        {
+          "name": "can stub call at creation time",
+          "hash": "7f0ea064"
+        },
+        {
+          "name": "can stub call beforehand",
+          "hash": "a85248b2"
+        },
+        {
+          "name": "can stub call in then-block",
+          "hash": "6a764feb"
+        },
+        {
+          "name": "can mock interface",
+          "hash": "9ff8f325"
+        },
+        {
+          "name": "can mock class",
+          "hash": "bdfa20f2"
+        },
+        {
+          "name": "can mock call at creation time",
+          "hash": "5f8b613f"
+        },
+        {
+          "name": "can stub and mock call at creation time",
+          "hash": "1a284d87"
+        },
+        {
+          "name": "can mock call beforehand",
+          "hash": "3b541939"
+        },
+        {
+          "name": "can stub and mock call beforehand",
+          "hash": "2539ddd7"
+        },
+        {
+          "name": "can mock call in then-block",
+          "hash": "ca0f63a8"
+        },
+        {
+          "name": "can stub and mock call in then-block",
+          "hash": "2b15a08a"
+        },
+        {
+          "name": "using >>_ returns stubbed value",
+          "hash": "6265e8f2"
+        },
+        {
           "name": "can disambiguate constructors with null arguments",
           "hash": "7f91c68f"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.mock.JavaStubBasics",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/StubBasics.groovy",
+      "base": "StubBasics",
+      "recipe": "engine-runtime",
+      "area": "mocking",
+      "features": [
+        {
+          "name": "can stub interface",
+          "hash": "540dcbb0"
+        },
+        {
+          "name": "can stub class",
+          "hash": "6107673f"
+        },
+        {
+          "name": "can stub call at creation time",
+          "hash": "7f0ea064"
+        },
+        {
+          "name": "can stub call beforehand",
+          "hash": "a85248b2"
+        },
+        {
+          "name": "can stub call in then-block",
+          "hash": "6a764feb"
         }
       ]
     },
@@ -12697,6 +13280,6 @@
     }
   ],
   "excluded": {
-    "classes": 82
+    "classes": 83
   }
 }

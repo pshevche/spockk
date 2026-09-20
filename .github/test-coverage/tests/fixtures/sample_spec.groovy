@@ -21,10 +21,27 @@ class SimpleConditions extends Specification {
   private def helper() { 42 }
 }
 
-abstract class AbstractBase extends Specification {
-  def "abstract classes are skipped entirely"() {
+abstract class AbstractWithNoSubclass extends Specification {
+  def "orphaned abstract feature"() {
     expect: true
   }
+}
+
+abstract class AbstractWithFeature extends Specification {
+  def "feature declared in the abstract base"() {
+    expect: true
+  }
+}
+
+class ConcreteFromAbstractBase extends AbstractWithFeature {
+  def "concrete class's own feature"() {
+    expect: true
+  }
+}
+
+class ConcreteWithNoOwnFeatures extends AbstractWithFeature {
+  // no def "..." methods at all: inherits its entire feature set from the abstract base
+  private String helperOnly() { "not a feature" }
 }
 
 class EmbeddedConditions extends EmbeddedSpecification {

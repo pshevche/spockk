@@ -36,6 +36,7 @@ class SpecClass:
     base: str
     features: list[Feature] = field(default_factory=list)
     body: str = ""
+    is_abstract: bool = False
 
 
 def body_hash(text: str) -> str:
@@ -47,7 +48,15 @@ def body_hash(text: str) -> str:
 
 
 def parse_source(source: str, rel_path: str) -> list[SpecClass]:
-    """Parse Groovy source text into its concrete spec classes."""
+    """Parse Groovy source text into its spec classes, concrete and abstract alike.
+
+    Abstract classes are kept (tagged `is_abstract`) rather than dropped, and a class with zero
+    of its *own* feature methods is kept too: Spock allows a feature declared directly in an
+    abstract base, run by every concrete subclass, and a concrete subclass can inherit its
+    entire feature set this way while declaring none of its own (only overriding non-feature
+    helper methods). `inventory.py` resolves that inheritance and drops only whatever still has
+    no feature at all once inheritance is accounted for.
+    """
     package_match = PACKAGE_RE.search(source)
     package = package_match.group(1) if package_match else ''
 
@@ -55,9 +64,6 @@ def parse_source(source: str, rel_path: str) -> list[SpecClass]:
     classes: list[SpecClass] = []
 
     for i, match in enumerate(class_matches):
-        if match.group('abstract'):
-            continue
-
         body_start = match.end()
         body_end = class_matches[i + 1].start() if i + 1 < len(class_matches) else len(source)
         body = source[body_start:body_end]
@@ -66,13 +72,12 @@ def parse_source(source: str, rel_path: str) -> list[SpecClass]:
             Feature(name=fm.group('name'), hash=body_hash(fm.group(0)))
             for fm in FEATURE_RE.finditer(body)
         ]
-        if not features:
-            continue
 
         name = match.group('name')
         key = f"{package}.{name}" if package else name
         classes.append(SpecClass(key=key, path=rel_path, name=name, base=match.group('base'),
-                                  features=features, body=body))
+                                  features=features, body=body,
+                                  is_abstract=bool(match.group('abstract'))))
 
     return classes
 
