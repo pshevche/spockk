@@ -98,7 +98,7 @@ def render_class_issue(
         ]
     )
 
-    title = f"Migrate {class_name}"
+    title = f"Migrate {class_key}"
     body = merge_generated_region("", region, key=class_key)
     return title, body
 

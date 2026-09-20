@@ -25,10 +25,35 @@ class ParserTest(unittest.TestCase):
         # inherited features to it.
         self.assertEqual(
             {"SimpleConditions", "AbstractWithNoSubclass", "AbstractWithFeature",
-             "ConcreteFromAbstractBase", "ConcreteWithNoOwnFeatures", "EmbeddedConditions"},
+             "ConcreteFromAbstractBase", "ConcreteWithNoOwnFeatures", "EmbeddedConditions",
+             "AfterEmbeddedFixture"},
             set(self.classes),
         )
         self.assertEqual([], self.classes["ConcreteWithNoOwnFeatures"].features)
+
+    def test_ignores_classes_declared_inside_an_embedded_fixture_string(self):
+        # EmbeddedSpecification-style tests compile literal Groovy source from a triple-quoted
+        # string (see EmbeddedConditions's second feature); "Foo"/"Bar" there are fixture text,
+        # not real top-level classes, and must not collide with real classes of the same name
+        # elsewhere in the tree.
+        self.assertNotIn("Foo", self.classes)
+        self.assertNotIn("Bar", self.classes)
+
+    def test_ignores_quoted_feature_names_declared_inside_an_embedded_fixture_string(self):
+        # The embedded fixture's own `def "embedded feature"()` must not be attributed to
+        # EmbeddedConditions itself, the real class whose body contains that string.
+        names = [f.name for f in self.classes["EmbeddedConditions"].features]
+        self.assertNotIn("embedded feature", names)
+        self.assertEqual(
+            ["runs an embedded spec", "compiles a fixture spec from an embedded string"], names
+        )
+
+    def test_parses_a_real_class_correctly_after_a_masked_embedded_fixture(self):
+        # Masking must preserve source length/newlines, or match offsets for everything after
+        # the embedded string would be thrown off.
+        self.assertIn("AfterEmbeddedFixture", self.classes)
+        names = [f.name for f in self.classes["AfterEmbeddedFixture"].features]
+        self.assertEqual(["real class parsed correctly after a masked embedded string"], names)
 
     def test_key_is_package_qualified(self):
         self.assertEqual(
