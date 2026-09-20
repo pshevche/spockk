@@ -50,13 +50,24 @@ decided = "2026-09-19"
 [["some.Class#feature"]]
 status = "blocked"
 reason = "does not compile yet"
-gap = 412
+gap = "https://github.com/pshevche/spockk/issues/412"
 decided = "2026-09-19"
 """)
         exclusions = load_exclusions(path)
         e = exclusions["some.Class#feature"]
         self.assertEqual("blocked", e.status)
         self.assertEqual(412, e.gap)
+
+    def test_blocked_gap_must_be_a_full_issue_url(self):
+        path = _write("""
+[["some.Class#feature"]]
+status = "blocked"
+reason = "does not compile yet"
+gap = 412
+decided = "2026-09-19"
+""")
+        with self.assertRaises(ValueError):
+            load_exclusions(path)
 
     def test_unknown_status_raises(self):
         path = _write("""

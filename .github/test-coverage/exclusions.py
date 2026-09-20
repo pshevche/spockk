@@ -1,4 +1,5 @@
 """Loads the coverage exclusions ledger: deliberate not-applicable and blocked decisions."""
+import re
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
@@ -7,6 +8,7 @@ from typing import Literal
 _LEDGER_PATH = Path(__file__).parents[2] / "_docs" / "test-coverage" / "exclusions.toml"
 
 _VALID_STATUSES = {"not-applicable", "blocked"}
+_ISSUE_URL_RE = re.compile(r"^https://github\.com/pshevche/spockk/issues/(\d+)$")
 
 
 @dataclass
@@ -35,9 +37,18 @@ def load_exclusions(path: Path | None = None) -> dict[str, Exclusion]:
         if not reason:
             raise ValueError(f"{key!r}: status {status!r} requires a non-empty reason")
 
-        gap = entry.get("gap")
-        if status == "blocked" and gap is None:
-            raise ValueError(f"{key!r}: status 'blocked' requires a gap issue number")
+        gap_value = entry.get("gap")
+        gap = None
+        if status == "blocked":
+            if not gap_value:
+                raise ValueError(f"{key!r}: status 'blocked' requires a gap issue URL")
+            match = _ISSUE_URL_RE.match(gap_value) if isinstance(gap_value, str) else None
+            if not match:
+                raise ValueError(
+                    f"{key!r}: gap must be a full issue URL "
+                    f"(https://github.com/pshevche/spockk/issues/N), got {gap_value!r}"
+                )
+            gap = int(match.group(1))
 
         exclusions[key] = Exclusion(
             status=status,

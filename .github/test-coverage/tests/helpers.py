@@ -13,9 +13,10 @@ def ported(source="PortedTest.kt:10"):
     return Coverage(status="ported", gap=None, source=source)
 
 
-def pending(gap, source="PortedTest.kt:20"):
+def pending(gap, source="PortedTest.kt:20", reason=None):
     from scanner import Coverage
-    return Coverage(status="pending", gap=gap, source=source)
+    reason = reason or f"https://github.com/pshevche/spockk/issues/{gap}"
+    return Coverage(status="pending", gap=gap, source=source, reason=reason)
 
 
 def na_exclusion(reason="Kotlin has no GString"):

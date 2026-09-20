@@ -13,4 +13,7 @@ class PortedTest : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/412")
   @MigratedFrom("org.spockframework.smoke.B#blocked")
   fun `is pending`() {}
+
+  @MigratedFrom("org.spockframework.smoke.C#each condition gets its own values (no undesired aliasing)")
+  fun `key with parens is still parsed correctly`() {}
 }

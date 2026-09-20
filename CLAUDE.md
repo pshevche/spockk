@@ -90,7 +90,8 @@ matches recorded values to tree nodes purely by position (a post-order traversal
   `org.spockframework.runtime.Condition(values, text, position, null, null, null)` directly and call
   `.getRendering()` - far faster and more reliable than deriving the packing algorithm by hand.
 - `spockk-specs:compileTestFixturesKotlin` can report UP-TO-DATE after changing `spockk-compiler-plugin`; pass
-  `--rerun` when validating compiler-plugin changes against fixture specs.
+  `--rerun` when validating compiler-plugin changes against fixture specs. Tracked as a real Gradle
+  input-tracking bug: https://github.com/pshevche/spockk/issues/331.
 
 ## Testing
 
