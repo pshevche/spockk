@@ -43,6 +43,10 @@ class RenderTest(unittest.TestCase):
         _, body = render_class_issue(CLASS, {}, {})
         self.assertIn(f"- [ ] {FEATURE}", body)
 
+    def test_title_uses_the_fully_qualified_class_name(self):
+        title, _ = render_class_issue(CLASS, {}, {})
+        self.assertEqual(f"Migrate {CLASS['key']}", title)
+
     def test_split_produces_stable_numbered_parts(self):
         parts = split_class(class_with(45), threshold=20)
         self.assertEqual(3, len(parts))
