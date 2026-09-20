@@ -140,3 +140,9 @@ class GitHub:
             existing = self.get(f"/labels/{spec['name']}")
             if existing is None:
                 self.post("/labels", spec)
+
+    def get_sub_issues(self, issue_number):
+        return self.paginate(f"/issues/{issue_number}/sub_issues")
+
+    def add_sub_issue(self, parent_number, sub_issue_id):
+        self.post(f"/issues/{parent_number}/sub_issues", {"sub_issue_id": sub_issue_id})

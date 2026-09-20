@@ -2,6 +2,7 @@ import unittest
 
 from tests.helpers import CLASS, KEY, FEATURE, class_with, ported, pending, na_exclusion
 from render import (
+    DASHBOARD_KEY,
     merge_generated_region,
     render_class_issue,
     render_area_issue,
@@ -68,10 +69,20 @@ class RenderTest(unittest.TestCase):
         self.assertIn("mocking", body)
         self.assertIn("11", body)
 
+    def test_area_issue_body_round_trips_its_key(self):
+        # The reconciler must be able to find an existing area issue again on rerun, the same way
+        # it does for class issues.
+        _, body = render_area_issue("mocking", child_count=11)
+        self.assertEqual("mocking", parse_class_key(body))
+
     def test_render_dashboard_names_every_area(self):
         _, body = render_dashboard(["mocking", "conditions"])
         self.assertIn("mocking", body)
         self.assertIn("conditions", body)
+
+    def test_dashboard_body_round_trips_its_key(self):
+        _, body = render_dashboard(["mocking", "conditions"])
+        self.assertEqual(DASHBOARD_KEY, parse_class_key(body))
 
     def test_class_issue_body_round_trips_its_key_and_feature_hashes(self):
         _, body = render_class_issue(CLASS, {}, {})

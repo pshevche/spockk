@@ -1,7 +1,18 @@
 import unittest
 
-from reconcile import ExistingIssue, Mutation, index_issues, plan
-from render import render_class_issue
+from reconcile import (
+    ExistingIssue,
+    ExistingRollup,
+    Mutation,
+    apply,
+    find_dashboard_issue,
+    index_area_issues,
+    index_issues,
+    linked_keys,
+    plan,
+    plan_hierarchy,
+)
+from render import DASHBOARD_KEY, render_area_issue, render_class_issue, render_dashboard
 
 
 def _manifest(*classes):
@@ -33,7 +44,8 @@ class ReconcileTest(unittest.TestCase):
         _, old_body = render_class_issue(old_class, {}, {})
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
-                number=1, state="closed", body=old_body, labels=["test-coverage::spec"]
+                number=1,
+                id=101, state="closed", body=old_body, labels=["test-coverage::spec"]
             )
         }
         new_class = _class(
@@ -55,7 +67,8 @@ class ReconcileTest(unittest.TestCase):
         _, old_body = render_class_issue(old_class, {}, {})
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
-                number=1, state="open", body=old_body, labels=["test-coverage::spec"]
+                number=1,
+                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111"))
@@ -74,7 +87,8 @@ class ReconcileTest(unittest.TestCase):
         _, old_body = render_class_issue(old_class, {"org.spockframework.smoke.A#one": _Ported()}, {})
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
-                number=1, state="open", body=old_body, labels=["test-coverage::spec"]
+                number=1,
+                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("one", "cccc3333"))
@@ -93,7 +107,8 @@ class ReconcileTest(unittest.TestCase):
         _, old_body = render_class_issue(old_class, {"org.spockframework.smoke.A#one": _Ported()}, {})
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
-                number=1, state="open", body=old_body, labels=["test-coverage::spec"]
+                number=1,
+                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("uno", "aaaa1111"))
@@ -112,7 +127,8 @@ class ReconcileTest(unittest.TestCase):
         _, old_body = render_class_issue(old_class, {"org.spockframework.smoke.A#one": _Ported()}, {})
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
-                number=1, state="open", body=old_body, labels=["test-coverage::spec"]
+                number=1,
+                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("uno", "aaaa1111"))
@@ -130,7 +146,8 @@ class ReconcileTest(unittest.TestCase):
         _, old_body = render_class_issue(old_class, {}, {})
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
-                number=1, state="open", body=old_body, labels=["test-coverage::spec"]
+                number=1,
+                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
             )
         }
         manifest = _manifest()
@@ -162,6 +179,7 @@ class ReconcileTest(unittest.TestCase):
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
+                id=101,
                 state="open",
                 body=old_body,
                 labels=["test-coverage::spec", "test-coverage::blocked"],
@@ -185,6 +203,7 @@ class ReconcileTest(unittest.TestCase):
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
+                id=101,
                 state="open",
                 body=old_body,
                 labels=["test-coverage::spec", "test-coverage::blocked"],
@@ -238,7 +257,7 @@ class IndexIssuesTest(unittest.TestCase):
         _, body = render_class_issue(
             _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")), {}, {}
         )
-        raw = [{"number": 7, "state": "open", "body": body, "labels": ["test-coverage::spec"]}]
+        raw = [{"number": 7, "id": 707, "state": "open", "body": body, "labels": ["test-coverage::spec"]}]
 
         indexed = index_issues(raw)
 
@@ -249,6 +268,206 @@ class IndexIssuesTest(unittest.TestCase):
         raw = [{"number": 1, "state": "open", "body": "unrelated issue", "labels": []}]
 
         self.assertEqual({}, index_issues(raw))
+
+    def test_indexes_area_issues_by_area_name(self):
+        _, body = render_area_issue("smoke-core", child_count=3)
+        raw = [{"number": 20, "id": 2020, "body": body}]
+
+        indexed = index_area_issues(raw)
+
+        self.assertIn("smoke-core", indexed)
+        self.assertEqual(20, indexed["smoke-core"].number)
+        self.assertEqual(2020, indexed["smoke-core"].id)
+
+    def test_finds_the_dashboard_issue_by_its_key(self):
+        _, body = render_dashboard(["smoke-core"])
+        raw = [
+            {"number": 1, "id": 11, "body": "unrelated issue"},
+            {"number": 2, "id": 22, "body": body},
+        ]
+
+        dashboard = find_dashboard_issue(raw)
+
+        self.assertEqual(2, dashboard.number)
+        self.assertEqual(22, dashboard.id)
+
+    def test_finds_no_dashboard_issue_when_none_exists(self):
+        self.assertIsNone(find_dashboard_issue([{"number": 1, "id": 1, "body": "unrelated"}]))
+
+    def test_linked_keys_extracts_the_key_from_each_sub_issues_body(self):
+        _, body_a = render_class_issue(_class("org.spockframework.smoke.A", "smoke-core", ("one", "h")), {}, {})
+        raw_sub_issues = [{"number": 1, "body": body_a}, {"number": 2, "body": "no marker here"}]
+
+        self.assertEqual({"org.spockframework.smoke.A"}, linked_keys(raw_sub_issues))
+
+
+class PlanHierarchyTest(unittest.TestCase):
+    def test_creates_the_dashboard_and_area_issues_when_none_exist(self):
+        manifest = _manifest(
+            _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")),
+            _class("org.spockframework.smoke.B", "mocking", ("two", "bbbb2222")),
+        )
+
+        mutations = plan_hierarchy(manifest, existing_areas={}, existing_dashboard=None,
+                                    existing_area_links={}, existing_dashboard_links=set())
+
+        kinds = [m.kind for m in mutations]
+        self.assertEqual(1, kinds.count("create_dashboard_issue"))
+        self.assertEqual(2, kinds.count("create_area_issue"))
+        area_targets = {m.target for m in mutations if m.kind == "create_area_issue"}
+        self.assertEqual({"smoke-core", "mocking"}, area_targets)
+
+    def test_updates_an_existing_dashboard_and_area_issue_instead_of_recreating(self):
+        manifest = _manifest(_class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")))
+        existing_areas = {"smoke-core": ExistingRollup(number=20, id=2020, body="")}
+        existing_dashboard = ExistingRollup(number=1, id=11, body="")
+
+        mutations = plan_hierarchy(manifest, existing_areas, existing_dashboard,
+                                    existing_area_links={}, existing_dashboard_links=set())
+
+        update_dashboard = next(m for m in mutations if m.kind == "update_dashboard_issue")
+        self.assertEqual(1, update_dashboard.payload["issue"])
+        self.assertEqual(11, update_dashboard.payload["id"])
+        update_area = next(m for m in mutations if m.kind == "update_area_issue")
+        self.assertEqual(20, update_area.payload["issue"])
+        self.assertEqual(2020, update_area.payload["id"])
+
+    def test_links_every_spec_issue_under_its_area_and_every_area_under_the_dashboard(self):
+        manifest = _manifest(
+            _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")),
+            _class("org.spockframework.smoke.B", "mocking", ("two", "bbbb2222")),
+        )
+
+        mutations = plan_hierarchy(manifest, existing_areas={}, existing_dashboard=None,
+                                    existing_area_links={}, existing_dashboard_links=set())
+
+        links = [m for m in mutations if m.kind == "link_sub_issue"]
+        spec_links = {(m.payload["parent_key"], m.payload["child_key"]) for m in links if m.payload["child_ns"] == "spec"}
+        area_links = {(m.payload["parent_key"], m.payload["child_key"]) for m in links if m.payload["child_ns"] == "area"}
+        self.assertEqual(
+            {("smoke-core", "org.spockframework.smoke.A"), ("mocking", "org.spockframework.smoke.B")},
+            spec_links,
+        )
+        self.assertEqual({(DASHBOARD_KEY, "smoke-core"), (DASHBOARD_KEY, "mocking")}, area_links)
+
+    def test_does_not_relink_a_spec_issue_already_attached_to_its_area(self):
+        manifest = _manifest(
+            _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")),
+            _class("org.spockframework.smoke.B", "smoke-core", ("two", "bbbb2222")),
+        )
+
+        mutations = plan_hierarchy(
+            manifest,
+            existing_areas={"smoke-core": ExistingRollup(number=20, id=2020, body="")},
+            existing_dashboard=None,
+            existing_area_links={"smoke-core": {"org.spockframework.smoke.A"}},
+            existing_dashboard_links=set(),
+        )
+
+        spec_link_targets = {
+            m.payload["child_key"] for m in mutations if m.kind == "link_sub_issue" and m.payload["child_ns"] == "spec"
+        }
+        self.assertEqual({"org.spockframework.smoke.B"}, spec_link_targets)
+
+    def test_does_not_relink_an_area_already_attached_to_the_dashboard(self):
+        manifest = _manifest(_class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")))
+
+        mutations = plan_hierarchy(
+            manifest,
+            existing_areas={},
+            existing_dashboard=ExistingRollup(number=1, id=11, body=""),
+            existing_area_links={},
+            existing_dashboard_links={"smoke-core"},
+        )
+
+        area_links = [m for m in mutations if m.kind == "link_sub_issue" and m.payload["child_ns"] == "area"]
+        self.assertEqual([], area_links)
+
+    def test_splits_an_over_threshold_area_and_links_every_sub_area_under_the_dashboard(self):
+        classes = [
+            _class(f"org.spockframework.smoke.Extensions{i:02d}", "extensions", ("f", "aaaa1111"))
+            for i in range(90)
+        ]
+        manifest = _manifest(*classes)
+
+        mutations = plan_hierarchy(manifest, existing_areas={}, existing_dashboard=None,
+                                    existing_area_links={}, existing_dashboard_links=set(),
+                                    area_split_threshold=80)
+
+        area_targets = {m.target for m in mutations if m.kind == "create_area_issue"}
+        self.assertEqual({"extensions-1", "extensions-2"}, area_targets)
+        dashboard_links = {
+            m.payload["child_key"] for m in mutations if m.kind == "link_sub_issue" and m.payload["child_ns"] == "area"
+        }
+        self.assertEqual({"extensions-1", "extensions-2"}, dashboard_links)
+
+
+class ApplyHierarchyTest(unittest.TestCase):
+    """Verifies apply() resolves sub-issue links correctly for both a spec issue created earlier
+    in the same run and one that already existed before this run started - the scenario the
+    bootstrap actually hits: most spec issues already exist, some don't yet."""
+
+    def test_links_a_pre_existing_spec_issue_and_a_newly_created_one_to_the_same_area(self):
+        github = _FakeGitHub()
+        mutations = [
+            # B already has an issue (number=50, id=5050); A does not yet.
+            Mutation(kind="create_issue", target="A", payload={"title": "t", "body": "b", "labels": []}, reason="new"),
+            Mutation(kind="update_issue", target="B", payload={"issue": 50, "id": 5050, "title": "t", "body": "b"}, reason="refresh"),
+            Mutation(kind="create_area_issue", target="smoke-core", payload={"title": "t", "body": "b", "labels": []}, reason="new area"),
+            Mutation(kind="link_sub_issue", target="smoke-core->A",
+                     payload={"parent_ns": "area", "parent_key": "smoke-core", "child_ns": "spec", "child_key": "A"},
+                     reason="attach"),
+            Mutation(kind="link_sub_issue", target="smoke-core->B",
+                     payload={"parent_ns": "area", "parent_key": "smoke-core", "child_ns": "spec", "child_key": "B"},
+                     reason="attach"),
+        ]
+
+        apply(mutations, github, sleep=lambda seconds: None)
+
+        # post_results[0] is A's create_issue result, post_results[1] is the area's create result.
+        newly_created_spec_id = github.post_results[0]["id"]
+        area_number = github.post_results[1]["number"]
+        self.assertEqual(
+            [(area_number, newly_created_spec_id), (area_number, 5050)],
+            github.sub_issue_calls,
+        )
+
+    def test_links_an_area_to_the_dashboard_when_both_already_exist(self):
+        github = _FakeGitHub()
+        mutations = [
+            Mutation(kind="update_dashboard_issue", target=DASHBOARD_KEY,
+                     payload={"issue": 1, "id": 11, "title": "t", "body": "b"}, reason="refresh"),
+            Mutation(kind="update_area_issue", target="smoke-core",
+                     payload={"issue": 20, "id": 2020, "title": "t", "body": "b"}, reason="refresh"),
+            Mutation(kind="link_sub_issue", target="dashboard->smoke-core",
+                     payload={"parent_ns": "dashboard", "parent_key": DASHBOARD_KEY, "child_ns": "area", "child_key": "smoke-core"},
+                     reason="attach"),
+        ]
+
+        apply(mutations, github, sleep=lambda seconds: None)
+
+        self.assertEqual([(1, 2020)], github.sub_issue_calls)
+
+
+class _FakeGitHub:
+    def __init__(self):
+        self.post_results = []
+        self.sub_issue_calls = []
+        self._next_id = 9000
+        self._next_number = 900
+
+    def post(self, path, body):
+        self._next_id += 1
+        self._next_number += 1
+        result = {"number": self._next_number, "id": self._next_id}
+        self.post_results.append(result)
+        return result
+
+    def patch(self, path, body):
+        return None
+
+    def add_sub_issue(self, parent_number, sub_issue_id):
+        self.sub_issue_calls.append((parent_number, sub_issue_id))
 
 
 def _Ported():

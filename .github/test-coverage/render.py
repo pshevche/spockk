@@ -18,6 +18,8 @@ FEATURES_SNAPSHOT_RE = re.compile(r"<!--\s*spockk-coverage:features\s+(\{.*?\})\
 
 UPSTREAM_BLOB_ROOT = "https://github.com/spockframework/spock/blob"
 
+DASHBOARD_KEY = "dashboard"
+
 
 @dataclass
 class Part:
@@ -126,7 +128,7 @@ def split_class(spec_class: dict, threshold: int) -> list[Part]:
 def render_area_issue(area: str, child_count: int) -> tuple[str, str]:
     title = f"Area: {area}"
     region = f"**Area:** {area}\n**Classes:** {child_count}"
-    body = merge_generated_region("", region)
+    body = merge_generated_region("", region, key=area)
     return title, body
 
 
@@ -134,5 +136,5 @@ def render_dashboard(areas: list[str]) -> tuple[str, str]:
     title = "Spock Test Coverage Dashboard"
     lines = [f"- {area}" for area in areas]
     region = "\n".join(["### Areas", "", *lines])
-    body = merge_generated_region("", region)
+    body = merge_generated_region("", region, key=DASHBOARD_KEY)
     return title, body
