@@ -17,6 +17,7 @@ class Coverage:
     status: Literal["ported", "pending"]
     gap: int | None
     source: str
+    reason: str | None = None
 
 
 def _line_of(text: str, index: int) -> int:
@@ -81,16 +82,19 @@ def _scan_file(path: Path) -> dict[str, Coverage]:
         pending = next((a for a in block if a[0] == "PendingFeature"), None)
         if pending is not None:
             status: Literal["ported", "pending"] = "pending"
+            reason_match = STRING_LITERAL_RE.search(pending[1] or "")
+            reason = reason_match.group(1) if reason_match else None
             gap_match = GAP_RE.search(pending[1] or "")
             gap = int(gap_match.group(1)) if gap_match else None
         else:
             status = "ported"
+            reason = None
             gap = None
 
         line = _line_of(text, block[0][2])
         source = f"{path.name}:{line}"
         for key in keys:
-            found[key] = Coverage(status=status, gap=gap, source=source)
+            found[key] = Coverage(status=status, gap=gap, source=source, reason=reason)
     return found
 
 

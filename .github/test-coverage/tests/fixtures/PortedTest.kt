@@ -14,7 +14,6 @@ class PortedTest : Specification() {
   @MigratedFrom("org.spockframework.smoke.B#blocked")
   fun `is pending`() {}
 
-  @PendingFeature(reason = "assert() in a when block isn't rewritten yet, see #326")
-  @MigratedFrom("org.spockframework.smoke.C#nested parens in reason")
-  fun `has parens inside its pending reason`() {}
+  @MigratedFrom("org.spockframework.smoke.C#each condition gets its own values (no undesired aliasing)")
+  fun `key with parens is still parsed correctly`() {}
 }

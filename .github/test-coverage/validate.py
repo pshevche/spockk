@@ -5,6 +5,7 @@ Fails the check when a key does not exist in the inventory, when a key is both
 ported and marked not-applicable, or when a @PendingFeature references a gap
 issue that has since closed (spec section 10.3).
 """
+import re
 import sys
 import urllib.request
 import json
@@ -20,6 +21,8 @@ SPOCKK_SPECS_ROOTS = [
     REPO_ROOT / "spockk-specs" / "src" / "test",
     REPO_ROOT / "spockk-specs" / "src" / "testFixtures",
 ]
+
+ISSUE_URL_RE = re.compile(r"^https://github\.com/pshevche/spockk/issues/\d+$")
 
 
 @dataclass
@@ -63,6 +66,15 @@ def validate(
         if cov.status == "pending" and cov.gap in closed_gaps:
             violations.append(Violation(
                 message=f"{key!r} is pending on gap #{cov.gap}, but gap #{cov.gap} is closed",
+                source=cov.source,
+            ))
+
+        if cov.status == "pending" and not (cov.reason and ISSUE_URL_RE.match(cov.reason)):
+            violations.append(Violation(
+                message=(
+                    f"{key!r}'s @PendingFeature reason must be a bare issue URL "
+                    f"(https://github.com/pshevche/spockk/issues/N), got {cov.reason!r}"
+                ),
                 source=cov.source,
             ))
 

@@ -1,8 +1,8 @@
 # Recipe: engine-runtime
 
 **Detection:** extends `EmbeddedSpecification`, uses `runner.run*`.
-**Target:** `spockk-specs/src/test/kotlin/.../runtime/`, via `EngineTestKitUtils.execute()` with a fixture spec in
-`src/testFixtures/`.
+**Target:** the test class's package and name mirror upstream exactly (see `SKILL.md` Step 3), via
+`EngineTestKitUtils.execute()` against a fixture spec added to `src/testFixtures/`.
 
 This is the recipe where Groovy and Kotlin diverge the most mechanically. Upstream compiles a spec body given as a
 *string* at runtime (`runner.runFeatureBody(...)`, `runner.runSpecBody(...)`) and asserts on the result. Kotlin has

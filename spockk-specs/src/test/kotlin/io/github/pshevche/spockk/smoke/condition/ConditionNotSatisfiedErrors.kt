@@ -21,13 +21,13 @@ import org.spockframework.runtime.ConditionNotSatisfiedError
 import spock.lang.PendingFeature
 import spock.lang.Specification
 
-class ConditionValuesSmokeTest : Specification() {
+class ConditionNotSatisfiedErrors : Specification() {
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/326")
   @MigratedFrom(
     "org.spockframework.smoke.condition.ConditionNotSatisfiedErrors#each condition gets its own values (no undesired aliasing)"
   )
-  fun `each condition gets its own recorded values`() {
+  fun `each condition gets its own values (no undesired aliasing)`() {
     `when`
     assert(1 == 2)
 

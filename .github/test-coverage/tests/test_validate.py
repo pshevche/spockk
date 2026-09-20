@@ -24,6 +24,21 @@ class ValidateTest(unittest.TestCase):
         key = "org.spockframework.smoke.A#one"
         self.assertEqual([], validate(MANIFEST, {key: ported()}, {}, closed_gaps=set()))
 
+    def test_pending_with_a_bare_issue_url_reason_produces_no_violation(self):
+        key = "org.spockframework.smoke.A#one"
+        self.assertEqual([], validate(MANIFEST, {key: pending(gap=412)}, {}, closed_gaps=set()))
+
+    def test_pending_reason_must_be_a_bare_issue_url(self):
+        key = "org.spockframework.smoke.A#one"
+        v = validate(
+            MANIFEST,
+            {key: pending(gap=412, reason="Spockk does not support this yet, see #412")},
+            {},
+            closed_gaps=set(),
+        )
+        self.assertEqual(1, len(v))
+        self.assertIn("must be a bare issue URL", v[0].message)
+
     def test_violation_names_the_source_file(self):
         v = validate(MANIFEST, {"does.not.Exist#nope": ported()}, {}, closed_gaps=set())
         self.assertIn(".kt", v[0].source)

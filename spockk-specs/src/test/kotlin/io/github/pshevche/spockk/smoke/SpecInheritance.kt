@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.runtime
+package io.github.pshevche.spockk.smoke
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
@@ -23,10 +23,10 @@ import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import spock.lang.Specification
 
-class FixtureMethodOrderTest : Specification() {
+class SpecInheritance : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.SpecInheritance#fixture methods are run in correct order")
-  fun `overridden fixture methods run base then derived on setup, derived then base on cleanup`() {
+  fun `fixture methods are run in correct order`() {
     `when`
     FixtureOrderTracker.log.clear()
     val events = execute(selectClass(FixtureOrderDerived::class.java))

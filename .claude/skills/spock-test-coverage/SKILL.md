@@ -56,15 +56,28 @@ default arguments/spread.
 
 ## Step 3 - Place the file
 
-The recipe determines where the port lives, per the recipe's own reference for the exact pattern:
+**Naming mirrors upstream, always.** Whenever the port gets its own dedicated Kotlin test class (the `smoke`,
+`engine-runtime` and `condition-rendering` recipes), name and package it after the upstream spec exactly: swap
+only the base package (`org.spockframework` -> `io.github.pshevche.spockk`), keep the rest of the package path,
+the spec class name, and the feature name (as the backtick-quoted function name) verbatim. A class ported from
+`org.spockframework.smoke.SpecInheritance#fixture methods are run in correct order` becomes
+`io.github.pshevche.spockk.smoke.SpecInheritance`, with a function named
+`` `fixture methods are run in correct order` ``. This lets someone who knows either codebase navigate straight
+across by name. The recipe below still decides the *technique* used inside that file; it does not change where
+the file lives. `@MigratedFrom` still carries the full `"<upstream class>#<feature name>"` key regardless.
 
-| Recipe | Target in `spockk-specs` |
+For `compile-error` and `ast-snapshot`, the port is usually a new method on an existing shared compilation-test
+class (grouped by transformation kind across many upstream classes, not one Kotlin class per upstream class) -
+name the *method* after upstream's feature name verbatim; the enclosing class stays whatever shared infrastructure
+class it already is.
+
+| Recipe | Technique |
 |---|---|
-| `smoke` | `src/test/kotlin/.../smoke/`, a real Spockk spec run by the Spock engine |
-| `engine-runtime` | `src/test/kotlin/.../runtime/`, via `EngineTestKitUtils.execute()` with a fixture spec in `src/testFixtures/` |
-| `compile-error` | `src/test/kotlin/.../compilation/`, inline via `TestDataFactory.specWithFeatureBody()` |
+| `smoke` | Direct Spockk block-label syntax; the Spock engine runs it like any other spec |
+| `engine-runtime` | `EngineTestKitUtils.execute()` against a fixture spec added to `src/testFixtures/` (Kotlin has no dynamic-compilation equivalent to Groovy's embedded runner, so the "spec body as a string" becomes a real ahead-of-time-compiled fixture class instead) |
+| `compile-error` | `TestDataFactory.specWithFeatureBody()`, inline, in `src/test/kotlin/.../compilation/` |
 | `ast-snapshot` | a source/transformed pair under `src/test/resources/samples/compilation/`, via `assertTransformation()` |
-| `condition-rendering` | condition rendering assertions against the shared fixture specs in `ConditionRenderingSpecs.kt` |
+| `condition-rendering` | a fixture spec added to `ConditionRenderingSpecs.kt`, asserted against in `ConditionRenderingTest.kt` |
 
 ## Step 4 - Write the port and pick the outcome
 
@@ -82,7 +95,7 @@ There are exactly four outcomes. Pick the one that matches reality; do not force
    it ever starts passing - so a fixed gap cannot silently stay marked pending. Always prefer this over any bespoke
    disabling mechanism.
 3. **Will not compile.** Nothing can land in the test suite. Do not fight the compiler. Record it in
-   `_docs/test-coverage/exclusions.toml` with `status = "blocked"`, a `reason`, and a gap issue number. Load
+   `_docs/test-coverage/exclusions.toml` with `status = "blocked"`, a `reason`, and a gap issue URL. Load
    `spock-gap-triage` for how to open that gap issue and dedup it against existing ones.
 4. **Not applicable.** Behavior that cannot exist in Kotlin (Groovy truth, GString interpolation, metaclass
    mutation). Record it in `_docs/test-coverage/exclusions.toml` with `status = "not-applicable"` and a `reason`.
@@ -102,7 +115,9 @@ python3 .github/test-coverage/validate.py
 ```
 
 The `--rerun` flag matters: `:spockk-specs:compileTestFixturesKotlin` (and the test tasks that depend on it) can
-report UP-TO-DATE and hide a real compile error otherwise, a caveat also documented in `CLAUDE.md`.
+report UP-TO-DATE and hide a real compile error otherwise, a caveat also documented in `CLAUDE.md`. Tracked as a
+real Gradle input-tracking bug at https://github.com/pshevche/spockk/issues/331; `--rerun` is the workaround until
+that's fixed, not a permanent requirement.
 
 ## Definition of done
 

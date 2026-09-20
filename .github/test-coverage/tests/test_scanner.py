@@ -22,14 +22,16 @@ class ScannerTest(unittest.TestCase):
         c = self.cov["org.spockframework.smoke.B#blocked"]
         self.assertEqual("pending", c.status)
         self.assertEqual(412, c.gap)
+        self.assertEqual("https://github.com/pshevche/spockk/issues/412", c.reason)
 
     def test_records_source_location_for_error_messages(self):
         self.assertIn("PortedTest.kt", self.cov["org.spockframework.smoke.A#one"].source)
 
-    def test_parens_inside_pending_reason_do_not_break_parsing(self):
-        c = self.cov["org.spockframework.smoke.C#nested parens in reason"]
-        self.assertEqual("pending", c.status)
-        self.assertEqual(326, c.gap)
+    def test_parens_in_migrated_from_key_do_not_break_parsing(self):
+        # Real upstream feature names often carry parens, e.g. "(no undesired aliasing)"; the
+        # balanced-paren annotation scanner must not stumble on them.
+        key = "org.spockframework.smoke.C#each condition gets its own values (no undesired aliasing)"
+        self.assertEqual("ported", self.cov[key].status)
 
 
 if __name__ == "__main__":

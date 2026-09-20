@@ -30,7 +30,7 @@ the one that is actually true.
    [["org.spockframework.smoke.parameterization.DataProviders#range pipe"]]
    status = "blocked"
    reason = "Spockk does not support data pipes over ranges"
-   gap = 412
+   gap = "https://github.com/pshevche/spockk/issues/412"
    decided = "2026-09-19"
    ```
    Delete this entry once the gap issue closes and the feature can be ported for real; a `blocked` entry is
