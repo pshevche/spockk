@@ -45,6 +45,33 @@ class GitHubClientTest(unittest.TestCase):
         self.assertEqual([{"id": 1}, {"id": 2}], items)
         self.assertEqual(2, len(transport.requests))
 
+    def test_secondary_rate_limit_message_sleeps_then_retries(self):
+        transport = FakeTransport(
+            [
+                FakeResponse(403, {}, b'{"message": "You have exceeded a secondary rate limit"}'),
+                FakeResponse(201, {}, b'{"number": 42}'),
+            ]
+        )
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        result = gh.post("/issues", {"title": "x"})
+
+        self.assertEqual({"number": 42}, result)
+        self.assertEqual(1, len(transport.sleeps))
+
+    def test_secondary_rate_limit_honors_retry_after_header(self):
+        transport = FakeTransport(
+            [
+                FakeResponse(403, {"Retry-After": "30"}, b'{"message": "blocked"}'),
+                FakeResponse(201, {}, b'{"number": 42}'),
+            ]
+        )
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        gh.post("/issues", {"title": "x"})
+
+        self.assertEqual([30], transport.sleeps)
+
     def test_rate_limit_sleeps_until_reset_then_retries(self):
         transport = FakeTransport(
             [

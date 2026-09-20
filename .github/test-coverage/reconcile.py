@@ -6,6 +6,7 @@ mutation list. `apply()` is the only place that talks to GitHub, which is what m
 trustworthy (spec section 11, Task 14).
 """
 import re
+import time
 from dataclasses import dataclass, field
 
 from exclusions import Exclusion
@@ -260,7 +261,13 @@ def plan(
     return mutations
 
 
-def apply(mutations: list[Mutation], github) -> None:
+MUTATION_PACING_SECONDS = 1
+
+
+def apply(mutations: list[Mutation], github, sleep=time.sleep) -> None:
+    """Paces one request-ish per mutation; GitHub throttles bulk content creation (issues,
+    comments, labels) more strictly than plain API reads, via a secondary rate limit that
+    `GitHub._request` retries but that pacing avoids tripping in the first place."""
     issue_numbers: dict[str, int] = {}
     for mutation in mutations:
         if mutation.kind == "create_issue":
@@ -293,6 +300,9 @@ def apply(mutations: list[Mutation], github) -> None:
         elif mutation.kind == "rewrite_key":
             pass  # manifest key rewrites are applied to the manifest file, not to GitHub
 
+        if mutation.kind != "rewrite_key":
+            sleep(MUTATION_PACING_SECONDS)
+
 
 DEFAULT_MAX_MUTATIONS = 50
 
@@ -319,6 +329,7 @@ def run(
     closed_gaps: set[int] = frozenset(),
     dry_run: bool = False,
     max_mutations: int = DEFAULT_MAX_MUTATIONS,
+    sleep=time.sleep,
 ) -> list[Mutation]:
     mutations = plan(manifest, coverage, exclusions, existing_issues, closed_gaps=closed_gaps)
 
@@ -328,7 +339,7 @@ def run(
         return mutations
 
     check_blast_radius(mutations, max_mutations)
-    apply(mutations, github)
+    apply(mutations, github, sleep=sleep)
     return mutations
 
 
