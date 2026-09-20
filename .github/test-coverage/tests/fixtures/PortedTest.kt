@@ -10,7 +10,7 @@ class PortedTest : Specification() {
   @MigratedFrom("org.spockframework.smoke.A#two", "org.spockframework.smoke.A#three")
   fun `covers two features`() {}
 
-  @PendingFeature(reason = "no range pipes yet, see #412")
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/412")
   @MigratedFrom("org.spockframework.smoke.B#blocked")
   fun `is pending`() {}
 }

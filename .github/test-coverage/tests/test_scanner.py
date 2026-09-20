@@ -17,7 +17,8 @@ class ScannerTest(unittest.TestCase):
         self.assertIn("org.spockframework.smoke.A#two", self.cov)
         self.assertIn("org.spockframework.smoke.A#three", self.cov)
 
-    def test_pending_feature_marks_pending_and_extracts_gap(self):
+    def test_pending_feature_marks_pending_and_extracts_gap_from_an_issue_url(self):
+        # The reason convention is the full issue URL, nothing else.
         c = self.cov["org.spockframework.smoke.B#blocked"]
         self.assertEqual("pending", c.status)
         self.assertEqual(412, c.gap)

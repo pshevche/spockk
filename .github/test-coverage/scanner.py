@@ -8,7 +8,7 @@ from typing import Literal
 MIGRATED_FROM_RE = re.compile(r"@MigratedFrom\(([^)]*)\)", re.S)
 STRING_LITERAL_RE = re.compile(r'"([^"]*)"')
 PENDING_FEATURE_RE = re.compile(r"@PendingFeature\(([^)]*)\)", re.S)
-GAP_RE = re.compile(r"#(\d+)")
+GAP_RE = re.compile(r"(?:#|/issues/)(\d+)")
 DECLARATION_RE = re.compile(
     r"((?:@\w+(?:\([^)]*\))?\s*)+)(?:fun|class)\b", re.S
 )
