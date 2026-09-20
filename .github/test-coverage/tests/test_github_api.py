@@ -148,6 +148,28 @@ class GitHubClientTest(unittest.TestCase):
         methods = [r[0] for r in transport.requests]
         self.assertEqual(["GET"], methods)
 
+    def test_get_sub_issues_paginates_the_sub_issues_endpoint(self):
+        transport = FakeTransport([FakeResponse(200, {}, b'[{"number": 12, "id": 111}]')])
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        result = gh.get_sub_issues(99)
+
+        self.assertEqual([{"number": 12, "id": 111}], result)
+        method, url, _, _ = transport.requests[0]
+        self.assertEqual("GET", method)
+        self.assertIn("/issues/99/sub_issues", url)
+
+    def test_add_sub_issue_posts_the_sub_issue_id(self):
+        transport = FakeTransport([FakeResponse(201, {}, b"{}")])
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        gh.add_sub_issue(parent_number=99, sub_issue_id=555)
+
+        method, url, _, body = transport.requests[0]
+        self.assertEqual("POST", method)
+        self.assertIn("/issues/99/sub_issues", url)
+        self.assertEqual({"sub_issue_id": 555}, body)
+
 
 if __name__ == "__main__":
     unittest.main()
