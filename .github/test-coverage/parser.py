@@ -21,6 +21,16 @@ LINE_COMMENT_RE = re.compile(r'//[^\n]*')
 BLOCK_COMMENT_RE = re.compile(r'/\*.*?\*/', re.S)
 WHITESPACE_RE = re.compile(r'\s+')
 
+TRIPLE_QUOTED_STRING_RE = re.compile(r'"""(?:[^\\]|\\.)*?"""|\'\'\'(?:[^\\]|\\.)*?\'\'\'', re.S)
+
+
+def _mask_embedded_source(source: str) -> str:
+    """Blanks out triple-quoted string literals, used throughout spock-specs to compile literal
+    Groovy source at runtime (e.g. `EmbeddedSpecification` tests), so a `class Foo extends ...`
+    inside one isn't mistaken for a real top-level class. Replaces every non-newline character
+    with a space so match offsets into the original source stay valid."""
+    return TRIPLE_QUOTED_STRING_RE.sub(lambda m: re.sub(r'[^\n]', ' ', m.group(0)), source)
+
 
 @dataclass
 class Feature:
@@ -60,7 +70,8 @@ def parse_source(source: str, rel_path: str) -> list[SpecClass]:
     package_match = PACKAGE_RE.search(source)
     package = package_match.group(1) if package_match else ''
 
-    class_matches = list(CLASS_RE.finditer(source))
+    class_scan_source = _mask_embedded_source(source)
+    class_matches = list(CLASS_RE.finditer(class_scan_source))
     classes: list[SpecClass] = []
 
     for i, match in enumerate(class_matches):

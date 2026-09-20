@@ -3,7 +3,7 @@
     "repo": "spockframework/spock",
     "ref": "master",
     "sha": "37e5e9a663ac6bc1ed1f72ac8374a81b879c66b0",
-    "generated_at": "2026-09-20T12:22:37Z"
+    "generated_at": "2026-09-20T19:45:06Z"
   },
   "classes": [
     {
@@ -953,91 +953,6 @@
       ]
     },
     {
-      "key": "org.spockframework.runtime.ASpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/runtime/RunListenerSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "runtime",
-      "features": [
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
-          "name": "IRunListener is called for skipped features",
-          "hash": "b8c2114a"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.runtime.ASpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/runtime/RunListenerSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "runtime",
-      "features": [
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
-          "name": "data driven test",
-          "hash": "57ff0603"
-        },
-        {
-          "name": "IRunListener is called for skipped specs",
-          "hash": "30a9c443"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.runtime.ASpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/runtime/RunListenerSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "runtime",
-      "features": [
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
-          "name": "IRunListener gets called for errors",
-          "hash": "48ac5fa2"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.runtime.ASpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/runtime/RunListenerSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "runtime",
-      "features": [
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
-          "name": "IRunListener gets called for different error locations",
-          "hash": "7c2d972f"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.runtime.ASpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/runtime/RunListenerSpec.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "runtime",
-      "features": [
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.runtime.AsyncRunListenerSpec",
       "path": "spock-specs/src/test/groovy/org/spockframework/runtime/AsyncRunListenerSpec.groovy",
       "base": "Specification",
@@ -1561,6 +1476,46 @@
         {
           "name": "IRunListener methods are called in correct order and cardinality",
           "hash": "a51fd5df"
+        },
+        {
+          "name": "a test",
+          "hash": "b85f2fc7"
+        },
+        {
+          "name": "IRunListener is called for skipped features",
+          "hash": "b8c2114a"
+        },
+        {
+          "name": "a test",
+          "hash": "b85f2fc7"
+        },
+        {
+          "name": "data driven test",
+          "hash": "57ff0603"
+        },
+        {
+          "name": "IRunListener is called for skipped specs",
+          "hash": "30a9c443"
+        },
+        {
+          "name": "a test",
+          "hash": "b85f2fc7"
+        },
+        {
+          "name": "IRunListener gets called for errors",
+          "hash": "48ac5fa2"
+        },
+        {
+          "name": "a test",
+          "hash": "b85f2fc7"
+        },
+        {
+          "name": "IRunListener gets called for different error locations",
+          "hash": "7c2d972f"
+        },
+        {
+          "name": "a test",
+          "hash": "b85f2fc7"
         }
       ]
     },
@@ -1826,9 +1781,30 @@
       ]
     },
     {
-      "key": "org.spockframework.runtime.model.Grandchild",
+      "key": "org.spockframework.runtime.model.IterationFilterSpec",
+      "path": "spock-specs/src/test/groovy/org/spockframework/runtime/model/IterationFilterSpec.groovy",
+      "base": "Specification",
+      "recipe": "smoke",
+      "area": "runtime",
+      "features": [
+        {
+          "name": "allows all indexes by default",
+          "hash": "5682a152"
+        },
+        {
+          "name": "allows only selected indexes after one has been allowed explicitly",
+          "hash": "ddc861e5"
+        },
+        {
+          "name": "allows all indexes after configured to do so",
+          "hash": "ce8c0145"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.runtime.model.SpecInfoHierarchySpec",
       "path": "spock-specs/src/test/groovy/org/spockframework/runtime/model/SpecInfoHierarchySpec.groovy",
-      "base": "Child",
+      "base": "Specification",
       "recipe": "smoke",
       "area": "runtime",
       "features": [
@@ -1855,27 +1831,6 @@
         {
           "name": "specs to top",
           "hash": "bb20547e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.runtime.model.IterationFilterSpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/runtime/model/IterationFilterSpec.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "runtime",
-      "features": [
-        {
-          "name": "allows all indexes by default",
-          "hash": "5682a152"
-        },
-        {
-          "name": "allows only selected indexes after one has been allowed explicitly",
-          "hash": "ddc861e5"
-        },
-        {
-          "name": "allows all indexes after configured to do so",
-          "hash": "ce8c0145"
         }
       ]
     },
@@ -1997,40 +1952,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SharedFields.groovy",
-      "base": "Foo",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "getters and setters generated for shared fields use the declared type of the field",
-          "hash": "b756fac9"
-        },
-        {
-          "name": "can have name that starts with $",
-          "hash": "1eb7814c"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Base",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "1",
-          "hash": "06b0f81a"
-        },
-        {
-          "name": "2",
-          "hash": "52bf9398"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.Blocks",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/Blocks.groovy",
       "base": "EmbeddedSpecification",
@@ -2057,6 +1978,18 @@
         {
           "name": "can be referred to by simple name",
           "hash": "1b3e968c"
+        },
+        {
+          "name": "can be referred to by 'this'",
+          "hash": "ef100ce7"
+        },
+        {
+          "name": "cannot be referred to by 'super'",
+          "hash": "4ffb14be"
+        },
+        {
+          "name": "can be used in field initializers",
+          "hash": "0a5cf93d"
         }
       ]
     },
@@ -2193,183 +2126,6 @@
         {
           "name": "reference types",
           "hash": "a8c16ff0"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/FixtureMethods.groovy",
-      "base": "Base",
-      "recipe": "compile-error",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "setupSpec() may not access instance fields (only @Shared and static fields)",
-          "hash": "b3f838ef"
-        },
-        {
-          "name": "cleanupSpec() may not access instance fields (only @Shared and static fields)",
-          "hash": "ca39ac14"
-        },
-        {
-          "name": "cleanup() is run when setup() fails",
-          "hash": "0cb65b6a"
-        },
-        {
-          "name": "cleanup() is not run when field initializer fails",
-          "hash": "ef0f5ded"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "some feature method",
-          "hash": "409074ab"
-        },
-        {
-          "name": "cannot call super method from fixture method",
-          "hash": "8b65ed26"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Base",
-      "recipe": "compile-error",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "feature methods are run in correct order",
-          "hash": "64eac87c"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "3",
-          "hash": "bdc795a5"
-        },
-        {
-          "name": "4",
-          "hash": "d8205bae"
-        },
-        {
-          "name": "exception in base class fixture method causes failure",
-          "hash": "4945e3c3"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "junit reports correct run/failure/ignore counts",
-          "hash": "7e2b4a3c"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "feature methods cannot be overridden",
-          "hash": "e797c247"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "private feature methods with same name can coexist peacefully in inheritance chain",
-          "hash": "e600d6ac"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "can invoke super.helperMethod()",
-          "hash": "0384a4c2"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/StackTraceFiltering.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "let me fail",
-          "hash": "19f42981"
-        },
-        {
-          "name": "when creation of data provider fails, stack trace points to corresponding parameterization",
-          "hash": "05dec7e5"
-        },
-        {
-          "name": "when data processor fails, stack trace source position points to corresponding parameterization",
-          "hash": "e2d54050"
-        },
-        {
-          "name": "stack trace for explicit condition in setup block has line number",
-          "hash": "8dd90af7"
-        },
-        {
-          "name": "stack trace for nested explicit condition has line number",
-          "hash": "68964bfa"
-        },
-        {
-          "name": "causes get filtered as well",
-          "hash": "95ce0077"
-        },
-        {
-          "name": "stack traces are filtered on rendering expression info value",
-          "hash": "cef360bb"
-        },
-        {
-          "name": "expected stack frames are filtered out",
-          "hash": "a1c188e8"
-        },
-        {
-          "name": "exception cause loops do not cause StackOverflowError",
-          "hash": "1318df5e"
-        },
-        {
-          "name": "suppressed get filtered as well",
-          "hash": "a7f14335"
         }
       ]
     },
@@ -2523,7 +2279,7 @@
       "key": "org.spockframework.smoke.FixtureMethods",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/FixtureMethods.groovy",
       "base": "EmbeddedSpecification",
-      "recipe": "engine-runtime",
+      "recipe": "compile-error",
       "area": "smoke-core",
       "features": [
         {
@@ -2533,58 +2289,22 @@
         {
           "name": "are run in correct order across class hierarchy",
           "hash": "702d4273"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/BuiltInMembersOfClassSpecification.groovy",
-      "base": "spock.lang.Specification",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
+        },
         {
-          "name": "can be referred to by 'this'",
-          "hash": "ef100ce7"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/BuiltInMembersOfClassSpecification.groovy",
-      "base": "spock.lang.Specification",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
+          "name": "setupSpec() may not access instance fields (only @Shared and static fields)",
+          "hash": "b3f838ef"
+        },
         {
-          "name": "cannot be referred to by 'super'",
-          "hash": "4ffb14be"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/BuiltInMembersOfClassSpecification.groovy",
-      "base": "spock.lang.Specification",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
+          "name": "cleanupSpec() may not access instance fields (only @Shared and static fields)",
+          "hash": "ca39ac14"
+        },
         {
-          "name": "can be used in field initializers",
-          "hash": "0a5cf93d"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SharedFields.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
+          "name": "cleanup() is run when setup() fails",
+          "hash": "0cb65b6a"
+        },
         {
-          "name": "getters and setters generated for shared fields use the declared type of the field",
-          "hash": "b756fac9"
+          "name": "cleanup() is not run when field initializer fails",
+          "hash": "ef0f5ded"
         }
       ]
     },
@@ -2649,6 +2369,10 @@
         {
           "name": "interceptors are called in the correct order and with the correct context information",
           "hash": "eafa4074"
+        },
+        {
+          "name": "non-method interceptors are called even without the respective method",
+          "hash": "e092e36c"
         }
       ]
     },
@@ -2959,27 +2683,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.SharedField",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SharedVsStaticFields.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "increment",
-          "hash": "ff25a175"
-        },
-        {
-          "name": "increment again",
-          "hash": "4eda2707"
-        },
-        {
-          "name": "static fields are shared between subsequent runs",
-          "hash": "72522367"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.SharedFields",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SharedFields.groovy",
       "base": "EmbeddedSpecification",
@@ -2989,6 +2692,14 @@
         {
           "name": "can be accessed from subclass",
           "hash": "38fef3f9"
+        },
+        {
+          "name": "can have name that starts with $",
+          "hash": "1eb7814c"
+        },
+        {
+          "name": "getters and setters generated for shared fields use the declared type of the field",
+          "hash": "b756fac9"
         }
       ]
     },
@@ -3027,6 +2738,26 @@
         {
           "name": "shared fields are not shared between subsequent runs",
           "hash": "fcf61459"
+        },
+        {
+          "name": "increment",
+          "hash": "ff25a175"
+        },
+        {
+          "name": "increment again",
+          "hash": "4eda2707"
+        },
+        {
+          "name": "static fields are shared between subsequent runs",
+          "hash": "72522367"
+        },
+        {
+          "name": "increment",
+          "hash": "ff25a175"
+        },
+        {
+          "name": "increment again",
+          "hash": "4eda2707"
         }
       ]
     },
@@ -3034,12 +2765,60 @@
       "key": "org.spockframework.smoke.SpecInheritance",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SpecInheritance.groovy",
       "base": "EmbeddedSpecification",
-      "recipe": "engine-runtime",
+      "recipe": "compile-error",
       "area": "smoke-core",
       "features": [
         {
           "name": "fixture methods are run in correct order",
           "hash": "2816787b"
+        },
+        {
+          "name": "some feature method",
+          "hash": "409074ab"
+        },
+        {
+          "name": "cannot call super method from fixture method",
+          "hash": "8b65ed26"
+        },
+        {
+          "name": "feature methods are run in correct order",
+          "hash": "64eac87c"
+        },
+        {
+          "name": "1",
+          "hash": "06b0f81a"
+        },
+        {
+          "name": "2",
+          "hash": "52bf9398"
+        },
+        {
+          "name": "3",
+          "hash": "bdc795a5"
+        },
+        {
+          "name": "4",
+          "hash": "d8205bae"
+        },
+        {
+          "name": "exception in base class fixture method causes failure",
+          "hash": "4945e3c3"
+        },
+        {
+          "name": "junit reports correct run/failure/ignore counts",
+          "hash": "7e2b4a3c"
+        },
+        {
+          "name": "feature methods cannot be overridden",
+          "hash": "e797c247"
+        },
+        {
+          "name": "private feature methods with same name can coexist peacefully in inheritance chain",
+          "hash": "e600d6ac"
+        },
+        {
+          "name": "can invoke super.helperMethod()",
+          "hash": "0384a4c2"
         }
       ]
     },
@@ -3057,31 +2836,6 @@
         {
           "name": "is properly recognized when inheriting from Specification base class through intermediary in same compilation unit",
           "hash": "baaa023c"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.SpecWithHelpers",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/VerifyAllMethodsSpecification.groovy",
-      "base": "Specification",
-      "recipe": "compile-error",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
-          "name": "@Verify with @VerifyAll does not compile",
-          "hash": "5f03cb25"
-        },
-        {
-          "name": "@Verify with @VerifyAll does not compile in Spec",
-          "hash": "3f3f4dfd"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         }
       ]
     },
@@ -3127,23 +2881,46 @@
         {
           "name": "feature method names are also restored for base specs",
           "hash": "ea42d5cf"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.StaticField",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/SharedVsStaticFields.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "increment",
-          "hash": "ff25a175"
         },
         {
-          "name": "increment again",
-          "hash": "4eda2707"
+          "name": "let me fail",
+          "hash": "19f42981"
+        },
+        {
+          "name": "when creation of data provider fails, stack trace points to corresponding parameterization",
+          "hash": "05dec7e5"
+        },
+        {
+          "name": "when data processor fails, stack trace source position points to corresponding parameterization",
+          "hash": "e2d54050"
+        },
+        {
+          "name": "stack trace for explicit condition in setup block has line number",
+          "hash": "8dd90af7"
+        },
+        {
+          "name": "stack trace for nested explicit condition has line number",
+          "hash": "68964bfa"
+        },
+        {
+          "name": "causes get filtered as well",
+          "hash": "95ce0077"
+        },
+        {
+          "name": "stack traces are filtered on rendering expression info value",
+          "hash": "cef360bb"
+        },
+        {
+          "name": "expected stack frames are filtered out",
+          "hash": "a1c188e8"
+        },
+        {
+          "name": "exception cause loops do not cause StackOverflowError",
+          "hash": "1318df5e"
+        },
+        {
+          "name": "suppressed get filtered as well",
+          "hash": "a7f14335"
         }
       ]
     },
@@ -3182,23 +2959,10 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.SubSpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/Interceptors.groovy",
-      "base": "SuperSpec",
-      "recipe": "engine-runtime",
-      "area": "smoke-core",
-      "features": [
-        {
-          "name": "non-method interceptors are called even without the respective method",
-          "hash": "e092e36c"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.VerifyAllMethodsSpecification",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/VerifyAllMethodsSpecification.groovy",
       "base": "EmbeddedSpecification",
-      "recipe": "engine-runtime",
+      "recipe": "compile-error",
       "area": "smoke-core",
       "features": [
         {
@@ -3216,6 +2980,22 @@
         {
           "name": "@VerifyAll works on methods from non-spec helper classes",
           "hash": "daa7bf9b"
+        },
+        {
+          "name": "feature",
+          "hash": "e77656f3"
+        },
+        {
+          "name": "@Verify with @VerifyAll does not compile",
+          "hash": "5f03cb25"
+        },
+        {
+          "name": "@Verify with @VerifyAll does not compile in Spec",
+          "hash": "3f3f4dfd"
+        },
+        {
+          "name": "feature",
+          "hash": "e77656f3"
         }
       ]
     },
@@ -3698,6 +3478,14 @@
         {
           "name": "full feature exercise",
           "hash": "33e9f401"
+        },
+        {
+          "name": "Primitive types are used in AST transformation",
+          "hash": "e5f978bf"
+        },
+        {
+          "name": "test",
+          "hash": "7e59f10a"
         }
       ]
     },
@@ -3790,32 +3578,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.ast.Ext",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/ast/AstSpec.groovy",
-      "base": "Serializable",
-      "recipe": "smoke",
-      "area": "ast",
-      "features": [
-        {
-          "name": "Primitive types are used in AST transformation",
-          "hash": "e5f978bf"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.ast.TestSpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/ast/AstSpec.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "ast",
-      "features": [
-        {
-          "name": "test",
-          "hash": "7e59f10a"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.ast.condition.CollectionConditionAstSpec",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/ast/condition/CollectionConditionAstSpec.groovy",
       "base": "EmbeddedSpecification",
@@ -3899,23 +3661,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.ast.condition.SpecificAssertions",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/ast/condition/BaseVerifyMethodsAstSpec.groovy",
-      "base": "BaseAssertions",
-      "recipe": "compile-error",
-      "area": "ast",
-      "features": [
-        {
-          "name": "fails when verification method has a non-void or non-dynamic return value",
-          "hash": "14e6d62f"
-        },
-        {
-          "name": "fails when verification method has a non-void or non-dynamic return value in Spec",
-          "hash": "9df5d4d5"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/ast/condition/VerifyAllMethodsAstSpec.groovy",
       "base": "BaseVerifyMethodsAstSpec",
@@ -3973,6 +3718,14 @@
         {
           "name": "ignores conditions in overwritten methods",
           "hash": "b9daa595"
+        },
+        {
+          "name": "fails when verification method has a non-void or non-dynamic return value",
+          "hash": "14e6d62f"
+        },
+        {
+          "name": "fails when verification method has a non-void or non-dynamic return value in Spec",
+          "hash": "9df5d4d5"
         }
       ]
     },
@@ -4034,6 +3787,14 @@
         {
           "name": "ignores conditions in overwritten methods",
           "hash": "b9daa595"
+        },
+        {
+          "name": "fails when verification method has a non-void or non-dynamic return value",
+          "hash": "14e6d62f"
+        },
+        {
+          "name": "fails when verification method has a non-void or non-dynamic return value in Spec",
+          "hash": "9df5d4d5"
         }
       ]
     },
@@ -5606,19 +5367,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.extension.ASpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/TitleExtension.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.extension.AutoCleanupExtension",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/AutoCleanupExtension.groovy",
       "base": "EmbeddedSpecification",
@@ -5656,239 +5404,6 @@
         {
           "name": "no cleanup if shared field initialization fails",
           "hash": "f2e096b0"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreExtension.groovy",
-      "base": "Foo",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Foo",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar",
-          "hash": "2dea7ec1"
-        },
-        {
-          "name": "baz",
-          "hash": "52aa37ac"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Closure",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "feature is ignored if at least one IgnoreIf annotation is true",
-          "hash": "0f69028d"
-        },
-        {
-          "name": "feature is not ignored if all IgnoreIf annotations are false",
-          "hash": "c01e5822"
-        },
-        {
-          "name": "feature is ignored if data variable accessing IgnoreIf annotation is true",
-          "hash": "c14abcb1"
-        },
-        {
-          "name": "feature is ignored if at least one data variable accessing IgnoreIf annotation is true",
-          "hash": "9da2f474"
-        },
-        {
-          "name": "feature is ignored if non data variable accessing IgnoreIf annotation is true",
-          "hash": "5dc9cb14"
-        },
-        {
-          "name": "@IgnoreIf provides condition access to Specification shared fields",
-          "hash": "08c8017b"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/MixedSpecSkippingExtensions.groovy",
-      "base": "Foo",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Closure",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "@Requires provides condition access to Specification instance shared fields",
-          "hash": "70c6b607"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Foo",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RetryFeatureExtensionSpec.groovy",
-      "base": "Foo",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "@Retry declared on a subclass is applied to all features",
-          "hash": "e18dafc2"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RetryFeatureExtensionSpec.groovy",
-      "base": "Foo",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "@Retry declared on a spec class can be overridden",
-          "hash": "50b622e7"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Bar",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RetryFeatureExtensionSpec.groovy",
-      "base": "Foo",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "@Retry mode SETUP_FEATURE_CLEANUP runs remaining iterations after a failed one for @Unroll'ed features",
-          "hash": "62b55c9f"
-        },
-        {
-          "name": "@Retry mode SETUP_FEATURE_CLEANUP runs all iterations for @Unroll'ed features",
-          "hash": "a8bb420c"
-        },
-        {
-          "name": "@Retry mode SETUP_FEATURE_CLEANUP correctly reports failed iterations for @Unroll'ed features",
-          "hash": "cd6e2086"
-        },
-        {
-          "name": "@Retry interceptor chains to enclosed interceptors each time",
-          "hash": "d794741b"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Base",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreExtension.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Base",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Base",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/MixedSpecSkippingExtensions.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Base",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
         }
       ]
     },
@@ -5939,40 +5454,6 @@
         {
           "name": "can use custom dir objects",
           "hash": "fc12be99"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreExtension.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "ignoring base class has no effect on running derived class",
-          "hash": "3a66cef7"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Derived",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreExtension.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "Ignore can be configured to be inherited",
-          "hash": "58f94633"
         }
       ]
     },
@@ -6036,808 +5517,6 @@
         {
           "name": "can copy files from classpath using explicit context class",
           "hash": "767f569e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "ignored feature methods",
-          "hash": "63284fdf"
-        },
-        {
-          "name": "not ignored",
-          "hash": "1692dacb"
-        },
-        {
-          "name": "fixture methods cannot be ignored",
-          "hash": "e30b7417"
-        },
-        {
-          "name": "ignore methods in base and derived class",
-          "hash": "4ee466d2"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreExtension.groovy",
-      "base": "Base",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with false",
-          "hash": "7bd8f7d8"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "ignored spec contains custom message",
-          "hash": "d250589c"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with unqualified static method access",
-          "hash": "8cb4dde7"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with unqualified static field access",
-          "hash": "1f3ed348"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with shared field access",
-          "hash": "f10e89bd"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with instance field access",
-          "hash": "4f3c15d3"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "@IgnoreIf can be configured to be inherited",
-          "hash": "79bc19f6"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Base",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@IgnoreIf provides condition access to Specification instance shared fields",
-          "hash": "961018ae"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@IgnoreIf provides condition access to Specification instance fields",
-          "hash": "e6739f33"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@IgnoreIf provides condition access to static Specification fields",
-          "hash": "d8d2941d"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar",
-          "hash": "2dea7ec1"
-        },
-        {
-          "name": "baz",
-          "hash": "52aa37ac"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/MixedSpecSkippingExtensions.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "feature skipping condition is not evaluated in skipped spec with inheritance",
-          "hash": "2fd6600d"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/MixedSpecSkippingExtensions.groovy",
-      "base": "Base",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/PendingFeatureIfExtensionSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true",
-          "hash": "61bd2a0e"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true even if applied twice",
-          "hash": "7c555e77"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/PendingFeatureIfExtensionSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true even if @PendingFeature is applied first",
-          "hash": "374c28b2"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing parameterized feature as failed if the conditional expression returns true even if @PendingFeature is applied first",
-          "hash": "a9ab8bb3"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true even if @PendingFeature is applied first",
-          "hash": "9aefa7e0"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true even if @PendingFeature is applied after it",
-          "hash": "10b69d80"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing parameterized feature as failed if the conditional expression returns true even if @PendingFeature is applied after it",
-          "hash": "d9792000"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true even if @PendingFeature is applied after it",
-          "hash": "0d3a5353"
-        },
-        {
-          "name": "@PendingFeatureIf marks failing feature as failed if the conditional expression returns false",
-          "hash": "37a89312"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as passed if the conditional expression returns false",
-          "hash": "9da5ba3c"
-        },
-        {
-          "name": "@PendingFeatureIf marks failing feature as skipped if the data variable accessing condition passes and the test fails",
-          "hash": "4e7e64f6"
-        },
-        {
-          "name": "@PendingFeatureIf marks failing feature as skipped if the data variable accessing condition passes and the test fails even if applied twice",
-          "hash": "8ac46a78"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true",
-          "hash": "ac2ca43e"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true even if applied twice",
-          "hash": "589ff10c"
-        },
-        {
-          "name": "@PendingFeatureIf marks failing feature as failed if the data variable accessing conditional expression returns false",
-          "hash": "6d1042b7"
-        },
-        {
-          "name": "@PendingFeatureIf marks passing feature as passed if the data variable accessing conditional expression returns false",
-          "hash": "67af4ceb"
-        },
-        {
-          "name": "@PendingFeatureIf provides condition access to Specification instance shared fields",
-          "hash": "4b30c863"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/PendingFeatureIfExtensionSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@PendingFeatureIf provides condition access to Specification instance fields",
-          "hash": "a9ab4706"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/PendingFeatureIfExtensionSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@PendingFeatureIf provides condition access to static Specification fields",
-          "hash": "edeb9865"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/PendingFeatureIfExtensionSpec.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar",
-          "hash": "2dea7ec1"
-        },
-        {
-          "name": "baz",
-          "hash": "52aa37ac"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with unqualified static method access",
-          "hash": "8cb4dde7"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with unqualified static field access",
-          "hash": "1f3ed348"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with shared field access",
-          "hash": "f10e89bd"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with instance field access",
-          "hash": "4f3c15d3"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "spec usage with false",
-          "hash": "7bd8f7d8"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "ignored spec contains custom message",
-          "hash": "d250589c"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
-          "name": "fails if condition cannot be instantiated",
-          "hash": "733e47b2"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@Requires provides condition access to Specification shared fields",
-          "hash": "0432ec4e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@Requires provides condition access to Specification instance fields",
-          "hash": "a580a724"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
-          "name": "@Requires provides condition access to static Specification fields",
-          "hash": "329bdfc1"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "bar",
-          "hash": "2dea7ec1"
-        },
-        {
-          "name": "baz",
-          "hash": "52aa37ac"
-        },
-        {
-          "name": "Requires can be configured to be inherited",
-          "hash": "72d5bf27"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Base",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RetryFeatureExtensionSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "@Retry declared on a spec class is inherited",
-          "hash": "82d84dfe"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseFeatures.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "basic usage rolled-up",
-          "hash": "b967a182"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseFeatures.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "annotated feature must be data-driven",
-          "hash": "9c8a8dac"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseFeatures.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "feature annotation sets executionMode to SAME_THREAD",
-          "hash": "fc370d94"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseSpecs.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "automatically runs excluded methods that lead up to an included method",
-          "hash": "af1486a4"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseSpecs.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "automatically runs excluded methods that lead up to an included method with post discovery filter",
-          "hash": "fd9bf73b"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseSpecs.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "honors method-level @Ignore",
-          "hash": "ca7b9970"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseSpecs.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "sets childExecutionMode to SAME_THREAD",
-          "hash": "788162ba"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseSpecsAndFeatures.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "spec and feature annotations can be combined",
-          "hash": "620f36a6"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.FooSpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RepeatableLocalExtensionsSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "repeated annotations work properly on spec",
-          "hash": "fd988352"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.FooSpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RepeatableLocalExtensionsSpec.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "repeated annotations work properly on feature",
-          "hash": "bbf26b1f"
-        },
-        {
-          "name": "repeated annotations work properly on fixture",
-          "hash": "42b23f5b"
-        },
-        {
-          "name": "repeated annotations work properly on field",
-          "hash": "86f6d6c5"
         }
       ]
     },
@@ -6924,6 +5603,46 @@
         {
           "name": "ignore spec",
           "hash": "2dc797e2"
+        },
+        {
+          "name": "ignored feature methods",
+          "hash": "63284fdf"
+        },
+        {
+          "name": "not ignored",
+          "hash": "1692dacb"
+        },
+        {
+          "name": "fixture methods cannot be ignored",
+          "hash": "e30b7417"
+        },
+        {
+          "name": "ignore methods in base and derived class",
+          "hash": "4ee466d2"
+        },
+        {
+          "name": "ignoring base class has no effect on running derived class",
+          "hash": "3a66cef7"
+        },
+        {
+          "name": "Ignore can be configured to be inherited",
+          "hash": "58f94633"
+        },
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
+          "name": "bar feature",
+          "hash": "6d8c4928"
+        },
+        {
+          "name": "test feature",
+          "hash": "08a979e7"
         }
       ]
     },
@@ -6989,6 +5708,142 @@
         {
           "name": "spec usage with true",
           "hash": "63d4684a"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with false",
+          "hash": "7bd8f7d8"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "ignored spec contains custom message",
+          "hash": "d250589c"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with unqualified static method access",
+          "hash": "8cb4dde7"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with unqualified static field access",
+          "hash": "1f3ed348"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with shared field access",
+          "hash": "f10e89bd"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with instance field access",
+          "hash": "4f3c15d3"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "@IgnoreIf can be configured to be inherited",
+          "hash": "79bc19f6"
+        },
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
+          "name": "bar feature",
+          "hash": "6d8c4928"
+        },
+        {
+          "name": "test feature",
+          "hash": "08a979e7"
+        },
+        {
+          "name": "fails if condition cannot be instantiated",
+          "hash": "733e47b2"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "feature is ignored if at least one IgnoreIf annotation is true",
+          "hash": "0f69028d"
+        },
+        {
+          "name": "feature is not ignored if all IgnoreIf annotations are false",
+          "hash": "c01e5822"
+        },
+        {
+          "name": "feature is ignored if data variable accessing IgnoreIf annotation is true",
+          "hash": "c14abcb1"
+        },
+        {
+          "name": "feature is ignored if at least one data variable accessing IgnoreIf annotation is true",
+          "hash": "9da2f474"
+        },
+        {
+          "name": "feature is ignored if non data variable accessing IgnoreIf annotation is true",
+          "hash": "5dc9cb14"
+        },
+        {
+          "name": "@IgnoreIf provides condition access to Specification shared fields",
+          "hash": "08c8017b"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@IgnoreIf provides condition access to Specification instance shared fields",
+          "hash": "961018ae"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@IgnoreIf provides condition access to Specification instance fields",
+          "hash": "e6739f33"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@IgnoreIf provides condition access to static Specification fields",
+          "hash": "d8d2941d"
+        },
+        {
+          "name": "bar",
+          "hash": "2dea7ec1"
+        },
+        {
+          "name": "baz",
+          "hash": "52aa37ac"
         }
       ]
     },
@@ -7023,6 +5878,10 @@
         {
           "name": "implying a feature in a super specification",
           "hash": "f1cf0132"
+        },
+        {
+          "name": "implying a feature in a sub specification",
+          "hash": "4bcb3ceb"
         }
       ]
     },
@@ -7048,6 +5907,74 @@
         {
           "name": "include and exclude features based on annotations",
           "hash": "d11098b4"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.extension.IncludeExcludeFeaturesWithInheritance",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeFeaturesWithInheritance.groovy",
+      "base": "EmbeddedSpecification",
+      "recipe": "engine-runtime",
+      "area": "extensions",
+      "features": [
+        {
+          "name": "include methods based on annotations",
+          "hash": "076c38bc"
+        },
+        {
+          "name": "exclude methods based on annotations",
+          "hash": "8d1f9eba"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.extension.IncludeExcludeSpecs",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeSpecs.groovy",
+      "base": "EmbeddedSpecification",
+      "recipe": "engine-runtime",
+      "area": "extensions",
+      "features": [
+        {
+          "name": "include specs based on annotations",
+          "hash": "57216874"
+        },
+        {
+          "name": "exclude specs based on annotations",
+          "hash": "9d630fc5"
+        },
+        {
+          "name": "include and exclude specs based on annotations",
+          "hash": "48401718"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.extension.IncludeExcludeSpecsAndFeatures",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeSpecsAndFeatures.groovy",
+      "base": "EmbeddedSpecification",
+      "recipe": "engine-runtime",
+      "area": "extensions",
+      "features": [
+        {
+          "name": "include specs and features base on annotations",
+          "hash": "f79c1e70"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.extension.IncludeExcludeSpecsWithInheritance",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeSpecsWithInheritance.groovy",
+      "base": "EmbeddedSpecification",
+      "recipe": "engine-runtime",
+      "area": "extensions",
+      "features": [
+        {
+          "name": "include specs based on annotations",
+          "hash": "57216874"
+        },
+        {
+          "name": "exclude specs based on annotations",
+          "hash": "9d630fc5"
         }
       ]
     },
@@ -7119,6 +6046,30 @@
         {
           "name": "feature skipping condition is not evaluated in skipped spec",
           "hash": "4131d052"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "feature skipping condition is not evaluated in skipped spec with inheritance",
+          "hash": "2fd6600d"
+        },
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
+          "name": "bar feature",
+          "hash": "6d8c4928"
+        },
+        {
+          "name": "test feature",
+          "hash": "08a979e7"
         }
       ]
     },
@@ -7348,6 +6299,98 @@
         {
           "name": "@PendingFeatureIf marks failing feature as skipped if the condition passes and the test fails even if applied twice",
           "hash": "d2ccb3a2"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true",
+          "hash": "61bd2a0e"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true even if applied twice",
+          "hash": "7c555e77"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true even if @PendingFeature is applied first",
+          "hash": "374c28b2"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing parameterized feature as failed if the conditional expression returns true even if @PendingFeature is applied first",
+          "hash": "a9ab8bb3"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true even if @PendingFeature is applied first",
+          "hash": "9aefa7e0"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the conditional expression returns true even if @PendingFeature is applied after it",
+          "hash": "10b69d80"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing parameterized feature as failed if the conditional expression returns true even if @PendingFeature is applied after it",
+          "hash": "d9792000"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true even if @PendingFeature is applied after it",
+          "hash": "0d3a5353"
+        },
+        {
+          "name": "@PendingFeatureIf marks failing feature as failed if the conditional expression returns false",
+          "hash": "37a89312"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as passed if the conditional expression returns false",
+          "hash": "9da5ba3c"
+        },
+        {
+          "name": "@PendingFeatureIf marks failing feature as skipped if the data variable accessing condition passes and the test fails",
+          "hash": "4e7e64f6"
+        },
+        {
+          "name": "@PendingFeatureIf marks failing feature as skipped if the data variable accessing condition passes and the test fails even if applied twice",
+          "hash": "8ac46a78"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true",
+          "hash": "ac2ca43e"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true even if applied twice",
+          "hash": "589ff10c"
+        },
+        {
+          "name": "@PendingFeatureIf marks failing feature as failed if the data variable accessing conditional expression returns false",
+          "hash": "6d1042b7"
+        },
+        {
+          "name": "@PendingFeatureIf marks passing feature as passed if the data variable accessing conditional expression returns false",
+          "hash": "67af4ceb"
+        },
+        {
+          "name": "@PendingFeatureIf provides condition access to Specification instance shared fields",
+          "hash": "4b30c863"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@PendingFeatureIf provides condition access to Specification instance fields",
+          "hash": "a9ab4706"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@PendingFeatureIf provides condition access to static Specification fields",
+          "hash": "edeb9865"
+        },
+        {
+          "name": "bar",
+          "hash": "2dea7ec1"
+        },
+        {
+          "name": "baz",
+          "hash": "52aa37ac"
         }
       ]
     },
@@ -7413,6 +6456,31 @@
       ]
     },
     {
+      "key": "org.spockframework.smoke.extension.RepeatableLocalExtensionsSpec",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RepeatableLocalExtensionsSpec.groovy",
+      "base": "EmbeddedSpecification",
+      "recipe": "engine-runtime",
+      "area": "extensions",
+      "features": [
+        {
+          "name": "repeated annotations work properly on spec",
+          "hash": "fd988352"
+        },
+        {
+          "name": "repeated annotations work properly on feature",
+          "hash": "bbf26b1f"
+        },
+        {
+          "name": "repeated annotations work properly on fixture",
+          "hash": "42b23f5b"
+        },
+        {
+          "name": "repeated annotations work properly on field",
+          "hash": "86f6d6c5"
+        }
+      ]
+    },
+    {
       "key": "org.spockframework.smoke.extension.RequiresExtension",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
       "base": "EmbeddedSpecification",
@@ -7434,6 +6502,174 @@
         {
           "name": "spec usage with true",
           "hash": "63d4684a"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with unqualified static method access",
+          "hash": "8cb4dde7"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with unqualified static field access",
+          "hash": "1f3ed348"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with shared field access",
+          "hash": "f10e89bd"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with instance field access",
+          "hash": "4f3c15d3"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "spec usage with false",
+          "hash": "7bd8f7d8"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "ignored spec contains custom message",
+          "hash": "d250589c"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "fails if condition cannot be instantiated",
+          "hash": "733e47b2"
+        },
+        {
+          "name": "basic usage",
+          "hash": "f4bf8d8d"
+        },
+        {
+          "name": "@Requires provides condition access to Specification instance shared fields",
+          "hash": "70c6b607"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@Requires provides condition access to Specification shared fields",
+          "hash": "0432ec4e"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@Requires provides condition access to Specification instance fields",
+          "hash": "a580a724"
+        },
+        {
+          "name": "bar #input",
+          "hash": "843a5c8f"
+        },
+        {
+          "name": "@Requires provides condition access to static Specification fields",
+          "hash": "329bdfc1"
+        },
+        {
+          "name": "bar",
+          "hash": "2dea7ec1"
+        },
+        {
+          "name": "baz",
+          "hash": "52aa37ac"
+        },
+        {
+          "name": "Requires can be configured to be inherited",
+          "hash": "72d5bf27"
+        },
+        {
+          "name": "base feature",
+          "hash": "c01fe81a"
+        },
+        {
+          "name": "foo feature",
+          "hash": "4234976e"
+        },
+        {
+          "name": "bar feature",
+          "hash": "6d8c4928"
+        },
+        {
+          "name": "test feature",
+          "hash": "08a979e7"
+        },
+        {
+          "name": "runs feature if precondition is satisfied",
+          "hash": "07818cc7"
+        },
+        {
+          "name": "skips feature if precondition is not satisfied",
+          "hash": "98401620"
+        },
+        {
+          "name": "provides OS information",
+          "hash": "4245519e"
+        },
+        {
+          "name": "provides JVM information",
+          "hash": "3210ae40"
+        },
+        {
+          "name": "provides access to environment variables",
+          "hash": "ab5d3692"
+        },
+        {
+          "name": "provides access to system properties",
+          "hash": "5ee91fc2"
+        },
+        {
+          "name": "can use closure argument for an easy option to typecast and use IDE support",
+          "hash": "480306a9"
+        },
+        {
+          "name": "can evaluate for single iterations if data variables are accessed",
+          "hash": "112e9432"
+        },
+        {
+          "name": "can skip data providers completely if no data variables are accessed",
+          "hash": "bab1d5ef"
+        },
+        {
+          "name": "can skip data providers completely if no data variables are accessed by checking a `shared.` field",
+          "hash": "f1793735"
+        },
+        {
+          "name": "allows determinate use of multiple filters",
+          "hash": "06b0ca0c"
+        },
+        {
+          "name": "feature is ignored if at least one Requires annotation is false",
+          "hash": "8d63b3e1"
+        },
+        {
+          "name": "feature is not ignored if all Requires annotations are true",
+          "hash": "b769161e"
         }
       ]
     },
@@ -7548,6 +6784,34 @@
         {
           "name": "@Retry can be declared on a spec class",
           "hash": "82aa96bb"
+        },
+        {
+          "name": "@Retry declared on a spec class is inherited",
+          "hash": "82d84dfe"
+        },
+        {
+          "name": "@Retry declared on a subclass is applied to all features",
+          "hash": "e18dafc2"
+        },
+        {
+          "name": "@Retry declared on a spec class can be overridden",
+          "hash": "50b622e7"
+        },
+        {
+          "name": "@Retry mode SETUP_FEATURE_CLEANUP runs remaining iterations after a failed one for @Unroll'ed features",
+          "hash": "62b55c9f"
+        },
+        {
+          "name": "@Retry mode SETUP_FEATURE_CLEANUP runs all iterations for @Unroll'ed features",
+          "hash": "a8bb420c"
+        },
+        {
+          "name": "@Retry mode SETUP_FEATURE_CLEANUP correctly reports failed iterations for @Unroll'ed features",
+          "hash": "cd6e2086"
+        },
+        {
+          "name": "@Retry interceptor chains to enclosed interceptors each time",
+          "hash": "d794741b"
         }
       ]
     },
@@ -7780,74 +7044,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.extension.Spec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeSpecsAndFeatures.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "include specs and features base on annotations",
-          "hash": "f79c1e70"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Spec2",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeFeaturesWithInheritance.groovy",
-      "base": "Spec1",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "include methods based on annotations",
-          "hash": "076c38bc"
-        },
-        {
-          "name": "exclude methods based on annotations",
-          "hash": "8d1f9eba"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Spec2",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeSpecsWithInheritance.groovy",
-      "base": "Spec1",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "include specs based on annotations",
-          "hash": "57216874"
-        },
-        {
-          "name": "exclude specs based on annotations",
-          "hash": "9d630fc5"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Spec3",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IncludeExcludeSpecs.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "include specs based on annotations",
-          "hash": "57216874"
-        },
-        {
-          "name": "exclude specs based on annotations",
-          "hash": "9d630fc5"
-        },
-        {
-          "name": "include and exclude specs based on annotations",
-          "hash": "48401718"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.extension.StepwiseFeatures",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/StepwiseFeatures.groovy",
       "base": "EmbeddedSpecification",
@@ -7857,6 +7053,18 @@
         {
           "name": "basic usage",
           "hash": "f4bf8d8d"
+        },
+        {
+          "name": "basic usage rolled-up",
+          "hash": "b967a182"
+        },
+        {
+          "name": "annotated feature must be data-driven",
+          "hash": "9c8a8dac"
+        },
+        {
+          "name": "feature annotation sets executionMode to SAME_THREAD",
+          "hash": "fc370d94"
         }
       ]
     },
@@ -7870,6 +7078,22 @@
         {
           "name": "basic usage",
           "hash": "f4bf8d8d"
+        },
+        {
+          "name": "automatically runs excluded methods that lead up to an included method",
+          "hash": "af1486a4"
+        },
+        {
+          "name": "automatically runs excluded methods that lead up to an included method with post discovery filter",
+          "hash": "fd9bf73b"
+        },
+        {
+          "name": "honors method-level @Ignore",
+          "hash": "ca7b9970"
+        },
+        {
+          "name": "sets childExecutionMode to SAME_THREAD",
+          "hash": "788162ba"
         }
       ]
     },
@@ -7883,19 +7107,10 @@
         {
           "name": "spec annotation does not skip iterations on feature without annotation",
           "hash": "99e96635"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Sub",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/ImpliedFeatureSpec.groovy",
-      "base": "Super",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
+        },
         {
-          "name": "implying a feature in a sub specification",
-          "hash": "4bcb3ceb"
+          "name": "spec and feature annotations can be combined",
+          "hash": "620f36a6"
         }
       ]
     },
@@ -7992,174 +7207,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.extension.Test",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreExtension.groovy",
-      "base": "Bar",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Test",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/IgnoreIfExtension.groovy",
-      "base": "Bar",
-      "recipe": "engine-runtime",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "feature is ignored if at least one IgnoreIf annotation is true",
-          "hash": "0f69028d"
-        },
-        {
-          "name": "feature is not ignored if all IgnoreIf annotations are false",
-          "hash": "c01e5822"
-        },
-        {
-          "name": "feature is ignored if data variable accessing IgnoreIf annotation is true",
-          "hash": "c14abcb1"
-        },
-        {
-          "name": "feature is ignored if at least one data variable accessing IgnoreIf annotation is true",
-          "hash": "9da2f474"
-        },
-        {
-          "name": "feature is ignored if non data variable accessing IgnoreIf annotation is true",
-          "hash": "5dc9cb14"
-        },
-        {
-          "name": "@IgnoreIf provides condition access to Specification shared fields",
-          "hash": "08c8017b"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
-        },
-        {
-          "name": "fails if condition cannot be instantiated",
-          "hash": "733e47b2"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Test",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/MixedSpecSkippingExtensions.groovy",
-      "base": "Bar",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.extension.Test",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/RequiresExtension.groovy",
-      "base": "Bar",
-      "recipe": "smoke",
-      "area": "extensions",
-      "features": [
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
-        },
-        {
-          "name": "runs feature if precondition is satisfied",
-          "hash": "07818cc7"
-        },
-        {
-          "name": "skips feature if precondition is not satisfied",
-          "hash": "98401620"
-        },
-        {
-          "name": "provides OS information",
-          "hash": "4245519e"
-        },
-        {
-          "name": "provides JVM information",
-          "hash": "3210ae40"
-        },
-        {
-          "name": "provides access to environment variables",
-          "hash": "ab5d3692"
-        },
-        {
-          "name": "provides access to system properties",
-          "hash": "5ee91fc2"
-        },
-        {
-          "name": "can use closure argument for an easy option to typecast and use IDE support",
-          "hash": "480306a9"
-        },
-        {
-          "name": "can evaluate for single iterations if data variables are accessed",
-          "hash": "112e9432"
-        },
-        {
-          "name": "can skip data providers completely if no data variables are accessed",
-          "hash": "bab1d5ef"
-        },
-        {
-          "name": "can skip data providers completely if no data variables are accessed by checking a `shared.` field",
-          "hash": "f1793735"
-        },
-        {
-          "name": "allows determinate use of multiple filters",
-          "hash": "06b0ca0c"
-        },
-        {
-          "name": "feature is ignored if at least one Requires annotation is false",
-          "hash": "8d63b3e1"
-        },
-        {
-          "name": "feature is not ignored if all Requires annotations are true",
-          "hash": "b769161e"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.extension.TimeoutExtension",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/extension/TimeoutExtension.groovy",
       "base": "BaseTimeoutExtensionSpecification",
@@ -8250,6 +7297,10 @@
         {
           "name": "@Title changes the reported display name",
           "hash": "b1050c20"
+        },
+        {
+          "name": "a test",
+          "hash": "b85f2fc7"
         }
       ]
     },
@@ -11641,138 +10692,6 @@
       ]
     },
     {
-      "key": "org.spockframework.smoke.parameterization.ExampleSpec",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UnrolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "test",
-          "hash": "e0eddd96"
-        },
-        {
-          "name": "parameterized",
-          "hash": "5e346521"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UnrolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "method-level unroll annotation wins over class-level uproll annotation",
-          "hash": "75ec1799"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UnrolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "method-level unroll annotation wins over configuration script",
-          "hash": "4486bb20"
-        },
-        {
-          "name": "class-level unroll annotation wins over configuration script",
-          "hash": "e468268a"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UnrolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "unroll annotations are not inheritable",
-          "hash": "97a9e8e0"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UprolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "#actor.details.name",
-          "hash": "e0cd5bfb"
-        },
-        {
-          "name": "not data-driven",
-          "hash": "723cb7a8"
-        },
-        {
-          "name": "#actor.details.age",
-          "hash": "4bd3e59e"
-        },
-        {
-          "name": "method-level uproll annotation wins over class-level unroll annotation",
-          "hash": "ad0ed463"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UprolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "unroll and uproll cannot be combined on the same spec",
-          "hash": "3a312ed6"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UprolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "unroll and uproll cannot be combined on the same feature",
-          "hash": "07f2264d"
-        },
-        {
-          "name": "method-level uproll annotation wins over configuration script",
-          "hash": "0f2d15e9"
-        },
-        {
-          "name": "class-level uproll annotation wins over configuration script",
-          "hash": "6854931e"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Foo",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UprolledFeatureMethods.groovy",
-      "base": "Specification",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "rollup annotations are not inheritable",
-          "hash": "1eb0fa20"
-        }
-      ]
-    },
-    {
       "key": "org.spockframework.smoke.parameterization.InvalidWhereBlocks",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/InvalidWhereBlocks.groovy",
       "base": "EmbeddedSpecification",
@@ -12370,6 +11289,10 @@
         {
           "name": "exceptions in iteration interceptors should not affect other iterations",
           "hash": "df131026"
+        },
+        {
+          "name": "myFeature #count",
+          "hash": "f44479ac"
         }
       ]
     },
@@ -12391,36 +11314,6 @@
         {
           "name": "multi-parameterization with wildcard",
           "hash": "6e67afae"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.StepwiseIterationsTest",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/ParameterizedFeatureNodeStatuses.groovy",
-      "base": "Specification",
-      "recipe": "smoke",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "myFeature #count",
-          "hash": "f44479ac"
-        }
-      ]
-    },
-    {
-      "key": "org.spockframework.smoke.parameterization.Sub",
-      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/parameterization/UnrolledFeatureMethods.groovy",
-      "base": "Base",
-      "recipe": "engine-runtime",
-      "area": "parameterization",
-      "features": [
-        {
-          "name": "method name can still contain parentheses",
-          "hash": "17e5094a"
-        },
-        {
-          "name": "custom name provider for both simple and parameterized features",
-          "hash": "8da53581"
         }
       ]
     },
@@ -12502,6 +11395,38 @@
         {
           "name": "method-level unroll annotation wins over class-level annotation",
           "hash": "ee4cd8de"
+        },
+        {
+          "name": "method-level unroll annotation wins over class-level uproll annotation",
+          "hash": "75ec1799"
+        },
+        {
+          "name": "method-level unroll annotation wins over configuration script",
+          "hash": "4486bb20"
+        },
+        {
+          "name": "class-level unroll annotation wins over configuration script",
+          "hash": "e468268a"
+        },
+        {
+          "name": "unroll annotations are not inheritable",
+          "hash": "97a9e8e0"
+        },
+        {
+          "name": "method name can still contain parentheses",
+          "hash": "17e5094a"
+        },
+        {
+          "name": "custom name provider for both simple and parameterized features",
+          "hash": "8da53581"
+        },
+        {
+          "name": "test",
+          "hash": "e0eddd96"
+        },
+        {
+          "name": "parameterized",
+          "hash": "5e346521"
         }
       ]
     },
@@ -12523,6 +11448,42 @@
         {
           "name": "can roll up a whole class at once",
           "hash": "a6209d00"
+        },
+        {
+          "name": "#actor.details.name",
+          "hash": "e0cd5bfb"
+        },
+        {
+          "name": "not data-driven",
+          "hash": "723cb7a8"
+        },
+        {
+          "name": "#actor.details.age",
+          "hash": "4bd3e59e"
+        },
+        {
+          "name": "method-level uproll annotation wins over class-level unroll annotation",
+          "hash": "ad0ed463"
+        },
+        {
+          "name": "unroll and uproll cannot be combined on the same spec",
+          "hash": "3a312ed6"
+        },
+        {
+          "name": "unroll and uproll cannot be combined on the same feature",
+          "hash": "07f2264d"
+        },
+        {
+          "name": "method-level uproll annotation wins over configuration script",
+          "hash": "0f2d15e9"
+        },
+        {
+          "name": "class-level uproll annotation wins over configuration script",
+          "hash": "6854931e"
+        },
+        {
+          "name": "rollup annotations are not inheritable",
+          "hash": "1eb0fa20"
         }
       ]
     },
@@ -13280,6 +12241,6 @@
     }
   ],
   "excluded": {
-    "classes": 83
+    "classes": 81
   }
 }

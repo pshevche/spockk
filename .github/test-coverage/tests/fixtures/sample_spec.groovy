@@ -51,4 +51,25 @@ class EmbeddedConditions extends EmbeddedSpecification {
     then:
     result.totalFailureCount == 0
   }
+
+  def "compiles a fixture spec from an embedded string"() {
+    when:
+    def result = runner.runWithImports("""
+class Foo extends Specification {
+  def "embedded feature"() {
+    expect: true
+  }
+}
+class Bar extends Foo {
+}
+    """)
+    then:
+    result.testsSucceededCount == 1
+  }
+}
+
+class AfterEmbeddedFixture extends Specification {
+  def "real class parsed correctly after a masked embedded string"() {
+    expect: true
+  }
 }
