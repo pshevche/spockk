@@ -347,7 +347,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--max-mutations", type=int, default=DEFAULT_MAX_MUTATIONS)
     args = parser.parse_args(argv)
 
-    repo_root = Path(__file__).parents[1]
+    repo_root = Path(__file__).parents[2]
     manifest = json.loads((repo_root / "_docs" / "test-coverage" / "spock-inventory.json").read_text())
     coverage = scan([repo_root / "spockk-specs" / "src" / "test", repo_root / "spockk-specs" / "src" / "testFixtures"])
     exclusions = load_exclusions()

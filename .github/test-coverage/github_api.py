@@ -28,6 +28,15 @@ LABELS = [
 LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
 
 
+class GitHubAPIError(Exception):
+    """Raised when the API returns an unexpected non-2xx status."""
+
+    def __init__(self, status, body):
+        self.status = status
+        self.body = body
+        super().__init__(f"GitHub API returned {status}: {body!r}")
+
+
 class _UrllibTransport:
     def request(self, method, url, headers, body=None):
         data = json.dumps(body).encode("utf-8") if body is not None else None
@@ -80,14 +89,17 @@ class GitHub:
         response = self._request("GET", path)
         if response.status == 404:
             return None
+        self._raise_for_status(response)
         return json.loads(response.body) if response.body else None
 
     def post(self, path, body):
         response = self._request("POST", path, body)
+        self._raise_for_status(response)
         return json.loads(response.body) if response.body else None
 
     def patch(self, path, body):
         response = self._request("PATCH", path, body)
+        self._raise_for_status(response)
         return json.loads(response.body) if response.body else None
 
     def paginate(self, path):
@@ -95,11 +107,16 @@ class GitHub:
         url = path
         while url:
             response = self._request("GET", url)
+            self._raise_for_status(response)
             items.extend(json.loads(response.body) if response.body else [])
             link = response.headers.get("Link", "")
             match = LINK_NEXT_RE.search(link)
             url = match.group(1) if match else None
         return items
+
+    def _raise_for_status(self, response):
+        if not 200 <= response.status < 300:
+            raise GitHubAPIError(response.status, response.body)
 
     def ensure_labels(self, specs):
         for spec in specs:
