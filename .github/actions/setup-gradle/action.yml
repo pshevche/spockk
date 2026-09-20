@@ -9,8 +9,6 @@ runs:
         distribution: temurin
         java-version: 21.0.12+101.0.LTS
     - uses: gradle/actions/setup-gradle@v6
-      with:
-        cache-provider: 'basic'
     - uses: testlens-app/setup-testlens@v1
 
     - name: Detect whether running on a PR from a fork
