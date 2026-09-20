@@ -90,9 +90,35 @@ class BlastRadiusTest(unittest.TestCase):
     def test_under_the_cap_applies_every_mutation(self):
         github = FakeGitHub()
 
-        run(_manifest(5), coverage={}, exclusions={}, existing_issues={}, github=github, dry_run=False, max_mutations=50)
+        run(
+            _manifest(5),
+            coverage={},
+            exclusions={},
+            existing_issues={},
+            github=github,
+            dry_run=False,
+            max_mutations=50,
+            sleep=lambda seconds: None,
+        )
 
         self.assertEqual(5, len(github.calls))
+
+    def test_paces_one_sleep_per_mutation_to_avoid_the_secondary_rate_limit(self):
+        github = FakeGitHub()
+        sleeps = []
+
+        run(
+            _manifest(5),
+            coverage={},
+            exclusions={},
+            existing_issues={},
+            github=github,
+            dry_run=False,
+            max_mutations=50,
+            sleep=sleeps.append,
+        )
+
+        self.assertEqual(5, len(sleeps))
 
 
 if __name__ == "__main__":

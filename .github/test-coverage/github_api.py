@@ -27,6 +27,8 @@ LABELS = [
 
 LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
 
+SECONDARY_RATE_LIMIT_INITIAL_WAIT = 60
+
 
 class GitHubAPIError(Exception):
     """Raised when the API returns an unexpected non-2xx status."""
@@ -77,13 +79,28 @@ class GitHub:
 
     def _request(self, method, path, body=None):
         url = self._url(path)
+        secondary_limit_wait = SECONDARY_RATE_LIMIT_INITIAL_WAIT
         while True:
             response = self._transport.request(method, url, self._headers(), body)
             if response.status == 403 and response.headers.get("X-RateLimit-Remaining") == "0":
                 reset_at = int(response.headers.get("X-RateLimit-Reset", "0"))
                 self._transport.sleep(max(0, reset_at - self._now()) + 1)
                 continue
+            if self._is_secondary_rate_limit(response):
+                retry_after = response.headers.get("Retry-After")
+                wait = int(retry_after) if retry_after else secondary_limit_wait
+                self._transport.sleep(wait)
+                secondary_limit_wait *= 2
+                continue
             return response
+
+    @staticmethod
+    def _is_secondary_rate_limit(response):
+        if response.status not in (403, 429):
+            return False
+        if response.headers.get("Retry-After"):
+            return True
+        return b"secondary rate limit" in response.body.lower()
 
     def get(self, path):
         response = self._request("GET", path)
