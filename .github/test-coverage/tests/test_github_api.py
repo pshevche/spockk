@@ -1,6 +1,6 @@
 import unittest
 
-from github_api import GitHub
+from github_api import GitHub, GitHubAPIError
 
 
 class FakeResponse:
@@ -65,6 +65,36 @@ class GitHubClientTest(unittest.TestCase):
         gh = GitHub(token="t", repo="o/r", transport=transport)
 
         self.assertIsNone(gh.get("/missing"))
+
+    def test_paginate_raises_instead_of_treating_an_error_body_as_items(self):
+        transport = FakeTransport(
+            [
+                FakeResponse(
+                    200,
+                    {"Link": '<https://api.github.com/x?page=2>; rel="next"'},
+                    b'[{"id": 1}]',
+                ),
+                FakeResponse(403, {}, b'{"message": "not supported", "documentation_url": "..."}'),
+            ]
+        )
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        with self.assertRaises(GitHubAPIError):
+            gh.paginate("/issues")
+
+    def test_get_raises_on_an_unexpected_non_2xx_status(self):
+        transport = FakeTransport([FakeResponse(422, {}, b'{"message": "unprocessable"}')])
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        with self.assertRaises(GitHubAPIError):
+            gh.get("/broken")
+
+    def test_post_raises_on_an_unexpected_non_2xx_status(self):
+        transport = FakeTransport([FakeResponse(500, {}, b'{"message": "server error"}')])
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        with self.assertRaises(GitHubAPIError):
+            gh.post("/issues", {"title": "x"})
 
     def test_ensure_labels_creates_a_missing_label(self):
         transport = FakeTransport(
