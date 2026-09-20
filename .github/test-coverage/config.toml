@@ -1,0 +1,79 @@
+[upstream]
+repo = "spockframework/spock"
+ref = "master"
+module = "spock-specs"
+source_root = "spock-specs/src/test/groovy"
+
+[guard]
+# Fail the run if the parsed class count moves by more than this fraction
+# between manifest regenerations. Catches a parser regression masquerading
+# as upstream churn.
+class_count_tolerance = 0.10
+
+# Package prefixes excluded from scope, each with a written reason.
+# An excluded package produces no issues but still appears in the dashboard
+# footer, so the decision stays visible.
+[[exclude]]
+prefix = "org.spockframework.docs"
+reason = "Documentation samples for Spock's own manual, not behavior tests"
+
+[[exclude]]
+prefix = "org.spockframework.util"
+reason = "Unit tests for Java utility classes with no Spockk equivalent"
+
+[[exclude]]
+prefix = "org.spockframework.groovy"
+reason = "Groovy language semantics with no Kotlin analogue"
+
+[[exclude]]
+prefix = "spock.util.mop"
+reason = "Groovy metaprogramming with no Kotlin analogue"
+
+[[exclude]]
+prefix = "org.spockframework.buildsupport"
+reason = "Spock-internal build infrastructure"
+
+[[exclude]]
+prefix = "org.spockframework.idea"
+reason = "Spock-internal IDE support"
+
+[[exclude]]
+prefix = "org.spockframework.serialization"
+reason = "Spock-internal infrastructure"
+
+[[exclude]]
+prefix = "org.spockframework.builder"
+reason = "Spock-internal infrastructure"
+
+[[exclude]]
+prefix = "org.spockframework.example"
+reason = "Spock-internal infrastructure"
+
+# Package prefix to area name, longest prefix wins. Middle tier of the
+# issue hierarchy. Note spock.util.concurrent is deliberately IN scope;
+# see spec section 6 "Deliberately in scope".
+[area]
+"org.spockframework.smoke.condition" = "conditions"
+"org.spockframework.smoke.mock" = "mocking"
+"org.spockframework.smoke.extension" = "extensions"
+"org.spockframework.smoke.parameterization" = "parameterization"
+"org.spockframework.smoke.ast" = "ast"
+"org.spockframework.smoke.traits" = "traits"
+"org.spockframework.smoke.issues" = "smoke-misc"
+"org.spockframework.smoke" = "smoke-core"
+"org.spockframework.runtime" = "runtime"
+"org.spockframework.mock" = "mocking"
+"org.spockframework.datapipes" = "parameterization"
+"org.spockframework.verifyall" = "conditions"
+"spock.util.concurrent" = "util-api"
+"spock.util" = "util-api"
+"spock.mock" = "mocking"
+"spock.timeout" = "extensions"
+"spock.config" = "config"
+
+[issues]
+# Split a class into numbered part-issues above this many features.
+split_threshold = 20
+# Split an area into numbered sub-areas above this many child issues.
+# GitHub caps sub-issues at 100 per parent; 80 leaves headroom.
+area_split_threshold = 80
