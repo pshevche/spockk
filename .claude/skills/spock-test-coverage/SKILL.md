@@ -71,9 +71,10 @@ The recipe determines where the port lives, per the recipe's own reference for t
 There are exactly four outcomes. Pick the one that matches reality; do not force a port to "pass" by weakening it.
 
 1. **Ported.** The feature compiles and passes. Write the test, add `@MigratedFrom("<upstream class>#<feature name>")`.
-2. **Ported but failing at runtime.** Commit it anyway, with `@PendingFeature`:
+2. **Ported but failing at runtime.** Commit it anyway, with `@PendingFeature`. `reason` is the bare gap issue
+   URL, nothing else - the issue itself carries the explanation:
    ```kotlin
-   @PendingFeature(reason = "Spockk does not support data pipes over ranges, see #412")
+   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/412")
    @MigratedFrom("org.spockframework.smoke.parameterization.DataProviders#range pipe")
    fun `range pipe`() { ... }
    ```

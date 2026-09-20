@@ -23,11 +23,7 @@ import spock.lang.Specification
 
 class ConditionValuesSmokeTest : Specification() {
 
-  @PendingFeature(
-    reason = "Spockk only rewrites explicit conditions inside expect/then blocks; an assert() in a " +
-      "when block stays a plain Kotlin assert and throws AssertionError instead of " +
-      "ConditionNotSatisfiedError, see #326"
-  )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/326")
   @MigratedFrom(
     "org.spockframework.smoke.condition.ConditionNotSatisfiedErrors#each condition gets its own values (no undesired aliasing)"
   )

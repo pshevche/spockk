@@ -38,9 +38,9 @@ the one that is actually true.
 
 3. **Ported but failing at runtime.** The Kotlin test compiles and runs, but fails because of a genuine Spockk
    runtime gap, not a bug in the port itself. Go to Step 2 to open or link a gap issue, then commit the test with
-   `@PendingFeature`:
+   `@PendingFeature`. `reason` is the bare gap issue URL, nothing else:
    ```kotlin
-   @PendingFeature(reason = "Spockk does not support data pipes over ranges, see #412")
+   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/412")
    @MigratedFrom("org.spockframework.smoke.parameterization.DataProviders#range pipe")
    fun `range pipe`() { ... }
    ```
