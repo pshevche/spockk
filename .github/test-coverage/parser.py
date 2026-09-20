@@ -78,10 +78,14 @@ def parse_source(source: str, rel_path: str) -> list[SpecClass]:
         body_start = match.end()
         body_end = class_matches[i + 1].start() if i + 1 < len(class_matches) else len(source)
         body = source[body_start:body_end]
+        masked_body = class_scan_source[body_start:body_end]
 
+        # Scan the masked body so a feature-like `def "..."()` inside an embedded fixture string
+        # isn't mistaken for one of this class's own features, but hash the unmasked text: real
+        # feature bodies must stay sensitive to their actual content.
         features = [
-            Feature(name=fm.group('name'), hash=body_hash(fm.group(0)))
-            for fm in FEATURE_RE.finditer(body)
+            Feature(name=fm.group('name'), hash=body_hash(body[fm.start():fm.end()]))
+            for fm in FEATURE_RE.finditer(masked_body)
         ]
 
         name = match.group('name')

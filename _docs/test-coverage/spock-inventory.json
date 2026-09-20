@@ -3,7 +3,7 @@
     "repo": "spockframework/spock",
     "ref": "master",
     "sha": "37e5e9a663ac6bc1ed1f72ac8374a81b879c66b0",
-    "generated_at": "2026-09-20T19:45:06Z"
+    "generated_at": "2026-09-20T19:53:31Z"
   },
   "classes": [
     {
@@ -109,24 +109,12 @@
           "hash": "39c0bead"
         },
         {
-          "name": "foo",
-          "hash": "a80c5e1d"
-        },
-        {
           "name": "null field",
           "hash": "ddafd96d"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "No mock value for field",
           "hash": "ecad376a"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         }
       ]
     },
@@ -1478,44 +1466,20 @@
           "hash": "a51fd5df"
         },
         {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
           "name": "IRunListener is called for skipped features",
           "hash": "b8c2114a"
-        },
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
-          "name": "data driven test",
-          "hash": "57ff0603"
         },
         {
           "name": "IRunListener is called for skipped specs",
           "hash": "30a9c443"
         },
         {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
           "name": "IRunListener gets called for errors",
           "hash": "48ac5fa2"
         },
         {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
           "name": "IRunListener gets called for different error locations",
           "hash": "7c2d972f"
-        },
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
         }
       ]
     },
@@ -1614,20 +1578,8 @@
           "hash": "2bac8a9a"
         },
         {
-          "name": "a feature",
-          "hash": "b0d2f1ab"
-        },
-        {
-          "name": "data driven feature",
-          "hash": "74d9c366"
-        },
-        {
           "name": "properly handles failures during store cleanup",
           "hash": "a167e295"
-        },
-        {
-          "name": "a feature",
-          "hash": "b0d2f1ab"
         }
       ]
     },
@@ -1709,28 +1661,8 @@
           "hash": "fe4e86b7"
         },
         {
-          "name": "a feature",
-          "hash": "b0d2f1ab"
-        },
-        {
-          "name": "b feature",
-          "hash": "cd7e60d5"
-        },
-        {
-          "name": "c feature",
-          "hash": "7476bd4b"
-        },
-        {
           "name": "both stateful and stateless only have one instance per spec regardless of use",
           "hash": "50872a7b"
-        },
-        {
-          "name": "a feature",
-          "hash": "b0d2f1ab"
-        },
-        {
-          "name": "b feature",
-          "hash": "cd7e60d5"
         }
       ]
     },
@@ -2740,24 +2672,8 @@
           "hash": "fcf61459"
         },
         {
-          "name": "increment",
-          "hash": "ff25a175"
-        },
-        {
-          "name": "increment again",
-          "hash": "4eda2707"
-        },
-        {
           "name": "static fields are shared between subsequent runs",
           "hash": "72522367"
-        },
-        {
-          "name": "increment",
-          "hash": "ff25a175"
-        },
-        {
-          "name": "increment again",
-          "hash": "4eda2707"
         }
       ]
     },
@@ -2773,32 +2689,12 @@
           "hash": "2816787b"
         },
         {
-          "name": "some feature method",
-          "hash": "409074ab"
-        },
-        {
           "name": "cannot call super method from fixture method",
           "hash": "8b65ed26"
         },
         {
           "name": "feature methods are run in correct order",
           "hash": "64eac87c"
-        },
-        {
-          "name": "1",
-          "hash": "06b0f81a"
-        },
-        {
-          "name": "2",
-          "hash": "52bf9398"
-        },
-        {
-          "name": "3",
-          "hash": "bdc795a5"
-        },
-        {
-          "name": "4",
-          "hash": "d8205bae"
         },
         {
           "name": "exception in base class fixture method causes failure",
@@ -2881,10 +2777,6 @@
         {
           "name": "feature method names are also restored for base specs",
           "hash": "ea42d5cf"
-        },
-        {
-          "name": "let me fail",
-          "hash": "19f42981"
         },
         {
           "name": "when creation of data provider fails, stack trace points to corresponding parameterization",
@@ -2974,16 +2866,8 @@
           "hash": "fe75e995"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "@VerifyAll works on methods from non-spec helper classes",
           "hash": "daa7bf9b"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         },
         {
           "name": "@Verify with @VerifyAll does not compile",
@@ -2992,10 +2876,6 @@
         {
           "name": "@Verify with @VerifyAll does not compile in Spec",
           "hash": "3f3f4dfd"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         }
       ]
     },
@@ -3408,10 +3288,6 @@
           "hash": "59020f71"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "astToSourceFeatureBody can render everything",
           "hash": "58761884"
         },
@@ -3482,10 +3358,6 @@
         {
           "name": "Primitive types are used in AST transformation",
           "hash": "e5f978bf"
-        },
-        {
-          "name": "test",
-          "hash": "7e59f10a"
         }
       ]
     },
@@ -5536,60 +5408,24 @@
           "hash": "85b7dfb8"
         },
         {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
-          "name": "normal test",
-          "hash": "60210811"
-        },
-        {
           "name": "applies timeout to fixtures",
           "hash": "d53805cb"
-        },
-        {
-          "name": "$fixtureMethod",
-          "hash": "1f4b12ad"
-        },
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
         },
         {
           "name": "supports inheritance for fixtures",
           "hash": "3209a8fc"
         },
         {
-          "name": "$fixtureMethod",
-          "hash": "1f4b12ad"
-        },
-        {
-          "name": "normal test",
-          "hash": "60210811"
-        },
-        {
           "name": "can be overwritten by feature annotation",
           "hash": "0beee608"
-        },
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
         },
         {
           "name": "can be overwritten by class-level annotation",
           "hash": "2b005aca"
         },
         {
-          "name": "a test",
-          "hash": "b85f2fc7"
-        },
-        {
           "name": "can exclude fixture methods from global timeout",
           "hash": "05808ab6"
-        },
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
         }
       ]
     },
@@ -5609,10 +5445,6 @@
           "hash": "63284fdf"
         },
         {
-          "name": "not ignored",
-          "hash": "1692dacb"
-        },
-        {
           "name": "fixture methods cannot be ignored",
           "hash": "e30b7417"
         },
@@ -5627,22 +5459,6 @@
         {
           "name": "Ignore can be configured to be inherited",
           "hash": "58f94633"
-        },
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
         }
       ]
     },
@@ -5710,84 +5526,36 @@
           "hash": "63d4684a"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "spec usage with false",
           "hash": "7bd8f7d8"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "ignored spec contains custom message",
           "hash": "d250589c"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "spec usage with unqualified static method access",
           "hash": "8cb4dde7"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "spec usage with unqualified static field access",
           "hash": "1f3ed348"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "spec usage with shared field access",
           "hash": "f10e89bd"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "spec usage with instance field access",
           "hash": "4f3c15d3"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "@IgnoreIf can be configured to be inherited",
           "hash": "79bc19f6"
         },
         {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
-        },
-        {
           "name": "fails if condition cannot be instantiated",
           "hash": "733e47b2"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "feature is ignored if at least one IgnoreIf annotation is true",
@@ -5814,36 +5582,16 @@
           "hash": "08c8017b"
         },
         {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
           "name": "@IgnoreIf provides condition access to Specification instance shared fields",
           "hash": "961018ae"
-        },
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
         },
         {
           "name": "@IgnoreIf provides condition access to Specification instance fields",
           "hash": "e6739f33"
         },
         {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
           "name": "@IgnoreIf provides condition access to static Specification fields",
           "hash": "d8d2941d"
-        },
-        {
-          "name": "bar",
-          "hash": "2dea7ec1"
-        },
-        {
-          "name": "baz",
-          "hash": "52aa37ac"
         }
       ]
     },
@@ -6048,28 +5796,8 @@
           "hash": "4131d052"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "feature skipping condition is not evaluated in skipped spec with inheritance",
           "hash": "2fd6600d"
-        },
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
         }
       ]
     },
@@ -6369,28 +6097,12 @@
           "hash": "4b30c863"
         },
         {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
           "name": "@PendingFeatureIf provides condition access to Specification instance fields",
           "hash": "a9ab4706"
         },
         {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
           "name": "@PendingFeatureIf provides condition access to static Specification fields",
           "hash": "edeb9865"
-        },
-        {
-          "name": "bar",
-          "hash": "2dea7ec1"
-        },
-        {
-          "name": "baz",
-          "hash": "52aa37ac"
         }
       ]
     },
@@ -6406,52 +6118,20 @@
           "hash": "c57bf45e"
         },
         {
-          "name": "test",
-          "hash": "e0eddd96"
-        },
-        {
           "name": "repeats until maxAttempts is reached",
           "hash": "fb83a4b6"
-        },
-        {
-          "name": "test",
-          "hash": "e0eddd96"
         },
         {
           "name": "skips other tests in the same class that do not have the same annotation too",
           "hash": "f0038f84"
         },
         {
-          "name": "other test 1",
-          "hash": "1ba65022"
-        },
-        {
-          "name": "other test 2",
-          "hash": "645a53ba"
-        },
-        {
-          "name": "test",
-          "hash": "e0eddd96"
-        },
-        {
-          "name": "other test 3",
-          "hash": "0487d351"
-        },
-        {
           "name": "repeats with unknown iteration count",
           "hash": "c5ab859d"
         },
         {
-          "name": "test",
-          "hash": "e0eddd96"
-        },
-        {
           "name": "ignores aborted tests",
           "hash": "5e096d39"
-        },
-        {
-          "name": "test",
-          "hash": "e0eddd96"
         }
       ]
     },
@@ -6504,120 +6184,52 @@
           "hash": "63d4684a"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "spec usage with unqualified static method access",
           "hash": "8cb4dde7"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "spec usage with unqualified static field access",
           "hash": "1f3ed348"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "spec usage with shared field access",
           "hash": "f10e89bd"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "spec usage with instance field access",
           "hash": "4f3c15d3"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "spec usage with false",
           "hash": "7bd8f7d8"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "ignored spec contains custom message",
           "hash": "d250589c"
         },
         {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
-        },
-        {
           "name": "fails if condition cannot be instantiated",
           "hash": "733e47b2"
-        },
-        {
-          "name": "basic usage",
-          "hash": "f4bf8d8d"
         },
         {
           "name": "@Requires provides condition access to Specification instance shared fields",
           "hash": "70c6b607"
         },
         {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
           "name": "@Requires provides condition access to Specification shared fields",
           "hash": "0432ec4e"
-        },
-        {
-          "name": "bar #input",
-          "hash": "843a5c8f"
         },
         {
           "name": "@Requires provides condition access to Specification instance fields",
           "hash": "a580a724"
         },
         {
-          "name": "bar #input",
-          "hash": "843a5c8f"
-        },
-        {
           "name": "@Requires provides condition access to static Specification fields",
           "hash": "329bdfc1"
         },
         {
-          "name": "bar",
-          "hash": "2dea7ec1"
-        },
-        {
-          "name": "baz",
-          "hash": "52aa37ac"
-        },
-        {
           "name": "Requires can be configured to be inherited",
           "hash": "72d5bf27"
-        },
-        {
-          "name": "base feature",
-          "hash": "c01fe81a"
-        },
-        {
-          "name": "foo feature",
-          "hash": "4234976e"
-        },
-        {
-          "name": "bar feature",
-          "hash": "6d8c4928"
-        },
-        {
-          "name": "test feature",
-          "hash": "08a979e7"
         },
         {
           "name": "runs feature if precondition is satisfied",
@@ -6827,20 +6439,8 @@
           "hash": "27d8b124"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry feature inverse annotation order shall be skipped when using PendingFeature",
           "hash": "d8a41c96"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
-          "name": "Retry feature shall be skipped when using PendingFeatureIf",
-          "hash": "dc03ca32"
         },
         {
           "name": "Retry feature shall be skipped when using PendingFeatureIf",
@@ -6851,40 +6451,20 @@
           "hash": "882d63c4"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry iteration shall be skipped when using PendingFeature",
           "hash": "62ae7603"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         },
         {
           "name": "Retry feature parameterized shall be skipped when using PendingFeature",
           "hash": "157bf809"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry iteration parameterized shall be skipped when using PendingFeature",
           "hash": "2ec60f15"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry iteration parameterized shall be skipped when using PendingFeatureIf",
           "hash": "d92ccd81"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         }
       ]
     },
@@ -6900,88 +6480,44 @@
           "hash": "9a1408ae"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry feature shall be skipped if a TestAbortedException is thrown",
           "hash": "dc77a82b"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         },
         {
           "name": "Retry iteration parameterized shall be skipped if a TestAbortedException is thrown",
           "hash": "c5936a9f"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry feature parameterized shall be skipped if a TestAbortedException is thrown",
           "hash": "310f5ae9"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         },
         {
           "name": "Retry shall be skipped when feature is ignored",
           "hash": "c47ab02f"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry inverse shall be skipped when feature is ignored",
           "hash": "c6da4043"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         },
         {
           "name": "Retry parameterized shall be skipped when feature is ignored",
           "hash": "26cf95fa"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry inverse parameterized shall be skipped when feature is ignored",
           "hash": "2e3bb256"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         },
         {
           "name": "Retry shall be skipped  when using Requires",
           "hash": "9d49b111"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry iteration parameterized shall be skipped when using Requires",
           "hash": "8d40e800"
         },
         {
-          "name": "feature",
-          "hash": "e77656f3"
-        },
-        {
           "name": "Retry feature parameterized shall be skipped when using Requires",
           "hash": "afa394a7"
-        },
-        {
-          "name": "feature",
-          "hash": "e77656f3"
         }
       ]
     },
@@ -7297,10 +6833,6 @@
         {
           "name": "@Title changes the reported display name",
           "hash": "b1050c20"
-        },
-        {
-          "name": "a test",
-          "hash": "b85f2fc7"
         }
       ]
     },
@@ -10252,20 +9784,8 @@
           "hash": "fc0e96c4"
         },
         {
-          "name": "mock is called when invoked from Java code",
-          "hash": "58a7c84c"
-        },
-        {
-          "name": "mock is called when invoked directly from Groovy",
-          "hash": "c8621103"
-        },
-        {
           "name": "OSGi package private mock is not mockable in Java 8 due to MethodHandles.Lookup API not available",
           "hash": "05924361"
-        },
-        {
-          "name": "mock is not called when invoked from Java code, because Java 8 does not have Lookup API",
-          "hash": "895ce247"
         }
       ]
     },
@@ -10385,80 +9905,40 @@
           "hash": "92a713cb"
         },
         {
-          "name": "a feature (#a #b)",
-          "hash": "0bc88ae9"
-        },
-        {
           "name": "combined label can have a comment",
           "hash": "da42c778"
-        },
-        {
-          "name": "a feature (#a #b)",
-          "hash": "0bc88ae9"
         },
         {
           "name": "multi-assignments can be combined",
           "hash": "0ecb84f5"
         },
         {
-          "name": "a feature (#a #b #c #d #e #f)",
-          "hash": "7d4ddcd1"
-        },
-        {
           "name": "multi-assignments with unequal sub-lengths can be combined",
           "hash": "d2ec7e92"
-        },
-        {
-          "name": "a feature (#a #b #c #d #e #f)",
-          "hash": "7d4ddcd1"
         },
         {
           "name": "multi-assignments with unequal lengths can be combined",
           "hash": "125d4448"
         },
         {
-          "name": "a feature (#a #b #c #d #e #f)",
-          "hash": "7d4ddcd1"
-        },
-        {
           "name": "derived data variables before or after combination do not take part and work",
           "hash": "b9521d02"
-        },
-        {
-          "name": "a feature (#a #b #c #d)",
-          "hash": "4338bb82"
         },
         {
           "name": "data pipes before or after combination do not take part and work",
           "hash": "95a02ef0"
         },
         {
-          "name": "a feature (#a #b #c #d)",
-          "hash": "4338bb82"
-        },
-        {
           "name": "multi-assignment data pipes before or after combination do not take part and work",
           "hash": "a63cb6cc"
-        },
-        {
-          "name": "a feature (#a #b #c #d #e #f)",
-          "hash": "7d4ddcd1"
         },
         {
           "name": "data tables before or after combination do not take part and work",
           "hash": "afd90e4c"
         },
         {
-          "name": "a feature (#a #b #c #d #e #f)",
-          "hash": "7d4ddcd1"
-        },
-        {
           "name": "combination before or after combination do not take part and work",
           "hash": "4d3f48fa"
-        },
-        {
-          "name": "a feature (#a #b #c #d)",
-          "hash": "4338bb82"
         }
       ]
     },
@@ -10554,10 +10034,6 @@
           "hash": "ac03aba6"
         },
         {
-          "name": "a = #a, b = #b",
-          "hash": "81860a70"
-        },
-        {
           "name": "data tables can be referenced from following variables",
           "hash": "134a09e0"
         },
@@ -10568,10 +10044,6 @@
         {
           "name": "data tables with #separators can be combined",
           "hash": "bbfaa510"
-        },
-        {
-          "name": "a feature (#a #b #c)",
-          "hash": "23879986"
         },
         {
           "name": "combined data table columns can use previous data table column values within one table",
@@ -10594,16 +10066,8 @@
           "hash": "d8e01918"
         },
         {
-          "name": "a feature",
-          "hash": "b0d2f1ab"
-        },
-        {
           "name": "filter block supports static fields",
           "hash": "599e8a06"
-        },
-        {
-          "name": "a feature",
-          "hash": "b0d2f1ab"
         },
         {
           "name": "filter block can not exclude all iterations",
@@ -10622,40 +10086,20 @@
           "hash": "8090ff21"
         },
         {
-          "name": "a feature (#a #b #c #d #e)",
-          "hash": "39603f7f"
-        },
-        {
           "name": "data tables starting with table separator can be combined",
           "hash": "1da8cd79"
-        },
-        {
-          "name": "a feature (#a #b #c #d #e)",
-          "hash": "39603f7f"
         },
         {
           "name": "data tables ending with table separator can be combined",
           "hash": "e833f6f1"
         },
         {
-          "name": "a feature (#a #b #c #d #e)",
-          "hash": "39603f7f"
-        },
-        {
           "name": "data tables and data pipes can be combined",
           "hash": "19fa4dd8"
         },
         {
-          "name": "a feature (#a #b #c)",
-          "hash": "23879986"
-        },
-        {
           "name": "data pipes and data tables can be combined",
           "hash": "8e8dd830"
-        },
-        {
-          "name": "a feature (#a #b #c)",
-          "hash": "23879986"
         },
         {
           "name": "cells can be separated with any amount of semicolons",
@@ -11036,16 +10480,8 @@
           "hash": "f7394bef"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "conditional annotations that check data values work properly with additional arguments",
           "hash": "e2d3f2ab"
-        },
-        {
-          "name": "a feature",
-          "hash": "de464854"
         }
       ]
     },
@@ -11289,10 +10725,6 @@
         {
           "name": "exceptions in iteration interceptors should not affect other iterations",
           "hash": "df131026"
-        },
-        {
-          "name": "myFeature #count",
-          "hash": "f44479ac"
         }
       ]
     },
@@ -11419,14 +10851,6 @@
         {
           "name": "custom name provider for both simple and parameterized features",
           "hash": "8da53581"
-        },
-        {
-          "name": "test",
-          "hash": "e0eddd96"
-        },
-        {
-          "name": "parameterized",
-          "hash": "5e346521"
         }
       ]
     },
@@ -11448,18 +10872,6 @@
         {
           "name": "can roll up a whole class at once",
           "hash": "a6209d00"
-        },
-        {
-          "name": "#actor.details.name",
-          "hash": "e0cd5bfb"
-        },
-        {
-          "name": "not data-driven",
-          "hash": "723cb7a8"
-        },
-        {
-          "name": "#actor.details.age",
-          "hash": "4bd3e59e"
         },
         {
           "name": "method-level uproll annotation wins over class-level unroll annotation",
@@ -11625,40 +11037,20 @@
           "hash": "03a91969"
         },
         {
-          "name": "test1",
-          "hash": "3b7c7cdd"
-        },
-        {
           "name": "verifyAll works with only explicit conditions",
           "hash": "8c438a59"
-        },
-        {
-          "name": "test1",
-          "hash": "3b7c7cdd"
         },
         {
           "name": "assertion blocks should work as expected (reported only once)",
           "hash": "185022fc"
         },
         {
-          "name": "test1",
-          "hash": "3b7c7cdd"
-        },
-        {
           "name": "if exception is not in condition, all already failed conditions should be reported",
           "hash": "35a1a14b"
         },
         {
-          "name": "test1",
-          "hash": "3b7c7cdd"
-        },
-        {
           "name": "verifyAll with target and failures",
           "hash": "36754a51"
-        },
-        {
-          "name": "test1",
-          "hash": "3b7c7cdd"
         },
         {
           "name": "verifyAll with target null fails",
@@ -11667,10 +11059,6 @@
         {
           "name": "verifyAll with target and class and failures",
           "hash": "8c3590b6"
-        },
-        {
-          "name": "test1",
-          "hash": "3b7c7cdd"
         },
         {
           "name": "verifyAll with target null and incompatible class fails",
@@ -11719,10 +11107,6 @@
         {
           "name": "verifyAll with nested verifyAll",
           "hash": "9c6606c8"
-        },
-        {
-          "name": "test1",
-          "hash": "3b7c7cdd"
         }
       ]
     },
@@ -12012,96 +11396,48 @@
           "hash": "9f2a757f"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "succeeds if all conditions are eventually satisfied with condition method '#conditionMethod' and local variable",
           "hash": "486e9299"
-        },
-        {
-          "name": "a feature",
-          "hash": "de464854"
         },
         {
           "name": "fails if any condition isn't satisfied in time with condition method '#conditionMethod' and field",
           "hash": "53f99447"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "fails if any condition isn't satisfied in time with condition method '#conditionMethod' and local variable",
           "hash": "1eb2a42b"
-        },
-        {
-          "name": "a feature",
-          "hash": "de464854"
         },
         {
           "name": "reports failed condition of last failed attempt with condition method '#conditionMethod' and field",
           "hash": "f2679ebe"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "reports failed condition of last failed attempt with condition method '#conditionMethod' and local variable",
           "hash": "ac33f970"
-        },
-        {
-          "name": "a feature",
-          "hash": "de464854"
         },
         {
           "name": "fails if condition is not met and assert keyword is used for def declared conditions object with condition method '#conditionMethod' and field",
           "hash": "2a5b777b"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "fails if condition is not met and assert keyword is used for def declared conditions object with condition method '#conditionMethod' and local variable",
           "hash": "75deee8e"
-        },
-        {
-          "name": "a feature",
-          "hash": "de464854"
         },
         {
           "name": "fails if condition is not met and assert keyword is not used for def declared conditions object with condition method '#conditionMethod' and field",
           "hash": "5079d72a"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "fails if condition is not met and assert keyword is not used for def declared conditions object with condition method '#conditionMethod' and local variable",
           "hash": "75cfcdf9"
-        },
-        {
-          "name": "a feature",
-          "hash": "de464854"
         },
         {
           "name": "can override timeout per invocation with condition method '#conditionMethod' and field",
           "hash": "19dbcc1e"
         },
         {
-          "name": "a feature",
-          "hash": "de464854"
-        },
-        {
           "name": "can override timeout per invocation with condition method '#conditionMethod' and local variable",
           "hash": "06af0126"
-        },
-        {
-          "name": "a feature",
-          "hash": "de464854"
         },
         {
           "name": "provides fine-grained control over polling rhythm",
