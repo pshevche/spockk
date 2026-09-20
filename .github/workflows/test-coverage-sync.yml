@@ -1,0 +1,51 @@
+name: Test coverage sync
+
+on:
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: test-coverage-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v7
+
+      - name: Check out upstream spock-specs
+        uses: actions/checkout@v7
+        with:
+          repository: spockframework/spock
+          path: upstream-spock
+          sparse-checkout: spock-specs
+          fetch-depth: 1
+
+      - name: Record the upstream SHA
+        run: echo "UPSTREAM_SHA=$(git -C upstream-spock rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Regenerate the inventory
+        run: |
+          python3 .github/test-coverage/inventory.py \
+            --upstream upstream-spock --out _docs/test-coverage/spock-inventory.json
+
+      - name: Reconcile issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 .github/test-coverage/reconcile.py --dry-run > /tmp/plan.txt
+          cat /tmp/plan.txt
+          python3 .github/test-coverage/reconcile.py
+
+      - name: Open a PR for the manifest diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/test-coverage/open-manifest-pr.sh
