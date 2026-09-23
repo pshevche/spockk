@@ -9,8 +9,17 @@ import re
 import time
 from dataclasses import dataclass, field
 
+from classify import load_config
 from exclusions import Exclusion
-from render import DASHBOARD_KEY, parse_class_key, parse_known_features, render_area_issue, render_class_issue, render_dashboard
+from render import (
+    AREA_SPLIT_SUFFIX_RE,
+    DASHBOARD_KEY,
+    parse_class_key,
+    parse_known_features,
+    render_area_issue,
+    render_class_issue,
+    render_dashboard,
+)
 from scanner import Coverage
 
 BLOCKED_BY_RE = re.compile(r"<!--\s*spockk-coverage:blocked-by\s+([\d,\s]+?)\s*-->", re.I)
@@ -136,7 +145,7 @@ def plan(
         existing = existing_issues.get(class_key)
 
         if existing is None:
-            title, body = render_class_issue(rendered_class, coverage, exclusions)
+            title, body = render_class_issue(rendered_class, coverage, exclusions, upstream=manifest.get("upstream"))
             mutations.append(
                 Mutation(
                     kind="create_issue",
@@ -275,7 +284,9 @@ def plan(
             if old_key in exclusions:
                 effective_exclusions[new_key] = exclusions[old_key]
 
-        title, body = render_class_issue(rendered_class, effective_coverage, effective_exclusions)
+        title, body = render_class_issue(
+            rendered_class, effective_coverage, effective_exclusions, upstream=manifest.get("upstream")
+        )
         mutations.append(
             Mutation(
                 kind="update_issue",
@@ -299,6 +310,16 @@ def plan(
     return mutations
 
 
+def _packages_by_area(config: dict) -> dict[str, list[str]]:
+    """Base area name (pre-split) -> the upstream package prefixes `classify.area_for()` maps to
+    it, straight from config.toml - the same table that decides area membership, so an area
+    issue's body can say what it actually covers without guessing."""
+    packages: dict[str, list[str]] = {}
+    for prefix, area in config.get("area", {}).items():
+        packages.setdefault(area, []).append(prefix)
+    return {area: sorted(prefixes) for area, prefixes in packages.items()}
+
+
 def plan_hierarchy(
     manifest: dict,
     existing_areas: dict[str, ExistingRollup],
@@ -316,13 +337,14 @@ def plan_hierarchy(
     """
     mutations: list[Mutation] = []
     resolved_areas = _split_areas(manifest, area_split_threshold)
+    packages_by_area = _packages_by_area(load_config())
 
     child_counts: dict[str, int] = {}
     for area_name in resolved_areas.values():
         child_counts[area_name] = child_counts.get(area_name, 0) + 1
     area_names = sorted(child_counts)
 
-    dashboard_title, dashboard_body = render_dashboard(area_names)
+    dashboard_title, dashboard_body = render_dashboard(child_counts)
     if existing_dashboard is None:
         mutations.append(
             Mutation(
@@ -348,7 +370,10 @@ def plan_hierarchy(
         )
 
     for area_name in area_names:
-        title, body = render_area_issue(area_name, child_counts[area_name])
+        base_area = AREA_SPLIT_SUFFIX_RE.match(area_name)
+        base_area = base_area.group("base") if base_area else area_name
+        packages = packages_by_area.get(base_area, [])
+        title, body = render_area_issue(area_name, child_counts[area_name], packages)
         existing = existing_areas.get(area_name)
         if existing is None:
             mutations.append(

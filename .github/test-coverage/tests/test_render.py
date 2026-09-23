@@ -69,6 +69,19 @@ class RenderTest(unittest.TestCase):
         self.assertIn("mocking", body)
         self.assertIn("11", body)
 
+    def test_area_title_is_descriptive_not_a_bare_label(self):
+        title, _ = render_area_issue("mocking", child_count=11)
+        self.assertEqual("Test coverage area: mocking", title)
+
+    def test_split_area_title_names_the_base_area_and_part_number(self):
+        title, _ = render_area_issue("mocking-2", child_count=20)
+        self.assertEqual("Test coverage area: mocking (part 2)", title)
+
+    def test_area_body_lists_the_packages_it_covers(self):
+        _, body = render_area_issue("mocking", child_count=11, packages=["org.spockframework.mock", "spock.mock"])
+        self.assertIn("org.spockframework.mock", body)
+        self.assertIn("spock.mock", body)
+
     def test_area_issue_body_round_trips_its_key(self):
         # The reconciler must be able to find an existing area issue again on rerun, the same way
         # it does for class issues.
@@ -76,18 +89,49 @@ class RenderTest(unittest.TestCase):
         self.assertEqual("mocking", parse_class_key(body))
 
     def test_render_dashboard_names_every_area(self):
-        _, body = render_dashboard(["mocking", "conditions"])
+        _, body = render_dashboard({"mocking": 3, "conditions": 5})
         self.assertIn("mocking", body)
         self.assertIn("conditions", body)
 
+    def test_dashboard_shows_the_class_count_for_each_area(self):
+        _, body = render_dashboard({"mocking": 3, "conditions": 5})
+        self.assertIn("3 classes", body)
+        self.assertIn("5 classes", body)
+
     def test_dashboard_body_round_trips_its_key(self):
-        _, body = render_dashboard(["mocking", "conditions"])
+        _, body = render_dashboard({"mocking": 3, "conditions": 5})
         self.assertEqual(DASHBOARD_KEY, parse_class_key(body))
 
     def test_class_issue_body_round_trips_its_key_and_feature_hashes(self):
         _, body = render_class_issue(CLASS, {}, {})
         self.assertEqual(CLASS["key"], parse_class_key(body))
         self.assertEqual({"one": "aaaa1111"}, parse_known_features(body))
+
+    def test_upstream_line_links_to_the_real_source_file_when_upstream_info_is_given(self):
+        class_with_path = {**CLASS, "path": "spock-specs/src/test/groovy/org/spockframework/smoke/A.groovy"}
+        upstream = {"repo": "spockframework/spock", "sha": "abc1234"}
+
+        _, body = render_class_issue(class_with_path, {}, {}, upstream=upstream)
+
+        self.assertIn(
+            "https://github.com/spockframework/spock/blob/abc1234/"
+            "spock-specs/src/test/groovy/org/spockframework/smoke/A.groovy",
+            body,
+        )
+
+    def test_upstream_line_falls_back_to_plain_text_without_upstream_info(self):
+        _, body = render_class_issue(CLASS, {}, {})
+        self.assertIn("**Upstream:** `A`", body)
+        self.assertNotIn("github.com/spockframework/spock/blob", body)
+
+    def test_class_body_explains_the_recipe_and_area_in_plain_language(self):
+        annotated = {**CLASS, "recipe": "engine-runtime", "area": "smoke-core"}
+
+        _, body = render_class_issue(annotated, {}, {})
+
+        self.assertIn("engine-runtime", body)
+        self.assertIn("smoke-core", body)
+        self.assertIn("SKILL.md", body)
 
 
 if __name__ == "__main__":
