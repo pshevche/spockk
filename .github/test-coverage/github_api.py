@@ -29,6 +29,10 @@ LINK_NEXT_RE = re.compile(r'<([^>]+)>;\s*rel="next"')
 
 SECONDARY_RATE_LIMIT_INITIAL_WAIT = 60
 
+SERVER_ERROR_STATUSES = (500, 502, 503, 504)
+SERVER_ERROR_MAX_RETRIES = 5
+SERVER_ERROR_INITIAL_WAIT = 5
+
 
 class GitHubAPIError(Exception):
     """Raised when the API returns an unexpected non-2xx status."""
@@ -80,6 +84,8 @@ class GitHub:
     def _request(self, method, path, body=None):
         url = self._url(path)
         secondary_limit_wait = SECONDARY_RATE_LIMIT_INITIAL_WAIT
+        server_error_wait = SERVER_ERROR_INITIAL_WAIT
+        server_error_retries = 0
         while True:
             response = self._transport.request(method, url, self._headers(), body)
             if response.status == 403 and response.headers.get("X-RateLimit-Remaining") == "0":
@@ -91,6 +97,11 @@ class GitHub:
                 wait = int(retry_after) if retry_after else secondary_limit_wait
                 self._transport.sleep(wait)
                 secondary_limit_wait *= 2
+                continue
+            if response.status in SERVER_ERROR_STATUSES and server_error_retries < SERVER_ERROR_MAX_RETRIES:
+                server_error_retries += 1
+                self._transport.sleep(server_error_wait)
+                server_error_wait *= 2
                 continue
             return response
 

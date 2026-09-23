@@ -117,11 +117,48 @@ class GitHubClientTest(unittest.TestCase):
             gh.get("/broken")
 
     def test_post_raises_on_an_unexpected_non_2xx_status(self):
-        transport = FakeTransport([FakeResponse(500, {}, b'{"message": "server error"}')])
+        transport = FakeTransport([FakeResponse(422, {}, b'{"message": "unprocessable"}')])
         gh = GitHub(token="t", repo="o/r", transport=transport)
 
         with self.assertRaises(GitHubAPIError):
             gh.post("/issues", {"title": "x"})
+
+    def test_transient_server_error_retries_then_succeeds(self):
+        transport = FakeTransport(
+            [
+                FakeResponse(503, {}, b'{"message": "No server is currently available"}'),
+                FakeResponse(200, {}, b'{"ok": true}'),
+            ]
+        )
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        result = gh.get("/flaky")
+
+        self.assertEqual({"ok": True}, result)
+        self.assertEqual(1, len(transport.sleeps))
+
+    def test_transient_server_error_backs_off_exponentially_between_retries(self):
+        transport = FakeTransport(
+            [
+                FakeResponse(502, {}, b""),
+                FakeResponse(503, {}, b""),
+                FakeResponse(200, {}, b'{"ok": true}'),
+            ]
+        )
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        gh.get("/flaky")
+
+        self.assertEqual([5, 10], transport.sleeps)
+
+    def test_transient_server_error_gives_up_after_max_retries(self):
+        transport = FakeTransport([FakeResponse(503, {}, b'{"message": "still down"}')] * 6)
+        gh = GitHub(token="t", repo="o/r", transport=transport)
+
+        with self.assertRaises(GitHubAPIError):
+            gh.get("/flaky")
+
+        self.assertEqual(6, len(transport.requests))
 
     def test_ensure_labels_creates_a_missing_label(self):
         transport = FakeTransport(
