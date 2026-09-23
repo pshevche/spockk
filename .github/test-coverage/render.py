@@ -16,9 +16,12 @@ BEGIN_KEY_RE = re.compile(r'<!--\s*spockk-coverage:begin\s+key="([^"]*)"\s*-->',
 END_RE = re.compile(r"<!--\s*spockk-coverage:end\s*-->", re.I)
 FEATURES_SNAPSHOT_RE = re.compile(r"<!--\s*spockk-coverage:features\s+(\{.*?\})\s*-->", re.I | re.S)
 
-UPSTREAM_BLOB_ROOT = "https://github.com/spockframework/spock/blob"
-
 DASHBOARD_KEY = "dashboard"
+
+SKILL_PATH = ".claude/skills/spock-test-coverage/SKILL.md"
+SKILL_URL = f"https://github.com/pshevche/spockk/blob/main/{SKILL_PATH}"
+
+AREA_SPLIT_SUFFIX_RE = re.compile(r"^(?P<base>.+)-(?P<part>\d+)$")
 
 
 @dataclass
@@ -71,7 +74,7 @@ def _feature_line(name: str, key: str, coverage: dict[str, Coverage], exclusions
 
 
 def render_class_issue(
-    spec_class: dict, coverage: dict[str, Coverage], exclusions: dict[str, Exclusion]
+    spec_class: dict, coverage: dict[str, Coverage], exclusions: dict[str, Exclusion], upstream: dict | None = None
 ) -> tuple[str, str]:
     class_key = spec_class["key"]
     class_name = class_key.rsplit(".", 1)[-1]
@@ -81,11 +84,20 @@ def render_class_issue(
     done = sum(1 for f in features if coverage.get(f"{class_key}#{f['name']}") is not None
                and coverage[f"{class_key}#{f['name']}"].status == "ported")
 
-    header_lines = [f"**Upstream:** `{class_name}`"]
+    if upstream:
+        blob_url = f"https://github.com/{upstream['repo']}/blob/{upstream['sha']}/{spec_class['path']}"
+        upstream_line = f"**Upstream:** [`{class_name}`]({blob_url})"
+    else:
+        upstream_line = f"**Upstream:** `{class_name}`"
+
+    intro_parts = ["Ports this upstream Spock test class into an equivalent Spockk test"]
     if "recipe" in spec_class:
-        header_lines.append(f"**Recipe:** {spec_class['recipe']} (see `/spock-test-coverage`)")
+        intro_parts.append(f"using the **{spec_class['recipe']}** recipe")
+    intro = " ".join(intro_parts) + f" (see [`{SKILL_PATH}`]({SKILL_URL}) for how)."
     if "area" in spec_class:
-        header_lines.append(f"**Area:** {spec_class['area']}")
+        intro += f" Part of the **{spec_class['area']}** test coverage area."
+
+    header_lines = [intro, "", upstream_line]
 
     features_snapshot = json.dumps({f["name"]: f["hash"] for f in features}, sort_keys=True)
     region = "\n".join(
@@ -125,16 +137,44 @@ def split_class(spec_class: dict, threshold: int) -> list[Part]:
     return parts
 
 
-def render_area_issue(area: str, child_count: int) -> tuple[str, str]:
-    title = f"Area: {area}"
-    region = f"**Area:** {area}\n**Classes:** {child_count}"
+def render_area_issue(area: str, child_count: int, packages: list[str] = ()) -> tuple[str, str]:
+    split = AREA_SPLIT_SUFFIX_RE.match(area)
+    title = f"Test coverage area: {split.group('base')} (part {split.group('part')})" if split else f"Test coverage area: {area}"
+
+    package_list = ", ".join(f"`{p}`" for p in packages) if packages else "a related set of upstream classes"
+    region = "\n".join(
+        [
+            "One of several areas in the Spock → Spockk test coverage effort: upstream Spock test "
+            "classes grouped by package, split further when an area would otherwise exceed GitHub's "
+            f"100-sub-issue limit. This area covers {package_list}.",
+            "",
+            f"**Classes:** {child_count} (see sub-issues below)",
+        ]
+    )
     body = merge_generated_region("", region, key=area)
     return title, body
 
 
-def render_dashboard(areas: list[str]) -> tuple[str, str]:
-    title = "Spock Test Coverage Dashboard"
-    lines = [f"- {area}" for area in areas]
-    region = "\n".join(["### Areas", "", *lines])
+def render_dashboard(area_counts: dict[str, int]) -> tuple[str, str]:
+    title = "Spock → Spockk Test Coverage Dashboard"
+    lines = [f"- {area} — {count} classes" for area, count in sorted(area_counts.items())]
+    region = "\n".join(
+        [
+            "**What this is:** Spockk reimplements Spock's BDD syntax in Kotlin. To prove it actually "
+            "behaves like Spock, we port Spock's own test suite (`spock-specs`) feature-by-feature into "
+            "Spockk tests. This issue tracks that effort across every upstream test class, grouped into "
+            "areas below.",
+            "",
+            "**Hierarchy:** this dashboard → one issue per area → one issue per upstream class, "
+            "linked as GitHub sub-issues so progress bars roll up automatically.",
+            "",
+            "**Checkbox states on a class issue:** unchecked (not started) · checked (ported) · "
+            "~~struck through~~ (not applicable to Kotlin) · \"(blocked by #N)\" (needs a Spockk fix first).",
+            "",
+            "### Areas",
+            "",
+            *lines,
+        ]
+    )
     body = merge_generated_region("", region, key=DASHBOARD_KEY)
     return title, body

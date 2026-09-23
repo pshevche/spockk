@@ -4,6 +4,7 @@ from reconcile import (
     ExistingIssue,
     ExistingRollup,
     Mutation,
+    _packages_by_area,
     apply,
     find_dashboard_issue,
     index_area_issues,
@@ -280,7 +281,7 @@ class IndexIssuesTest(unittest.TestCase):
         self.assertEqual(2020, indexed["smoke-core"].id)
 
     def test_finds_the_dashboard_issue_by_its_key(self):
-        _, body = render_dashboard(["smoke-core"])
+        _, body = render_dashboard({"smoke-core": 1})
         raw = [
             {"number": 1, "id": 11, "body": "unrelated issue"},
             {"number": 2, "id": 22, "body": body},
@@ -301,7 +302,27 @@ class IndexIssuesTest(unittest.TestCase):
         self.assertEqual({"org.spockframework.smoke.A"}, linked_keys(raw_sub_issues))
 
 
+class PackagesByAreaTest(unittest.TestCase):
+    def test_groups_every_configured_prefix_under_its_area(self):
+        config = {"area": {"org.spockframework.mock": "mocking", "spock.mock": "mocking", "org.spockframework.runtime": "runtime"}}
+
+        packages = _packages_by_area(config)
+
+        self.assertEqual(["org.spockframework.mock", "spock.mock"], packages["mocking"])
+        self.assertEqual(["org.spockframework.runtime"], packages["runtime"])
+
+
 class PlanHierarchyTest(unittest.TestCase):
+    def test_area_issue_body_names_the_real_upstream_packages_it_covers(self):
+        # "mocking" is a real area from config.toml, mapping several upstream packages.
+        manifest = _manifest(_class("org.spockframework.smoke.mock.M", "mocking", ("one", "aaaa1111")))
+
+        mutations = plan_hierarchy(manifest, existing_areas={}, existing_dashboard=None,
+                                    existing_area_links={}, existing_dashboard_links=set())
+
+        create_area = next(m for m in mutations if m.kind == "create_area_issue")
+        self.assertIn("org.spockframework.mock", create_area.payload["body"])
+
     def test_creates_the_dashboard_and_area_issues_when_none_exist(self):
         manifest = _manifest(
             _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")),
