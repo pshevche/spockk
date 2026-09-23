@@ -1,9 +1,14 @@
-name: Test coverage sync
+name: Test coverage - Sync
 
 on:
   schedule:
     - cron: "0 4 * * 1"
   workflow_dispatch:
+    inputs:
+      max_mutations:
+        description: "Max issue mutations allowed in one run (safety cap; reconcile.py's own default applies if left blank)"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -40,10 +45,15 @@ jobs:
       - name: Reconcile issues
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MAX_MUTATIONS: ${{ inputs.max_mutations }}
         run: |
-          python3 .github/test-coverage/reconcile.py --dry-run > /tmp/plan.txt
+          ARGS=()
+          if [ -n "$MAX_MUTATIONS" ]; then
+            ARGS+=(--max-mutations "$MAX_MUTATIONS")
+          fi
+          python3 .github/test-coverage/reconcile.py --dry-run "${ARGS[@]}" > /tmp/plan.txt
           cat /tmp/plan.txt
-          python3 .github/test-coverage/reconcile.py
+          python3 .github/test-coverage/reconcile.py "${ARGS[@]}"
 
       - name: Open a PR for the manifest diff
         env:
