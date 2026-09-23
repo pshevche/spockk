@@ -16,8 +16,6 @@ BEGIN_KEY_RE = re.compile(r'<!--\s*spockk-coverage:begin\s+key="([^"]*)"\s*-->',
 END_RE = re.compile(r"<!--\s*spockk-coverage:end\s*-->", re.I)
 FEATURES_SNAPSHOT_RE = re.compile(r"<!--\s*spockk-coverage:features\s+(\{.*?\})\s*-->", re.I | re.S)
 
-UPSTREAM_BLOB_ROOT = "https://github.com/spockframework/spock/blob"
-
 DASHBOARD_KEY = "dashboard"
 
 SKILL_PATH = ".claude/skills/spock-test-coverage/SKILL.md"
