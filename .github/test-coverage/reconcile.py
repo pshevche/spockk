@@ -38,6 +38,7 @@ class ExistingIssue:
     number: int
     id: int
     state: str  # "open" | "closed"
+    title: str
     body: str
     labels: list[str] = field(default_factory=list)
 
@@ -48,6 +49,7 @@ class ExistingRollup:
 
     number: int
     id: int
+    title: str
     body: str
 
 
@@ -69,6 +71,7 @@ def index_issues(raw_issues: list[dict]) -> dict[str, ExistingIssue]:
             number=raw["number"],
             id=raw["id"],
             state=raw["state"],
+            title=raw.get("title", ""),
             body=raw.get("body", ""),
             labels=list(raw.get("labels", [])),
         )
@@ -81,14 +84,18 @@ def index_area_issues(raw_issues: list[dict]) -> dict[str, ExistingRollup]:
         key = parse_class_key(raw.get("body", ""))
         if key is None:
             continue
-        indexed[key] = ExistingRollup(number=raw["number"], id=raw["id"], body=raw.get("body", ""))
+        indexed[key] = ExistingRollup(
+            number=raw["number"], id=raw["id"], title=raw.get("title", ""), body=raw.get("body", "")
+        )
     return indexed
 
 
 def find_dashboard_issue(raw_issues: list[dict]) -> ExistingRollup | None:
     for raw in raw_issues:
         if parse_class_key(raw.get("body", "")) == DASHBOARD_KEY:
-            return ExistingRollup(number=raw["number"], id=raw["id"], body=raw.get("body", ""))
+            return ExistingRollup(
+                number=raw["number"], id=raw["id"], title=raw.get("title", ""), body=raw.get("body", "")
+            )
     return None
 
 
@@ -287,14 +294,15 @@ def plan(
         title, body = render_class_issue(
             rendered_class, effective_coverage, effective_exclusions, upstream=manifest.get("upstream")
         )
-        mutations.append(
-            Mutation(
-                kind="update_issue",
-                target=class_key,
-                payload={"issue": existing.number, "id": existing.id, "title": title, "body": body},
-                reason="regenerate generated region",
+        if (title, body) != (existing.title, existing.body):
+            mutations.append(
+                Mutation(
+                    kind="update_issue",
+                    target=class_key,
+                    payload={"issue": existing.number, "id": existing.id, "title": title, "body": body},
+                    reason="regenerate generated region",
+                )
             )
-        )
 
     for class_key, existing in existing_issues.items():
         if class_key not in current_keys and existing.state != "closed":
@@ -354,7 +362,7 @@ def plan_hierarchy(
                 reason="dashboard does not exist yet",
             )
         )
-    else:
+    elif (dashboard_title, dashboard_body) != (existing_dashboard.title, existing_dashboard.body):
         mutations.append(
             Mutation(
                 kind="update_dashboard_issue",
@@ -384,7 +392,7 @@ def plan_hierarchy(
                     reason="new area",
                 )
             )
-        else:
+        elif (title, body) != (existing.title, existing.body):
             mutations.append(
                 Mutation(
                     kind="update_area_issue",
