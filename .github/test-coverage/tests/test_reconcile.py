@@ -1,5 +1,6 @@
 import unittest
 
+from classify import load_config
 from reconcile import (
     ExistingIssue,
     ExistingRollup,
@@ -40,13 +41,32 @@ class ReconcileTest(unittest.TestCase):
         self.assertEqual("org.spockframework.smoke.A", m.target)
         self.assertEqual("smoke-core", m.payload["area"])
 
+    def test_update_issue_is_skipped_when_nothing_actually_changed(self):
+        spec_class = _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111"))
+        manifest = _manifest(spec_class)
+        rendered_class = {**spec_class, "area": "smoke-core"}
+        title, body = render_class_issue(rendered_class, {}, {}, upstream=None)
+        existing = {
+            "org.spockframework.smoke.A": ExistingIssue(
+                number=1, id=101, title=title, state="open", body=body, labels=["test-coverage::spec"]
+            )
+        }
+
+        mutations = plan(manifest, coverage={}, exclusions={}, existing_issues=existing)
+
+        self.assertEqual([], [m for m in mutations if m.kind == "update_issue"])
+
     def test_new_feature_appends_and_reopens_a_closed_issue(self):
         old_class = _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111"))
         _, old_body = render_class_issue(old_class, {}, {})
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
-                id=101, state="closed", body=old_body, labels=["test-coverage::spec"]
+                id=101,
+                title="Migrate org.spockframework.smoke.A",
+                state="closed",
+                body=old_body,
+                labels=["test-coverage::spec"],
             )
         }
         new_class = _class(
@@ -69,7 +89,11 @@ class ReconcileTest(unittest.TestCase):
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
-                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
+                id=101,
+                title="Migrate org.spockframework.smoke.A",
+                state="open",
+                body=old_body,
+                labels=["test-coverage::spec"],
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111"))
@@ -89,7 +113,11 @@ class ReconcileTest(unittest.TestCase):
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
-                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
+                id=101,
+                title="Migrate org.spockframework.smoke.A",
+                state="open",
+                body=old_body,
+                labels=["test-coverage::spec"],
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("one", "cccc3333"))
@@ -109,7 +137,11 @@ class ReconcileTest(unittest.TestCase):
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
-                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
+                id=101,
+                title="Migrate org.spockframework.smoke.A",
+                state="open",
+                body=old_body,
+                labels=["test-coverage::spec"],
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("uno", "aaaa1111"))
@@ -129,7 +161,11 @@ class ReconcileTest(unittest.TestCase):
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
-                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
+                id=101,
+                title="Migrate org.spockframework.smoke.A",
+                state="open",
+                body=old_body,
+                labels=["test-coverage::spec"],
             )
         }
         new_class = _class("org.spockframework.smoke.A", "smoke-core", ("uno", "aaaa1111"))
@@ -148,7 +184,11 @@ class ReconcileTest(unittest.TestCase):
         existing = {
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
-                id=101, state="open", body=old_body, labels=["test-coverage::spec"]
+                id=101,
+                title="Migrate org.spockframework.smoke.A",
+                state="open",
+                body=old_body,
+                labels=["test-coverage::spec"],
             )
         }
         manifest = _manifest()
@@ -181,6 +221,7 @@ class ReconcileTest(unittest.TestCase):
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
                 id=101,
+                title="Migrate org.spockframework.smoke.A",
                 state="open",
                 body=old_body,
                 labels=["test-coverage::spec", "test-coverage::blocked"],
@@ -205,6 +246,7 @@ class ReconcileTest(unittest.TestCase):
             "org.spockframework.smoke.A": ExistingIssue(
                 number=1,
                 id=101,
+                title="Migrate org.spockframework.smoke.A",
                 state="open",
                 body=old_body,
                 labels=["test-coverage::spec", "test-coverage::blocked"],
@@ -340,8 +382,8 @@ class PlanHierarchyTest(unittest.TestCase):
 
     def test_updates_an_existing_dashboard_and_area_issue_instead_of_recreating(self):
         manifest = _manifest(_class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")))
-        existing_areas = {"smoke-core": ExistingRollup(number=20, id=2020, body="")}
-        existing_dashboard = ExistingRollup(number=1, id=11, body="")
+        existing_areas = {"smoke-core": ExistingRollup(number=20, id=2020, title="", body="")}
+        existing_dashboard = ExistingRollup(number=1, id=11, title="", body="")
 
         mutations = plan_hierarchy(manifest, existing_areas, existing_dashboard,
                                     existing_area_links={}, existing_dashboard_links=set())
@@ -352,6 +394,37 @@ class PlanHierarchyTest(unittest.TestCase):
         update_area = next(m for m in mutations if m.kind == "update_area_issue")
         self.assertEqual(20, update_area.payload["issue"])
         self.assertEqual(2020, update_area.payload["id"])
+
+    def test_update_area_issue_is_skipped_when_nothing_actually_changed(self):
+        manifest = _manifest(_class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")))
+        packages = _packages_by_area(load_config())["smoke-core"]
+        title, body = render_area_issue("smoke-core", child_count=1, packages=packages)
+        existing_areas = {"smoke-core": ExistingRollup(number=20, id=2020, title=title, body=body)}
+
+        mutations = plan_hierarchy(
+            manifest,
+            existing_areas,
+            existing_dashboard=None,
+            existing_area_links={"smoke-core": {"org.spockframework.smoke.A"}},
+            existing_dashboard_links=set(),
+        )
+
+        self.assertEqual([], [m for m in mutations if m.kind == "update_area_issue"])
+
+    def test_update_dashboard_issue_is_skipped_when_nothing_actually_changed(self):
+        manifest = _manifest(_class("org.spockframework.smoke.A", "smoke-core", ("one", "aaaa1111")))
+        title, body = render_dashboard({"smoke-core": 1})
+        existing_dashboard = ExistingRollup(number=1, id=11, title=title, body=body)
+
+        mutations = plan_hierarchy(
+            manifest,
+            existing_areas={},
+            existing_dashboard=existing_dashboard,
+            existing_area_links={},
+            existing_dashboard_links={"smoke-core"},
+        )
+
+        self.assertEqual([], [m for m in mutations if m.kind == "update_dashboard_issue"])
 
     def test_links_every_spec_issue_under_its_area_and_every_area_under_the_dashboard(self):
         manifest = _manifest(
@@ -379,7 +452,7 @@ class PlanHierarchyTest(unittest.TestCase):
 
         mutations = plan_hierarchy(
             manifest,
-            existing_areas={"smoke-core": ExistingRollup(number=20, id=2020, body="")},
+            existing_areas={"smoke-core": ExistingRollup(number=20, id=2020, title="", body="")},
             existing_dashboard=None,
             existing_area_links={"smoke-core": {"org.spockframework.smoke.A"}},
             existing_dashboard_links=set(),
@@ -396,7 +469,7 @@ class PlanHierarchyTest(unittest.TestCase):
         mutations = plan_hierarchy(
             manifest,
             existing_areas={},
-            existing_dashboard=ExistingRollup(number=1, id=11, body=""),
+            existing_dashboard=ExistingRollup(number=1, id=11, title="", body=""),
             existing_area_links={},
             existing_dashboard_links={"smoke-core"},
         )
