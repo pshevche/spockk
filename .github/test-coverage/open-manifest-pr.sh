@@ -41,10 +41,19 @@ if ! CREATE_REF_OUTPUT=$(gh api --method POST "repos/${GITHUB_REPOSITORY}/git/re
 fi
 
 FILE_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/${MANIFEST_PATH}?ref=${BRANCH}" --jq .sha)"
-CONTENT_B64="$(base64 -w0 "$MANIFEST_PATH")"
+
+# Base64-encode to a temp file rather than a shell variable: the manifest is large enough (hundreds
+# of KB) that passing its base64 form as a command-line argument - to jq via --arg, to gh, to
+# anything - blows past the OS's argument-list size limit ("Argument list too long"). jq's
+# --rawfile reads a variable's value directly from a file instead, so the content itself never
+# touches any process's argv.
+CONTENT_B64_FILE="$(mktemp)"
+trap 'rm -f "$CONTENT_B64_FILE"' EXIT
+base64 -w0 "$MANIFEST_PATH" | tr -d '\n' > "$CONTENT_B64_FILE"
+
 jq -n \
   --arg message "$COMMIT_MESSAGE" \
-  --arg content "$CONTENT_B64" \
+  --rawfile content "$CONTENT_B64_FILE" \
   --arg sha "$FILE_SHA" \
   --arg branch "$BRANCH" \
   '{message: $message, content: $content, sha: $sha, branch: $branch}' |
