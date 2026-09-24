@@ -498,7 +498,7 @@ def apply(mutations: list[Mutation], github, sleep=time.sleep) -> None:
             sleep(MUTATION_PACING_SECONDS)
 
 
-DEFAULT_MAX_MUTATIONS = 50
+DEFAULT_MAX_MUTATIONS = 300
 
 
 class BlastRadiusExceeded(Exception):
