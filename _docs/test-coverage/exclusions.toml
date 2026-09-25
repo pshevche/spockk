@@ -14,3 +14,18 @@
 status = "not-applicable"
 reason = "Kotlin has no GString; string templates compile to concatenation"
 decided = "2026-09-19"
+
+[["org.spockframework.mock.AccessProtectedPropsSpec#Access protected fields Issue #1452"]]
+status = "not-applicable"
+reason = "Groovy's GroovyObject.getProperty lets a spec class read a protected field of an unrelated class dynamically; Kotlin enforces protected visibility at compile time, so `mySpy.nonStaticFlag`/`mySpy.staticFlag` from outside the class hierarchy does not compile"
+decided = "2026-09-25"
+
+[["org.spockframework.mock.AccessProtectedPropsSpec#Access protected fields without spy"]]
+status = "not-applicable"
+reason = "Same direct protected-property-access pattern as 'Access protected fields Issue #1452', minus the spy; does not compile under Kotlin's protected visibility rules"
+decided = "2026-09-25"
+
+[["org.spockframework.mock.AccessProtectedPropsSpec#Access protected fields should be accessible in Groovy 3&4 with Java class Issue #1501"]]
+status = "not-applicable"
+reason = "Exists upstream to contrast a Groovy-compiled subclass against a plain Java-compiled base class, isolating the GroovyObject.getProperty override bug (spockframework/spock#1501) to Groovy-compiled types. Kotlin classes never implement GroovyObject, so every Kotlin-based feature in this class is already the 'clean' non-Groovy case; a dedicated Java-class variant would only duplicate the other ported features without exercising a different code path"
+decided = "2026-09-25"
