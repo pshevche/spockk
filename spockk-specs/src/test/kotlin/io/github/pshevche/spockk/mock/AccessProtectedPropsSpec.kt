@@ -22,7 +22,7 @@ import spock.lang.Specification
 class AccessProtectedPropsSpec : Specification() {
 
   @MigratedFrom("org.spockframework.mock.AccessProtectedPropsSpec#Access protected const should be accessible in Groovy 3&4 Issue #1501")
-  fun `Access protected const should be accessible in Groovy 3&4 Issue #1501`() {
+  fun `protected const should be accessible`() {
     `when`
     val mySpy: AccessProtectedSubClass = Spy()
 
@@ -31,7 +31,7 @@ class AccessProtectedPropsSpec : Specification() {
   }
 
   @MigratedFrom("org.spockframework.mock.AccessProtectedPropsSpec#Access protected should be accessible in Groovy 3&4 Issue #1501")
-  fun `Access protected should be accessible in Groovy 3&4 Issue #1501`() {
+  fun `protected should be accessible`() {
     `when`
     val mySpy: AccessProtectedSubClass = Spy()
 
@@ -40,7 +40,7 @@ class AccessProtectedPropsSpec : Specification() {
   }
 
   @MigratedFrom("org.spockframework.mock.AccessProtectedPropsSpec#Access protected fields via access methods without spy")
-  fun `Access protected fields via access methods without spy`() {
+  fun `access protected fields via access methods without spy`() {
     `when`
     val myNonSpy = AccessProtectedSubClass()
 
