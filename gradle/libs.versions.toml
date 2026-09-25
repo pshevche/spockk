@@ -28,4 +28,4 @@ kotlin-compile-testing = { module = "dev.zacsweers.kctfork:core", version = "0.1
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
 spock-junit4 = { module = "org.spockframework:spock-junit4", version.ref = "spock" }
-mockito = { module = "org.mockito:mockito-core", version = "5.23.0" }
+mockito = { module = "org.mockito:mockito-core", version = "5.24.0" }
