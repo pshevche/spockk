@@ -29,3 +29,9 @@ decided = "2026-09-25"
 status = "not-applicable"
 reason = "Exists upstream to contrast a Groovy-compiled subclass against a plain Java-compiled base class, isolating the GroovyObject.getProperty override bug (spockframework/spock#1501) to Groovy-compiled types. Kotlin classes never implement GroovyObject, so every Kotlin-based feature in this class is already the 'clean' non-Groovy case; a dedicated Java-class variant would only duplicate the other ported features without exercising a different code path"
 decided = "2026-09-25"
+
+[["org.spockframework.mock.DetachedMockFactorySpec#can spy on instances of classes with no default constructor"]]
+status = "blocked"
+reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-09-29"
