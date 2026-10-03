@@ -34,3 +34,9 @@ decided = "2026-09-25"
 status = "not-applicable"
 reason = "This is the class's setup fixture method, not a feature; its only content upstream is runner.addClassImport(AutoAttach), wiring the embedded Groovy compiler to resolve @AutoAttach inside the dynamically-compiled spec bodies the other features pass as strings. The Kotlin port uses real ahead-of-time-compiled fixture classes that import spock.mock.AutoAttach directly, so there is no dynamic-compilation import step to reproduce"
 decided = "2026-09-27"
+
+[["org.spockframework.mock.DetachedMockFactorySpec#can spy on instances of classes with no default constructor"]]
+status = "blocked"
+reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-09-29"
