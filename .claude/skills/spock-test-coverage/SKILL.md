@@ -127,3 +127,5 @@ that's fixed, not a permanent requirement.
   `exclusions.toml` with the outcome that applies.
 - `python3 .github/test-coverage/validate.py` exits 0.
 - The PR body links the upstream source file the port came from.
+- The PR body has been through the `humanizer` skill and follows the syntax rules in `spock-gap-triage` ("Writing the
+  issue body"): unescaped Markdown, plain links, one footer.
