@@ -126,4 +126,20 @@ that's fixed, not a permanent requirement.
 - The test passes, or carries `@PendingFeature` backed by a live gap issue, or the feature is recorded in
   `exclusions.toml` with the outcome that applies.
 - `python3 .github/test-coverage/validate.py` exits 0.
-- The PR body links the upstream source file the port came from.
+- The PR body links the upstream source file the port came from, as a plain Markdown link to a branch, never a
+  pinned commit SHA - see "Writing the PR and issue body" below for why.
+- The PR body has been through the `humanizer` skill and follows the syntax rules in `spock-gap-triage` ("Writing
+  the issue body"): unescaped Markdown, plain links, one footer.
+
+## Writing the PR and issue body
+
+A link into `spockframework/spock` pinned to a commit SHA (`.../blob/<40-char-sha>/...`) reliably comes back
+corrupted - extra backticks land inside the link, breaking it - because this session has no write access to that
+repository, and the GitHub write path mangles a SHA-pinned deep link into a repo it does not own. A link to a
+branch (`.../blob/master/...`) does not trigger this and renders as a normal clickable link. Always use `master`
+for an upstream Spock reference, never the SHA recorded anywhere else in the port. The same applies to any other
+out-of-scope repository referenced by commit SHA.
+
+This is separate from the humanizer pass and from `spock-gap-triage`'s syntax checklist: humanizing prose and
+checking for escaped HTML do not catch a mangled link, so check the link rule on its own, and re-read the posted
+PR to confirm the link rendered correctly.
