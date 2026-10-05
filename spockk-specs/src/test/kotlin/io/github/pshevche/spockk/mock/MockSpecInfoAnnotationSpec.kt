@@ -19,7 +19,6 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.MockUtil
-import org.spockframework.runtime.model.NodeInfo
 import org.spockframework.runtime.model.SpecInfo
 import org.spockframework.util.Nullable
 import spock.lang.Specification
@@ -38,13 +37,10 @@ class MockSpecInfoAnnotationSpec : Specification() {
     given
     val mockUtil = MockUtil()
     val spec = Stub(SpecInfo::class.java)
-    // Kotlin, unlike Groovy, statically resolves getAnnotation()'s generic return type and
-    // inserts a checkcast to Nullable; reflection keeps the call as dynamic as upstream's,
-    // matching the actual erased return type (Annotation) the assertions check against.
-    val getAnnotation = NodeInfo::class.java.getMethod("getAnnotation", Class::class.java)
+    val annotationClass: Class<out Annotation> = Nullable::class.java
 
     `when`
-    val t = getAnnotation.invoke(spec, Nullable::class.java)
+    val t = spec.getAnnotation(annotationClass)
 
     then
     t is Annotation
