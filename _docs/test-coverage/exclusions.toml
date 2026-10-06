@@ -34,3 +34,15 @@ decided = "2026-09-25"
 status = "not-applicable"
 reason = "This is the class's setup fixture method, not a feature; its only content upstream is runner.addClassImport(AutoAttach), wiring the embedded Groovy compiler to resolve @AutoAttach inside the dynamically-compiled spec bodies the other features pass as strings. The Kotlin port uses real ahead-of-time-compiled fixture classes that import spock.mock.AutoAttach directly, so there is no dynamic-compilation import step to reproduce"
 decided = "2026-09-27"
+
+[["org.spockframework.mock.response.MockPrimitiveTypeResponsesSpec#Mock Response TypeArgumentConstraint with primitive type Issue #1974"]]
+status = "blocked"
+reason = "Spockk interactions only have the untyped any() wildcard; there is no equivalent of Spock's `_ as int` type constraint, which is what this feature tests"
+gap = "https://github.com/pshevche/spockk/issues/684"
+decided = "2026-10-06"
+
+[["org.spockframework.mock.response.MockPrimitiveTypeResponsesSpec#Mock Response TypeArgumentConstraint with different primitive types Issue #1974"]]
+status = "blocked"
+reason = "Needs the same `_ as int` type constraint as the sibling feature; it also calls an Int-taking method with a Double and a Boolean, which Kotlin's static typing rejects, so the port will need a differently typed target once the gap is closed"
+gap = "https://github.com/pshevche/spockk/issues/684"
+decided = "2026-10-06"
