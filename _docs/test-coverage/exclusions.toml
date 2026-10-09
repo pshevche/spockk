@@ -30,6 +30,16 @@ status = "not-applicable"
 reason = "Exists upstream to contrast a Groovy-compiled subclass against a plain Java-compiled base class, isolating the GroovyObject.getProperty override bug (spockframework/spock#1501) to Groovy-compiled types. Kotlin classes never implement GroovyObject, so every Kotlin-based feature in this class is already the 'clean' non-Groovy case; a dedicated Java-class variant would only duplicate the other ported features without exercising a different code path"
 decided = "2026-09-25"
 
+[["org.spockframework.mock.AdditionalInterfaceResponseSpec#Defining responses for additionalInterfaces for Groovy class with GroovyStub"]]
+status = "not-applicable"
+reason = "GroovyStub/GroovyMock/GroovySpy exist to intercept dynamic Groovy-only behavior (metaclass dispatch) that a Groovy class or interface exposes; Kotlin classes never go through Groovy's metaclass, so GroovyStub has nothing Groovy-specific left to add over the plain Stub variant already ported from the same upstream class"
+decided = "2026-10-09"
+
+[["org.spockframework.mock.AdditionalInterfaceResponseSpec#Defining responses for additionalInterfaces for Groovy interface with GroovyStub"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Defining responses for additionalInterfaces for Groovy class with GroovyStub': GroovyStub targets Groovy metaclass dispatch, which Kotlin types never go through"
+decided = "2026-10-09"
+
 [["org.spockframework.mock.AutoAttachInvalidUsageSpec#setup"]]
 status = "not-applicable"
 reason = "This is the class's setup fixture method, not a feature; its only content upstream is runner.addClassImport(AutoAttach), wiring the embedded Groovy compiler to resolve @AutoAttach inside the dynamically-compiled spec bodies the other features pass as strings. The Kotlin port uses real ahead-of-time-compiled fixture classes that import spock.mock.AutoAttach directly, so there is no dynamic-compilation import step to reproduce"
