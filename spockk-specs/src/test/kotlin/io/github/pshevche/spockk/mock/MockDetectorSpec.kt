@@ -20,7 +20,6 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.MockUtil
-import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class MockDetectorSpec : Specification() {
@@ -41,16 +40,14 @@ class MockDetectorSpec : Specification() {
     !detector.isMock(ArrayList<Any>())
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/658")
+  // GroovyMock/GroovyStub/GroovySpy are Groovy-metaclass-only mock natures with no Kotlin
+  // equivalent, so upstream's three GroovyMock/GroovyStub/GroovySpy conditions are not ported.
   @MigratedFrom("org.spockframework.mock.MockDetectorSpec#detects all natures of mock object")
   fun `detects all natures of mock object`() {
     expect
     detector.isMock(Mock(List::class.java))
     detector.isMock(Stub(List::class.java))
     detector.isMock(Spy(ArrayList::class.java))
-    detector.isMock(GroovyMock(List::class.java))
-    detector.isMock(GroovyStub(List::class.java))
-    detector.isMock(GroovySpy(ArrayList::class.java))
   }
 
   @MigratedFrom("org.spockframework.mock.MockDetectorSpec#provides access to mock object information")
