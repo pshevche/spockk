@@ -116,6 +116,7 @@ Project skills live in `.claude/skills/`:
 - **`spock-expert`** - research how Spock implements a feature
 - **`ir-expert`** - research Kotlin IR visitor and transformer APIs
 - **`grill-me`** - stress-test a plan or design through relentless questioning
+- **`humanizer`** - rewrite AI-sounding prose (see [Git Conventions](#git-conventions) for when this is required)
 
 The [Superpowers](https://github.com/obra/superpowers) plugin is enabled for this project via
 `.claude/settings.json`. Its `brainstorming` and `writing-plans` skills back the `type::story` route below.
@@ -155,6 +156,13 @@ Review and approve the spec and plan before implementation starts.
 
 - **Commit messages**: Use [Conventional Commits](https://www.conventionalcommits.org/) - e.g., `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
 - **Branch naming**: `<username>/<short-description>` where `<username>` is the `$USER` environment variable (e.g., `pshevche/add-shared-fields`)
+- **PR and issue descriptions**: Before posting a pull request body or a GitHub issue body, run it through the
+  `humanizer` skill, then re-read the posted result on GitHub to confirm it rendered correctly. Two defects keep
+  recurring and neither is caught by humanizing: a Markdown link must be plain `[text](url)` with no backticks
+  around the URL (one does render on GitHub, but a link into a repo this session only has read access to - like
+  `spockframework/spock` - breaks if the URL is pinned to a commit SHA; link to a branch, e.g. `blob/master/...`,
+  instead); and a dedup marker comment (e.g. `<!-- gap-slug: ... -->`) must be a literal HTML comment, not
+  HTML-entity-escaped text that renders visibly.
 
 ## Code Review Workflow
 

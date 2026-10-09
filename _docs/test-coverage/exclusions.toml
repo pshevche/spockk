@@ -39,3 +39,8 @@ decided = "2026-10-09"
 status = "not-applicable"
 reason = "Same reasoning as 'Defining responses for additionalInterfaces for Groovy class with GroovyStub': GroovyStub targets Groovy metaclass dispatch, which Kotlin types never go through"
 decided = "2026-10-09"
+
+[["org.spockframework.mock.AutoAttachInvalidUsageSpec#setup"]]
+status = "not-applicable"
+reason = "This is the class's setup fixture method, not a feature; its only content upstream is runner.addClassImport(AutoAttach), wiring the embedded Groovy compiler to resolve @AutoAttach inside the dynamically-compiled spec bodies the other features pass as strings. The Kotlin port uses real ahead-of-time-compiled fixture classes that import spock.mock.AutoAttach directly, so there is no dynamic-compilation import step to reproduce"
+decided = "2026-09-27"
