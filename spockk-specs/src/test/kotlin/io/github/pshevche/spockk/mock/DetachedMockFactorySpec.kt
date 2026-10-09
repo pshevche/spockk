@@ -70,14 +70,10 @@ class DetachedMockFactorySpec : Specification() {
     val stub = factory.Stub(IMockMe::class.java)
     attach(stub)
 
-    `when`
-    val two = stub.foo(2)
-    val one = stub.foo(1)
-
-    then
+    expect
     stub.foo(2) returns 4
-    two == 4
-    one == 0
+    stub.foo(2) == 4
+    stub.foo(1) == 0
     mockName(stub) == "IMockMe"
 
     cleanup
@@ -90,14 +86,10 @@ class DetachedMockFactorySpec : Specification() {
     val stub = factory.Stub(mapOf("name" to "customName"), IMockMe::class.java)
     attach(stub)
 
-    `when`
-    val two = stub.foo(2)
-    val one = stub.foo(1)
-
-    then
+    expect
     stub.foo(2) returns 4
-    two == 4
-    one == 0
+    stub.foo(2) == 4
+    stub.foo(1) == 0
     mockName(stub) == "customName"
 
     cleanup
