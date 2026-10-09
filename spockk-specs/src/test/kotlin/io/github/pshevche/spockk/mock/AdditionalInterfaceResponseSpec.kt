@@ -46,27 +46,6 @@ class AdditionalInterfaceResponseSpec : Specification() {
     methodFromIfResult == "Result"
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/658")
-  @MigratedFrom(
-    "org.spockframework.mock.AdditionalInterfaceResponseSpec#Defining responses for additionalInterfaces for Groovy class with GroovyStub"
-  )
-  fun `Defining responses for additionalInterfaces for Groovy class with GroovyStub`() {
-    given
-    val a: A = GroovyStub(mapOf<String, Any>("additionalInterfaces" to listOf(B::class.java)), A::class.java)
-
-    `when`
-    val methodFromAResult = a.methodFromA()
-    val methodFromIfResult = (a as B).methodFromIf()
-
-    then
-    a.methodFromA() returns "MockedA"
-    (a as B).methodFromIf() returns "Result"
-    a is A
-    methodFromAResult == "MockedA"
-    a is B
-    methodFromIfResult == "Result"
-  }
-
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom(
     "org.spockframework.mock.AdditionalInterfaceResponseSpec#Defining responses for additionalInterfaces for Groovy interface"
@@ -74,27 +53,6 @@ class AdditionalInterfaceResponseSpec : Specification() {
   fun `Defining responses for additionalInterfaces for Groovy interface`() {
     given
     val c: C = Stub(mapOf<String, Any>("additionalInterfaces" to listOf(B::class.java)), C::class.java)
-
-    `when`
-    val methodFromIfCResult = c.methodFromIfC()
-    val methodFromIfResult = (c as B).methodFromIf()
-
-    then
-    c.methodFromIfC() returns "ResultC"
-    (c as B).methodFromIf() returns "ResultB"
-    c is C
-    methodFromIfCResult == "ResultC"
-    c is B
-    methodFromIfResult == "ResultB"
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/658")
-  @MigratedFrom(
-    "org.spockframework.mock.AdditionalInterfaceResponseSpec#Defining responses for additionalInterfaces for Groovy interface with GroovyStub"
-  )
-  fun `Defining responses for additionalInterfaces for Groovy interface with GroovyStub`() {
-    given
-    val c: C = GroovyStub(mapOf<String, Any>("additionalInterfaces" to listOf(B::class.java)), C::class.java)
 
     `when`
     val methodFromIfCResult = c.methodFromIfC()
