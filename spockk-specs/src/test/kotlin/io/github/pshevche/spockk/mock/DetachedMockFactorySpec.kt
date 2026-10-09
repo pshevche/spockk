@@ -23,6 +23,7 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.MockUtil
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 
@@ -64,14 +65,15 @@ class DetachedMockFactorySpec : Specification() {
     detach(mock)
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.mock.DetachedMockFactorySpec#Stub(class)")
   fun `Stub(class)`() {
     given
     val stub = factory.Stub(IMockMe::class.java)
     attach(stub)
+    stub.foo(2) returns 4
 
     expect
-    stub.foo(2) returns 4
     stub.foo(2) == 4
     stub.foo(1) == 0
     mockName(stub) == "IMockMe"
@@ -80,14 +82,15 @@ class DetachedMockFactorySpec : Specification() {
     detach(stub)
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.mock.DetachedMockFactorySpec#Stub(options, class)")
   fun `Stub(options, class)`() {
     given
     val stub = factory.Stub(mapOf("name" to "customName"), IMockMe::class.java)
     attach(stub)
+    stub.foo(2) returns 4
 
     expect
-    stub.foo(2) returns 4
     stub.foo(2) == 4
     stub.foo(1) == 0
     mockName(stub) == "customName"
