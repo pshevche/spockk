@@ -79,6 +79,7 @@ class Workspace {
     buildFile.writeText(
       """
             repositories {
+                maven("https://maven-central.storage-download.googleapis.com/maven2/")
                 mavenCentral()
                 ${repoUnderTest("compilerPluginRepo")}
                 ${repoUnderTest("coreRepo")}
