@@ -62,3 +62,9 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.runtime.ConfigurationScriptLoaderSpec#configuration script that cannot be compiled is rejected"]]
+status = "blocked"
+reason = "Every Groovy script fails to compile in the spockk-specs test JVM (Gradle's Groovy 4 shadows Groovy 6), so a port would pass for the wrong reason and cannot be a @PendingFeature that fails until the gap is closed"
+gap = "https://github.com/pshevche/spockk/issues/718"
+decided = "2026-10-13"
