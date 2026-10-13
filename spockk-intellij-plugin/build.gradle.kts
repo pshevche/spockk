@@ -5,7 +5,10 @@ plugins {
   id("spockk.kotlin-library")
 }
 
-repositories { intellijPlatform { defaultRepositories() } }
+repositories { 
+  maven("https://maven-central.storage-download.googleapis.com/maven2/")
+  intellijPlatform { defaultRepositories() }
+}
 
 dependencies {
   intellijPlatform {
