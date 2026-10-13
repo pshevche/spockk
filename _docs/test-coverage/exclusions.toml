@@ -62,3 +62,13 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
+status = "not-applicable"
+reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
+decided = "2026-10-13"
+
+[["org.spockframework.runtime.ClosingOfDataProviders#close multiple providers which potentially throw an exception"]]
+status = "not-applicable"
+reason = "Same as 'close one provider which potentially throws an exception': the class is @Ignore'd upstream because closeDataProviders was removed from PlatformParameterizedSpecRunner, so there is no behavior left to cover"
+decided = "2026-10-13"
