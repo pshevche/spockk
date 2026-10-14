@@ -62,3 +62,9 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.runtime.RunContextEmbeddedSpec#initial run context is named 'default'"]]
+status = "blocked"
+reason = "Checks the run context in expect:, then runs a nested spec in when:/then:. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT allows a following WHEN. The nested run's name 'default/EmbeddedSpecRunner' is also specific to Spock's embedded runner, so the port needs a rethink once the gap closes"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
