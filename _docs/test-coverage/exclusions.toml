@@ -62,3 +62,8 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.smoke.CompileTimeErrorReporting#compiling with missing dependencies does not fail"]]
+status = "not-applicable"
+reason = "Exercises Groovy's ClassNode reflection (lazy class resolution through the embedded compiler) when a class references an annotation missing from the classpath; Spockk compiles Kotlin sources, which have no such AST-level class resolution path"
+decided = "2026-10-15"

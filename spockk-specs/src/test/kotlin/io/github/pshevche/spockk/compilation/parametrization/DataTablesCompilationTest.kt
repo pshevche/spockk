@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
@@ -31,6 +32,7 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     assertTransformation(sampleFromResource("parametrization/BasicDataTableSpec"))
   }
 
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#non-parameterization in where-block")
   fun `rejects unrecognized data provider syntax`() {
     `when`
     val result =

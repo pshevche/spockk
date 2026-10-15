@@ -18,11 +18,13 @@ import com.tschuchort.compiletesting.SourceFile
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 
 @OptIn(ExperimentalCompilerApi::class)
 class FixtureMethodValidationTest : BaseCompilationTest() {
@@ -226,5 +228,54 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
 
     where
     variable(fixtureMethodName).from("setupSpec", "setup", "cleanup", "cleanupSpec")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/755")
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#constructor declaration")
+  fun `constructor declaration`() {
+    `when`
+    val result =
+      transform(
+        SourceFile.kotlin(
+          "Spec.kt",
+          """
+          class Spec : spock.lang.Specification {
+              constructor() : super()
+
+              fun `some feature`() {
+                  io.github.pshevche.spockk.lang.expect
+                  assert(true)
+              }
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#wrong spelling of 'setup' method")
+  fun `wrong spelling of 'setup' method`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          fun setUp() {}
+
+          fun `some feature`() {
+              io.github.pshevche.spockk.lang.expect
+              assert(true)
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
   }
 }
