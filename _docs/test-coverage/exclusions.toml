@@ -62,3 +62,9 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.runtime.StoreSpec#store is created and cleaned for each level"]]
+status = "blocked"
+reason = "The feature records the store contents from inside setupSpec and cleanupSpec via an instance method that reads specificationContext. Spockk rejects instance method calls in those fixtures ('Only companion object members and @Shared fields may be accessed from here'). Dropping those calls would change what the snapshot asserts"
+gap = "https://github.com/pshevche/spockk/issues/735"
+decided = "2026-10-14"
