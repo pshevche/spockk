@@ -62,3 +62,8 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.smoke.CleanupBlocks#declared type of variable is kept"]]
+status = "not-applicable"
+reason = "Upstream asserts a runtime GroovyCastException from `int x = \"abc\"`; Kotlin rejects assigning a String to an Int at compile time, so the behavior cannot exist"
+decided = "2026-10-15"
