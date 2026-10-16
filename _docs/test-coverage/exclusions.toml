@@ -62,3 +62,38 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Java fields should be accessible in Groovy 3&4 with mockito"]]
+status = "not-applicable"
+reason = "Exists upstream to contrast a Java-compiled base class against a Groovy-compiled one for the GroovyObject.getProperty bug (spockframework/spock#1501). Kotlin classes never implement GroovyObject, so the ported Kotlin variants are already the clean non-Groovy case; this one would duplicate them"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy fields should still be accessible in Groovy 3&4 when @Internal annotation is not copied due to sub-class mock maker"]]
+status = "not-applicable"
+reason = "Asserts that the mocked class's getProperty is declared on GroovyObject, i.e. Groovy MOP methods that Kotlin classes do not have"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy fields should be accessible in Groovy 2 when @Internal annotation is not copied due to sub-class mock maker"]]
+status = "not-applicable"
+reason = "Requires Groovy 2 and asserts on Groovy MOP methods of the mocked class; Spockk runs on Groovy 5+ and Kotlin classes have no MOP methods"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy fields directly with mockito"]]
+status = "not-applicable"
+reason = "Reads a protected field of an unrelated class dynamically via GroovyObject.getProperty; Kotlin enforces protected visibility at compile time, so `mySpy.nonStaticFlag` from outside the hierarchy does not compile"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy fields directly with mockito with constructor args"]]
+status = "not-applicable"
+reason = "Same direct protected-field access as 'Access protected Groovy fields directly with mockito'; does not compile under Kotlin's protected visibility rules"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy const field directly with mockito"]]
+status = "not-applicable"
+reason = "Same direct protected-field access as 'Access protected Groovy fields directly with mockito', for a static field; does not compile under Kotlin's protected visibility rules"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#stubbing method on null object does not NPE and reports InvalidSpecException"]]
+status = "not-applicable"
+reason = "Defines an interaction on a null receiver (`nullObj.toString() >> \"\"`), which relies on Groovy's null-tolerant dynamic dispatch; Kotlin's null safety rejects a call on a null receiver at compile time, so there is no equivalent interaction target"
+decided = "2026-10-13"
