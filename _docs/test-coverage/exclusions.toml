@@ -62,3 +62,21 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.runtime.RunListenerSpec#IRunListener methods are called in correct order and cardinality"]]
+status = "blocked"
+reason = "Checks the order of listener callbacks with consecutive `then:` blocks, which Spockk's block-order validator rejects; folding them into one block would stop checking the order"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.RunListenerSpec#IRunListener is called for skipped features"]]
+status = "blocked"
+reason = "Checks the order of listener callbacks with consecutive `then:` blocks, which Spockk's block-order validator rejects; folding them into one block would stop checking the order"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.RunListenerSpec#IRunListener gets called for errors"]]
+status = "blocked"
+reason = "Checks the order of listener callbacks with consecutive `then:` blocks, which Spockk's block-order validator rejects; folding them into one block would stop checking the order"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-14"
