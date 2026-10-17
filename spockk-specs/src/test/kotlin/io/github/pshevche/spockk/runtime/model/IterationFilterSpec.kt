@@ -20,9 +20,11 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.runtime.model.IterationFilter
 import spock.lang.Specification
+import spock.lang.Subject
 
 class IterationFilterSpec : Specification() {
 
+  @Subject
   private val filter = IterationFilter()
 
   @MigratedFrom("org.spockframework.runtime.model.IterationFilterSpec#allows all indexes by default")
