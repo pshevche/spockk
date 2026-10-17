@@ -185,3 +185,33 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.DisambiguationInConditions#test java class forwarding to java class without type cast"]]
+status = "not-applicable"
+reason = "Groovy picks among overloaded constructors at runtime from argument types, so a null argument needs a cast ('null as String') to disambiguate; upstream checks that condition rewriting keeps that cast intact. Kotlin resolves overloads at compile time and an ambiguous call does not compile, so there is no runtime disambiguation to preserve. A constructor call is also not a Boolean, so it cannot be a Kotlin implicit condition"
+decided = "2026-10-17"
+
+[["org.spockframework.smoke.DisambiguationInConditions#test java class forwarding to java class with type cast"]]
+status = "not-applicable"
+reason = "Same as 'test java class forwarding to java class without type cast': Groovy's runtime constructor-overload disambiguation of a null argument has no Kotlin counterpart, since overloads are resolved at compile time"
+decided = "2026-10-17"
+
+[["org.spockframework.smoke.DisambiguationInConditions#test java class not forwarding"]]
+status = "not-applicable"
+reason = "Same as 'test java class forwarding to java class without type cast': Groovy's runtime constructor-overload disambiguation of a null argument has no Kotlin counterpart, since overloads are resolved at compile time"
+decided = "2026-10-17"
+
+[["org.spockframework.smoke.DisambiguationInConditions#test groovy class forwarding to java class with type cast"]]
+status = "not-applicable"
+reason = "Same as 'test java class forwarding to java class without type cast': Groovy's runtime constructor-overload disambiguation of a null argument has no Kotlin counterpart, since overloads are resolved at compile time"
+decided = "2026-10-17"
+
+[["org.spockframework.smoke.DisambiguationInConditions#test groovy class forwarding to groovy class with type cast"]]
+status = "not-applicable"
+reason = "Same as 'test java class forwarding to java class without type cast': Groovy's runtime constructor-overload disambiguation of a null argument has no Kotlin counterpart, since overloads are resolved at compile time"
+decided = "2026-10-17"
+
+[["org.spockframework.smoke.DisambiguationInConditions#test groovy class not forwarding"]]
+status = "not-applicable"
+reason = "Same as 'test java class forwarding to java class without type cast': Groovy's runtime constructor-overload disambiguation of a null argument has no Kotlin counterpart, since overloads are resolved at compile time"
+decided = "2026-10-17"
