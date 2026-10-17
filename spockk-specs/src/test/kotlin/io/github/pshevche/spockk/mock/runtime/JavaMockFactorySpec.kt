@@ -23,7 +23,6 @@ import org.spockframework.mock.MockImplementation
 import org.spockframework.mock.MockNature
 import org.spockframework.mock.runtime.JavaMockFactory
 import org.spockframework.mock.runtime.MockConfiguration
-import spock.lang.Issue
 import spock.lang.Specification
 
 class JavaMockFactorySpec : Specification() {
@@ -39,7 +38,6 @@ class JavaMockFactorySpec : Specification() {
     createMock(List::class.java) is List<*>
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/349")
   @MigratedFrom(
     "org.spockframework.mock.runtime.JavaMockFactorySpec#can create mocks for interfaces containing nested classes"
   )
@@ -49,25 +47,25 @@ class JavaMockFactorySpec : Specification() {
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.JavaMockFactorySpec#can create mocks for classes w/ parameterless constructor")
-  fun `can create mocks for classes w∕ parameterless constructor`() {
+  fun `can create mocks for classes with parameterless constructor`() {
     expect
     createMock(ArrayList::class.java) is ArrayList<*>
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.JavaMockFactorySpec#can create mocks for classes wo/ parameterless constructor")
-  fun `can create mocks for classes wo∕ parameterless constructor`() {
+  fun `can create mocks for classes without parameterless constructor`() {
     expect
     createMock(Node::class.java) is Node
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.JavaMockFactorySpec#can create mocks for interfaces defined in Groovy")
-  fun `can create mocks for interfaces defined in Groovy`() {
+  fun `can create mocks for interfaces defined in Kotlin`() {
     expect
     createMock(IMockMe::class.java) is IMockMe
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.JavaMockFactorySpec#can create mocks for classes defined in Groovy")
-  fun `can create mocks for classes defined in Groovy`() {
+  fun `can create mocks for classes defined in Kotlin`() {
     expect
     createMock(MockMe::class.java) is MockMe
   }
