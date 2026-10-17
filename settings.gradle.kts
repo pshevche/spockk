@@ -1,3 +1,10 @@
+pluginManagement {
+  repositories {
+    maven("https://maven-central.storage-download.googleapis.com/maven2/")
+    gradlePluginPortal()
+  }
+}
+
 plugins {
   id("com.gradle.develocity") version ("4.6.0")
 }
