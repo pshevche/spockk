@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.runtime
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import org.spockframework.mock.runtime.MockMakerConfiguration
 import org.spockframework.runtime.RunContext
 import org.spockframework.util.IThrowableFunction
@@ -38,7 +37,6 @@ class RunContextSpec : Specification() {
     "org.spockframework.runtime.RunContextSpec#Spock user home of initial run context can be configured via system property or environment variable"
   )
   fun `Spock user home of initial run context can be configured via system property or environment variable`() {
-    given
     val dir = File("foo", "bar")
     System.setProperty("spock.user.home", dir.path)
 
@@ -48,7 +46,6 @@ class RunContextSpec : Specification() {
 
   @MigratedFrom("org.spockframework.runtime.RunContextSpec#child context has its own name and Spock user home")
   fun `child context has its own name and Spock user home`() {
-    given
     val dir = File("new", "home")
 
     expect
@@ -61,7 +58,9 @@ class RunContextSpec : Specification() {
       false,
       IThrowableFunction {
         val context = RunContext.get()
-        context.name == "new name" && context.spockUserHome == dir
+        assert(context.name == "new name")
+        assert(context.spockUserHome == dir)
+        true
       }
     )
 
