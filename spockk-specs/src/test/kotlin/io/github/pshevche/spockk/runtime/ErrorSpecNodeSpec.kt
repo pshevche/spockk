@@ -24,7 +24,6 @@ import org.junit.platform.engine.UniqueId
 import org.spockframework.runtime.ErrorSpecNode
 import org.spockframework.runtime.SpecInfoBuilder
 import org.spockframework.runtime.model.SpecInfo
-import spock.lang.Issue
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -54,7 +53,6 @@ class ErrorSpecNodeSpec : Specification() {
     0 * tdParent.removeChild(any())
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1444")
   @MigratedFrom("org.spockframework.runtime.ErrorSpecNodeSpec#make TestDescriptor think that an ErrorSpecNode contains tests")
   fun `make TestDescriptor think that an ErrorSpecNode contains tests`() {
     val errorSpecNodeSpy = Spy(errorSpecNode)
