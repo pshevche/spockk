@@ -18,6 +18,7 @@ import com.tschuchort.compiletesting.SourceFile
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
@@ -179,6 +180,38 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
           """
                 fun $fixtureMethodName(param: String) {
                     println("body")
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Fixture method '$fixtureMethodName' must not have any parameters, but found 'param'")
+
+    where
+    variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
+  }
+
+  @MigratedFrom("org.spockframework.runtime.model.SpecInfoSpec#multiple fixture methods are not supported")
+  fun `multiple fixture methods are not supported`(fixtureMethodName: String) {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun $fixtureMethodName() {
+                    println("default")
+                }
+
+                fun $fixtureMethodName(param: String) {
+                    println(param)
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
                 }
                 """
             .trimIndent()
