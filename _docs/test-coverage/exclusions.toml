@@ -68,6 +68,12 @@ status = "not-applicable"
 reason = "Upstream gates it with @Requires on Groovy <= 2.3.99, so it never runs on any supported Groovy; it asserts an IllegalAccessError specific to old Groovy's super dispatch, which Kotlin does not have"
 decided = "2026-10-15"
 
+[["org.spockframework.runtime.AsyncRunListenerSpec#replays events in correct order in a separate thread"]]
+status = "blocked"
+reason = "Verifies event order with nine consecutive then: blocks, each holding one interaction. Spockk's block-order validator rejects a then: directly after a then:, and folding them into and: would drop the ordering this feature tests"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-13"
+
 [["org.spockframework.runtime.BlockListenerSpec#BlockListener is called for each Block with text"]]
 status = "blocked"
 reason = "Checks block kinds for expect: followed by when:, which Spockk's block-order validator rejects ('Expected to find one of spockk blocks [and, cleanup, where], but encountered when'), even though real Spock allows it. Replacing expect with given would change the block kinds under test"
