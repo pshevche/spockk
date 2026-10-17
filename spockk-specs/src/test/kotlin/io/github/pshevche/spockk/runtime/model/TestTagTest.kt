@@ -35,16 +35,17 @@ class TestTagTest : Specification() {
   }
 
   @MigratedFrom("org.spockframework.runtime.model.TestTagTest#forbids invalid characters in tags")
-  fun `forbids invalid characters in tags`(tag: String) {
+  fun `forbids invalid characters in tags`(tag: String, readableName: String) {
     `when`
     TestTag.create(tag)
 
     then
     val e = thrown(IllegalArgumentException::class.java)
-    e.message!!.contains(Character.getName(tag.codePointAt(0)))
+    e.message!!.contains(readableName)
 
     where
     variable(tag).from(" ", "\n", "\t", "\r", "\u0000", "(", ")", "&", "|", "!")
+    variable(readableName).from(Character.getName(tag.codePointAt(0)))
   }
 
   @MigratedFrom("org.spockframework.runtime.model.TestTagTest#forbids empty or null tags")
