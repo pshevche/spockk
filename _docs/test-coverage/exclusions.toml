@@ -127,4 +127,13 @@ decided = "2026-10-14"
 status = "blocked"
 reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is part of a failing condition)"
 gap = "https://github.com/pshevche/spockk/issues/747"
+[["org.spockframework.smoke.AnonymousInnerClasses#anonymous inner class and dot in feature name does not fail execution"]]
+status = "not-applicable"
+reason = "The feature is named '.' to check that the Groovy compiler tolerates a dot in a feature method name next to an anonymous inner class. JVM method names cannot contain '.', so Kotlin cannot declare such a feature"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AnonymousInnerClasses#enclosing method of anonymous inner class can be accessed"]]
+status = "blocked"
+reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
+gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
