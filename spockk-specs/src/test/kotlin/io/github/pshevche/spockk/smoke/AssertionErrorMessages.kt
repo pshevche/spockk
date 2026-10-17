@@ -15,33 +15,32 @@
 package io.github.pshevche.spockk.smoke
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.lang.then
-import io.github.pshevche.spockk.lang.verify
-import io.github.pshevche.spockk.lang.`when`
+import io.github.pshevche.spockk.lang.expect
 import org.spockframework.runtime.SpockAssertionError
-import spock.lang.Issue
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
-@Issue("https://github.com/spockframework/spock/issues/217")
 class AssertionErrorMessages : Specification() {
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/761")
   @MigratedFrom(
     "org.spockframework.smoke.AssertionErrorMessages#assertion error returns (same) message for getMessage() and toString()"
   )
   fun `assertion error returns (same) message for getMessage() and toString()`() {
-    `when`
-    failingCondition()
+    val e = createSpockAssertionError()
 
-    then
-    val e = thrown(SpockAssertionError::class.java)
+    expect
     !e.message.isNullOrEmpty()
-    e.message!!.contains("this == 2")
+    e.message!!.contains("1 == 2")
     e.message == e.toString()
   }
 
-  private fun failingCondition() {
-    verify(1) {
-      this == 2
+  private fun createSpockAssertionError(): SpockAssertionError {
+    try {
+      assert(1 == 2)
+    } catch (e: SpockAssertionError) {
+      return e
     }
+    throw IllegalStateException("assertion did not fail")
   }
 }
