@@ -63,6 +63,11 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.smoke.BuiltInMembersOfClassSpecification#cannot be referred to by 'super'"]]
+status = "not-applicable"
+reason = "Upstream gates it with @Requires on Groovy <= 2.3.99, so it never runs on any supported Groovy; it asserts an IllegalAccessError specific to old Groovy's super dispatch, which Kotlin does not have"
+decided = "2026-10-15"
+
 [["org.spockframework.runtime.AsyncRunListenerSpec#replays events in correct order in a separate thread"]]
 status = "blocked"
 reason = "Verifies event order with nine consecutive then: blocks, each holding one interaction. Spockk's block-order validator rejects a then: directly after a then:, and folding them into and: would drop the ordering this feature tests"
