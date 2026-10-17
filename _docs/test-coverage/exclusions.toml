@@ -68,3 +68,78 @@ status = "blocked"
 reason = "Verifies event order with nine consecutive then: blocks, each holding one interaction. Spockk's block-order validator rejects a then: directly after a then:, and folding them into and: would drop the ordering this feature tests"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-13"
+
+[["org.spockframework.smoke.AccessingOldValues#basic usage"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (the list size is compared against old(list.size()))"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#multiple references to old value are possible"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old(list.size()) is referenced twice)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#multiple references are captured individually"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (each old(list.remove(0)) call captures its own value)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#may occur in nested position"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is called inside a closure passed to every)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#can access data-driven value"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() reads a data variable under where:)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#refers to an expression's value before entering the previous when-block"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is used across two when/then pairs)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#works in presence of exception condition"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is combined with thrown())"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#may only occur in a then-block"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (needs old() to be rejected outside a then block)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#old() must have exactly one argument"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (needs old() to be rejected with a wrong argument count)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#may occur outside of a condition"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is assigned to a local val in a then block)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#behaves correctly when part of a failing condition"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is part of a failing condition)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+[["org.spockframework.smoke.AnonymousInnerClasses#anonymous inner class and dot in feature name does not fail execution"]]
+status = "not-applicable"
+reason = "The feature is named '.' to check that the Groovy compiler tolerates a dot in a feature method name next to an anonymous inner class. JVM method names cannot contain '.', so Kotlin cannot declare such a feature"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AnonymousInnerClasses#enclosing method of anonymous inner class can be accessed"]]
+status = "blocked"
+reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
+gap = "https://github.com/pshevche/spockk/issues/749"
+decided = "2026-10-14"
