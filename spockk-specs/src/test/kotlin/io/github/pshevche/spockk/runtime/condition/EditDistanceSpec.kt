@@ -136,10 +136,8 @@ class EditDistanceSpec : Specification() {
   }
 
   @MigratedFrom("org.spockframework.runtime.condition.EditDistanceSpec#computed path has correct distance")
-  fun `computed path has correct distance`(num: Int) {
+  fun `computed path has correct distance`(num: Int, str1: String, str2: String) {
     given
-    val str1 = randomString(num)
-    val str2 = editedString(str1)
     val dist = EditDistance(str1, str2)
 
     expect
@@ -147,33 +145,35 @@ class EditDistanceSpec : Specification() {
 
     where
     variable(num).from((0..99).toList())
+    variable(str1).from(randomString(num))
+    variable(str2).from(editedString(str1))
   }
 
   private fun computeDistance(operations: List<EditOperation>) =
     operations.sumOf { if (it.kind == SKIP) 0 else it.length }
 
-  private fun randomChar(): Char = CHARS[ThreadLocalRandom.current().nextInt(CHARS.size)]
+  private companion object {
+    val CHARS = ('a'..'z') + ('A'..'Z') + ('0'..'9') + List(10) { ' ' }
 
-  private fun randomString(length: Int) = buildString { repeat(length) { append(randomChar()) } }
+    private fun randomChar(): Char = CHARS[ThreadLocalRandom.current().nextInt(CHARS.size)]
 
-  private fun editedString(str: String) = buildString {
-    for (c in str) {
-      when (ThreadLocalRandom.current().nextInt(4)) {
-        0 -> append(c)
+    private fun randomString(length: Int) = buildString { repeat(length) { append(randomChar()) } }
 
-        1 -> append(randomChar())
+    private fun editedString(str: String) = buildString {
+      for (c in str) {
+        when (ThreadLocalRandom.current().nextInt(4)) {
+          0 -> append(c)
 
-        2 -> Unit
+          1 -> append(randomChar())
 
-        else -> {
-          append(randomChar())
-          append(c)
+          2 -> Unit
+
+          else -> {
+            append(randomChar())
+            append(c)
+          }
         }
       }
     }
-  }
-
-  private companion object {
-    val CHARS = ('a'..'z') + ('A'..'Z') + ('0'..'9') + List(10) { ' ' }
   }
 }
