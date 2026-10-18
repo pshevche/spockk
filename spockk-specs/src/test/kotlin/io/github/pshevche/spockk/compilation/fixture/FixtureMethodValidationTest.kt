@@ -18,6 +18,7 @@ import com.tschuchort.compiletesting.SourceFile
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
@@ -135,6 +136,60 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
 
     where
     variable(fixtureMethodName).from("setupSpec", "cleanupSpec")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.FixtureMethods#setupSpec() may not access instance fields (only @Shared and static fields)")
+  fun `setupSpec() may not access instance fields (only @Shared and static fields)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                val x = 42
+
+                fun setupSpec() {
+                    val foo = x
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("@Shared")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.FixtureMethods#cleanupSpec() may not access instance fields (only @Shared and static fields)")
+  fun `cleanupSpec() may not access instance fields (only @Shared and static fields)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                var x = 42
+
+                fun cleanupSpec() {
+                    3.let { x = 0 }
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("@Shared")
   }
 
   fun `supports feature-scoped fixture method accessing instance field`(fixtureMethodName: String) {
