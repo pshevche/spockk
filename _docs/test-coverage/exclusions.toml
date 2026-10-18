@@ -185,3 +185,23 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.FeatureMethods#cannot be called from user code"]]
+status = "not-applicable"
+reason = "Groovy renames feature methods so user code cannot call them (MissingMethodException). Spockk keeps the Kotlin function name, so a feature is an ordinary callable method"
+decided = "2026-10-18"
+
+[["org.spockframework.smoke.FeatureMethods#don't make it into the class file with their original name"]]
+status = "not-applicable"
+reason = "Groovy renames feature methods in the class file. Spockk keeps the original function name in the bytecode, so the asserted absence cannot hold"
+decided = "2026-10-18"
+
+[["org.spockframework.smoke.FeatureMethods#can.have?names#con/tain!ing~any`char(act \\\\ers?!"]]
+status = "not-applicable"
+reason = "The feature name contains '.', '/' and '\\', which JVM method names forbid, so Kotlin cannot declare a feature with it"
+decided = "2026-10-18"
+
+[["org.spockframework.smoke.FeatureMethods#can have names containing any characters in embedded specs"]]
+status = "not-applicable"
+reason = "Embeds a feature named with '.', '/' and '\\', which JVM method names forbid, so Kotlin cannot declare it"
+decided = "2026-10-18"
