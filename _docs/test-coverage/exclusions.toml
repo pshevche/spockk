@@ -62,3 +62,14 @@ status = "blocked"
 reason = "Needs given:/expect: (checks the spy forwards to the real getter) followed by when:/then: (overrides the call via an interaction and re-checks). Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
+
+[["org.spockframework.smoke.AnonymousInnerClasses#anonymous inner class and dot in feature name does not fail execution"]]
+status = "not-applicable"
+reason = "Exists upstream to check that a '.' in a feature name does not break the anonymous inner class naming. Kotlin rejects '.' in function names on the JVM, so such a feature cannot be declared"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.AnonymousInnerClasses#enclosing method of anonymous inner class can be accessed"]]
+status = "blocked"
+reason = "The Kotlin compiler crashes during IR lowering on an anonymous object literal inside a condition"
+gap = "https://github.com/pshevche/spockk/issues/749"
+decided = "2026-10-19"
