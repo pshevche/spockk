@@ -185,3 +185,51 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.NameClashes#addBarrier does not clash with rewritten specification"]]
+status = "blocked"
+reason = "The block-order validator rejects two consecutive then blocks, which this feature needs to chain interactions"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.NameClashes#addRegexMethodName does not clash with rewritten interaction"]]
+status = "blocked"
+reason = "The interaction DSL has no regex method name constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.NameClashes#addRegexPropertyName does not clash with rewritten interaction"]]
+status = "blocked"
+reason = "The interaction DSL has no regex property name constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.NameClashes#addArgName does not clash with rewritten interaction"]]
+status = "blocked"
+reason = "The interaction DSL has no named argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.NameClashes#negateLastArg does not clash with rewritten interaction"]]
+status = "blocked"
+reason = "The interaction DSL has no negated argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.NameClashes#typeLastArg does not clash with rewritten interaction"]]
+status = "blocked"
+reason = "The interaction DSL has no typed argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.NameClashes#addCodeArg does not clash with rewritten interaction"]]
+status = "blocked"
+reason = "The interaction DSL has no code argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-19"
+
+[["org.spockframework.smoke.NameClashes#addIterableResponse does not clash with rewritten interaction"]]
+status = "blocked"
+reason = "The interaction DSL has no iterable response operator"
+gap = "https://github.com/pshevche/spockk/issues/781"
+decided = "2026-10-19"
