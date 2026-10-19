@@ -63,13 +63,125 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
+status = "not-applicable"
+reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
+decided = "2026-10-13"
+
+[["org.spockframework.runtime.ClosingOfDataProviders#close multiple providers which potentially throw an exception"]]
+status = "not-applicable"
+reason = "Same as 'close one provider which potentially throws an exception': the class is @Ignore'd upstream because closeDataProviders was removed from PlatformParameterizedSpecRunner, so there is no behavior left to cover"
+decided = "2026-10-13"
+
+[["org.spockframework.runtime.RunContextEmbeddedSpec#initial run context is named 'default'"]]
+status = "blocked"
+reason = "Checks the run context in expect:, then runs a nested spec in when:/then:. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT allows a following WHEN. The nested run's name 'default/EmbeddedSpecRunner' is also specific to Spock's embedded runner, so the port needs a rethink once the gap closes"
+gap = "https://github.com/pshevche/spockk/issues/665"
+
+[["org.spockframework.smoke.BuiltInMembersOfClassSpecification#cannot be referred to by 'super'"]]
+status = "not-applicable"
+reason = "Upstream gates it with @Requires on Groovy <= 2.3.99, so it never runs on any supported Groovy; it asserts an IllegalAccessError specific to old Groovy's super dispatch, which Kotlin does not have"
+decided = "2026-10-15"
+
+[["org.spockframework.runtime.AsyncRunListenerSpec#replays events in correct order in a separate thread"]]
+status = "blocked"
+reason = "Verifies event order with nine consecutive then: blocks, each holding one interaction. Spockk's block-order validator rejects a then: directly after a then:, and folding them into and: would drop the ordering this feature tests"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-13"
+
+[["org.spockframework.runtime.BlockListenerSpec#BlockListener is called for each Block with text"]]
+status = "blocked"
+reason = "Checks block kinds for expect: followed by when:, which Spockk's block-order validator rejects ('Expected to find one of spockk blocks [and, cleanup, where], but encountered when'), even though real Spock allows it. Replacing expect with given would change the block kinds under test"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-13"
+
+[["org.spockframework.runtime.BlockListenerSpec#SpecificationContext holds a reference to the current block"]]
+status = "blocked"
+reason = "Checks block kinds for expect: followed by when:, which Spockk's block-order validator rejects ('Expected to find one of spockk blocks [and, cleanup, where], but encountered when'), even though real Spock allows it. Replacing expect with given would change the block kinds under test"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-13"
+
+[["org.spockframework.runtime.BlockListenerSpec#blocks extended with and: are treated as singular block with multiple texts"]]
+status = "blocked"
+reason = "Checks block kinds for expect: followed by when:, which Spockk's block-order validator rejects ('Expected to find one of spockk blocks [and, cleanup, where], but encountered when'), even though real Spock allows it. Replacing expect with given would change the block kinds under test"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-13"
+
+[["org.spockframework.runtime.StandardStreamsCapturerSpec#captures standard out/err while installed"]]
+status = "blocked"
+reason = "Asserts stdout then stderr in order via consecutive then: blocks, which Spockk's block-order validator rejects; dropping the ordering would weaken the test. Also the '/' in the feature name is illegal in a JVM method name, so the port needs a renamed function"
+gap = "https://github.com/pshevche/spockk/issues/712"
+[["org.spockframework.smoke.AccessingOldValues#basic usage"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (the list size is compared against old(list.size()))"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#multiple references to old value are possible"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old(list.size()) is referenced twice)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#multiple references are captured individually"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (each old(list.remove(0)) call captures its own value)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#may occur in nested position"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is called inside a closure passed to every)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#can access data-driven value"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() reads a data variable under where:)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#refers to an expression's value before entering the previous when-block"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is used across two when/then pairs)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#works in presence of exception condition"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is combined with thrown())"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#may only occur in a then-block"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (needs old() to be rejected outside a then block)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#old() must have exactly one argument"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (needs old() to be rejected with a wrong argument count)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#may occur outside of a condition"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is assigned to a local val in a then block)"
+gap = "https://github.com/pshevche/spockk/issues/747"
+decided = "2026-10-14"
+
+[["org.spockframework.smoke.AccessingOldValues#behaves correctly when part of a failing condition"]]
+status = "blocked"
+reason = "Spockk has no old() function, so a spec that uses it does not compile (old() is part of a failing condition)"
+gap = "https://github.com/pshevche/spockk/issues/747"
 [["org.spockframework.smoke.AnonymousInnerClasses#anonymous inner class and dot in feature name does not fail execution"]]
 status = "not-applicable"
-reason = "Exists upstream to check that a '.' in a feature name does not break the anonymous inner class naming. Kotlin rejects '.' in function names on the JVM, so such a feature cannot be declared"
-decided = "2026-10-19"
+reason = "The feature is named '.' to check that the Groovy compiler tolerates a dot in a feature method name next to an anonymous inner class. JVM method names cannot contain '.', so Kotlin cannot declare such a feature"
+decided = "2026-10-14"
 
 [["org.spockframework.smoke.AnonymousInnerClasses#enclosing method of anonymous inner class can be accessed"]]
 status = "blocked"
-reason = "The Kotlin compiler crashes during IR lowering on an anonymous object literal inside a condition"
+reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
-decided = "2026-10-19"
+decided = "2026-10-14"
