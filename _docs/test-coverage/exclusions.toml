@@ -185,3 +185,18 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.DefaultValuesOfSharedFields#primitive types"]]
+status = "not-applicable"
+reason = "Upstream reads @Shared primitive fields that have no initializer and expects the JVM zero value. Kotlin requires every property to be initialized, so the zero value would be an explicit initializer, which tests the Kotlin compiler instead of Spock's field handling"
+decided = "2026-10-17"
+
+[["org.spockframework.smoke.DefaultValuesOfSharedFields#wrapper types"]]
+status = "not-applicable"
+reason = "Upstream reads @Shared wrapper-typed fields that have no initializer and expects null. Kotlin requires every property to be initialized, so null would be an explicit initializer, which tests the Kotlin compiler instead of Spock's field handling"
+decided = "2026-10-17"
+
+[["org.spockframework.smoke.DefaultValuesOfSharedFields#reference types"]]
+status = "not-applicable"
+reason = "Upstream reads @Shared reference-typed fields that have no initializer and expects null. Kotlin requires every property to be initialized, so null would be an explicit initializer, which tests the Kotlin compiler instead of Spock's field handling"
+decided = "2026-10-17"
