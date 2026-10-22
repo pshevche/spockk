@@ -14,12 +14,15 @@
 
 package io.github.pshevche.spockk.compilation
 
+import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 @OptIn(ExperimentalCompilerApi::class)
@@ -656,5 +659,52 @@ class FeatureBlockStructureValidationTest : Specification() {
         """
         .trimIndent()
     )
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/764")
+  @MigratedFrom("org.spockframework.smoke.ExpectBlocks#may not contain exception conditions")
+  fun `rejects an expect block with an exception condition`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.expect
+          thrown(RuntimeException::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/765")
+  @MigratedFrom("org.spockframework.smoke.ExpectBlocks#may not contain interactions")
+  fun `rejects an expect block with an interaction`() {
+    `when`
+    val result =
+      transform(
+        kotlin(
+          "Spec.kt",
+          """
+          import io.github.pshevche.spockk.lang.returns
+
+          class Spec : spock.lang.Specification() {
+            fun `some feature`() {
+              val l = Mock(java.util.List::class.java)
+              io.github.pshevche.spockk.lang.expect
+              l.size returns 5
+            }
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:7")
   }
 }
