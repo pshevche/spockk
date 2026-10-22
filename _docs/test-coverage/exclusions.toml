@@ -63,6 +63,36 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static mock and real instance at the same time"]]
+status = "not-applicable"
+reason = "Needs one class with both real static members (called via invokestatic, so Mockito can intercept) and instance members; Kotlin only emits invokestatic call sites for object and top-level members, which cannot have instances. Porting it with separate classes would change what the feature tests"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time"]]
+status = "not-applicable"
+reason = "Same constraint as 'static mock and real instance at the same time': a Kotlin class cannot have both an interceptable static method and a mockable instance method"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time with interactions"]]
+status = "not-applicable"
+reason = "Same constraint as 'static mock and real instance at the same time': a Kotlin class cannot have both an interceptable static method and a mockable instance method"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time with Mockito mock maker"]]
+status = "not-applicable"
+reason = "Same constraint as 'static mock and real instance at the same time': a Kotlin class cannot have both an interceptable static method and a mockable instance method"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#SpyStatic with closure as IMockMakerSettings shall produce nice error message"]]
+status = "not-applicable"
+reason = "Checks the error for Groovy's SpyStatic(Type) { } closure being coerced to IMockMakerSettings with a null ID; a Kotlin lambda cannot be passed there without returning a MockMakerId, so the misuse cannot be written"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#SpyStatic with closure returning something shall produce nice error message"]]
+status = "not-applicable"
+reason = "Same as 'SpyStatic with closure as IMockMakerSettings shall produce nice error message': relies on Groovy closure coercion to IMockMakerSettings that Kotlin does not have"
+decided = "2026-10-13"
+
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
 reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
