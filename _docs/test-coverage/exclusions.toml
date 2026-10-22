@@ -63,6 +63,11 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.runtime.StoreSpec#store is created and cleaned for each level"]]
+status = "blocked"
+reason = "The feature records the store contents from inside setupSpec and cleanupSpec via an instance method that reads specificationContext. Spockk rejects instance method calls in those fixtures ('Only companion object members and @Shared fields may be accessed from here'). Dropping those calls would change what the snapshot asserts"
+gap = "https://github.com/pshevche/spockk/issues/735"
+
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
 reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
