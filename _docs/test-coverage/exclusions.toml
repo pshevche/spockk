@@ -185,3 +185,25 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.FinalFields#can modify normal fields"]]
+status = "blocked"
+reason = "Checks the initial value in expect:, then reassigns in when:/then:. Spockk's block-order validator rejects when: after expect:, even though real Spock allows it. Moving the initial check elsewhere would change the block structure under test"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-18"
+
+[["org.spockframework.smoke.FinalFields#can modify normal shared fields"]]
+status = "blocked"
+reason = "Same expect:/when:/then: shape as 'can modify normal fields', on a @Shared field. Spockk's block-order validator rejects when: after expect:"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-18"
+
+[["org.spockframework.smoke.FinalFields#cannot modify final fields"]]
+status = "not-applicable"
+reason = "Upstream expects a runtime ReadOnlyPropertyException from Groovy's property setter on a final field. Kotlin rejects assigning to a val at compile time, so the runtime failure cannot occur and a port would only test the Kotlin compiler"
+decided = "2026-10-18"
+
+[["org.spockframework.smoke.FinalFields#cannot modify final shared fields"]]
+status = "not-applicable"
+reason = "Same as 'cannot modify final fields', for a @Shared final field: Kotlin rejects the val assignment at compile time, and there is no ReadOnlyPropertyException at runtime"
+decided = "2026-10-18"
