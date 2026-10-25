@@ -1,5 +1,5 @@
 ---
-name: spock-migration-review
+name: spock-migration-pr-review
 description: Review a test-coverage migration PR (a port of an upstream Spock spec into spockk-specs, labeled test-coverage::spec). Runs the generic code-review pass, then checks the port against the maintainer's recurring review feedback. Invoke when a PR titled "test: migrate ... from upstream Spock" or "test: record ... migration as ..." is opened.
 ---
 
