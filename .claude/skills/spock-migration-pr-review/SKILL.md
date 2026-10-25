@@ -77,6 +77,6 @@ Report only what you verified in the diff. Cite the file and line.
 - Prefix every comment with 🤖 and end it with the attribution footer from the session instructions.
 - Run the text through the `humanizer` skill first (final text only).
 - Do not repeat a finding that an earlier review comment on the same PR already raised and the author answered.
-- If there are no findings, post a single short comment saying the port matches upstream and which upstream
-  features you compared.
+- If there is nothing to act on, always post a single short PR comment (not a review) saying everything looks good,
+  which upstream features you compared, and that `validate.py` and tests are green. Never finish silently.
 - When unsure whether the maintainer would flag something (formatting, blank lines), leave it out.
