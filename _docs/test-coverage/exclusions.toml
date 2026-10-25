@@ -185,3 +185,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.Interceptors#interceptors are called in the correct order and with the correct context information"]]
+status = "blocked"
+reason = "The feature needs data-driven features in a superclass that has a subclass, which crashes the compiler plugin"
+gap = "https://github.com/pshevche/spockk/issues/776"
+decided = "2026-10-18"
