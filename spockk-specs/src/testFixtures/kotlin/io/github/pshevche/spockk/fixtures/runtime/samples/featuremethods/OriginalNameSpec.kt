@@ -21,6 +21,6 @@ class OriginalNameSpec : Specification() {
 
   fun `original name`() {
     expect
-    assert(true)
+    true
   }
 }
