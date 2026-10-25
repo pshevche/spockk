@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package io.github.pshevche.spockk.fixtures.runtime.samples.smoke
+package io.github.pshevche.spockk.fixtures.runtime.samples.recorder
 
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.verify

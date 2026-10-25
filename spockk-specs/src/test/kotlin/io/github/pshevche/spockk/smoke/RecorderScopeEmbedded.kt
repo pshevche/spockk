@@ -16,7 +16,7 @@ package io.github.pshevche.spockk.smoke
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
-import io.github.pshevche.spockk.fixtures.runtime.samples.smoke.NestedConditionsWithoutTopLevelConditionSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.recorder.NestedConditionsWithoutTopLevelConditionSpec
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
