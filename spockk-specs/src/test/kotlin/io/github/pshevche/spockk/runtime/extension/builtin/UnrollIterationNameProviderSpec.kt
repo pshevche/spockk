@@ -25,12 +25,10 @@ import io.github.pshevche.spockk.lang.where
 import org.spockframework.runtime.SpockAssertionError
 import org.spockframework.runtime.extension.builtin.UnrollIterationNameProvider
 import org.spockframework.runtime.model.IterationInfo
-import spock.lang.Issue
 import spock.lang.Specification
 
 class UnrollIterationNameProviderSpec : Specification() {
 
-  @Issue("https://github.com/spockframework/spock/issues/237")
   @MigratedFrom(
     "org.spockframework.runtime.extension.builtin.UnrollIterationNameProviderSpec#regex-like data values are substituted correctly (i.e. literally)"
   )
@@ -101,7 +99,6 @@ class UnrollIterationNameProviderSpec : Specification() {
     nameGenerator.getName(iterationInfo) == "foo #Error:dataVar.foo bar"
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/767")
   @MigratedFrom(
     "org.spockframework.runtime.extension.builtin.UnrollIterationNameProviderSpec#missing variables throw an exception if validateExpressions is set to true"
   )
@@ -118,7 +115,6 @@ class UnrollIterationNameProviderSpec : Specification() {
     e.cause == null
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/767")
   @MigratedFrom(
     "org.spockframework.runtime.extension.builtin.UnrollIterationNameProviderSpec#exceptions during variable eval throw an exception if validateExpressions is set to true"
   )
