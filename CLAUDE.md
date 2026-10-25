@@ -115,6 +115,7 @@ Project skills live in `.claude/skills/`:
 - **`gh-issue`** - hand off a GitHub issue to Claude Code for implementation
 - **`spock-expert`** - research how Spock implements a feature
 - **`ir-expert`** - research Kotlin IR visitor and transformer APIs
+- **`spock-migration-review`** - review a test-coverage migration PR against upstream Spock and past review feedback
 - **`grill-me`** - stress-test a plan or design through relentless questioning
 - **`humanizer`** - rewrite AI-sounding prose (see [Git Conventions](#git-conventions) for when this is required)
 
