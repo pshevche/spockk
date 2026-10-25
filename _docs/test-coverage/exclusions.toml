@@ -63,6 +63,42 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.runtime.NamespacedExtensionStoreSpec#create object via getOrComputeIfAbsent(Class)"]]
+status = "blocked"
+reason = "Starts with expect: and then continues with when:/then:. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.NamespacedExtensionStoreSpec#create object via getOrComputeIfAbsent(key, creator)"]]
+status = "blocked"
+reason = "Starts with expect: and then continues with when:/then:. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.NamespacedExtensionStoreSpec#create object via getOrComputeIfAbsent(key, creator, type)"]]
+status = "blocked"
+reason = "Starts with expect: and then continues with when:/then:. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.NamespacedExtensionStoreSpec#removing items returns the stored value"]]
+status = "blocked"
+reason = "Checks the stored value in expect: before the first when:/then:. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.NamespacedExtensionStoreSpec#removing items returns the stored value with required type"]]
+status = "blocked"
+reason = "Checks the stored value in expect: before the first when:/then:. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', rejecting 'when:', even though real Spock's BlockParseInfo.EXPECT explicitly allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.NamespacedExtensionStoreSpec#AutoCloseable items are closed in reverse insertion order when the store is closed, but not when they have been removed or replaced prior"]]
+status = "blocked"
+reason = "Checks the reverse close order with three consecutive then: blocks, one interaction each. Spockk's block-order validator rejects a 'then' directly after a 'then'; folding them into 'and' would compile but stop checking the order, so the port would pass for the wrong reason"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-14"
+
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
 reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
