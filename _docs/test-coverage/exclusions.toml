@@ -79,6 +79,7 @@ decided = "2026-10-14"
 status = "blocked"
 reason = "Checks the order of listener callbacks with consecutive `then:` blocks, which Spockk's block-order validator rejects; folding them into one block would stop checking the order"
 gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-14"
 
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"

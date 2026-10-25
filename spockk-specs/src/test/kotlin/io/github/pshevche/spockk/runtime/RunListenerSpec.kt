@@ -36,15 +36,14 @@ import org.spockframework.runtime.model.BlockKind
 import org.spockframework.runtime.model.ErrorInfo
 import org.spockframework.runtime.model.parallel.ExecutionMode
 import spock.lang.Execution
-import spock.lang.Issue
 import spock.lang.Specification
+import spock.lang.Unroll
 
 @Execution(value = ExecutionMode.SAME_THREAD, reason = "Uses a shared field on a delegate")
 class RunListenerSpec : Specification() {
 
-  private val runListener = Mock(IRunListener::class.java)
+  private val runListener: IRunListener = Mock(IRunListener::class.java)
 
-  @Issue("https://github.com/spockframework/spock/issues/1662")
   @MigratedFrom("org.spockframework.runtime.RunListenerSpec#IRunListener is called for skipped specs")
   fun `IRunListener is called for skipped specs`() {
     given
@@ -61,6 +60,7 @@ class RunListenerSpec : Specification() {
     RunListenerDelegate.delegate = null
   }
 
+  @Unroll("IRunListener.error gets called for #errorLocation")
   @MigratedFrom("org.spockframework.runtime.RunListenerSpec#IRunListener gets called for different error locations")
   fun `IRunListener gets called for different error locations`(
     errorLocation: String,
