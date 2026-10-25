@@ -190,3 +190,21 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.CleanupBlocks#is executed if no exception is thrown"]]
+status = "blocked"
+reason = "Upstream goes from the anonymous block straight to cleanup, which Spockk's block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/791"
+decided = "2026-10-25"
+
+[["org.spockframework.smoke.CleanupBlocks#if exception is thrown, code between occurrence of exception and cleanup-block is not executed"]]
+status = "blocked"
+reason = "Upstream goes from the anonymous block straight to cleanup, which Spockk's block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/791"
+decided = "2026-10-25"
+
+[["org.spockframework.smoke.CleanupBlocks#variable with primitive type can be read in cleanup-block"]]
+status = "blocked"
+reason = "Upstream has only a variable declaration followed by cleanup, which Spockk's block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/791"
+decided = "2026-10-25"

@@ -25,7 +25,6 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
-import spock.lang.FailsWith
 import spock.lang.Specification
 
 class CleanupBlocks : Specification() {
@@ -68,19 +67,6 @@ class CleanupBlocks : Specification() {
     d = null
   }
 
-  @FailsWith(IllegalArgumentException::class)
-  @MigratedFrom("org.spockframework.smoke.CleanupBlocks#is executed if no exception is thrown")
-  fun `is executed if no exception is thrown`() {
-    var a = 1
-
-    expect
-    a == 1
-
-    cleanup
-    a = 0
-    if (a == 0) throw IllegalArgumentException()
-  }
-
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#is executed if exception is thrown")
   fun `is executed if exception is thrown`() {
     `when`
@@ -110,21 +96,6 @@ class CleanupBlocks : Specification() {
     CleanupBlocksLog.entries == listOf("feature", "cleanup")
   }
 
-  @FailsWith(IllegalArgumentException::class)
-  @MigratedFrom(
-    "org.spockframework.smoke.CleanupBlocks#if exception is thrown, code between occurrence of exception and cleanup-block is not executed"
-  )
-  fun `if exception is thrown, code between occurrence of exception and cleanup-block is not executed`() {
-    var a = 1
-
-    expect
-    if (a == 1) throw IllegalArgumentException()
-    a = 2
-
-    cleanup
-    assert(a == 1)
-  }
-
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#variable with primitive type can be declared in presence of cleanup-block")
   fun `variable with primitive type can be declared in presence of cleanup-block`() {
     setup
@@ -135,17 +106,6 @@ class CleanupBlocks : Specification() {
 
     cleanup
     listOf<Any>()
-  }
-
-  @MigratedFrom("org.spockframework.smoke.CleanupBlocks#variable with primitive type can be read in cleanup-block")
-  fun `variable with primitive type can be read in cleanup-block`() {
-    val x: Int = 1
-
-    expect
-    x == 1
-
-    cleanup
-    assert(x == 1)
   }
 
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#multi-declaration with primitive type in presence of cleanup-block")
