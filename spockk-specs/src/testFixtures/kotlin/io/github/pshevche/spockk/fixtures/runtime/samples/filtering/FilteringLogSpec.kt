@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.fixtures.runtime.samples.filtering
 
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.setup
 import spock.lang.Specification
 
 object FilteringLog {
@@ -25,7 +25,7 @@ object FilteringLog {
 class FilteringLogSpec : Specification() {
 
   fun feature1() {
-    given
+    setup
     FilteringLog.value += "1"
 
     expect
@@ -33,7 +33,7 @@ class FilteringLogSpec : Specification() {
   }
 
   fun feature2() {
-    given
+    setup
     FilteringLog.value += "2"
 
     expect
@@ -41,7 +41,7 @@ class FilteringLogSpec : Specification() {
   }
 
   fun feature3() {
-    given
+    setup
     FilteringLog.value += "3"
 
     expect
