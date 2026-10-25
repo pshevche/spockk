@@ -185,3 +185,33 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.SetupBlocks#explicit"]]
+status = "blocked"
+reason = "The block-order validator rejects a feature that ends after setup, which Spock accepts"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-25"
+
+[["org.spockframework.smoke.SetupBlocks#implicit and explicit"]]
+status = "blocked"
+reason = "The block-order validator rejects a feature that ends after setup, which Spock accepts"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-25"
+
+[["org.spockframework.smoke.SetupBlocks#named"]]
+status = "blocked"
+reason = "The block-order validator rejects a feature that ends after setup, which Spock accepts"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-25"
+
+[["org.spockframework.smoke.SetupBlocks#and-ed"]]
+status = "blocked"
+reason = "The block-order validator rejects a feature that ends after setup, which Spock accepts"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-25"
+
+[["org.spockframework.smoke.SetupBlocks#full house"]]
+status = "blocked"
+reason = "The block-order validator rejects a feature that ends after setup, which Spock accepts"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-25"
