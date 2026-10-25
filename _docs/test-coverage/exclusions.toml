@@ -97,6 +97,7 @@ decided = "2026-10-14"
 status = "blocked"
 reason = "Checks the reverse close order with three consecutive then: blocks, one interaction each. Spockk's block-order validator rejects a 'then' directly after a 'then'; folding them into 'and' would compile but stop checking the order, so the port would pass for the wrong reason"
 gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-14"
 
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
