@@ -25,7 +25,7 @@ class InteractionsAndExceptionConditions : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.InteractionsAndExceptionConditions#interaction followed by exception condition")
   fun `interaction followed by exception condition`() {
-    val list = Mock(MutableList::class.java) as MutableList<Int>
+    val list: MutableList<Int> = Mock()
 
     `when`
     list.add(1)
@@ -38,7 +38,7 @@ class InteractionsAndExceptionConditions : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.InteractionsAndExceptionConditions#exception condition followed by interaction")
   fun `exception condition followed by interaction`() {
-    val list = Mock(MutableList::class.java) as MutableList<Int>
+    val list: MutableList<Int> = Mock()
 
     `when`
     list.add(1)
