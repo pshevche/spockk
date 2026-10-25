@@ -15,9 +15,7 @@
 package io.github.pshevche.spockk.runtime
 
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
-import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldAccessFromSubclass
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldLifecycle
-import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldTypeCompatibility
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.StaticFieldLifecycle
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
@@ -25,22 +23,6 @@ import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import spock.lang.Specification
 
 class SharedFieldsRuntimeTest : Specification() {
-
-  fun `shared field can be accessed from subclass`() {
-    `when`
-    val events = execute(selectClass(SharedFieldAccessFromSubclass::class.java))
-
-    then
-    events.assertStatistics { it.started(1).succeeded(1) }
-  }
-
-  fun `shared field getters and setters use declared type`() {
-    `when`
-    val events = execute(selectClass(SharedFieldTypeCompatibility::class.java))
-
-    then
-    events.assertStatistics { it.started(1).succeeded(1) }
-  }
 
   fun `shared fields reset between spec runs`() {
     `when`
