@@ -83,16 +83,12 @@ class GroovyRuntimeUtilSpec : Specification() {
     "org.spockframework.runtime.GroovyRuntimeUtilSpec#coercing to primitive type has same effect as coercing to wrapper type (and doesn't blow up)"
   )
   fun `coercing to primitive type has same effect as coercing to wrapper type (and doesn't blow up)`() {
-    given
-    val coercedChar = GroovyRuntimeUtil.coerce<Any>("x", Char::class.javaPrimitiveType)
-    val coercedByte = GroovyRuntimeUtil.coerce<Any>(123, Byte::class.javaPrimitiveType)
-
     expect
-    coercedChar == 'x'
-    coercedChar is Char
+    GroovyRuntimeUtil.coerce<Any>("x", Char::class.javaPrimitiveType) == 'x'
+    GroovyRuntimeUtil.coerce<Any>("x", Char::class.javaPrimitiveType) is Char
 
-    coercedByte == 123.toByte()
-    coercedByte is Byte
+    GroovyRuntimeUtil.coerce<Any>(123, Byte::class.javaPrimitiveType) == 123.toByte()
+    GroovyRuntimeUtil.coerce<Any>(123, Byte::class.javaPrimitiveType) is Byte
   }
 
   @MigratedFrom("org.spockframework.runtime.GroovyRuntimeUtilSpec#coerce with empty types throws IllegalArgumentException")
@@ -106,7 +102,6 @@ class GroovyRuntimeUtilSpec : Specification() {
 
   @MigratedFrom("org.spockframework.runtime.GroovyRuntimeUtilSpec#instantiate closure")
   fun `instantiate closure`() {
-    given
     val owner = mapOf("x" to 1)
     val thisObject = ThisObject()
 

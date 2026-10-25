@@ -69,11 +69,11 @@ reason = "Needs an expect block followed by a when block, which the block-order 
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-10-14"
 
-
 [["org.spockframework.runtime.GroovyRuntimeUtilSpec#coerce to first successful candidate type"]]
 status = "blocked"
 reason = "Needs an expect block followed by a when block, which the block-order validator rejects"
 gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
 
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
