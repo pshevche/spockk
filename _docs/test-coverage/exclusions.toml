@@ -67,6 +67,7 @@ decided = "2026-09-29"
 status = "blocked"
 reason = "The feature records the store contents from inside setupSpec and cleanupSpec via an instance method that reads specificationContext. Spockk rejects instance method calls in those fixtures ('Only companion object members and @Shared fields may be accessed from here'). Dropping those calls would change what the snapshot asserts"
 gap = "https://github.com/pshevche/spockk/issues/735"
+decided = "2026-10-14"
 
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
