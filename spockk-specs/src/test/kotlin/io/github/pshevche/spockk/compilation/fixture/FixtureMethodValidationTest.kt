@@ -18,6 +18,7 @@ import com.tschuchort.compiletesting.SourceFile
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
@@ -74,6 +75,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
   }
 
+  @MigratedFrom("org.spockframework.smoke.SpecInheritance#cannot call super method from fixture method")
   fun `rejects fixture method calling super`(fixtureMethodName: String) {
     `when`
     val result =

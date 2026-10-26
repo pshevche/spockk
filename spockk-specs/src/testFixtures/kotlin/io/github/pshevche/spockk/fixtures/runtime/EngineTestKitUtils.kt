@@ -15,10 +15,20 @@
 package io.github.pshevche.spockk.fixtures.runtime
 
 import org.junit.platform.engine.DiscoverySelector
+import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.testkit.engine.EngineTestKit
 import org.junit.platform.testkit.engine.Events
 
 object EngineTestKitUtils {
   fun execute(selector: DiscoverySelector): Events =
     EngineTestKit.engine("spock").selectors(selector).execute().testEvents().debug()
+
+  fun executeAndCollectFailures(selector: DiscoverySelector): List<Throwable> =
+    EngineTestKit.engine("spock")
+      .selectors(selector)
+      .execute()
+      .allEvents()
+      .finished()
+      .list()
+      .mapNotNull { it.getPayload(TestExecutionResult::class.java).flatMap { r -> r.throwable }.orElse(null) }
 }
