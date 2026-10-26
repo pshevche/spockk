@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
@@ -107,6 +108,7 @@ class DataPipesCompilationTest : BaseCompilationTest() {
     assertTransformation(sampleFromResource("parametrization/SingleVariableValuesListSpec"))
   }
 
+  @MigratedFrom("org.spockframework.smoke.ast.DataAstSpec#multi-parameterization")
   fun `single data pipe with multiple variables`() {
     expect
     assertTransformation(sampleFromResource("parametrization/SinglePipeMultiVariableSpec"))
