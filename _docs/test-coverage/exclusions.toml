@@ -185,3 +185,30 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.WithBlockFailingConditions#with null fails"]]
+status = "not-applicable"
+reason = "Kotlin's static typing replaces Spock's runtime checks on a `with` target: a null target cannot be passed to a non-null receiver lambda that calls members on it, and `verify` has no null check to port"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlockFailingConditions#with target null and incompatible type fails"]]
+status = "not-applicable"
+reason = "Kotlin's static typing replaces Spock's runtime checks on a `with` target: `verify` has no explicit target type overload, so there is nothing to check at runtime"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlockFailingConditions#with target and incompatible type fails"]]
+status = "not-applicable"
+reason = "Kotlin's static typing replaces Spock's runtime checks on a `with` target: `verify(list, String)` does not exist; a mismatched receiver type is a compile error instead of a runtime SpockAssertionError"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlockFailingConditions#GDK method that looks like built-in method as implicit condition"]]
+status = "blocked"
+reason = "An implicit condition that is a lambda-taking call such as `with(null) { false }` crashes the compiler with a StackOverflowError"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlockFailingConditions#GDK method that looks like built-in method as explicit condition"]]
+status = "blocked"
+reason = "An implicit condition that is a lambda-taking call such as `with(null) { false }` crashes the compiler with a StackOverflowError"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-26"
