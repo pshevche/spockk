@@ -185,3 +185,15 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.ast.DataTablesAstSpec#data tables with #separators can be combined"]]
+status = "blocked"
+reason = "Spockk has no combined block label, so a where block with combined tables does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.DataTablesAstSpec#filter block becomes its own method"]]
+status = "blocked"
+reason = "Spockk has no filter or combined block labels, so a where block with a filter does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-10-26"
