@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
@@ -164,5 +165,11 @@ class DataTablesCompilationTest : BaseCompilationTest() {
   fun `reference another feature variable`() {
     expect
     assertTransformation(sampleFromResource("parametrization/ReferenceFeatureVariableInDataTableSpec"))
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.DataTablesAstSpec#using a variable in a cell multiple times compiles")
+  fun `using a variable in a cell multiple times compiles`() {
+    expect
+    assertTransformation(sampleFromResource("parametrization/VariableUsedMultipleTimesInDataTableCellSpec"))
   }
 }
