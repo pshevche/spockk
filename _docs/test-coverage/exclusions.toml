@@ -185,3 +185,21 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.WithBlockPassingConditions#in block other than then/expect"]]
+status = "blocked"
+reason = "A feature that ends after a setup block does not compile, the block-order validator rejects it"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlockPassingConditions#in nested position"]]
+status = "blocked"
+reason = "verify inside a lambda is not rewritten, so a port would compile and pass without checking any condition"
+gap = "https://github.com/pshevche/spockk/issues/820"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlockPassingConditions#executed several times"]]
+status = "blocked"
+reason = "verify inside a lambda is not rewritten, so a port would compile and pass without checking any condition"
+gap = "https://github.com/pshevche/spockk/issues/820"
+decided = "2026-10-26"
