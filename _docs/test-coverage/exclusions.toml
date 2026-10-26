@@ -185,3 +185,26 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.ast.DataAstSpec#nested multi-parameterization"]]
+status = "not-applicable"
+reason = "Exercises Groovy's nested destructuring pipe `[a, [_, b]] << rows` with an ignored `_` slot; Kotlin data pipes (`variables(a, b).from(...)`) have no nested or destructuring pattern syntax"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.DataAstSpec#where-block variables"]]
+status = "blocked"
+reason = "A plain `val` declared in a where block is rejected as unrecognized parameterization syntax"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.DataAstSpec#where-block variables with multiple assignment"]]
+status = "blocked"
+reason = "A destructuring `val (a, b) = ...` declared in a where block is rejected as unrecognized parameterization syntax"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.DataAstSpec#where-block variables combined with data table, data pipe, derived variables, cross-multiplication and filter"]]
+status = "blocked"
+reason = "Needs where-block local declarations plus the `combined` and `filter` block labels, none of which Spockk supports"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-10-26"
