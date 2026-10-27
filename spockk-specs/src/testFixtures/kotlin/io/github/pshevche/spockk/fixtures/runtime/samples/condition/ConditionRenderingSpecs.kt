@@ -19,6 +19,7 @@ import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.verifyEach
 import spock.lang.Specification
+import java.lang.Thread.State.NEW
 
 class SimpleComparisonSpec : Specification() {
   fun `test`() {
@@ -383,5 +384,34 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     verifyAll {
       verify(str) { length == 3 }
     }
+  }
+}
+
+class EnumLiteralSpec : Specification() {
+  fun `test`() {
+    expect
+    Thread.State.NEW == null
+  }
+}
+
+class StaticImportedEnumLiteralSpec : Specification() {
+  fun `test`() {
+    expect
+    NEW == null
+  }
+}
+
+class EnumWithToStringLiteralSpec : Specification() {
+  fun `test`() {
+    expect
+    EnumWithToString.VALUE == null
+  }
+}
+
+class EnumVariableSpec : Specification() {
+  fun `test`() {
+    val x = Thread.State.NEW
+    expect
+    x == null
   }
 }
