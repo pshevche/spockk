@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.runtime
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
@@ -27,9 +28,13 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyStringV
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumWithToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExplicitAssertionWithMessageSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExplicitAssertionWithMethodConditionAndMessageSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExplicitAssertionWithStaticMethodConditionAndMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalAndSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalOrSpec
@@ -40,12 +45,15 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerify
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SatisfiedConditionWithMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SimpleComparisonSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SimpleMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SingleLineToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualsMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringMethodCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringTemplateMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThrowingToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValueSpec
@@ -55,6 +63,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyProper
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
 
@@ -586,6 +595,123 @@ class ConditionRenderingTest : Specification() {
       |2      false
       """.trimMargin()
     )
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#evaluation of satisfied condition")
+  fun `evaluation of satisfied condition`() {
+    expect
+    execute(selectClass(SatisfiedConditionWithMessageSpec::class.java)).failed().list().isEmpty()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#evaluation of unsatisfied condition")
+  fun `evaluation of unsatisfied condition`() {
+    expect
+    execute(selectClass(SimpleMessageSpec::class.java)).failed().list().size == 1
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#rendering of simple message")
+  fun `rendering of simple message`() {
+    expect
+    failureMessage(SimpleMessageSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |1 + 2 == 2
+      |  |   |
+      |  3   false
+      |
+      |need to brush up my math
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#rendering of GString message")
+  fun `rendering of string template message`() {
+    expect
+    failureMessage(StringTemplateMessageSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a + b == 2
+      || | | |
+      |1 3 2 false
+      |
+      |a: 1 b: 2
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#rendering of object message")
+  fun `rendering of object message`() {
+    expect
+    failureMessage(ListMessageSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |1 + 2 == 2
+      |  |   |
+      |  3   false
+      |
+      |[1, 2]
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#explicit assertion with message")
+  fun `explicit assertion with message`() {
+    expect
+    failureMessage(ExplicitAssertionWithMessageSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a == b
+      || |  |
+      |1 |  2
+      |  false
+      |
+      |Additional message
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#explicit assertion with methodCondition and message")
+  fun `explicit assertion with methodCondition and message`() {
+    expect
+    failureMessage(ExplicitAssertionWithMethodConditionAndMessageSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a.contains(b)
+      || |        |
+      || false    bar
+      |foo
+      |
+      |Additional message
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
+  @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#explicit assertion with static methodCondition and message")
+  fun `explicit assertion with static methodCondition and message`() {
+    expect
+    failureMessage(ExplicitAssertionWithStaticMethodConditionAndMessageSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |JBoolean.parseBoolean(a)
+      ||        |            |
+      ||        false        foo
+      |class java.lang.Boolean
+      |
+      |Additional message
+      |
+      """.trimMargin()
   }
 
   private fun failureMessage(clazz: KClass<*>): String {
