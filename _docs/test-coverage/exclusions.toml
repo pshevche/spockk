@@ -185,3 +185,25 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ExceptionConditions#may occur in chained block"]]
+status = "blocked"
+reason = "Spockk rejects consecutive then: blocks at compile time, so a chained exception condition cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExceptionConditions#may only occur once in chained then-blocks"]]
+status = "blocked"
+reason = "Spockk rejects consecutive then: blocks at compile time, so the chained-block variant of the single-exception-condition rule cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExceptionConditions#(Java-style) exception condition must specify a type that is-a java.lang.Throwable"]]
+status = "not-applicable"
+reason = "thrown() is bounded to Throwable in Kotlin, so a non-Throwable declared type is rejected by the Kotlin compiler instead of at spec run time"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExceptionConditions#(Groovy-style) exception condition must specify a type that is-a java.lang.Throwable"]]
+status = "not-applicable"
+reason = "thrown(Class) is bounded to Throwable in Kotlin, so thrown(String::class.java) is rejected by the Kotlin compiler instead of at spec run time"
+decided = "2026-10-27"
