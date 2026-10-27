@@ -185,3 +185,173 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with GString method"]]
+status = "not-applicable"
+reason = "Kotlin has no GString method names; a call target cannot be computed from a string at runtime"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with spread-dot operator"]]
+status = "not-applicable"
+reason = "Kotlin has no spread-dot (*.) operator"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with named arguments passed as map"]]
+status = "not-applicable"
+reason = "Kotlin named arguments are not a map; passing an explicit map literal has no Kotlin counterpart"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ConstructorCallExpression with named arguments"]]
+status = "not-applicable"
+reason = "Kotlin named constructor arguments are a different construct from Groovy's map-style named arguments, and the plain constructor call is already blocked by the constructor slot gap"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ConstructorCallExpression with named arguments passed as map"]]
+status = "not-applicable"
+reason = "Kotlin named arguments are not a map; passing an explicit map literal has no Kotlin counterpart"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#PostfixExpression (Groovy 2)"]]
+status = "not-applicable"
+reason = "Only runs on Groovy 2; Spockk always runs on Groovy 5 or later"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#TupleExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no multi-assignment expression; destructuring declarations are statements and cannot appear in a condition"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#MapExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no map literal syntax; mapOf(...) is an ordinary method call"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ListExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no list literal syntax; listOf(...) is an ordinary method call"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ClosureExpression"]]
+status = "not-applicable"
+reason = "Kotlin lambdas are not Groovy closures, and a lambda literal in a condition has no stable rendering"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#AttributeExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no direct field access operator (.@)"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#MethodPointerExpression"]]
+status = "not-applicable"
+reason = "Kotlin callable references render as implementation-specific KFunction objects, not Groovy method pointers"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ClassExpression with dot-containing comments (Groovy 2)"]]
+status = "not-applicable"
+reason = "Only runs on Groovy 2; Spockk always runs on Groovy 5 or later"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#GStringExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no GString; string templates compile to concatenation"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ArrayExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no array creation expression; arrays are created through ordinary constructor or function calls"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#SpreadMapExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no spread-map operator"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#BitwiseNegationExpression"]]
+status = "not-applicable"
+reason = "Kotlin has no ~ operator; inv() is an ordinary method call"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#explicit closure call"]]
+status = "not-applicable"
+reason = "The expected output embeds the closure's identity-based dump, and Kotlin lambdas are not Groovy closures"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#MapEntryExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream; it is only tested as part of MapExpression"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#DeclarationExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream; a declaration cannot occur in a condition"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ClosureListExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream; it cannot occur in a condition"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#BytecodeExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream; it cannot occur in a condition"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with safe operator"]]
+status = "blocked"
+reason = "A safe call (?.) inside a condition crashes the Kotlin compiler"
+gap = "https://github.com/pshevche/spockk/issues/742"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#TernaryExpression"]]
+status = "blocked"
+reason = "An if expression inside a condition crashes the Kotlin compiler (non-exhaustive conditional)"
+gap = "https://github.com/pshevche/spockk/issues/742"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ShortTernaryExpression"]]
+status = "blocked"
+reason = "An elvis expression inside a condition crashes the Kotlin compiler (non-exhaustive conditional)"
+gap = "https://github.com/pshevche/spockk/issues/742"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#PostfixExpression"]]
+status = "blocked"
+reason = "A postfix increment inside a condition crashes the Kotlin compiler"
+gap = "https://github.com/pshevche/spockk/issues/847"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#nested condition does not disturb rendering of outer condition"]]
+status = "blocked"
+reason = "An assert inside a lambda argument of an implicit condition crashes the Kotlin compiler with a StackOverflowError"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ConstructorCallExpression"]]
+status = "blocked"
+reason = "A constructor call inside a condition records its values out of step with Spock, so the diagram cannot match upstream"
+gap = "https://github.com/pshevche/spockk/issues/843"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ConstructorCallExpression for non-static inner class"]]
+status = "blocked"
+reason = "A constructor call inside a condition records its values out of step with Spock, so the diagram cannot match upstream"
+gap = "https://github.com/pshevche/spockk/issues/843"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ClassExpression"]]
+status = "blocked"
+reason = "Class literals (::class) are re-parsed as Groovy and render without their values"
+gap = "https://github.com/pshevche/spockk/issues/849"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#ClassExpression with dot-containing comments"]]
+status = "blocked"
+reason = "Class literals (::class) are re-parsed as Groovy and render without their values"
+gap = "https://github.com/pshevche/spockk/issues/849"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionRendering#instanceof expression"]]
+status = "blocked"
+reason = "The is operator is re-parsed as Groovy and its operand value is dropped from the diagram"
+gap = "https://github.com/pshevche/spockk/issues/849"
+decided = "2026-10-27"

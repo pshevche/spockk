@@ -19,6 +19,9 @@ import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.verifyEach
 import spock.lang.Specification
+import java.lang.Integer.MAX_VALUE
+import java.lang.Math.min
+import java.lang.Thread.State.BLOCKED
 
 class SimpleComparisonSpec : Specification() {
   fun `test`() {
@@ -383,5 +386,272 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     verifyAll {
       verify(str) { length == 3 }
     }
+  }
+}
+
+class SimpleConditionSpec : Specification() {
+  fun `test`() {
+    val x = 2
+    expect
+    x == 1
+  }
+}
+
+class MultiLineConditionSpec : Specification() {
+  fun `test`() {
+    expect
+    1 +
+      2 ==
+
+      4 -
+
+      2
+  }
+}
+
+class ImplicitTargetCallSpec : Specification() {
+  private fun one(@Suppress("UNUSED_PARAMETER") x: Int) = false
+
+  fun `test`() {
+    val a = 1
+    expect
+    one(a)
+  }
+}
+
+class ExplicitTargetCallSpec : Specification() {
+  fun `test`() {
+    val a = listOf(1)
+    val b = 0
+    expect
+    a.get(b) == 5
+  }
+}
+
+class TopLevelMethodCallSpec : Specification() {
+  fun `test`() {
+    val a = listOf(false)
+    val b = 0
+    expect
+    a.get(b)
+  }
+}
+
+class JavaStaticMethodCallSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    val b = 2
+    expect
+    Math.max(a, b) == 5
+  }
+}
+
+class NamedArgumentsCallSpec : Specification() {
+  class Person2 {
+    fun eat(what: String, where: String) = what.isEmpty() && where.isEmpty()
+
+    override fun toString() = "p"
+  }
+
+  fun `test`() {
+    val person = Person2()
+    val steak = "steak"
+    val tokyo = "tokyo"
+    expect
+    person.eat(what = steak, where = tokyo)
+  }
+}
+
+class StaticImportCallSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    val b = 2
+    expect
+    min(a, b) == 5
+  }
+}
+
+class TopLevelStaticCallSpec : Specification() {
+  fun `test`() {
+    val a = "no"
+    expect
+    java.lang.Boolean.parseBoolean(a)
+  }
+}
+
+class BinaryOperatorSpec : Specification() {
+  fun `test`() {
+    val a = 0
+    val b = 1
+    expect
+    a * b == 5
+  }
+}
+
+class IndexAccessSpec : Specification() {
+  fun `test`() {
+    val a = listOf(false)
+    val b = 0
+    expect
+    a[b]
+  }
+}
+
+class PrefixIncrementSpec : Specification() {
+  fun `test`() {
+    var x = 0
+    expect
+    ++x == 5
+  }
+}
+
+class VariableAsConditionSpec : Specification() {
+  fun `test`() {
+    val a = false
+    expect
+    a
+  }
+}
+
+class InclusiveRangeSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    val b = 2
+    expect
+    (a..b) == 5..6
+  }
+}
+
+class ExclusiveRangeSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    val b = 2
+    expect
+    (a..<b) == 5..6
+  }
+}
+
+class CollectionPropertySpec : Specification() {
+  fun `test`() {
+    val a = listOf(9)
+    expect
+    a.size == 5
+  }
+}
+
+class JavaStaticFieldSpec : Specification() {
+  fun `test`() {
+    expect
+    Integer.MIN_VALUE == 5
+  }
+}
+
+class ConstantsOnlySpec : Specification() {
+  fun `test`() {
+    expect
+    "abc" == "abd"
+  }
+}
+
+class SameNameClassesSpec : Specification() {
+  fun `test`() {
+    val date = java.util.Date(0)
+    expect
+    date.javaClass == java.sql.Date::class.java
+  }
+}
+
+class SpreadArgumentSpec : Specification() {
+  private fun two(@Suppress("UNUSED_PARAMETER") vararg a: Int) = false
+
+  fun `test`() {
+    val a = intArrayOf(1, 2)
+    expect
+    two(*a)
+  }
+}
+
+class NotOperatorSpec : Specification() {
+  fun `test`() {
+    val a = true
+    expect
+    !a
+  }
+}
+
+class UnaryMinusSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    expect
+    -a == 5
+  }
+}
+
+class UnaryPlusSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    expect
+    +a == 5
+  }
+}
+
+class CastToBooleanSpec : Specification() {
+  fun `test`() {
+    val a: Any = false
+    expect
+    a as Boolean
+  }
+}
+
+class ThreeArgumentCallSpec : Specification() {
+  private fun three(
+    @Suppress("UNUSED_PARAMETER") a: Int,
+    @Suppress("UNUSED_PARAMETER") b: Int,
+    @Suppress("UNUSED_PARAMETER") c: Int
+  ) = false
+
+  fun `test`() {
+    val a = 1
+    val b = 2
+    val c = 3
+    expect
+    three(a, b, c)
+  }
+}
+
+class StaticImportFieldSpec : Specification() {
+  fun `test`() {
+    expect
+    MAX_VALUE == 0
+  }
+}
+
+class StaticImportEnumSpec : Specification() {
+  fun `test`() {
+    expect
+    BLOCKED == null
+  }
+}
+
+class BackslashEscapingSpec : Specification() {
+  fun `test`() {
+    expect
+    ":\":\\" == null
+  }
+}
+
+class SpreadIntoVarargsSpec : Specification() {
+  fun `test`() {
+    val a = intArrayOf(2, 3)
+    expect
+    intArrayOf(1, *a).isEmpty()
+  }
+}
+
+class VariableExpressionSpec : Specification() {
+  fun `test`() {
+    val x = false
+    expect
+    x
   }
 }

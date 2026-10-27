@@ -14,12 +14,18 @@
 
 package io.github.pshevche.spockk.runtime
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BackslashEscapingSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BinaryOperatorSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CastToBooleanSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ChainedExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CharValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClassValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CollectionPropertySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ConstantsOnlySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CustomObjectDiffSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.DefaultToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyListValueSpec
@@ -27,35 +33,63 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyStringV
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumWithToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExclusiveRangeSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExplicitTargetCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ImplicitTargetCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.InclusiveRangeSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IndexAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.JavaStaticFieldSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.JavaStaticMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalAndSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalOrSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MapValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NamedArgumentsCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerifyInVerifyAllSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NotOperatorSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArrayValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PrefixIncrementSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameNameClassesSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SimpleComparisonSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SimpleConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SingleLineToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SpreadArgumentSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SpreadIntoVarargsSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StaticImportCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StaticImportEnumSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StaticImportFieldSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualsMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThreeArgumentCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThrowingToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TopLevelMethodCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TopLevelStaticCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.UnaryMinusSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.UnaryPlusSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VariableAsConditionSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VariableExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import spock.lang.PendingFeature
+import spock.lang.ResourceLock
 import spock.lang.Specification
+import java.util.TimeZone
 import kotlin.reflect.KClass
 
 class ConditionRenderingTest : Specification() {
@@ -586,6 +620,442 @@ class ConditionRenderingTest : Specification() {
       |2      false
       """.trimMargin()
     )
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#simple condition")
+  fun `simple condition`() {
+    expect
+    failureMessage(SimpleConditionSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x == 1
+      || |
+      |2 false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#multi-line condition")
+  fun `multi-line condition`() {
+    expect
+    failureMessage(MultiLineConditionSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |1 + 2 == 4 - 2
+      |  |   |    |
+      |  3   |    2
+      |      false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with implicit target")
+  fun `MethodCallExpression with implicit target`() {
+    expect
+    failureMessage(ImplicitTargetCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |one(a)
+      ||   |
+      ||   1
+      |false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with explicit target")
+  fun `MethodCallExpression with explicit target`() {
+    expect
+    failureMessage(ExplicitTargetCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a.get(b) == 5
+      || |   |  |
+      || 1   0  false
+      |[1]
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#top-level MethodCallExpression")
+  fun `top-level MethodCallExpression`() {
+    expect
+    failureMessage(TopLevelMethodCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a.get(b)
+      || |   |
+      || |   0
+      || false
+      |[false]
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with named arguments")
+  fun `MethodCallExpression with named arguments`() {
+    expect
+    failureMessage(NamedArgumentsCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |person.eat(what = steak, where = tokyo)
+      ||          |      |      |
+      |p          steak  tokyo  false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#StaticMethodCallExpression")
+  fun `StaticMethodCallExpression`() {
+    expect
+    failureMessage(StaticImportCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |min(a, b) == 5
+      ||   |  |  |
+      |1   1  2  false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#top-level StaticMethodCallExpression")
+  fun `top-level StaticMethodCallExpression`() {
+    expect
+    failureMessage(TopLevelStaticCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |parseBoolean(a)
+      ||            |
+      |false        no
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#BinaryExpression")
+  fun `BinaryExpression`() {
+    expect
+    failureMessage(BinaryOperatorSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a * b == 5
+      || | | |
+      |0 0 1 false
+      |
+      """.trimMargin()
+    failureMessage(IndexAccessSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a[b]
+      ||||
+      |||0
+      ||false
+      |[false]
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#BooleanExpression")
+  fun `BooleanExpression`() {
+    expect
+    failureMessage(VariableAsConditionSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a
+      ||
+      |false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#RangeExpression")
+  fun `RangeExpression`() {
+    expect
+    failureMessage(InclusiveRangeSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |(a..b) == 5..6
+      | |  |  |
+      | 1  2  false
+      |
+      """.trimMargin()
+    failureMessage(ExclusiveRangeSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |(a..<b) == 5..6
+      | |   |  |
+      | 1   2  false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ConstantExpression")
+  fun `ConstantExpression`() {
+    expect
+    failureMessage(ConstantsOnlySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |"abc" == "abd"
+      |      |
+      |      false
+      |      1 difference (66% similarity)
+      |      ab(c)
+      |      ab(d)
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#SpreadExpression")
+  fun `SpreadExpression`() {
+    expect
+    failureMessage(SpreadArgumentSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |two(*a)
+      ||    |
+      ||    [1, 2]
+      |false
+      |
+      """.trimMargin()
+    failureMessage(SpreadIntoVarargsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |intArrayOf(1, *a).isEmpty()
+      ||              |  |
+      |[1, 2, 3]      |  false
+      |               [2, 3]
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#NotExpression")
+  fun `NotExpression`() {
+    expect
+    failureMessage(NotOperatorSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |!a
+      |||
+      ||true
+      |false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#CastExpression")
+  fun `CastExpression`() {
+    expect
+    failureMessage(CastToBooleanSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a as Boolean
+      ||
+      |false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ArgumentListExpression")
+  fun `ArgumentListExpression`() {
+    expect
+    failureMessage(ThreeArgumentCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |three(a, b, c)
+      ||     |  |  |
+      |false 1  2  3
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#statically imported field")
+  fun `statically imported field`() {
+    expect
+    failureMessage(StaticImportFieldSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |MAX_VALUE == 0
+      ||         |
+      ||         false
+      |2147483647
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#properly escape backslashes in rendering")
+  fun `properly escape backslashes in rendering`() {
+    expect
+    failureMessage(BackslashEscapingSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |":\":\\" == null
+      |         |
+      |         false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#VariableExpression")
+  fun `VariableExpression`() {
+    expect
+    failureMessage(VariableExpressionSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x
+      ||
+      |false
+      |
+      """.trimMargin()
+  }
+
+  @ResourceLock("TimeZone.default")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ClassExpression with different classes with same name")
+  fun `ClassExpression with different classes with same name`() {
+    val defaultTimeZone = TimeZone.getDefault()
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+    try {
+      expect
+      failureMessage(SameNameClassesSpec::class) ==
+        """
+      |Condition not satisfied:
+      |
+      |date.javaClass == java.sql.Date::class.java
+      ||    |            |    |
+      ||    |            |    false
+      ||    |            class java.sql.Date
+      ||    class java.util.Date
+      |Thu Jan 01 00:00:00 UTC 1970
+      |
+        """.trimMargin()
+    } finally {
+      TimeZone.setDefault(defaultTimeZone)
+    }
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/848")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression invoking static method")
+  fun `MethodCallExpression invoking static method`() {
+    expect
+    failureMessage(JavaStaticMethodCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |Math.max(a, b) == 5
+      ||    |   |  |   |
+      ||    2   1  2   false
+      |class java.lang.Math
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/848")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#PropertyExpression")
+  fun `PropertyExpression`() {
+    expect
+    failureMessage(CollectionPropertySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |a.size == 5
+      || |    |
+      || 1    false
+      |[9]
+      |
+      """.trimMargin()
+    failureMessage(JavaStaticFieldSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |Integer.MIN_VALUE == 5
+      ||       |         |
+      ||       |         false
+      ||       -2147483648
+      |class java.lang.Integer
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/847")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#PrefixExpression")
+  fun `PrefixExpression`() {
+    expect
+    failureMessage(PrefixIncrementSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |++x == 5
+      ||   |
+      |1   false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/847")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#UnaryMinusExpression")
+  fun `UnaryMinusExpression`() {
+    expect
+    failureMessage(UnaryMinusSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |-a == 5
+      ||| |
+      ||1 false
+      |-1
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/847")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#UnaryPlusExpression")
+  fun `UnaryPlusExpression`() {
+    expect
+    failureMessage(UnaryPlusSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |+a == 5
+      ||| |
+      ||1 false
+      |1
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/840")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#statically imported enum value")
+  fun `statically imported enum value`() {
+    expect
+    failureMessage(StaticImportEnumSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |BLOCKED == null
+      |        |
+      |        false
+      |
+      """.trimMargin()
   }
 
   private fun failureMessage(clazz: KClass<*>): String {
