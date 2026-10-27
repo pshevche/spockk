@@ -185,3 +185,15 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#GDK method that looks like built-in method as implicit condition"]]
+status = "blocked"
+reason = "The Kotlin analogue is a stdlib lambda-taking call like with(x) { false } as an implicit condition; it crashes the compiler with a StackOverflowError"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#GDK method that looks like built-in method as explicit condition"]]
+status = "blocked"
+reason = "The Kotlin analogue is a stdlib lambda-taking call like assert(with(x) { false }) as an explicit condition; it crashes the compiler with a StackOverflowError"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-27"
