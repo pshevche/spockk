@@ -185,3 +185,143 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#MethodCallExpression with safe operator"]]
+status = "blocked"
+reason = "A safe call (?.) inside a condition crashes the Kotlin backend (orphaned safe-receiver temporary)"
+gap = "https://github.com/pshevche/spockk/issues/742"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#TernaryExpression"]]
+status = "blocked"
+reason = "An if/else expression, the Kotlin ternary, inside a condition crashes the Kotlin backend (non-exhaustive WHEN) once the plugin rewrites the condition"
+gap = "https://github.com/pshevche/spockk/issues/742"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#ShortTernaryExpression"]]
+status = "blocked"
+reason = "An elvis expression (?:), the Kotlin short ternary, inside a condition crashes the Kotlin backend (orphaned elvis temporary) once the plugin rewrites the condition"
+gap = "https://github.com/pshevche/spockk/issues/742"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#PostfixExpression"]]
+status = "blocked"
+reason = "A postfix increment or decrement (x++) inside a condition crashes the Kotlin backend (orphaned unary temporary) once the plugin rewrites the condition"
+gap = "https://github.com/pshevche/spockk/issues/742"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#block condition (can not be parsed if flattened)"]]
+status = "blocked"
+reason = "A lambda-taking call (run { ... }) as the whole implicit condition crashes the Kotlin compiler with a StackOverflowError"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#MethodCallExpression with spread-dot operator"]]
+status = "not-applicable"
+reason = "Groovy's spread-dot (*.) calls a method on every element of a collection; Kotlin has no such operator, only explicit map calls, which are a different construct"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#top-level MethodCallExpression with safe operator (method condition)"]]
+status = "not-applicable"
+reason = "Relies on Groovy truth: a null result of a top-level method call is falsy and fails the condition; Kotlin's expect block requires a Boolean, so a nullable result does not type-check"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#ConstructorCallExpression with named arguments passed as map"]]
+status = "not-applicable"
+reason = "Groovy's new Person([name: ..., age: ...]) populates properties from a map; Kotlin has no map-to-constructor or property-population call"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#BooleanExpression"]]
+status = "not-applicable"
+reason = "Relies on Groovy truth: the features use 1, \"abc\", [1, 2, 3] and 1 + 2 + 3 as conditions; Kotlin's expect block requires a Boolean"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#TupleExpression"]]
+status = "not-applicable"
+reason = "Groovy's multiple assignment ((a, b) = [1, 2]) is an expression with a value; Kotlin destructuring declarations are statements and cannot appear in a condition"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#AttributeExpression"]]
+status = "not-applicable"
+reason = "Groovy's attribute access (.@) reads a field directly, bypassing the getter; Kotlin has no property-versus-field distinction at the call site"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#SpreadMapExpression"]]
+status = "not-applicable"
+reason = "Groovy's spread-map operator (*:) expands a map into named arguments or a map literal; Kotlin has no equivalent"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#collection conditions work with various types"]]
+status = "not-applicable"
+reason = "Exercises Groovy's =~ operator, which matches collections regardless of order or duplicates; Kotlin has no =~ operator"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#strict collection conditions work with various types"]]
+status = "not-applicable"
+reason = "Exercises Groovy's ==~ operator, which compares collections as strict sequences; Kotlin has no ==~ operator"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#collection conditions work with nulls"]]
+status = "not-applicable"
+reason = "Exercises Groovy's =~ operator on null and non-collection operands; Kotlin has no =~ operator"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#strict collection conditions work with nulls"]]
+status = "not-applicable"
+reason = "Exercises Groovy's ==~ operator on null and non-collection operands; Kotlin has no ==~ operator"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#collection conditions work with null equality"]]
+status = "not-applicable"
+reason = "Exercises Groovy's =~ and ==~ operators on null operands; Kotlin has neither operator"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#Groovy regex conditions still work"]]
+status = "not-applicable"
+reason = "Exercises Groovy's =~ (find) and ==~ (match) regex operators and the truthiness of the returned Matcher; Kotlin has neither operator and no Groovy truth"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#opt-out of implicit-condition handling does not wrap exceptions"]]
+status = "not-applicable"
+reason = "Relies on Groovy's !! idiom to opt out of implicit-condition handling; Kotlin's !! is the non-null assertion and Spockk has no opt-out"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#opt-out of implicit-condition handling won't fail for falsy values"]]
+status = "not-applicable"
+reason = "Relies on Groovy's !! idiom to opt out of implicit-condition handling and on Groovy truth for the falsy values; Kotlin's !! is the non-null assertion and Spockk has no opt-out"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#opt-out of implicit-condition handling won't fail static method conditions returning falsy value"]]
+status = "not-applicable"
+reason = "Relies on Groovy's !! idiom to opt out of implicit-condition handling and on Groovy truth for a falsy Integer; Kotlin's !! is the non-null assertion and Spockk has no opt-out"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#opt-out only works if it is the outermost expression"]]
+status = "not-applicable"
+reason = "Relies on Groovy's !! idiom to opt out of implicit-condition handling; Kotlin's !! is the non-null assertion and Spockk has no opt-out"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#opt-out only works for the outermost expression"]]
+status = "not-applicable"
+reason = "Relies on Groovy's !! idiom to opt out of implicit-condition handling; Kotlin's !! is the non-null assertion and Spockk has no opt-out"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#MapEntryExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream: the AST node cannot occur in a condition or is unused, so no feature body exists to port"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#DeclarationExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream: the AST node cannot occur in a condition or is unused, so no feature body exists to port"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#ClosureListExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream: the AST node cannot occur in a condition or is unused, so no feature body exists to port"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ConditionEvaluation#BytecodeExpression"]]
+status = "not-applicable"
+reason = "Commented out upstream: the AST node cannot occur in a condition or is unused, so no feature body exists to port"
+decided = "2026-10-27"
