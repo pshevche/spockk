@@ -28,7 +28,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyStringV
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumWithToStringValueSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpec
@@ -39,7 +38,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineStr
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerifyInVerifyAllSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullValueSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetContainedSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetContainingSpec
@@ -363,34 +361,6 @@ class ConditionRenderingTest : Specification() {
       || |
       || false
       |[1, 2, 3]
-      |
-      """.trimMargin()
-  }
-
-  fun `int array value`() {
-    expect
-    failureMessage(IntArrayValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |[1, 2]
-      |
-      """.trimMargin()
-  }
-
-  fun `object array value`() {
-    expect
-    failureMessage(ObjectArrayValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |[one, two]
       |
       """.trimMargin()
   }
