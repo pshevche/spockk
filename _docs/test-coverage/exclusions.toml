@@ -185,3 +185,93 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#transforms conditions in methods inside spec classes"]]
+status = "blocked"
+reason = "Spockk does not process the @VerifyAll method annotation, so a method carrying it keeps its plain statements and has no annotation to write the port against"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#transforms conditions in methods outside of spec classes"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#transforms conditions in private methods"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#transforms conditions in static methods"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#transforms explicit conditions"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#methods without condition declarations stay unchanged"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#methods without condition declarations stay unchanged in specs"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#interactions are illegal in verify methods"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#interactions are illegal in verify methods in specs"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#ignores methods without annotation"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#transforms conditions at all nesting levels"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#checks for invalid conditions"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#ignores conditions in overwritten methods"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#fails when verification method has a non-void or non-dynamic return value"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.ast.condition.VerifyAllMethodsAstSpec#fails when verification method has a non-void or non-dynamic return value in Spec"]]
+status = "blocked"
+reason = "Same gap as the first feature of this class: @VerifyAll is not processed, so the Kotlin port has nothing to exercise"
+gap = "https://github.com/pshevche/spockk/issues/810"
+decided = "2026-10-27"
