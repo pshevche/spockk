@@ -185,3 +185,8 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ValueRendering#null toString"]]
+status = "not-applicable"
+reason = "Kotlin's `toString()` returns a non-null `String`, so a class whose `toString()` returns null cannot be written without bypassing the type system"
+decided = "2026-10-27"

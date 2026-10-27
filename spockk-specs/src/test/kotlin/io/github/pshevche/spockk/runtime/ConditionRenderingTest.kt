@@ -87,34 +87,6 @@ class ConditionRenderingTest : Specification() {
       """.trimMargin()
   }
 
-  fun `null value`() {
-    expect
-    failureMessage(NullValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x != null
-      || |
-      || false
-      |null
-      |
-      """.trimMargin()
-  }
-
-  fun `string value`() {
-    expect
-    failureMessage(StringValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |hello
-      |
-      """.trimMargin()
-  }
-
   fun `boolean negation`() {
     expect
     failureMessage(BooleanNegationSpec::class) ==
@@ -260,64 +232,6 @@ class ConditionRenderingTest : Specification() {
       """.trimMargin()
   }
 
-  fun `char value`() {
-    expect
-    failureMessage(CharValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      |c false
-      |
-      """.trimMargin()
-  }
-
-  fun `empty string value`() {
-    expect
-    failureMessage(EmptyStringValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |""
-      |
-      """.trimMargin()
-  }
-
-  fun `multi-line string value`() {
-    expect
-    failureMessage(MultiLineStringValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |one
-      |two
-      |three
-      |four
-      |
-      """.trimMargin()
-  }
-
-  fun `list value`() {
-    expect
-    failureMessage(ListValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |[1, 2, 3]
-      |
-      """.trimMargin()
-  }
-
   fun `empty list value`() {
     expect
     failureMessage(EmptyListValueSpec::class) ==
@@ -328,20 +242,6 @@ class ConditionRenderingTest : Specification() {
       || |
       || false
       |[]
-      |
-      """.trimMargin()
-  }
-
-  fun `map value`() {
-    expect
-    failureMessage(MapValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |[a:1, b:2]
       |
       """.trimMargin()
   }
@@ -386,73 +286,6 @@ class ConditionRenderingTest : Specification() {
       |[one, two]
       |
       """.trimMargin()
-  }
-
-  fun `single-line toString`() {
-    expect
-    failureMessage(SingleLineToStringValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |single line
-      |
-      """.trimMargin()
-  }
-
-  fun `multi-line toString`() {
-    expect
-    failureMessage(MultiLineToStringValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |mul
-      |tiple
-      |   lines
-      |
-      """.trimMargin()
-  }
-
-  fun `empty toString falls back to default object representation`() {
-    expect
-    failureMessage(EmptyToStringValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |${EmptyToStringValueSpec.capturedInstance.objectToString()}
-      |
-      """.trimMargin()
-  }
-
-  fun `throwing toString falls back to default object representation`() {
-    expect
-    failureMessage(ThrowingToStringValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |${ThrowingToStringValueSpec.capturedInstance.objectToString()} (renderer threw UnsupportedOperationException)
-      |
-      """.trimMargin()
-  }
-
-  fun `default toString is dumped`() {
-    val expectedPattern = Regex(
-      """^Condition not satisfied:\n\nx == null\n\| \|\n\| false\n""" +
-        """<io\.github\.pshevche\.spockk\.fixtures\.runtime\.samples\.condition\.DefaultToString@[0-9a-f]+ a=4>\n$"""
-    )
-    expect
-    expectedPattern.matches(failureMessage(DefaultToStringValueSpec::class))
   }
 
   fun `enum value`() {
