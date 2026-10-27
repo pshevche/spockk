@@ -14,12 +14,20 @@
 
 package io.github.pshevche.spockk.runtime
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ChainedExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CharValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClassValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallFieldSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallLocalVariableSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallMethodArgumentSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallMethodCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallPropertySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallQualifiedMethodCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallQualifiedPropertySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CustomObjectDiffSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.DefaultToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyListValueSpec
@@ -55,6 +63,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyProper
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
 
@@ -587,6 +596,118 @@ class ConditionRenderingTest : Specification() {
       """.trimMargin()
     )
   }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/869")
+  @MigratedFrom("org.spockframework.smoke.condition.ImplicitClosureCallRendering#with local variable")
+  fun `with local variable`() {
+    expect
+    failureMessage(ClosureCallLocalVariableSpec::class).normalizeIdentities() ==
+      """
+      |Condition not satisfied:
+      |
+      |func(42) == null
+      ||        |
+      |42       false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/869")
+  @MigratedFrom("org.spockframework.smoke.condition.ImplicitClosureCallRendering#with method argument")
+  fun `with method argument`() {
+    expect
+    failureMessage(ClosureCallMethodArgumentSpec::class).normalizeIdentities() ==
+      """
+      |Condition not satisfied:
+      |
+      |func(42) == null
+      ||        |
+      |42       false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/869")
+  @MigratedFrom("org.spockframework.smoke.condition.ImplicitClosureCallRendering#with field")
+  fun `with field`() {
+    expect
+    failureMessage(ClosureCallFieldSpec::class).normalizeIdentities() ==
+      """
+      |Condition not satisfied:
+      |
+      |funcField(42) == null
+      ||             |
+      |42            false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/869")
+  @MigratedFrom("org.spockframework.smoke.condition.ImplicitClosureCallRendering#with property")
+  fun `with property`() {
+    expect
+    failureMessage(ClosureCallPropertySpec::class).normalizeIdentities() ==
+      """
+      |Condition not satisfied:
+      |
+      |func(42) == null
+      ||        |
+      |42       false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/869")
+  @MigratedFrom("org.spockframework.smoke.condition.ImplicitClosureCallRendering#with qualified property")
+  fun `with qualified property`() {
+    expect
+    failureMessage(ClosureCallQualifiedPropertySpec::class).normalizeIdentities() ==
+      """
+      |Condition not satisfied:
+      |
+      |holder.func(42) == null
+      ||      |        |
+      ||      42       false
+      |<io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallHolder@HASH func=io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallHolder#LAMBDA>
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/869")
+  @MigratedFrom("org.spockframework.smoke.condition.ImplicitClosureCallRendering#with method call")
+  fun `with method call`() {
+    expect
+    failureMessage(ClosureCallMethodCallSpec::class).normalizeIdentities() ==
+      """
+      |Condition not satisfied:
+      |
+      |getFunc()(42) == null
+      ||             |
+      ||             false
+      |<io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallMethodCallSpec#LAMBDA>
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/869")
+  @MigratedFrom("org.spockframework.smoke.condition.ImplicitClosureCallRendering#with qualified method call")
+  fun `with qualified method call`() {
+    expect
+    failureMessage(ClosureCallQualifiedMethodCallSpec::class).normalizeIdentities() ==
+      """
+      |Condition not satisfied:
+      |
+      |holder.funcGetter()(42) == null
+      ||      |             |
+      ||      |             false
+      ||      <io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallHolder#LAMBDA>
+      |<io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallHolder@HASH func=io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallHolder#LAMBDA>
+      |
+      """.trimMargin()
+  }
+
+  private fun String.normalizeIdentities(): String =
+    replace(Regex("[$]{2}Lambda/0x[0-9a-f]+@[0-9a-f]+"), "#LAMBDA").replace(Regex("@[0-9a-f]+"), "@HASH")
 
   private fun failureMessage(clazz: KClass<*>): String {
     val events = execute(selectClass(clazz.java))

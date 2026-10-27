@@ -385,3 +385,71 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     }
   }
 }
+
+class ClosureCallLocalVariableSpec : Specification() {
+  fun `test`() {
+    val func: (Any?) -> Any? = { it }
+    expect
+    func(42) == null
+  }
+}
+
+class ClosureCallMethodArgumentSpec : Specification() {
+  fun `test`() {
+    expect
+    assertFunc { it }
+  }
+
+  private fun assertFunc(func: (Any?) -> Any?) {
+    verify(Unit) { func(42) == null }
+  }
+}
+
+class ClosureCallFieldSpec : Specification() {
+  private val funcField: (Any?) -> Any? = { it }
+
+  fun `test`() {
+    expect
+    funcField(42) == null
+  }
+}
+
+class ClosureCallPropertySpec : Specification() {
+  val func: (Any?) -> Any? = { it }
+
+  fun `test`() {
+    expect
+    func(42) == null
+  }
+}
+
+class ClosureCallHolder {
+  val func: (Any?) -> Any? = { it }
+
+  fun funcGetter(): (Any?) -> Any? = func
+}
+
+class ClosureCallQualifiedPropertySpec : Specification() {
+  fun `test`() {
+    val holder = ClosureCallHolder()
+    expect
+    holder.func(42) == null
+  }
+}
+
+class ClosureCallMethodCallSpec : Specification() {
+  private fun getFunc(): (Any?) -> Any? = { it }
+
+  fun `test`() {
+    expect
+    getFunc()(42) == null
+  }
+}
+
+class ClosureCallQualifiedMethodCallSpec : Specification() {
+  fun `test`() {
+    val holder = ClosureCallHolder()
+    expect
+    holder.funcGetter()(42) == null
+  }
+}
