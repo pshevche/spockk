@@ -185,3 +185,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFixtureMethods#dummy feature that triggers setup and cleanup"]]
+status = "blocked"
+reason = "The spec asserts that an explicit assert in setupSpec, cleanupSpec, setup and cleanup throws ConditionNotSatisfiedError, but Spockk does not rewrite assert in fixture methods and @PendingFeature cannot mark a fixture method, so the port would fail the whole class"
+gap = "https://github.com/pshevche/spockk/issues/761"
+decided = "2026-10-27"
