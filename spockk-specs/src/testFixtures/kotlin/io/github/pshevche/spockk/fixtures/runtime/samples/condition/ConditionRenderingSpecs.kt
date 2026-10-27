@@ -19,6 +19,7 @@ import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.verifyEach
 import spock.lang.Specification
+import java.lang.Boolean as JBoolean
 
 class SimpleComparisonSpec : Specification() {
   fun `test`() {
@@ -383,5 +384,62 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     verifyAll {
       verify(str) { length == 3 }
     }
+  }
+}
+
+class SatisfiedConditionWithMessageSpec : Specification() {
+  fun `test`() {
+    expect
+    assert(1 + 2 == 3) { "need to brush up my math" }
+  }
+}
+
+class SimpleMessageSpec : Specification() {
+  fun `test`() {
+    expect
+    assert(1 + 2 == 2) { "need to brush up my math" }
+  }
+}
+
+class StringTemplateMessageSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    val b = 2
+    expect
+    assert(a + b == 2) { "a: $a b: ${b * 2 / 2}" }
+  }
+}
+
+class ListMessageSpec : Specification() {
+  fun `test`() {
+    val list = listOf(1, 2)
+    expect
+    assert(1 + 2 == 2) { list }
+  }
+}
+
+class ExplicitAssertionWithMessageSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    val b = 2
+    expect
+    assert(a == b) { "Additional message" }
+  }
+}
+
+class ExplicitAssertionWithMethodConditionAndMessageSpec : Specification() {
+  fun `test`() {
+    val a = "foo"
+    val b = "bar"
+    expect
+    assert(a.contains(b)) { "Additional message" }
+  }
+}
+
+class ExplicitAssertionWithStaticMethodConditionAndMessageSpec : Specification() {
+  fun `test`() {
+    val a = "foo"
+    expect
+    assert(JBoolean.parseBoolean(a)) { "Additional message" }
   }
 }
