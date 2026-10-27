@@ -18,6 +18,7 @@ import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
@@ -38,6 +39,12 @@ class InteractionCompilationTest : BaseCompilationTest() {
   fun `when block is bracketed with enterScope-leaveScope around a paired interaction`() {
     expect
     assertTransformation(sampleFromResource("interaction/BasicCardinality"))
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.mock.MocksAstSpec#simple interaction")
+  fun `simple interaction`() {
+    expect
+    assertTransformation(sampleFromResource("interaction/SimpleInteraction"))
   }
 
   /**
