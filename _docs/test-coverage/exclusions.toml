@@ -185,3 +185,13 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.extension.FailsWithMisuse#@FailsWith on method can only refer to exception type"]]
+status = "not-applicable"
+reason = "Upstream checks the extension's runtime InvalidSpecException when @FailsWith(List) is compiled from a string. In Kotlin the annotation parameter is typed KClass<out Throwable>, so @FailsWith(List::class) is rejected by the Kotlin compiler (argument type mismatch) before Spockk or the engine ever sees it"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.extension.FailsWithMisuse#@FailsWith on class can only refer to exception type"]]
+status = "not-applicable"
+reason = "Same as the method-level variant: a non-exception type in @FailsWith on a class does not compile in Kotlin (KClass<out Throwable> expected), so the engine's InvalidSpecException path is unreachable from Kotlin sources"
+decided = "2026-10-28"
