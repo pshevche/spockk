@@ -21,6 +21,7 @@ dependencies {
   testFixturesImplementation(libs.junit.platform.testkit)
   testFixturesImplementation(libs.kotlin.compile.testing)
   testFixturesImplementation(libs.spock)
+  testFixturesImplementation(libs.hamcrest)
 }
 
 tasks.test {

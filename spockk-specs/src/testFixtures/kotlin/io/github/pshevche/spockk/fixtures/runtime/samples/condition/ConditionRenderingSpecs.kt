@@ -18,7 +18,9 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.verifyEach
+import org.hamcrest.CoreMatchers.equalTo
 import spock.lang.Specification
+import spock.util.matcher.HamcrestSupport.that
 
 class SimpleComparisonSpec : Specification() {
   fun `test`() {
@@ -383,5 +385,13 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     verifyAll {
       verify(str) { length == 3 }
     }
+  }
+}
+
+class MatcherLongSyntaxSpec : Specification() {
+  fun `test`() {
+    val x = 42
+    expect
+    that(x, equalTo(43))
   }
 }
