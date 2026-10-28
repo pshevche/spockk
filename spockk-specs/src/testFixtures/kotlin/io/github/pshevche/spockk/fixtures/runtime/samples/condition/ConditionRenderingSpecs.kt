@@ -385,3 +385,166 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     }
   }
 }
+
+class StringDifferenceSpec : Specification() {
+  fun `test`() {
+    expect
+    "the quick" == "the quirk"
+  }
+}
+
+class StringNullRightSpec : Specification() {
+  fun `test`() {
+    expect
+    "foo" == null
+  }
+}
+
+class StringNullLeftSpec : Specification() {
+  fun `test`() {
+    expect
+    null == "foo"
+  }
+}
+
+class StringDifferenceInSubexpressionSpec : Specification() {
+  fun `test`() {
+    expect
+    ("the quick" == "the quirk") == true
+  }
+}
+
+class EqualStringsInSubexpressionSpec : Specification() {
+  fun `test`() {
+    expect
+    ("the quick" == "the quick") == false
+  }
+}
+
+private const val MAX_EDIT_DISTANCE_MEMORY = 51200
+
+private fun largeString(source: String = "aaaaaaaaaaaaaaaa", length: Int = MAX_EDIT_DISTANCE_MEMORY / 2): StringBuilder {
+  val sb = StringBuilder(length + 10)
+  var i = 0
+  while (i < length) {
+    sb.append(source, 0, minOf(length - i, source.length))
+    i += source.length
+  }
+  return sb
+}
+
+class LargeStringDifferenceAtStartSpec : Specification() {
+  fun `test`() {
+    val sb = largeString()
+    val a = sb.toString()
+    sb.setCharAt(0, 'b')
+    val b = sb.toString()
+    expect
+    a == b
+  }
+}
+
+class LargeStringDifferenceInMiddleSpec : Specification() {
+  fun `test`() {
+    val sb = largeString()
+    val a = sb.toString()
+    sb.setCharAt(sb.length / 2, 'b')
+    val b = sb.toString()
+    expect
+    a == b
+  }
+}
+
+class LargeStringDifferenceAtEndSpec : Specification() {
+  fun `test`() {
+    val sb = largeString()
+    val a = sb.toString()
+    sb.setCharAt(sb.length - 1, 'b')
+    val b = sb.toString()
+    expect
+    a == b
+  }
+}
+
+class LargeStringDifferenceAtStartAndEndSpec : Specification() {
+  fun `test`() {
+    val sb = largeString()
+    val a = sb.toString()
+    sb.setCharAt(0, 'b')
+    sb.setCharAt(sb.length - 1, 'b')
+    val b = sb.toString()
+    expect
+    a == b
+  }
+}
+
+class LargeStringCompleteDifferenceSpec : Specification() {
+  fun `test`() {
+    val a = largeString().toString()
+    val b = largeString("bbbbbbbbbbbbbbbb").toString()
+    expect
+    a == b
+  }
+}
+
+class LargeStringWithoutContextSpec : Specification() {
+  fun `test`() {
+    val stringLength = Math.sqrt(MAX_EDIT_DISTANCE_MEMORY.toDouble()).toInt()
+    val common = largeString("cccccccccccccccc", stringLength)
+    val a = largeString("aaaaaaaaaaaaaaaa", stringLength).append(common).toString()
+    val b = largeString("bbbbbbbbbbbbbbbb", stringLength).append(common).toString()
+    expect
+    a == b
+  }
+}
+
+class StringDiffIntOverflowSpec : Specification() {
+  fun `test`() {
+    val stringLength = (Math.sqrt(Int.MAX_VALUE.toDouble()) * 2).toInt()
+    val a = largeString("aaaaaaaaaaaaaaaa", stringLength).toString()
+    val b = largeString("bbbbbbbbbbbbbbbb", stringLength).toString()
+    expect
+    a == b
+  }
+}
+
+class StringLiteralsWithLineBreaksSpec : Specification() {
+  fun `test`() {
+    expect
+    """foo
+""" == """bar
+
+"""
+  }
+}
+
+class StringLiteralsWithNewlineEscapesSpec : Specification() {
+  fun `test`() {
+    expect
+    "foo  " == "bar  "
+  }
+}
+
+class StringLiteralsWithLineBreaksAndNewlineEscapesSpec : Specification() {
+  fun `test`() {
+    expect
+    "\\\nfoo" == "\\\nfoo       \n"
+  }
+}
+
+class InterpolatedStringLiteralsSpec : Specification() {
+  fun `test`() {
+    val a = "foo"
+    val b = "bar"
+    expect
+    "$a\n" == "\\$b \n"
+  }
+}
+
+class LongStringLiteralsSpec : Specification() {
+  fun `test`() {
+    expect
+    "Lorem ipsum\n\nLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua." ==
+      "Lorem ipsum\nLorem ipsum  dolor sit amet,  consetetur sadipscing elitr, sed  diam nonumy eirmod tempor  invidunt ut labore et  dolore magna aliquyam erat, sed diam voluptua.\n"
+  }
+}
