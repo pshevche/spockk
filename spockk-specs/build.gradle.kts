@@ -11,6 +11,7 @@ dependencies {
   testImplementation(libs.kotlin.compile.testing)
   testImplementation(libs.spock.junit4)
   testImplementation(libs.junit4)
+  testImplementation(libs.hamcrest)
 
   testRuntimeOnly(libs.junit.platform.launcher)
   testRuntimeOnly(libs.mockito)
