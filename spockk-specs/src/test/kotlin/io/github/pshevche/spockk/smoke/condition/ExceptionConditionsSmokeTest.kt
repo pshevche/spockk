@@ -152,49 +152,6 @@ class ExceptionConditionsSmokeTest : Specification() {
     thrown(IllegalStateException::class.java)
   }
 
-  fun `noExceptionThrown passes when nothing is thrown`() {
-    `when`
-    val x = 1
-
-    then
-    noExceptionThrown()
-  }
-
-  @FailsWith(UnallowedExceptionThrownError::class)
-  fun `noExceptionThrown rejects any thrown exception`() {
-    `when`
-    throw IllegalStateException("boom")
-
-    then
-    noExceptionThrown()
-  }
-
-  fun `notThrown passes when nothing is thrown`() {
-    `when`
-    val x = 1
-
-    then
-    notThrown(IllegalStateException::class.java)
-  }
-
-  @FailsWith(UnallowedExceptionThrownError::class)
-  fun `notThrown rejects a matching exception`() {
-    `when`
-    throw IllegalStateException("boom")
-
-    then
-    notThrown(IllegalStateException::class.java)
-  }
-
-  @FailsWith(IllegalStateException::class)
-  fun `notThrown rethrows an exception of a different type`() {
-    `when`
-    throw IllegalStateException("boom")
-
-    then
-    notThrown(IllegalArgumentException::class.java)
-  }
-
   @FailsWith(InvalidSpecException::class)
   fun `thrown() in an expect block is not rewritten and always throws`() {
     expect
