@@ -185,3 +185,23 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.SatisfiedConditions#number"]]
+status = "not-applicable"
+reason = "Upstream uses the bare number 1 as an implicit condition, which passes through Groovy truth. Kotlin conditions must be Boolean, so `expect` with an Int does not compile"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.SatisfiedConditions#object"]]
+status = "not-applicable"
+reason = "Upstream uses a non-null object as an implicit condition, which passes through Groovy truth. Kotlin conditions must be Boolean, so `expect` with an arbitrary object does not compile"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.SatisfiedConditions#collection"]]
+status = "not-applicable"
+reason = "Upstream uses a non-empty list as an implicit condition, which passes through Groovy truth. Kotlin conditions must be Boolean, so `expect` with a collection does not compile"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.SatisfiedConditions#++ and -- operators"]]
+status = "not-applicable"
+reason = "Upstream uses `x++`, `x--`, `++x` and `--x` as standalone conditions, each truthy through Groovy truth (non-zero Int). Kotlin conditions must be Boolean, so these Int-valued statements are not conditions"
+decided = "2026-10-28"
