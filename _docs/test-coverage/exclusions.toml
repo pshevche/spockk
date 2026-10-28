@@ -185,3 +185,20 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.MatcherConditionRendering#short syntax"]]
+status = "not-applicable"
+reason = "Relies on Groovy's command-chain syntax (`x equalTo(43)`, an implicit method call without dots or parentheses); Kotlin has no equivalent. The matcher rendering itself is covered by the 'long syntax' port"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditionRendering#explicit condition"]]
+status = "blocked"
+reason = "`assert(that(x, equalTo(43)))` does not compile: HamcrestSupport.that returns Unit while assert requires a Boolean, and Spockk has no matcher condition support"
+gap = "https://github.com/pshevche/spockk/issues/875"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditionRendering#custom message"]]
+status = "blocked"
+reason = "Same as 'explicit condition': `assert(that(x, equalTo(43))) { \"oops!\" }` does not compile because that() returns Unit"
+gap = "https://github.com/pshevche/spockk/issues/875"
+decided = "2026-10-28"

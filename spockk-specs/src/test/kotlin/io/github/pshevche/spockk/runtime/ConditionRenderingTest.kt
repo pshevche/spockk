@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.runtime
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
@@ -34,6 +35,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpe
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalAndSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalOrSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MapValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MatcherLongSyntaxSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerifyInVerifyAllSpec
@@ -55,6 +57,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyProper
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
 
@@ -586,6 +589,23 @@ class ConditionRenderingTest : Specification() {
       |2      false
       """.trimMargin()
     )
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/875")
+  @MigratedFrom("org.spockframework.smoke.condition.MatcherConditionRendering#long syntax")
+  fun `matcher long syntax`() {
+    expect
+    failureMessage(MatcherLongSyntaxSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |that(x, equalTo(43))
+      |     |
+      |     42
+      |
+      |Expected: <43>
+      |     but: was <42>
+      """.trimMargin()
   }
 
   private fun failureMessage(clazz: KClass<*>): String {
