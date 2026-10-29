@@ -417,3 +417,9 @@ status = "blocked"
 reason = "A feature that ends after a setup block does not compile, and this one has no when or expect block"
 gap = "https://github.com/pshevche/spockk/issues/795"
 decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.RestoreSystemPropertiesExtension#restores properties for each iteration of a data-driven feature method"]]
+status = "blocked"
+reason = "Checks a property is unset in expect: before setting it in when:/then:. Spockk's block-order validator rejects 'when:' after 'expect:', even though real Spock allows it. Replacing expect with given would stop the precondition from being checked"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-29"
