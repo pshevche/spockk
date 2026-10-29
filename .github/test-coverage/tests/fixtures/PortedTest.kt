@@ -16,4 +16,7 @@ class PortedTest : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.C#each condition gets its own values (no undesired aliasing)")
   fun `key with parens is still parsed correctly`() {}
+
+  @MigratedFrom("org.spockframework.smoke.D#@PendingFeature marks failing feature as skipped")
+  fun `@PendingFeature marks failing feature as skipped`() {}
 }
