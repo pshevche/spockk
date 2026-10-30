@@ -424,9 +424,10 @@ class ClosureCallPropertySpec : Specification() {
 }
 
 class ClosureCallHolder {
+  @get:JvmName("funcProperty")
   val func: (Any?) -> Any? = { it }
 
-  fun funcGetter(): (Any?) -> Any? = func
+  fun getFunc(): (Any?) -> Any? = func
 }
 
 class ClosureCallQualifiedPropertySpec : Specification() {
@@ -450,6 +451,6 @@ class ClosureCallQualifiedMethodCallSpec : Specification() {
   fun `test`() {
     val holder = ClosureCallHolder()
     expect
-    holder.funcGetter()(42) == null
+    holder.getFunc()(42) == null
   }
 }

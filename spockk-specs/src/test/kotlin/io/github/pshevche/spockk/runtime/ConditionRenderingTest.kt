@@ -697,7 +697,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |holder.funcGetter()(42) == null
+      |holder.getFunc()(42) == null
       ||      |             |
       ||      |             false
       ||      <io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClosureCallHolder#LAMBDA>
