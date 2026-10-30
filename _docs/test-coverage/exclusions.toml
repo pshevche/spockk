@@ -185,3 +185,14 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.InvalidConditions#assignments are not allowed in explicit conditions (Groovy 2)"]]
+status = "not-applicable"
+reason = "The feature only runs on Groovy 2 (@Requires on the Groovy major version), and Spockk shades Groovy 5, so it can never execute"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.InvalidConditions#assignments are allowed if they are part of a variable declaration"]]
+status = "blocked"
+reason = "A variable declaration directly after the expect label does not compile, because the parser reads expect as a modifier of the declaration"
+gap = "https://github.com/pshevche/spockk/issues/937"
+decided = "2026-10-30"
