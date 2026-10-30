@@ -70,6 +70,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValu
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.largeString
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -726,8 +727,13 @@ class ConditionRenderingTest : Specification() {
   @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#large String comparison without room for context")
   fun `large String comparison without room for context`() {
     val stringLength = Math.sqrt(FailedStringComparisonRenderer.MAX_EDIT_DISTANCE_MEMORY.toDouble()).toInt()
+    val common = largeString("cccccccccccccccc", stringLength)
+    val a = largeString("aaaaaaaaaaaaaaaa", stringLength).append(common).toString()
+    val b = largeString("bbbbbbbbbbbbbbbb", stringLength).append(common).toString()
     val message = failureMessage(LargeStringWithoutContextSpec::class)
     expect
+    message.contains(a)
+    message.contains(b)
     message.contains("false")
     message.contains("$stringLength differences (0% similarity) (comparing subset start: 0, end1: $stringLength, end2: $stringLength)")
   }

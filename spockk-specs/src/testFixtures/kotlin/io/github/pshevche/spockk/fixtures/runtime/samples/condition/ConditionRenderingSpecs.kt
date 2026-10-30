@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.verifyEach
+import org.spockframework.runtime.FailedStringComparisonRenderer
 import spock.lang.Specification
 
 class SimpleComparisonSpec : Specification() {
@@ -421,9 +422,10 @@ class EqualStringsInSubexpressionSpec : Specification() {
   }
 }
 
-private const val MAX_EDIT_DISTANCE_MEMORY = 51200
-
-private fun largeString(source: String = "aaaaaaaaaaaaaaaa", length: Int = MAX_EDIT_DISTANCE_MEMORY / 2): StringBuilder {
+fun largeString(
+  source: String = "aaaaaaaaaaaaaaaa",
+  length: Int = (FailedStringComparisonRenderer.MAX_EDIT_DISTANCE_MEMORY / 2).toInt()
+): StringBuilder {
   val sb = StringBuilder(length + 10)
   var i = 0
   while (i < length) {
@@ -489,7 +491,7 @@ class LargeStringCompleteDifferenceSpec : Specification() {
 
 class LargeStringWithoutContextSpec : Specification() {
   fun `test`() {
-    val stringLength = Math.sqrt(MAX_EDIT_DISTANCE_MEMORY.toDouble()).toInt()
+    val stringLength = Math.sqrt(FailedStringComparisonRenderer.MAX_EDIT_DISTANCE_MEMORY.toDouble()).toInt()
     val common = largeString("cccccccccccccccc", stringLength)
     val a = largeString("aaaaaaaaaaaaaaaa", stringLength).append(common).toString()
     val b = largeString("bbbbbbbbbbbbbbbb", stringLength).append(common).toString()
