@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.runtime
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
@@ -27,12 +28,21 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyStringV
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumWithToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EqualStringsInSubexpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.InterpolatedStringLiteralsSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LargeStringCompleteDifferenceSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LargeStringDifferenceAtEndSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LargeStringDifferenceAtStartAndEndSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LargeStringDifferenceAtStartSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LargeStringDifferenceInMiddleSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LargeStringWithoutContextSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalAndSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalOrSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LongStringLiteralsSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MapValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToStringValueSpec
@@ -43,18 +53,29 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAcce
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SimpleComparisonSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SingleLineToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringDiffIntOverflowSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringDifferenceInSubexpressionSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringDifferenceSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEqualsMethodCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringLiteralsWithLineBreaksAndNewlineEscapesSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringLiteralsWithLineBreaksSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringLiteralsWithNewlineEscapesSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringMethodCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringNullLeftSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringNullRightSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThrowingToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.largeString
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.spockframework.runtime.FailedStringComparisonRenderer
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
 
@@ -586,6 +607,230 @@ class ConditionRenderingTest : Specification() {
       |2      false
       """.trimMargin()
     )
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#shows differences between strings")
+  fun `shows differences between strings`() {
+    expect
+    failureMessage(StringDifferenceSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |"the quick" == "the quirk"
+      |            |
+      |            false
+      |            1 difference (88% similarity)
+      |            the qui(c)k
+      |            the qui(r)k
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#handles case where one side is null")
+  fun `handles case where one side is null`() {
+    expect
+    failureMessage(StringNullRightSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |"foo" == null
+      |      |
+      |      false
+      |
+      """.trimMargin()
+    failureMessage(StringNullLeftSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |null == "foo"
+      |     |
+      |     false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#shows differences between strings in subexpression")
+  fun `shows differences between strings in subexpression`() {
+    expect
+    failureMessage(StringDifferenceInSubexpressionSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |("the quick" == "the quirk") == true
+      |             |               |
+      |             |               false
+      |             false
+      |             1 difference (88% similarity)
+      |             the qui(c)k
+      |             the qui(r)k
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#does not show differences if strings in subexpression are equal")
+  fun `does not show differences if strings in subexpression are equal`() {
+    expect
+    failureMessage(EqualStringsInSubexpressionSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |("the quick" == "the quick") == false
+      |             |               |
+      |             true            false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#large String comparison does not cause OOM-Error, difference at start")
+  fun `large String comparison does not cause OOM-Error, difference at start`() {
+    val message = failureMessage(LargeStringDifferenceAtStartSpec::class)
+    expect
+    message.contains("1 difference (90% similarity) (comparing subset start: 0, end1: 11, end2: 11)")
+    message.contains("(a)aaaaaaaaaa")
+    message.contains("(b)aaaaaaaaaa")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#large String comparison does not cause OOM-Error, difference in the middle")
+  fun `large String comparison does not cause OOM-Error, difference in the middle`() {
+    val message = failureMessage(LargeStringDifferenceInMiddleSpec::class)
+    expect
+    message.contains("1 difference (95% similarity) (comparing subset start: 12789, end1: 12811, end2: 12811)")
+    message.contains("aaaaaaaaaaa(a)aaaaaaaaaa")
+    message.contains("aaaaaaaaaaa(b)aaaaaaaaaa")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#large String comparison does not cause OOM-Error, difference at end")
+  fun `large String comparison does not cause OOM-Error, difference at end`() {
+    val message = failureMessage(LargeStringDifferenceAtEndSpec::class)
+    expect
+    message.contains("1 difference (91% similarity) (comparing subset start: 25588, end1: 25600, end2: 25600)")
+    message.contains("aaaaaaaaaaa(a)")
+    message.contains("aaaaaaaaaaa(b)")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#large String comparison does not cause OOM-Error, difference at start and  end")
+  fun `large String comparison does not cause OOM-Error, difference at start and end`() {
+    val message = failureMessage(LargeStringDifferenceAtStartAndEndSpec::class)
+    expect
+    message.contains("false")
+    message.contains("Strings too large to calculate edit distance.")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#large String comparison does not cause OOM-Error, complete difference")
+  fun `large String comparison does not cause OOM-Error, complete difference`() {
+    val message = failureMessage(LargeStringCompleteDifferenceSpec::class)
+    expect
+    message.contains("false")
+    message.contains("Strings too large to calculate edit distance.")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#large String comparison without room for context")
+  fun `large String comparison without room for context`() {
+    val stringLength = Math.sqrt(FailedStringComparisonRenderer.MAX_EDIT_DISTANCE_MEMORY.toDouble()).toInt()
+    val common = largeString("cccccccccccccccc", stringLength)
+    val a = largeString("aaaaaaaaaaaaaaaa", stringLength).append(common).toString()
+    val b = largeString("bbbbbbbbbbbbbbbb", stringLength).append(common).toString()
+    val message = failureMessage(LargeStringWithoutContextSpec::class)
+    expect
+    message.contains(a)
+    message.contains(b)
+    message.contains("false")
+    message.contains("$stringLength differences (0% similarity) (comparing subset start: 0, end1: $stringLength, end2: $stringLength)")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#String diff does not cause int overflow when shortening, causing OOM")
+  fun `String diff does not cause int overflow when shortening, causing OOM`() {
+    val message = failureMessage(StringDiffIntOverflowSpec::class)
+    expect
+    message.contains("false")
+    message.contains("Strings too large to calculate edit distance.")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#shows differences between string literals with line breaks")
+  fun `shows differences between string literals with line breaks`() {
+    expect
+    failureMessage(StringLiteralsWithLineBreaksSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |${'"'}${'"'}${'"'}foo ${'"'}${'"'}${'"'} == ${'"'}${'"'}${'"'}bar ${'"'}${'"'}${'"'}
+      |           |
+      |           false
+      |           4 differences (20% similarity)
+      |           (foo)\n(-~)
+      |           (bar)\n(\n)
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#shows differences between string literals with newline escapes")
+  fun `shows differences between string literals with newline escapes`() {
+    expect
+    failureMessage(StringLiteralsWithNewlineEscapesSpec::class) ==
+      listOf(
+        "Condition not satisfied:",
+        "",
+        "\"foo  \" == \"bar  \"",
+        "        |",
+        "        false",
+        "        3 differences (40% similarity)",
+        "        (foo)  ",
+        "        (bar)  ",
+        ""
+      ).joinToString("\n")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#shows differences between string literals with line breaks and newline escapes")
+  fun `shows differences between string literals with line breaks and newline escapes`() {
+    expect
+    failureMessage(StringLiteralsWithLineBreaksAndNewlineEscapesSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |"\\\nfoo" == "\\\nfoo       \n"
+      |          |
+      |          false
+      |          8 differences (38% similarity)
+      |          \\\nfoo(--------~)
+      |          \\\nfoo(       \n)
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/886")
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#shows differences between interpolated string literals with line breaks and newline escapes")
+  fun `shows differences between interpolated string literals with line breaks and newline escapes`() {
+    expect
+    failureMessage(InterpolatedStringLiteralsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |"${'$'}a\n" == "\\${'$'}b \n"
+      |  |    |      |
+      |  foo  |      bar
+      |       false
+      |       5 differences (16% similarity)
+      |       (f~oo--)\n
+      |       (\\bar )\n
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.StringComparisonRendering#shows differences between long string literals with line breaks and newline escapes")
+  fun `shows differences between long string literals with line breaks and newline escapes`() {
+    expect
+    failureMessage(LongStringLiteralsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |"Lorem ipsum\n\nLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua." == "Lorem ipsum\nLorem ipsum  dolor sit amet,  consetetur sadipscing elitr, sed  diam nonumy eirmod tempor  invidunt ut labore et  dolore magna aliquyam erat, sed diam voluptua.\n"
+      |                                                                                                                                                                             |
+      |                                                                                                                                                                             false
+      |                                                                                                                                                                             7 differences (95% similarity)
+      |                                                                                                                                                                             Lorem ipsum\n(\n)Lorem ipsum (-)dolor sit amet, (-)consetetur sadipscing elitr, sed (-)diam nonumy eirmod tempor (-)invidunt ut labore et (-)dolore magna aliquyam erat, sed diam voluptua.(-~)
+      |                                                                                                                                                                             Lorem ipsum\n(-~)Lorem ipsum ( )dolor sit amet, ( )consetetur sadipscing elitr, sed ( )diam nonumy eirmod tempor ( )invidunt ut labore et ( )dolore magna aliquyam erat, sed diam voluptua.(\n)
+      |
+      """.trimMargin()
   }
 
   private fun failureMessage(clazz: KClass<*>): String {
