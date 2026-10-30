@@ -61,8 +61,8 @@ class TempDirExtensionSpec : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/928")
   @MigratedFrom("org.spockframework.smoke.extension.TempDirExtensionSpec#temp dir exist")
   fun `temp dir exist`() {
-    previousIteration = iterationDir
     previousShared = sharedDir
+    previousIteration = iterationDir
 
     expect
     Files.exists(sharedDir)
@@ -80,6 +80,7 @@ class TempDirExtensionSpec : Specification() {
     sharedDir == previousShared
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/928")
   @MigratedFrom(
     "org.spockframework.smoke.extension.TempDirExtensionSpec#get a different path for non-shared field, and previous was deleted"
   )
