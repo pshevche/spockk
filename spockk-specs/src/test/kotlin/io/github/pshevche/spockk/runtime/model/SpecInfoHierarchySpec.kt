@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
 import org.spockframework.runtime.SpecInfoBuilder
 import org.spockframework.runtime.model.SpecInfo
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -35,11 +36,22 @@ class SpecInfoHierarchySpec : Specification() {
 
   class Grandchild : Child()
 
-  companion object {
-    private val hierarchy: List<SpecInfo> = SpecInfoBuilder(Grandchild::class.java).build().specsTopToBottom
-    private val grandparent = hierarchy.first()
-    private val grandchild = hierarchy.last()
-    private val hierarchyNames = listOf("grandparent", "parent", "middle", "child", "grandchild")
+  @Shared
+  private lateinit var grandparent: SpecInfo
+
+  @Shared
+  private lateinit var grandchild: SpecInfo
+
+  @Shared
+  private lateinit var hierarchy: List<SpecInfo>
+
+  @Shared
+  private val hierarchyNames = listOf("grandparent", "parent", "middle", "child", "grandchild")
+
+  fun setupSpec() {
+    hierarchy = SpecInfoBuilder(Grandchild::class.java).build().specsTopToBottom
+    grandparent = hierarchy.first()
+    grandchild = hierarchy.last()
   }
 
   @Unroll("#name")
