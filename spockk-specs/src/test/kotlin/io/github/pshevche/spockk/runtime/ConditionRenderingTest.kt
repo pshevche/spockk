@@ -593,15 +593,16 @@ class ConditionRenderingTest : Specification() {
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/875")
   @MigratedFrom("org.spockframework.smoke.condition.MatcherConditionRendering#long syntax")
-  fun `matcher long syntax`() {
+  fun `long syntax`() {
     expect
     failureMessage(MatcherLongSyntaxSpec::class) ==
       """
       |Condition not satisfied:
       |
       |that(x, equalTo(43))
-      |     |
-      |     42
+      ||    |
+      ||    42
+      |false
       |
       |Expected: <43>
       |     but: was <42>

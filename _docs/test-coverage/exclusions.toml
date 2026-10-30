@@ -188,7 +188,7 @@ decided = "2026-10-14"
 
 [["org.spockframework.smoke.condition.MatcherConditionRendering#short syntax"]]
 status = "not-applicable"
-reason = "Relies on Groovy's command-chain syntax (`x equalTo(43)`, an implicit method call without dots or parentheses); Kotlin has no equivalent. The matcher rendering itself is covered by the 'long syntax' port"
+reason = "Relies on Groovy's command-chain syntax (`x equalTo(43)`, an implicit method call without dots or parentheses); Kotlin has no equivalent"
 decided = "2026-10-28"
 
 [["org.spockframework.smoke.condition.MatcherConditionRendering#explicit condition"]]
