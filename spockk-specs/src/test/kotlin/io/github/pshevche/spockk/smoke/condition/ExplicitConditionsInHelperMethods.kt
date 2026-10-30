@@ -27,22 +27,25 @@ class ExplicitConditionsInHelperMethods : Specification() {
   @FailsWith(ConditionNotSatisfiedError::class)
   @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsInHelperMethods#at top level of helper method")
   fun `at top level of helper method`() {
+    // Upstream uses setup here; blocked by https://github.com/pshevche/spockk/issues/795
     expect
     topLevel()
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/859")
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/761")
   @FailsWith(ConditionNotSatisfiedError::class)
   @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsInHelperMethods#nested in helper method")
   fun `nested in helper method`() {
+    // Upstream uses setup here; blocked by https://github.com/pshevche/spockk/issues/795
     expect
     nested()
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/859")
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/761")
   @FailsWith(ConditionNotSatisfiedError::class)
   @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsInHelperMethods#deeply nested in helper method")
   fun `deeply nested in helper method`() {
+    // Upstream uses setup here; blocked by https://github.com/pshevche/spockk/issues/795
     expect
     deeplyNested()
   }
