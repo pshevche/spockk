@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IssueOnFixtureMethodSpec
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -36,10 +37,12 @@ class IssueExtension : Specification() {
 
     expect
     tags.size == 1
-    tags[0].name == "FOO-123"
-    tags[0].key == "issue"
-    tags[0].value == "FOO-123"
-    tags[0].url.toString() == "https://my.issues.org/FOO-123"
+    verify(tags[0]) {
+      name == "FOO-123"
+      key == "issue"
+      value == "FOO-123"
+      url == "https://my.issues.org/FOO-123"
+    }
   }
 
   @Issue("https://my.issues.org/FOO-456")
@@ -49,10 +52,12 @@ class IssueExtension : Specification() {
 
     expect
     tags.size == 1
-    tags[0].name == "FOO-456"
-    tags[0].key == "issue"
-    tags[0].value == "FOO-456"
-    tags[0].url.toString() == "https://my.issues.org/FOO-456"
+    verify(tags[0]) {
+      name == "FOO-456"
+      key == "issue"
+      value == "FOO-456"
+      url == "https://my.issues.org/FOO-456"
+    }
   }
 
   @Issue("https://my.issues.org/FOO-1", "https://my.issues.org/FOO-2")
@@ -62,14 +67,18 @@ class IssueExtension : Specification() {
 
     expect
     tags.size == 2
-    tags[0].name == "FOO-1"
-    tags[0].key == "issue"
-    tags[0].value == "FOO-1"
-    tags[0].url.toString() == "https://my.issues.org/FOO-1"
-    tags[1].name == "FOO-2"
-    tags[1].key == "issue"
-    tags[1].value == "FOO-2"
-    tags[1].url.toString() == "https://my.issues.org/FOO-2"
+    verify(tags[0]) {
+      name == "FOO-1"
+      key == "issue"
+      value == "FOO-1"
+      url == "https://my.issues.org/FOO-1"
+    }
+    verify(tags[1]) {
+      name == "FOO-2"
+      key == "issue"
+      value == "FOO-2"
+      url == "https://my.issues.org/FOO-2"
+    }
   }
 
   @Issue("https://my.issues.org/FOO-1")
@@ -83,14 +92,18 @@ class IssueExtension : Specification() {
 
     expect
     tags.size == 2
-    tags[0].name == "FOO-1"
-    tags[0].key == "issue"
-    tags[0].value == "FOO-1"
-    tags[0].url.toString() == "https://my.issues.org/FOO-1"
-    tags[1].name == "FOO-2"
-    tags[1].key == "issue"
-    tags[1].value == "FOO-2"
-    tags[1].url.toString() == "https://my.issues.org/FOO-2"
+    verify(tags[0]) {
+      name == "FOO-1"
+      key == "issue"
+      value == "FOO-1"
+      url == "https://my.issues.org/FOO-1"
+    }
+    verify(tags[1]) {
+      name == "FOO-2"
+      key == "issue"
+      value == "FOO-2"
+      url == "https://my.issues.org/FOO-2"
+    }
   }
 
   @Issue("https://my.issues.org/FOO-1", "https://my.issues.org/FOO-2")
@@ -104,22 +117,30 @@ class IssueExtension : Specification() {
 
     expect
     tags.size == 4
-    tags[0].name == "FOO-1"
-    tags[0].key == "issue"
-    tags[0].value == "FOO-1"
-    tags[0].url.toString() == "https://my.issues.org/FOO-1"
-    tags[1].name == "FOO-2"
-    tags[1].key == "issue"
-    tags[1].value == "FOO-2"
-    tags[1].url.toString() == "https://my.issues.org/FOO-2"
-    tags[2].name == "FOO-3"
-    tags[2].key == "issue"
-    tags[2].value == "FOO-3"
-    tags[2].url.toString() == "https://my.issues.org/FOO-3"
-    tags[3].name == "FOO-4"
-    tags[3].key == "issue"
-    tags[3].value == "FOO-4"
-    tags[3].url.toString() == "https://my.issues.org/FOO-4"
+    verify(tags[0]) {
+      name == "FOO-1"
+      key == "issue"
+      value == "FOO-1"
+      url == "https://my.issues.org/FOO-1"
+    }
+    verify(tags[1]) {
+      name == "FOO-2"
+      key == "issue"
+      value == "FOO-2"
+      url == "https://my.issues.org/FOO-2"
+    }
+    verify(tags[2]) {
+      name == "FOO-3"
+      key == "issue"
+      value == "FOO-3"
+      url == "https://my.issues.org/FOO-3"
+    }
+    verify(tags[3]) {
+      name == "FOO-4"
+      key == "issue"
+      value == "FOO-4"
+      url == "https://my.issues.org/FOO-4"
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IssueExtension#complains if @Issue is used on anything other than a spec or feature")
