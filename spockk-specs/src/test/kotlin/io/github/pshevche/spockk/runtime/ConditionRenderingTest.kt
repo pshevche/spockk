@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.runtime
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
+import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.failureMessage
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ChainedExpressionSpec
@@ -28,7 +28,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyStringV
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumWithToStringValueSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpec
@@ -39,7 +38,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineStr
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerifyInVerifyAllSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullValueSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetContainedSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetContainingSpec
@@ -60,10 +58,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPro
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
 import io.github.pshevche.spockk.lang.expect
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import spock.lang.Specification
-import kotlin.reflect.KClass
 
 class ConditionRenderingTest : Specification() {
 
@@ -363,34 +358,6 @@ class ConditionRenderingTest : Specification() {
       || |
       || false
       |[1, 2, 3]
-      |
-      """.trimMargin()
-  }
-
-  fun `int array value`() {
-    expect
-    failureMessage(IntArrayValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |[1, 2]
-      |
-      """.trimMargin()
-  }
-
-  fun `object array value`() {
-    expect
-    failureMessage(ObjectArrayValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == null
-      || |
-      || false
-      |[one, two]
       |
       """.trimMargin()
   }
@@ -706,12 +673,5 @@ class ConditionRenderingTest : Specification() {
       |[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
       |
       """.trimMargin()
-  }
-
-  private fun failureMessage(clazz: KClass<*>): String {
-    val events = execute(selectClass(clazz.java))
-    return events.failed().list().single()
-      .getRequiredPayload(TestExecutionResult::class.java)
-      .throwable.orElseThrow().message ?: ""
   }
 }

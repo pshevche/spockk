@@ -200,6 +200,41 @@ class ObjectArrayValueSpec : Specification() {
   }
 }
 
+class DefaultToStringArrayValueSpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(DefaultToString(), DefaultToString())
+    expect
+    x == null
+  }
+}
+
+class IntArray2dEqualitySpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(intArrayOf(1, 2), intArrayOf(2, 5))
+    val y = arrayOf(intArrayOf(1, 2), intArrayOf(1, 5))
+    expect
+    x == y
+  }
+}
+
+class ObjectArray2dEqualitySpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(arrayOf("one", "two"), arrayOf("two", "five"))
+    val y = arrayOf(arrayOf("one", "two"), arrayOf("one", "five"))
+    expect
+    x == y
+  }
+}
+
+class IntArray3dEqualitySpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(arrayOf(intArrayOf(1, 2), intArrayOf(2, 5)), arrayOf(intArrayOf(1, 2), intArrayOf(2, 5)))
+    val y = arrayOf(arrayOf(intArrayOf(1, 2), intArrayOf(1, 5)), arrayOf(intArrayOf(1, 2), intArrayOf(1, 5)))
+    expect
+    x == y
+  }
+}
+
 class SingleLineToString {
   override fun toString() = "single line"
 }
