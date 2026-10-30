@@ -37,7 +37,7 @@ class SeeExtension : Specification() {
     expect
     attachments.size == 1
     attachments[0].name == "https://spockframework.org/spec"
-    attachments[0].url.toString() == "https://spockframework.org/spec"
+    attachments[0].url == "https://spockframework.org/spec"
   }
 
   @See("https://spockframework.org/feature")
@@ -48,7 +48,7 @@ class SeeExtension : Specification() {
     expect
     attachments.size == 1
     attachments[0].name == "https://spockframework.org/feature"
-    attachments[0].url.toString() == "https://spockframework.org/feature"
+    attachments[0].url == "https://spockframework.org/feature"
   }
 
   @See("https://spockframework.org/one", "https://spockframework.org/two")
@@ -59,9 +59,9 @@ class SeeExtension : Specification() {
     expect
     attachments.size == 2
     attachments[0].name == "https://spockframework.org/one"
-    attachments[0].url.toString() == "https://spockframework.org/one"
+    attachments[0].url == "https://spockframework.org/one"
     attachments[1].name == "https://spockframework.org/two"
-    attachments[1].url.toString() == "https://spockframework.org/two"
+    attachments[1].url == "https://spockframework.org/two"
   }
 
   @See("https://spockframework.org/one")
@@ -74,9 +74,9 @@ class SeeExtension : Specification() {
     expect
     attachments.size == 2
     attachments[0].name == "https://spockframework.org/one"
-    attachments[0].url.toString() == "https://spockframework.org/one"
+    attachments[0].url == "https://spockframework.org/one"
     attachments[1].name == "https://spockframework.org/two"
-    attachments[1].url.toString() == "https://spockframework.org/two"
+    attachments[1].url == "https://spockframework.org/two"
   }
 
   @See("https://spockframework.org/one", "https://spockframework.org/two")
@@ -89,13 +89,13 @@ class SeeExtension : Specification() {
     expect
     attachments.size == 4
     attachments[0].name == "https://spockframework.org/one"
-    attachments[0].url.toString() == "https://spockframework.org/one"
+    attachments[0].url == "https://spockframework.org/one"
     attachments[1].name == "https://spockframework.org/two"
-    attachments[1].url.toString() == "https://spockframework.org/two"
+    attachments[1].url == "https://spockframework.org/two"
     attachments[2].name == "https://spockframework.org/three"
-    attachments[2].url.toString() == "https://spockframework.org/three"
+    attachments[2].url == "https://spockframework.org/three"
     attachments[3].name == "https://spockframework.org/four"
-    attachments[3].url.toString() == "https://spockframework.org/four"
+    attachments[3].url == "https://spockframework.org/four"
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.SeeExtension#barks if @See is used on anything other than a spec or feature")
