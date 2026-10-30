@@ -185,3 +185,15 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFields#explicit condition in instance field"]]
+status = "blocked"
+reason = "A feature that ends after a setup block does not compile, and this one has no when or expect block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFields#explicit condition in shared field"]]
+status = "blocked"
+reason = "A feature that ends after a setup block does not compile, and this one has no when or expect block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
