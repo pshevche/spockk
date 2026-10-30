@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.runtime.extension.builtin
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.where
 import org.spockframework.runtime.extension.builtin.ThreadDumpUtilityType
 import org.spockframework.runtime.extension.builtin.ThreadDumpUtilityType.JCMD
@@ -49,6 +50,7 @@ class ThreadDumpUtilityTypeTest : Specification() {
 
   @MigratedFrom("org.spockframework.runtime.extension.builtin.ThreadDumpUtilityTypeTest##utility utility provides correct command arguments")
   fun `#utility utility provides correct command arguments`(utility: ThreadDumpUtilityType, javaHome: Path, additionalArgs: List<String>) {
+    given
     expect
     utility.getCommand(javaHome, PID) == listOf(tempDir.resolve("bin").resolve(utility.utilityFileName).toString(), PID.toString()) + additionalArgs
 
