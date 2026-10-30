@@ -16,7 +16,6 @@ package io.github.pshevche.spockk.runtime.extension.builtin
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.where
 import org.spockframework.runtime.extension.builtin.ThreadDumpUtilityType
 import org.spockframework.runtime.extension.builtin.ThreadDumpUtilityType.JCMD
@@ -32,7 +31,8 @@ class ThreadDumpUtilityTypeTest : Specification() {
   companion object {
     private const val PID = 42L
 
-    private val fileNameGetter = ThreadDumpUtilityType::class.java.getDeclaredMethod("getFileName").apply { isAccessible = true }
+    private val fileNameGetter =
+      ThreadDumpUtilityType::class.java.getDeclaredMethod("getFileName").apply { isAccessible = true }
 
     private val ThreadDumpUtilityType.utilityFileName: String
       get() = fileNameGetter.invoke(this) as String
@@ -45,20 +45,24 @@ class ThreadDumpUtilityTypeTest : Specification() {
   fun setupSpec() {
     val baseUtilPath = tempDir.resolve("bin")
     Files.createDirectories(baseUtilPath)
-    ThreadDumpUtilityType.values().forEach { Files.createFile(baseUtilPath.resolve(it.utilityFileName)) }
+    ThreadDumpUtilityType.entries.forEach { Files.createFile(baseUtilPath.resolve(it.utilityFileName)) }
   }
 
   @MigratedFrom("org.spockframework.runtime.extension.builtin.ThreadDumpUtilityTypeTest##utility utility provides correct command arguments")
-  fun `#utility utility provides correct command arguments`(utility: ThreadDumpUtilityType, javaHome: Path, additionalArgs: List<String>) {
-    given
+  fun `#utility utility provides correct command arguments`(
+    utility: ThreadDumpUtilityType,
+    javaHome: Path,
+    additionalArgs: List<String>
+  ) {
     expect
-    utility.getCommand(javaHome, PID) == listOf(tempDir.resolve("bin").resolve(utility.utilityFileName).toString(), PID.toString()) + additionalArgs
+    utility.getCommand(javaHome, PID) == listOf(tempDir.resolve("bin").resolve(utility.utilityFileName).toString(),
+      PID.toString()) + additionalArgs
 
     where
-    utility ; javaHome                ; additionalArgs
-    JSTACK  ; tempDir                 ; emptyList<String>()
-    JSTACK  ; tempDir.resolve("jre")  ; emptyList<String>()
-    JCMD    ; tempDir                 ; listOf("Thread.print")
-    JCMD    ; tempDir.resolve("jre")  ; listOf("Thread.print")
+    utility ; javaHome                      ; additionalArgs
+    JSTACK  ; tempDir                       ; emptyList<String>()
+    JSTACK  ; tempDir.resolve("jre") ; emptyList<String>()
+    JCMD    ; tempDir                       ; listOf("Thread.print")
+    JCMD    ; tempDir.resolve("jre") ; listOf("Thread.print")
   }
 }
