@@ -34,7 +34,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExplicitAsse
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListAccessSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalAndSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalOrSpec
@@ -44,6 +43,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToS
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerifyInVerifyAllSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArrayValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SatisfiedConditionWithMessageSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetValueSpec
@@ -63,6 +63,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyProper
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.spockframework.runtime.ConditionNotSatisfiedError
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
@@ -605,8 +606,12 @@ class ConditionRenderingTest : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#evaluation of unsatisfied condition")
   fun `evaluation of unsatisfied condition`() {
+    val failures = execute(selectClass(SimpleMessageSpec::class.java)).failed().list()
+
     expect
-    execute(selectClass(SimpleMessageSpec::class.java)).failed().list().size == 1
+    failures.size == 1
+    failures.single().getRequiredPayload(TestExecutionResult::class.java)
+      .throwable.orElseThrow() is ConditionNotSatisfiedError
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
@@ -647,15 +652,17 @@ class ConditionRenderingTest : Specification() {
   @MigratedFrom("org.spockframework.smoke.condition.ExplicitConditionsWithMessage#rendering of object message")
   fun `rendering of object message`() {
     expect
-    failureMessage(ListMessageSpec::class) ==
+    failureMessage(ObjectMessageSpec::class) ==
       """
       |Condition not satisfied:
       |
-      |1 + 2 == 2
-      |  |   |
-      |  3   false
+      |obj.a + obj.b == 2
+      ||   | | |   | |
+      ||   1 3 |   2 false
+      ||       TwoProperties(a=1, b=2)
+      |TwoProperties(a=1, b=2)
       |
-      |[1, 2]
+      |TwoProperties(a=1, b=2)
       |
       """.trimMargin()
   }

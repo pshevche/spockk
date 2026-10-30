@@ -410,11 +410,13 @@ class StringTemplateMessageSpec : Specification() {
   }
 }
 
-class ListMessageSpec : Specification() {
+data class TwoProperties(val a: Int, val b: Int)
+
+class ObjectMessageSpec : Specification() {
   fun `test`() {
-    val list = listOf(1, 2)
+    val obj = TwoProperties(1, 2)
     expect
-    assert(1 + 2 == 2) { list }
+    assert(obj.a + obj.b == 2) { obj }
   }
 }
 
