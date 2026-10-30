@@ -23,9 +23,11 @@ import org.spockframework.runtime.DataVariablesIterationNameProvider
 import org.spockframework.runtime.model.FeatureInfo
 import org.spockframework.runtime.model.IterationInfo
 import spock.lang.Specification
+import spock.lang.Subject
 
 class DataVariablesIterationNameProviderSpec : Specification() {
 
+  @Subject
   private var testee = DataVariablesIterationNameProvider()
 
   private val featureInfo = FeatureInfo().apply {
@@ -60,7 +62,7 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     }
 
     expect
-    testee.getName(iteration) == "the feature [x: 1, y: 2, z: 3, #99]"
+    testee.getName(iteration) == "${featureInfo.name} [x: 1, y: 2, z: 3, #${iteration.iterationIndex}]"
   }
 
   @MigratedFrom("org.spockframework.runtime.DataVariablesIterationNameProviderSpec#renders data variables in Groovy style")
@@ -74,7 +76,7 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     }
 
     expect
-    testee.getName(iteration) == "the feature [x: [1], y: [a:2], z: [3], #99]"
+    testee.getName(iteration) == "${featureInfo.name} [x: [1], y: [a:2], z: [3], #${iteration.iterationIndex}]"
   }
 
   @MigratedFrom(
@@ -89,7 +91,7 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     }
 
     expect
-    testee.getName(iteration) == "the feature [#99]"
+    testee.getName(iteration) == "${featureInfo.name} [#${iteration.iterationIndex}]"
   }
 
   @MigratedFrom(
@@ -108,7 +110,7 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     }
 
     expect
-    testee.getName(iteration) == "the feature [x: #Error:RuntimeException during rendering, y: 2, z: 3, #99]"
+    testee.getName(iteration) == "${featureInfo.name} [x: #Error:RuntimeException during rendering, y: 2, z: 3, #${iteration.iterationIndex}]"
   }
 
   @MigratedFrom(
@@ -124,7 +126,7 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     }
 
     expect
-    testee.getName(iteration) == "x: 1, y: 2, z: 3, #99"
+    testee.getName(iteration) == "x: 1, y: 2, z: 3, #${iteration.iterationIndex}"
   }
 
   @MigratedFrom(
@@ -157,7 +159,7 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     }
 
     expect
-    testee.getName(iteration) == "x: [1], y: [a:2], z: [3], #99"
+    testee.getName(iteration) == "x: [1], y: [a:2], z: [3], #${iteration.iterationIndex}"
   }
 
   @MigratedFrom(
@@ -173,6 +175,6 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     }
 
     expect
-    testee.getName(iteration) == "#99"
+    testee.getName(iteration) == "#${iteration.iterationIndex}"
   }
 }
