@@ -16,7 +16,7 @@ package io.github.pshevche.spockk.mock.runtime
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.verify
 import org.spockframework.mock.CallRealMethodResponse
 import org.spockframework.mock.EmptyOrDummyResponse
 import org.spockframework.mock.IDefaultResponse
@@ -32,46 +32,48 @@ class MockConfigurationSpec : Specification() {
 
   @MigratedFrom("org.spockframework.mock.runtime.MockConfigurationSpec#defaults for Mock nature")
   fun `defaults for Mock nature`() {
-    given
     val options = MockConfiguration("foo", List::class.java, MockNature.MOCK, MockImplementation.JAVA, emptyMap())
 
     expect
-    options.nature == MockNature.MOCK
-    options.defaultResponse is ZeroOrNullResponse
-    options.isGlobal == false
-    options.isVerified == true
-    options.isUseObjenesis == true
+    verify(options) {
+      nature == MockNature.MOCK
+      defaultResponse is ZeroOrNullResponse
+      isGlobal == false
+      isVerified == true
+      isUseObjenesis == true
+    }
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.MockConfigurationSpec#defaults for Stub nature")
   fun `defaults for Stub nature`() {
-    given
     val options = MockConfiguration("foo", List::class.java, MockNature.STUB, MockImplementation.JAVA, emptyMap())
 
     expect
-    options.nature == MockNature.STUB
-    options.defaultResponse is EmptyOrDummyResponse
-    options.isGlobal == false
-    options.isVerified == false
-    options.isUseObjenesis == true
+    verify(options) {
+      nature == MockNature.STUB
+      defaultResponse is EmptyOrDummyResponse
+      isGlobal == false
+      isVerified == false
+      isUseObjenesis == true
+    }
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.MockConfigurationSpec#defaults for Spy nature")
   fun `defaults for Spy nature`() {
-    given
     val options = MockConfiguration("foo", List::class.java, MockNature.SPY, MockImplementation.JAVA, emptyMap())
 
     expect
-    options.nature == MockNature.SPY
-    options.defaultResponse is CallRealMethodResponse
-    options.isGlobal == false
-    options.isVerified == true
-    options.isUseObjenesis == false
+    verify(options) {
+      nature == MockNature.SPY
+      defaultResponse is CallRealMethodResponse
+      isGlobal == false
+      isVerified == true
+      isUseObjenesis == false
+    }
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.MockConfigurationSpec#set options via map")
   fun `set options via map`() {
-    given
     val defaultResponse = object : IDefaultResponse {
       override fun respond(invocation: IMockInvocation): Any? = null
     }
@@ -90,15 +92,17 @@ class MockConfigurationSpec : Specification() {
     val options = MockConfiguration("bar", Map::class.java, MockNature.MOCK, MockImplementation.JAVA, map)
 
     expect
-    options.name == "foo"
-    options.type == List::class.java
-    options.nature == MockNature.SPY
-    options.implementation == MockImplementation.GROOVY
-    options.constructorArgs == listOf("foo", "bar")
-    options.defaultResponse === defaultResponse
-    options.isGlobal == true
-    options.isVerified == false
-    options.isUseObjenesis == true
-    options.mockMaker == MockMakers.javaProxy
+    verify(options) {
+      name == "foo"
+      type == List::class.java
+      nature == MockNature.SPY
+      implementation == MockImplementation.GROOVY
+      constructorArgs == listOf("foo", "bar")
+      this.defaultResponse === defaultResponse
+      isGlobal == true
+      isVerified == false
+      isUseObjenesis == true
+      mockMaker == MockMakers.javaProxy
+    }
   }
 }
