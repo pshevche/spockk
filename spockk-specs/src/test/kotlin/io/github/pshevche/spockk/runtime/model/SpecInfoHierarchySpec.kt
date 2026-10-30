@@ -40,6 +40,15 @@ class SpecInfoHierarchySpec : Specification() {
   private lateinit var grandparent: SpecInfo
 
   @Shared
+  private lateinit var parent: SpecInfo
+
+  @Shared
+  private lateinit var middle: SpecInfo
+
+  @Shared
+  private lateinit var child: SpecInfo
+
+  @Shared
   private lateinit var grandchild: SpecInfo
 
   @Shared
@@ -49,9 +58,13 @@ class SpecInfoHierarchySpec : Specification() {
   private val hierarchyNames = listOf("grandparent", "parent", "middle", "child", "grandchild")
 
   fun setupSpec() {
-    hierarchy = SpecInfoBuilder(Grandchild::class.java).build().specsTopToBottom
-    grandparent = hierarchy.first()
-    grandchild = hierarchy.last()
+    val specs = SpecInfoBuilder(Grandchild::class.java).build().specsTopToBottom
+    grandparent = specs[0]
+    parent = specs[1]
+    middle = specs[2]
+    child = specs[3]
+    grandchild = specs[4]
+    hierarchy = listOf(grandparent, parent, middle, child, grandchild)
   }
 
   @Unroll("#name")
