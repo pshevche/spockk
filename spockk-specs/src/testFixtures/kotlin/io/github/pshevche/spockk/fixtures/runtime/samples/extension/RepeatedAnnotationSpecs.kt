@@ -15,6 +15,7 @@
 package io.github.pshevche.spockk.fixtures.runtime.samples.extension
 
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.verifyAll
 import org.spockframework.runtime.extension.ExtensionAnnotation
 import org.spockframework.runtime.extension.IAnnotationDrivenExtension
 import org.spockframework.runtime.model.FeatureInfo
@@ -63,10 +64,12 @@ class FooExtension : IAnnotationDrivenExtension<Foo> {
 class RepeatedSpecAnnotations1Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -74,10 +77,12 @@ class RepeatedSpecAnnotations1Spec : Specification() {
 class RepeatedSpecAnnotations2Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 1
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 1
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -85,10 +90,12 @@ class RepeatedSpecAnnotations2Spec : Specification() {
 class RepeatedSpecAnnotations3Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 2
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 2
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -96,10 +103,12 @@ class RepeatedSpecAnnotations3Spec : Specification() {
 class RepeatedSpecAnnotations4Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -108,10 +117,12 @@ class RepeatedSpecAnnotations4Spec : Specification() {
 class RepeatedSpecAnnotations5Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 1
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 1
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -119,10 +130,12 @@ class RepeatedSpecAnnotations5Spec : Specification() {
 class RepeatedSpecAnnotations6Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 1
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 1
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -130,10 +143,12 @@ class RepeatedSpecAnnotations6Spec : Specification() {
 class RepeatedSpecAnnotations7Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 1
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 1
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -142,10 +157,12 @@ class RepeatedSpecAnnotations7Spec : Specification() {
 class RepeatedSpecAnnotations8Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 2
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 2
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -154,10 +171,12 @@ class RepeatedSpecAnnotations8Spec : Specification() {
 class RepeatedSpecAnnotations9Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 2
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 2
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -165,10 +184,12 @@ class RepeatedSpecAnnotations9Spec : Specification() {
 class RepeatedSpecAnnotations10Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 2
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 2
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -177,10 +198,12 @@ class RepeatedSpecAnnotations10Spec : Specification() {
 class RepeatedSpecAnnotations11Spec : Specification() {
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 3
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 3
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -188,10 +211,12 @@ class RepeatedFeatureAnnotations1Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -199,10 +224,12 @@ class RepeatedFeatureAnnotations2Spec : Specification() {
   @Foo
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 1
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 1
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -210,10 +237,12 @@ class RepeatedFeatureAnnotations3Spec : Specification() {
   @Foo @Foo
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 2
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 2
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -221,10 +250,12 @@ class RepeatedFeatureAnnotations4Spec : Specification() {
   @FooContainer([])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -233,10 +264,12 @@ class RepeatedFeatureAnnotations5Spec : Specification() {
   @FooContainer([])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 1
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 1
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -244,10 +277,12 @@ class RepeatedFeatureAnnotations6Spec : Specification() {
   @FooContainer([Foo()])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 1
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 1
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -255,10 +290,12 @@ class RepeatedFeatureAnnotations7Spec : Specification() {
   @FooContainer([Foo()])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 1
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 1
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -267,10 +304,12 @@ class RepeatedFeatureAnnotations8Spec : Specification() {
   @FooContainer([Foo()])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 2
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 2
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -279,10 +318,12 @@ class RepeatedFeatureAnnotations9Spec : Specification() {
   @FooContainer([Foo()])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 2
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 2
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -290,10 +331,12 @@ class RepeatedFeatureAnnotations10Spec : Specification() {
   @FooContainer([Foo(), Foo()])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 2
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 2
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -302,10 +345,12 @@ class RepeatedFeatureAnnotations11Spec : Specification() {
   @FooContainer([Foo(), Foo()])
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 3
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 3
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -315,10 +360,12 @@ class RepeatedFixtureAnnotations1Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -328,10 +375,12 @@ class RepeatedFixtureAnnotations2Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 1
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 1
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -341,10 +390,12 @@ class RepeatedFixtureAnnotations3Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 2
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 2
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -354,10 +405,12 @@ class RepeatedFixtureAnnotations4Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -368,10 +421,12 @@ class RepeatedFixtureAnnotations5Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 1
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 1
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -381,10 +436,12 @@ class RepeatedFixtureAnnotations6Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 1
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 1
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -394,10 +451,12 @@ class RepeatedFixtureAnnotations7Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 1
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 1
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -408,10 +467,12 @@ class RepeatedFixtureAnnotations8Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 2
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 2
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -422,10 +483,12 @@ class RepeatedFixtureAnnotations9Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 2
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 2
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -435,10 +498,12 @@ class RepeatedFixtureAnnotations10Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 2
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 2
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -449,10 +514,12 @@ class RepeatedFixtureAnnotations11Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 3
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 3
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -462,10 +529,12 @@ class RepeatedFieldAnnotations1Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -475,10 +544,12 @@ class RepeatedFieldAnnotations2Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 1
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 1
+    }
   }
 }
 
@@ -488,10 +559,12 @@ class RepeatedFieldAnnotations3Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 2
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 2
+    }
   }
 }
 
@@ -501,10 +574,12 @@ class RepeatedFieldAnnotations4Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 0
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 0
+    }
   }
 }
 
@@ -515,10 +590,12 @@ class RepeatedFieldAnnotations5Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 1
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 1
+    }
   }
 }
 
@@ -528,10 +605,12 @@ class RepeatedFieldAnnotations6Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 1
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 1
+    }
   }
 }
 
@@ -541,10 +620,12 @@ class RepeatedFieldAnnotations7Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 1
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 1
+    }
   }
 }
 
@@ -555,10 +636,12 @@ class RepeatedFieldAnnotations8Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 2
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 2
+    }
   }
 }
 
@@ -569,10 +652,12 @@ class RepeatedFieldAnnotations9Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 2
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 2
+    }
   }
 }
 
@@ -582,10 +667,12 @@ class RepeatedFieldAnnotations10Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 2
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 2
+    }
   }
 }
 
@@ -596,9 +683,11 @@ class RepeatedFieldAnnotations11Spec : Specification() {
 
   fun foo() {
     expect
-    FooVisits.count(javaClass, "spec") == 0
-    FooVisits.count(javaClass, "feature") == 0
-    FooVisits.count(javaClass, "fixture") == 0
-    FooVisits.count(javaClass, "field") == 3
+    verifyAll {
+      FooVisits.count(javaClass, "spec") == 0
+      FooVisits.count(javaClass, "feature") == 0
+      FooVisits.count(javaClass, "fixture") == 0
+      FooVisits.count(javaClass, "field") == 3
+    }
   }
 }
