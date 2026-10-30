@@ -31,7 +31,6 @@ import org.spockframework.util.IThrowableFunction
 import spock.config.RunnerConfiguration
 import spock.lang.Isolated
 import spock.lang.Specification
-import java.nio.file.Files
 
 @Isolated("Isolate from other tests to have full access to cores for the nested executions.")
 class ParallelSpec : Specification() {
@@ -176,7 +175,7 @@ class ParallelSpec : Specification() {
     val selectors: List<DiscoverySelector> = specs.map { selectClass(it) }
     return RunContext.withNewContext<Events, RuntimeException>(
       "parallel",
-      Files.createTempDirectory("spockk-parallel").toFile(),
+      RunContext.get().spockUserHome,
       null,
       emptyList(),
       listOf(RunnerConfiguration::class.java, MockMakerConfiguration::class.java),
