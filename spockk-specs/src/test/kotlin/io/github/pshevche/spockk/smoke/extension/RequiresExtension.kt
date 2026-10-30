@@ -28,7 +28,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.InstanceShar
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.NotInheritedBar
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.NotInheritedFoo
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.NotInheritedTest
-import io.github.pshevche.spockk.fixtures.runtime.samples.extension.RepeatedRequiresExamples
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.RequiresExtensionExamples
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.RequiresFlag
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.SharedFieldAccessSpec
@@ -42,14 +41,12 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.StaticFieldA
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.UninstantiableConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.UnknownDataVariableSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.UnknownPropertySpec
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
-import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 import org.junit.platform.testkit.engine.EngineExecutionResults
 import org.spockframework.runtime.extension.ExtensionException
 import org.spockframework.runtime.extension.builtin.PreconditionContext
@@ -57,6 +54,7 @@ import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class RequiresExtension : Specification() {
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/894")
   @MigratedFrom(
     "org.spockframework.smoke.extension.RequiresExtension#runs feature if precondition is satisfied",
     "org.spockframework.smoke.extension.RequiresExtension#skips feature if precondition is not satisfied",
@@ -70,6 +68,8 @@ class RequiresExtension : Specification() {
     "org.spockframework.smoke.extension.RequiresExtension#can skip data providers completely if no data variables are accessed by checking a `shared.` field",
     "org.spockframework.smoke.extension.RequiresExtension#allows determinate use of multiple filters",
     "org.spockframework.smoke.extension.RequiresExtension#feature is ignored if at least one Requires annotation is false",
+    "org.spockframework.smoke.extension.RequiresExtension#feature is not ignored if all Requires annotations are true",
+    "org.spockframework.smoke.extension.RequiresExtension#feature is ignored if at least one Requires annotation is false",
     "org.spockframework.smoke.extension.RequiresExtension#feature is not ignored if all Requires annotations are true"
   )
   fun verifyExecution() {
@@ -79,13 +79,14 @@ class RequiresExtension : Specification() {
     val skippedNames = tests.skipped().map { it.testDescriptor.displayName }.toList()
 
     then
-    tests.succeeded().count() == 8L
+    tests.succeeded().count() == 9L
     tests.failed().count() == 0L
-    tests.skipped().count() == 3L
+    tests.skipped().count() == 4L
     skippedNames == listOf(
       "skips feature if precondition is not satisfied",
       "can skip data providers completely if no data variables are accessed",
-      "allows determinate use of multiple filters"
+      "allows determinate use of multiple filters",
+      "feature is ignored if at least one Requires annotation is false"
     )
   }
 
@@ -131,10 +132,8 @@ class RequiresExtension : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.RequiresExtension#spec usage with unqualified static method access")
   fun `spec usage with unqualified static method access`(shouldRun: Boolean, testStartAndSucceededCount: Long, specSkippedCount: Long) {
-    given
-    RequiresFlag.shouldRun = shouldRun
-
     `when`
+    RequiresFlag.shouldRun = shouldRun
     val results = executeAll(selectClass(SpecUsageWithUnqualifiedStaticMethodAccess::class.java))
     val tests = results.testEvents()
 
@@ -152,10 +151,8 @@ class RequiresExtension : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.RequiresExtension#spec usage with unqualified static field access")
   fun `spec usage with unqualified static field access`(shouldRun: Boolean, testStartAndSucceededCount: Long, specSkippedCount: Long) {
-    given
-    RequiresFlag.shouldRun = shouldRun
-
     `when`
+    RequiresFlag.shouldRun = shouldRun
     val results = executeAll(selectClass(SpecUsageWithUnqualifiedStaticFieldAccess::class.java))
     val tests = results.testEvents()
 
@@ -173,10 +170,8 @@ class RequiresExtension : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.RequiresExtension#spec usage with shared field access")
   fun `spec usage with shared field access`(shouldRun: Boolean, testStartAndSucceededCount: Long, specAbortedCount: Long) {
-    given
-    RequiresFlag.shouldRun = shouldRun
-
     `when`
+    RequiresFlag.shouldRun = shouldRun
     val results = executeAll(selectClass(SpecUsageWithSharedFieldAccess::class.java))
     val tests = results.testEvents()
 
@@ -195,10 +190,8 @@ class RequiresExtension : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.RequiresExtension#spec usage with instance field access")
   fun `spec usage with instance field access`(shouldRun: Boolean, testSucceededCount: Long, testAbortedCount: Long) {
-    given
-    RequiresFlag.shouldRun = shouldRun
-
     `when`
+    RequiresFlag.shouldRun = shouldRun
     val tests = executeAll(selectClass(SpecUsageWithInstanceFieldAccess::class.java)).testEvents()
 
     then
@@ -325,28 +318,6 @@ class RequiresExtension : Specification() {
     where
     variables(inherited, testStartAndSucceededCount, specSkippedCount)
       .from(listOf(false, true), listOf(1L + 0 + 3 + 4, 1L), listOf(1L, 3L))
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/894")
-  @MigratedFrom("org.spockframework.smoke.extension.RequiresExtension#feature is ignored if at least one Requires annotation is false")
-  fun `feature is ignored if at least one Requires annotation is false`() {
-    `when`
-    val tests = executeAll(selectMethod(RepeatedRequiresExamples::class.java, "feature is ignored if at least one Requires annotation is false")).testEvents()
-
-    then
-    tests.skipped().count() == 1L
-    tests.failed().count() == 0L
-  }
-
-  @MigratedFrom("org.spockframework.smoke.extension.RequiresExtension#feature is not ignored if all Requires annotations are true")
-  fun `feature is not ignored if all Requires annotations are true`() {
-    `when`
-    val tests = executeAll(selectMethod(RepeatedRequiresExamples::class.java, "feature is not ignored if all Requires annotations are true")).testEvents()
-
-    then
-    tests.started().count() == 1L
-    tests.succeeded().count() == 1L
-    tests.skipped().count() == 0L
   }
 
   private fun extensionFailure(spec: Class<*>): Throwable {

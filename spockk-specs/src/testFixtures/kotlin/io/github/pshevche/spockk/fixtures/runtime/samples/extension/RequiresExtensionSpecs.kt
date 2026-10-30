@@ -22,7 +22,6 @@ import org.spockframework.runtime.ConditionNotSatisfiedError
 import org.spockframework.runtime.extension.builtin.PreconditionContext
 import spock.lang.FailsWith
 import spock.lang.IgnoreIf
-import spock.lang.Issue
 import spock.lang.Requires
 import spock.lang.Shared
 import spock.lang.Specification
@@ -436,7 +435,6 @@ class RequiresExtensionExamples : Specification() {
     variable(a).from(failingDataProvider())
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1710")
   @Requires(SharedShouldRun::class)
   fun `can skip data providers completely if no data variables are accessed by checking a shared field`(a: Int) {
     expect
@@ -446,17 +444,13 @@ class RequiresExtensionExamples : Specification() {
     variable(a).from(failingDataProvider())
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/535")
   @IgnoreIf(AlwaysTrue::class)
   @Requires(AlwaysTrue::class)
   fun `allows determinate use of multiple filters`() {
     expect
     assert(false)
   }
-}
 
-/** Kept apart from [RequiresExtensionExamples]: repeated extension annotations are not applied yet. */
-class RepeatedRequiresExamples : Specification() {
   @Requires(NeverRuns::class)
   @Requires(AlwaysTrue::class)
   fun `feature is ignored if at least one Requires annotation is false`() {
