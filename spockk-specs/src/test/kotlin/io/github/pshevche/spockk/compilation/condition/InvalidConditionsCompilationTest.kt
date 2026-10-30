@@ -18,9 +18,10 @@ import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
+import io.github.pshevche.spockk.lang.where
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import spock.lang.PendingFeature
 
@@ -29,45 +30,45 @@ class InvalidConditionsCompilationTest : BaseCompilationTest() {
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/873")
   @MigratedFrom("org.spockframework.smoke.condition.InvalidConditions#assignments are not allowed in expect-blocks")
-  fun `assignments are not allowed in expect-blocks`() {
+  fun `assignments are not allowed in expect-blocks`(op: String) {
     `when`
-    val assign = transform(specWithFeatureBody(expectBlockWith("=")))
-    val plusAssign = transform(specWithFeatureBody(expectBlockWith("+=")))
-    val minusAssign = transform(specWithFeatureBody(expectBlockWith("-=")))
+    val result = transform(specWithFeatureBody(expectBlockWith(op)))
 
     then
-    !assign.isSuccess()
-    !plusAssign.isSuccess()
-    !minusAssign.isSuccess()
+    !result.isSuccess()
+    result.compilation.messages.contains("assignment")
+
+    where
+    variable(op).from("=", "+=", "-=")
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/873")
   @MigratedFrom("org.spockframework.smoke.condition.InvalidConditions#assignments are not allowed in then-blocks")
-  fun `assignments are not allowed in then-blocks`() {
+  fun `assignments are not allowed in then-blocks`(op: String) {
     `when`
-    val assign = transform(specWithFeatureBody(thenBlockWith("=")))
-    val plusAssign = transform(specWithFeatureBody(thenBlockWith("+=")))
-    val minusAssign = transform(specWithFeatureBody(thenBlockWith("-=")))
+    val result = transform(specWithFeatureBody(thenBlockWith(op)))
 
     then
-    !assign.isSuccess()
-    !plusAssign.isSuccess()
-    !minusAssign.isSuccess()
+    !result.isSuccess()
+    result.compilation.messages.contains("assignment")
+
+    where
+    variable(op).from("=", "+=", "-=")
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.condition.InvalidConditions#assignment arithmetic operators are not allowed in explicit conditions"
   )
-  fun `assignment arithmetic operators are not allowed in explicit conditions`() {
+  fun `assignment arithmetic operators are not allowed in explicit conditions`(op: String) {
     `when`
-    val plusAssign = transform(specWithFeatureBody(explicitConditionWith("+=")))
-    val minusAssign = transform(specWithFeatureBody(explicitConditionWith("-=")))
+    val result = transform(specWithFeatureBody(explicitConditionWith(op)))
 
     then
-    !plusAssign.isSuccess()
-    plusAssign.compilation.messages.contains("Only expressions are allowed in this context")
-    !minusAssign.isSuccess()
-    minusAssign.compilation.messages.contains("Only expressions are allowed in this context")
+    !result.isSuccess()
+    result.compilation.messages.contains("Only expressions are allowed in this context")
+
+    where
+    variable(op).from("+=", "-=")
   }
 
   @MigratedFrom("org.spockframework.smoke.condition.InvalidConditions#assignments are not allowed in explicit conditions")
@@ -78,16 +79,6 @@ class InvalidConditionsCompilationTest : BaseCompilationTest() {
     then
     !result.isSuccess()
     result.compilation.messages.contains("No parameter with name 'x' found")
-  }
-
-  @MigratedFrom(
-    "org.spockframework.smoke.condition.InvalidConditions#assignments are allowed if they are part of a variable declaration"
-  )
-  fun `assignments are allowed if they are part of a variable declaration`() {
-    val x = 42
-
-    expect
-    x == 42
   }
 
   private fun expectBlockWith(op: String) =
