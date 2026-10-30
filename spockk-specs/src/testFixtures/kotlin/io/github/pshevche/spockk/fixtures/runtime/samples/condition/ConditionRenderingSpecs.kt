@@ -385,3 +385,57 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     }
   }
 }
+
+class SetMissingAndExtraSpec : Specification() {
+  fun `test`() {
+    val a = setOf(1, 2, 3)
+    val b = setOf(2, 3, 4)
+    expect
+    a == b
+  }
+}
+
+class SetOnlyMissingSpec : Specification() {
+  fun `test`() {
+    val a = setOf(1, 2, 3)
+    val b = setOf(1, 2, 3, 4)
+    expect
+    a == b
+  }
+}
+
+class SetLargeSmallDifferencesSpec : Specification() {
+  fun `test`() {
+    val a = (1..15).toSet()
+    val b = (6..20).toSet()
+    expect
+    a == b
+  }
+}
+
+class SetLargeLargeDifferencesSpec : Specification() {
+  fun `test`() {
+    val a = (1..15).toSet()
+    val b = (16..30).toSet()
+    expect
+    a == b
+  }
+}
+
+class SetContainedSpec : Specification() {
+  fun `test`() {
+    val a = (10..15).toSet()
+    val b = (5..20).toSet()
+    expect
+    a == b
+  }
+}
+
+class SetContainingSpec : Specification() {
+  fun `test`() {
+    val a = (5..20).toSet()
+    val b = (10..15).toSet()
+    expect
+    a == b
+  }
+}
