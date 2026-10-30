@@ -21,38 +21,19 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.StepwiseFail
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.StepwiseIgnoreSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.StepwiseResourceLockSpec
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
+import org.assertj.core.api.Condition
 import org.junit.platform.engine.FilterResult
-import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
 import org.junit.platform.launcher.PostDiscoveryFilter
-import org.junit.platform.launcher.TestExecutionListener
-import org.junit.platform.launcher.TestIdentifier
-import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
-import org.junit.platform.launcher.core.LauncherFactory
+import org.junit.platform.testkit.engine.EngineTestKit
+import org.junit.platform.testkit.engine.Event
+import org.junit.platform.testkit.engine.EventConditions.displayName
 import org.junit.platform.testkit.engine.Events
 import spock.lang.Specification
-
-private class RecordingListener : TestExecutionListener {
-  val succeededNames = mutableListOf<String>()
-  val notSucceeded = mutableListOf<TestIdentifier>()
-  val skipped = mutableListOf<TestIdentifier>()
-
-  override fun executionFinished(id: TestIdentifier, result: TestExecutionResult) {
-    if (!id.isTest) return
-    if (result.status == TestExecutionResult.Status.SUCCESSFUL) {
-      succeededNames += id.displayName
-    } else {
-      notSucceeded += id
-    }
-  }
-
-  override fun executionSkipped(id: TestIdentifier, reason: String) {
-    skipped += id
-  }
-}
 
 private fun countStepwiseSkipMessages(events: Events): Long =
   events
@@ -60,19 +41,15 @@ private fun countStepwiseSkipMessages(events: Events): Long =
     .filter { it.payload.isPresent && it.payload.get() == "Skipped due to previous Error (by @Stepwise)" }
     .count()
 
-private fun succeededDisplayNames(events: Events): List<String> =
-  events.succeeded().stream().map { it.testDescriptor.displayName }.toList()
+private fun stepNames(count: Int): Array<Condition<Event>> =
+  listOf("step1", "step2", "step3").subList(0, count).map { displayName(it) }.toTypedArray()
 
-private fun runIncludingOnly(specClass: Class<*>, displayName: String): RecordingListener {
-  val listener = RecordingListener()
-  val request =
-    LauncherDiscoveryRequestBuilder.request()
-      .selectors(selectClass(specClass))
-      .filters(PostDiscoveryFilter { FilterResult.includedIf(it.displayName == displayName) })
-      .build()
-  LauncherFactory.create().execute(request, listener)
-  return listener
-}
+private fun executeIncludingOnly(specClass: Class<*>, displayName: String): Events =
+  EngineTestKit.engine("spock")
+    .selectors(selectClass(specClass))
+    .filters(PostDiscoveryFilter { FilterResult.includedIf(it.displayName == displayName) })
+    .execute()
+    .testEvents()
 
 class StepwiseSpecs : Specification() {
 
@@ -95,9 +72,10 @@ class StepwiseSpecs : Specification() {
     val events = execute(selectMethod(StepwiseResourceLockSpec::class.java, step))
 
     then
-    events.assertStatistics { it.started(succeeded.toLong()).succeeded(succeeded.toLong()).failed(0).skipped(0) }
-    succeededDisplayNames(events) ==
-      listOf("step1", "step2", "step3").subList(0, succeeded)
+    verifyAll {
+      events.assertStatistics { it.started(succeeded.toLong()).succeeded(succeeded.toLong()).failed(0).skipped(0) }
+      events.succeeded().assertEventsMatchExactly(*stepNames(succeeded))
+    }
 
     where
     step    ; succeeded
@@ -111,12 +89,13 @@ class StepwiseSpecs : Specification() {
   )
   fun `automatically runs excluded methods that lead up to an included method with post discovery filter`(step: String, succeeded: Int) {
     `when`
-    val listener = runIncludingOnly(StepwiseResourceLockSpec::class.java, step)
+    val events = executeIncludingOnly(StepwiseResourceLockSpec::class.java, step)
 
     then
-    listener.succeededNames == listOf("step1", "step2", "step3").subList(0, succeeded)
-    listener.notSucceeded.isEmpty()
-    listener.skipped.isEmpty()
+    verifyAll {
+      events.assertStatistics { it.started(succeeded.toLong()).succeeded(succeeded.toLong()).failed(0).skipped(0) }
+      events.succeeded().assertEventsMatchExactly(*stepNames(succeeded))
+    }
 
     where
     step    ; succeeded

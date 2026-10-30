@@ -25,22 +25,22 @@ import spock.lang.Stepwise
 class StepwiseFailingSpec : Specification() {
   fun step1() {
     expect
-    assert(true)
+    true
   }
 
   fun step2() {
     expect
-    assert(false)
+    false
   }
 
   fun step3() {
     expect
-    assert(true)
+    true
   }
 
   fun step4() {
     expect
-    assert(true)
+    true
   }
 }
 
@@ -48,23 +48,23 @@ class StepwiseFailingSpec : Specification() {
 class StepwiseResourceLockSpec : Specification() {
   fun step1() {
     expect
-    assert(true)
+    true
   }
 
   @ResourceLock("a")
   fun step2() {
     expect
-    assert(true)
+    true
   }
 
   fun step3() {
     expect
-    assert(true)
+    true
   }
 
   fun step4() {
     expect
-    assert(true)
+    true
   }
 }
 
@@ -72,18 +72,18 @@ class StepwiseResourceLockSpec : Specification() {
 class StepwiseIgnoreSpec : Specification() {
   fun step1() {
     expect
-    assert(true)
+    true
   }
 
   @Ignore
   fun step2() {
     expect
-    assert(true)
+    true
   }
 
   fun step3() {
     expect
-    assert(true)
+    true
   }
 }
 
