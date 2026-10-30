@@ -26,14 +26,15 @@ import java.util.Collections.reverse
 class VoidMethodCallsInExpectBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of void Groovy instance method")
-  fun `invocation of void Groovy instance method`() {
+  fun `invocation of void Kotlin instance method`() {
     expect
     voidInstanceMethod()
     this.voidInstanceMethod()
   }
 
+  @Suppress("RemoveRedundantQualifierName")
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of void Groovy static method")
-  fun `invocation of void Groovy static method`() {
+  fun `invocation of void Kotlin static method`() {
     expect
     voidStaticMethod()
     VoidMethodCallsInExpectBlocks.voidStaticMethod()
@@ -45,12 +46,14 @@ class VoidMethodCallsInExpectBlocks : Specification() {
     mutableListOf<Any>().clear()
   }
 
+  @Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of void Java static method")
   fun `invocation of void Java static method`() {
     expect
     Collections.shuffle(mutableListOf<Any>())
   }
 
+  @Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of statically imported void Java method")
   fun `invocation of statically imported void Java method`() {
     expect
@@ -59,20 +62,20 @@ class VoidMethodCallsInExpectBlocks : Specification() {
 
   @ResourceLock(Resources.SYSTEM_OUT)
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of void default Groovy method")
-  fun `invocation of void default Groovy method`() {
+  fun `invocation of void default Kotlin method`() {
     expect
     print("")
   }
 
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of void default Groovy static method")
-  fun `invocation of void default Groovy static method`() {
+  fun `invocation of void default Kotlin static method`() {
     expect
     Thread.sleep(1)
     Thread.sleep(1)
   }
 
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of statically imported void Groovy method")
-  fun `invocation of statically imported void Groovy method`() {
+  fun `invocation of statically imported void Kotlin method`() {
     expect
     foo()
   }
