@@ -185,3 +185,27 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFeatureMethods#in setup block"]]
+status = "blocked"
+reason = "Spockk's block-order validator rejects a feature that ends with a setup block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFeatureMethods#nested in setup block"]]
+status = "blocked"
+reason = "Spockk's block-order validator rejects a feature that ends with a setup block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFeatureMethods#in cleanup block"]]
+status = "blocked"
+reason = "Spockk's block-order validator rejects cleanup as the first block of a feature"
+gap = "https://github.com/pshevche/spockk/issues/791"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFeatureMethods#nested in cleanup block"]]
+status = "blocked"
+reason = "Spockk's block-order validator rejects cleanup as the first block of a feature"
+gap = "https://github.com/pshevche/spockk/issues/791"
+decided = "2026-10-27"
