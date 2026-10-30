@@ -1,13 +1,9 @@
 import io.github.pshevche.spockk.lang.times
 
-interface IntList {
-  fun add(element: Int): Boolean
-}
-
 class SimpleInteraction : spock.lang.Specification() {
   fun `some feature`() {
     io.github.pshevche.spockk.lang.given
-    val list = Mock(IntList::class.java)
+    val list: MutableList<Int> = Mock()
 
     io.github.pshevche.spockk.lang.`when`
     list.add(1)

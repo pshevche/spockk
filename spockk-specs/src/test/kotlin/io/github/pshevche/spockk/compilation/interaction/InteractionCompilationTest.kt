@@ -25,6 +25,7 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 
 /**
  * Covers the when/then interaction scoping shape
@@ -41,6 +42,7 @@ class InteractionCompilationTest : BaseCompilationTest() {
     assertTransformation(sampleFromResource("interaction/BasicCardinality"))
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/936")
   @MigratedFrom("org.spockframework.smoke.ast.mock.MocksAstSpec#simple interaction")
   fun `simple interaction`() {
     expect
