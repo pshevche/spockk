@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.inheritance.
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.inheritance.IncludeExcludeDerivedSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.inheritance.Slow
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -37,9 +38,11 @@ class IncludeExcludeFeaturesWithInheritance : Specification() {
   @MigratedFrom(
     "org.spockframework.smoke.extension.IncludeExcludeFeaturesWithInheritance#include methods based on annotations"
   )
-  fun `include methods based on annotations`(annotationTypes: List<Class<out Annotation>>, runCount: Int) {
+  fun `include methods based on annotations`(annotationTypes: List<Class<out Annotation>>, runCount: Int, ignoreCount: Int) {
+    val criteria = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) }
+
     `when`
-    val events = runSpecs { include = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) } }
+    val events = runSpecs { include = criteria }
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -47,18 +50,23 @@ class IncludeExcludeFeaturesWithInheritance : Specification() {
     events.skipped().count() == 0L
 
     where
-    annotationTypes                            ; runCount
-    listOf(Slow::class.java)                   ; 2
-    listOf(Fast::class.java)                   ; 1
-    listOf(Slow::class.java, Fast::class.java) ; 3
+    variable(annotationTypes).from(
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(runCount).from(2, 1, 3)
+    variable(ignoreCount).from(0, 1, 0)
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.extension.IncludeExcludeFeaturesWithInheritance#exclude methods based on annotations"
   )
   fun `exclude methods based on annotations`(annotationTypes: List<Class<out Annotation>>, runCount: Int) {
+    val criteria = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) }
+
     `when`
-    val events = runSpecs { exclude = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) } }
+    val events = runSpecs { exclude = criteria }
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -66,10 +74,12 @@ class IncludeExcludeFeaturesWithInheritance : Specification() {
     events.skipped().count() == 0L
 
     where
-    annotationTypes                            ; runCount
-    listOf(Slow::class.java)                   ; 3
-    listOf(Fast::class.java)                   ; 4
-    listOf(Slow::class.java, Fast::class.java) ; 2
+    variable(annotationTypes).from(
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(runCount).from(3, 4, 2)
   }
 
   private fun runSpecs(configure: RunnerConfiguration.() -> Unit) =
