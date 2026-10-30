@@ -41,11 +41,11 @@ class DataAIs2(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObje
 }
 
 class SharedValueIs2(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
-  fun doCall(ctx: PreconditionContext<*>): Boolean = ctx.instance.let { (it as SharedFieldAccessSpec).value } == 2
+  fun doCall(ctx: PreconditionContext<SharedFieldAccessSpec>): Boolean = ctx.instance.value == 2
 }
 
 class InstanceValueIs2(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
-  fun doCall(ctx: PreconditionContext<*>): Boolean = ctx.instance.let { (it as InstanceFieldAccessSpec).value } == 2
+  fun doCall(ctx: PreconditionContext<InstanceFieldAccessSpec>): Boolean = ctx.instance.value == 2
 }
 
 class StaticValueIs1(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {

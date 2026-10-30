@@ -55,7 +55,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(FailingConditionTrue::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).aborted(1) }
+    events.assertStatistics { it.started(1).succeeded(0).failed(0).aborted(1).skipped(0) }
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/894")
@@ -65,7 +65,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(FailingConditionTrueTwice::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).aborted(1) }
+    events.assertStatistics { it.started(1).succeeded(0).failed(0).aborted(1).skipped(0) }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureIfExtensionSpec#@PendingFeatureIf marks passing feature as failed if the conditional expression returns true")
@@ -173,7 +173,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(PassingConditionFalse::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(1).failed(0).aborted(0) }
+    events.assertStatistics { it.started(1).succeeded(1).failed(0).aborted(0).skipped(0) }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureIfExtensionSpec#@PendingFeatureIf marks failing feature as skipped if the data variable accessing condition passes and the test fails")
@@ -182,7 +182,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(FailingDataConditionTrue::class.java))
 
     then
-    events.assertStatistics { it.started(2).succeeded(1).failed(0).aborted(1) }
+    events.assertStatistics { it.started(2).succeeded(1).failed(0).aborted(1).skipped(0) }
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/894")
@@ -192,7 +192,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(FailingDataConditionTrueTwice::class.java))
 
     then
-    events.assertStatistics { it.started(2).succeeded(1).failed(0).aborted(1) }
+    events.assertStatistics { it.started(2).succeeded(1).failed(0).aborted(1).skipped(0) }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureIfExtensionSpec#@PendingFeatureIf marks passing feature as failed if the data variable accessing conditional expression returns true")
@@ -234,7 +234,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(PassingDataConditionFalse::class.java))
 
     then
-    events.assertStatistics { it.started(2).succeeded(2).failed(0).aborted(0) }
+    events.assertStatistics { it.started(2).succeeded(2).failed(0).aborted(0).skipped(0) }
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/895")
@@ -244,7 +244,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(SharedFieldAccessSpec::class.java))
 
     then
-    events.assertStatistics { it.started(4).succeeded(3).failed(0).aborted(1) }
+    events.assertStatistics { it.started(4).succeeded(3).failed(0).aborted(1).skipped(0) }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureIfExtensionSpec#@PendingFeatureIf provides condition access to Specification instance fields")
@@ -253,7 +253,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(InstanceFieldAccessSpec::class.java))
 
     then
-    events.assertStatistics { it.started(4).succeeded(3).failed(0).aborted(1) }
+    events.assertStatistics { it.started(4).succeeded(3).failed(0).aborted(1).skipped(0) }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureIfExtensionSpec#@PendingFeatureIf provides condition access to static Specification fields")
@@ -262,7 +262,7 @@ class PendingFeatureIfExtensionSpec : Specification() {
     val events = execute(selectClass(StaticFieldAccessSpec::class.java))
 
     then
-    events.assertStatistics { it.started(2).succeeded(1).failed(0).aborted(1) }
+    events.assertStatistics { it.started(2).succeeded(1).failed(0).aborted(1).skipped(0) }
   }
 
   private fun failureOf(events: Events): Throwable =
