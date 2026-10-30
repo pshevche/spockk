@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.runtime
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.runtime.ConfigurationScriptLoader
@@ -36,7 +35,6 @@ class ConfigurationScriptLoaderSpec : Specification() {
     "org.spockframework.runtime.ConfigurationScriptLoaderSpec#load configuration script from system property that points to class path location"
   )
   fun `load configuration script from system property that points to class path location`() {
-    given
     System.setProperty(PROP_KEY, VALID_CONFIG)
     val loader = loader(PROP_KEY, "foo", "bar")
 
@@ -52,7 +50,6 @@ class ConfigurationScriptLoaderSpec : Specification() {
     "org.spockframework.runtime.ConfigurationScriptLoaderSpec#load configuration script from system property that points to file system location"
   )
   fun `load configuration script from system property that points to file system location`() {
-    given
     val location = javaClass.classLoader.getResource(VALID_CONFIG)!!.path
     System.setProperty(PROP_KEY, location)
     val loader = loader(PROP_KEY, "foo", "bar")
@@ -68,7 +65,6 @@ class ConfigurationScriptLoaderSpec : Specification() {
     "org.spockframework.runtime.ConfigurationScriptLoaderSpec#system property that points to unexisting location is rejected"
   )
   fun `system property that points to unexisting location is rejected`() {
-    given
     System.setProperty(PROP_KEY, "does/not/exist")
     val loader = loader(PROP_KEY, "foo", "bar")
 
@@ -87,7 +83,6 @@ class ConfigurationScriptLoaderSpec : Specification() {
     "org.spockframework.runtime.ConfigurationScriptLoaderSpec#load configuration script from class path location"
   )
   fun `load configuration script from class path location`() {
-    given
     val loader = loader("does/not/exist", VALID_CONFIG, "bar")
 
     expect
@@ -99,7 +94,6 @@ class ConfigurationScriptLoaderSpec : Specification() {
     "org.spockframework.runtime.ConfigurationScriptLoaderSpec#load configuration script from file system location"
   )
   fun `load configuration script from file system location`() {
-    given
     val location = javaClass.classLoader.getResource(VALID_CONFIG)!!.path
     val loader = loader("does/not/exist", "foo", location)
 
@@ -125,6 +119,5 @@ class ConfigurationScriptLoaderSpec : Specification() {
   private companion object {
     const val PROP_KEY = "spockConfigSystemProperty"
     const val VALID_CONFIG = "io/github/pshevche/spockk/runtime/ValidConfig.txt"
-    const val INVALID_CONFIG = "io/github/pshevche/spockk/runtime/InvalidConfig.txt"
   }
 }
