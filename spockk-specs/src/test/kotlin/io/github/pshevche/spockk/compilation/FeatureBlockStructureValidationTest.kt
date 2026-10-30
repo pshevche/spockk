@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -544,6 +545,7 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
+  @MigratedFrom("org.spockframework.smoke.SetupBlocks#consecutive setup's")
   fun `rejects invalid block sequences (consecutive setup blocks)`() {
     `when`
     val result =
@@ -567,6 +569,34 @@ class FeatureBlockStructureValidationTest : Specification() {
     !result.isSuccess()
     result.compilation.messages.contains(
       "Expected to find one of spockk blocks ['and', 'when', 'expect'], but encountered 'setup'"
+    )
+    result.compilation.messages.contains("Spec.kt:6:")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.SetupBlocks#multiple setup's")
+  fun `multiple setup's`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+                io.github.pshevche.spockk.lang.setup
+                val a = 1
+
+                io.github.pshevche.spockk.lang.expect
+                assert(true)
+
+                io.github.pshevche.spockk.lang.setup
+                val b = 2
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains(
+      "Expected to find one of spockk blocks ['and', 'cleanup', 'where'], but encountered 'setup'"
     )
   }
 
