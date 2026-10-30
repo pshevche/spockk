@@ -22,10 +22,10 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedAssert
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullPointerInConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullPointerInMethodConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SpockExceptionInConditionSpec
-import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
-import org.spockframework.runtime.ConditionFailedWithExceptionError
 import org.spockframework.runtime.ConditionNotSatisfiedError
 import org.spockframework.runtime.SpockException
 import spock.lang.PendingFeature
@@ -37,100 +37,100 @@ class ExceptionsInConditions : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/857")
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionsInConditions#null pointer exception in condition")
   fun `null pointer exception in condition`() {
-    val e = failure(NullPointerInConditionSpec::class)
-    expect
-    e is ConditionFailedWithExceptionError
-    e.cause is NullPointerException
-    e.message ==
+    `when`
+    val e = failure(NullPointerInConditionSpec::class) as ConditionNotSatisfiedError
+
+    then
+    unifyExecutionLineInStacktrace(e.condition.rendering) ==
       """
-      |Condition failed with Exception:
-      |
-      |map["key"]!!.length == 0
-      ||
-      |null
-      |java.lang.NullPointerException
+      |map.get("key")!!.length == 0
+      ||   |            |
+      |[:] null         java.lang.NullPointerException
+      |                 ${"\t"}at io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullPointerInConditionSpec.a feature(${NORMALIZED_EXECUTION_LINE})
       |
       """.trimMargin()
+    e.cause is NullPointerException
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/857")
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionsInConditions#null pointer exception in method condition")
   fun `null pointer exception in method condition`() {
-    val e = failure(NullPointerInMethodConditionSpec::class)
-    expect
-    e is ConditionFailedWithExceptionError
-    e.cause is NullPointerException
-    e.message ==
+    `when`
+    val e = failure(NullPointerInMethodConditionSpec::class) as ConditionNotSatisfiedError
+
+    then
+    unifyExecutionLineInStacktrace(e.condition.rendering) ==
       """
-      |Condition failed with Exception:
-      |
-      |map["key"]!!.isEmpty()
-      ||
-      |null
-      |java.lang.NullPointerException
+      |map.get("key")!!.isEmpty()
+      ||   |            |
+      |[:] null         java.lang.NullPointerException
+      |                 ${"\t"}at io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullPointerInMethodConditionSpec.a feature(${NORMALIZED_EXECUTION_LINE})
       |
       """.trimMargin()
+    e.cause is NullPointerException
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/857")
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionsInConditions#exception while invoking condition")
   fun `exception while invoking condition`() {
-    val e = failure(ExceptionWhileInvokingConditionSpec::class)
-    expect
-    e is ConditionFailedWithExceptionError
-    e.cause is IllegalArgumentException
-    e.message ==
+    `when`
+    val e = failure(ExceptionWhileInvokingConditionSpec::class) as ConditionNotSatisfiedError
+
+    then
+    unifyExecutionLineInStacktrace(e.condition.rendering) ==
       """
-      |Condition failed with Exception:
-      |
       |getKey(map, "key").length == 0
-      |       |
-      |       [:]
+      ||      |
+      ||      [:]
       |java.lang.IllegalArgumentException: key does not exists
+      |${"\t"}at io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExceptionWhileInvokingConditionSpec.a feature${'$'}lambda${'$'}0(${NORMALIZED_EXECUTION_LINE})
+      |${"\t"}at io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExceptionWhileInvokingConditionSpec.a feature(${NORMALIZED_EXECUTION_LINE})
       |
       """.trimMargin()
+    e.cause is IllegalArgumentException
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/804")
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionsInConditions#spock assertion errors should be processed as is")
   fun `spock assertion errors should be processed as is`() {
-    val e = failure(NestedAssertionErrorSpec::class)
-    expect
-    e is ConditionNotSatisfiedError
-    e.cause == null
-    e.message ==
+    `when`
+    val e = failure(NestedAssertionErrorSpec::class) as ConditionNotSatisfiedError
+
+    then
+    e.condition.rendering ==
       """
-      |Condition not satisfied:
-      |
       |result != null
       ||      |
       |null   false
       |
       """.trimMargin()
+    e.cause == null
   }
 
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionsInConditions#spock exceptions should be processed as is")
   fun `spock exceptions should be processed as is`() {
-    val e = failure(SpockExceptionInConditionSpec::class)
-    expect
-    e is SpockException
+    `when`
+    val e = failure(SpockExceptionInConditionSpec::class) as SpockException
+
+    then
     e.message == "key does not exists"
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/857")
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionsInConditions#deep nesting")
   fun `deep nesting`() {
-    val e = failure(DeepNestingSpec::class)
-    expect
-    e is ConditionFailedWithExceptionError
-    e.message ==
+    `when`
+    val e = failure(DeepNestingSpec::class) as ConditionNotSatisfiedError
+
+    then
+    unifyExecutionLineInStacktrace(e.message!!) ==
       """
       |Condition failed with Exception:
       |
-      |map["key"]!!.child!!.child!!.child!!.name.isEmpty()
-      ||
-      |null
-      |java.lang.NullPointerException
+      |map.get("key")!!.b.c.d.e()
+      ||   |            |
+      |[:] null         java.lang.NullPointerException
+      |                 ${"\t"}at io.github.pshevche.spockk.fixtures.runtime.samples.condition.DeepNestingSpec.a feature(${NORMALIZED_EXECUTION_LINE})
       |
       """.trimMargin()
   }
@@ -138,4 +138,12 @@ class ExceptionsInConditions : Specification() {
   private fun failure(clazz: KClass<*>): Throwable =
     execute(selectClass(clazz.java)).failed().list().single()
       .getRequiredPayload(TestExecutionResult::class.java).throwable.orElseThrow()
+
+  private fun unifyExecutionLineInStacktrace(stacktrace: String): String =
+    stacktrace.replace(EXECUTION_LINE_PATTERN, NORMALIZED_EXECUTION_LINE)
+
+  companion object {
+    private val EXECUTION_LINE_PATTERN = Regex("""ExceptionsInConditionsSpecs\.kt:\d+""")
+    private const val NORMALIZED_EXECUTION_LINE = "ExceptionsInConditionsSpecs.kt:X"
+  }
 }

@@ -19,25 +19,29 @@ import org.spockframework.runtime.SpockException
 import spock.lang.Specification
 
 class NullPointerInConditionSpec : Specification() {
-  fun `test`() {
-    val map = HashMap<String, String?>()
+  fun `a feature`() {
+    val map = HashMap<String, String>()
     expect
-    map["key"]!!.length == 0
+    map.get("key")!!.length == 0
   }
 }
 
 class NullPointerInMethodConditionSpec : Specification() {
-  fun `test`() {
-    val map = HashMap<String, String?>()
+  fun `a feature`() {
+    val map = HashMap<String, String>()
     expect
-    map["key"]!!.isEmpty()
+    map.get("key")!!.isEmpty()
   }
 }
 
 class ExceptionWhileInvokingConditionSpec : Specification() {
-  fun `test`() {
+  fun `a feature`() {
     val getKey = { map: Map<String, String>, key: String ->
-      map[key] ?: throw IllegalArgumentException("key does not exists")
+      val result = map.get(key)
+      if (result == null) {
+        throw IllegalArgumentException("key does not exists")
+      }
+      result
     }
     val map = HashMap<String, String>()
     expect
@@ -46,9 +50,9 @@ class ExceptionWhileInvokingConditionSpec : Specification() {
 }
 
 class NestedAssertionErrorSpec : Specification() {
-  fun `test`() {
+  fun `a feature`() {
     val getKey = { map: Map<String, String>, key: String ->
-      val result = map[key]
+      val result = map.get(key)
       assert(result != null)
       result!!
     }
@@ -59,9 +63,13 @@ class NestedAssertionErrorSpec : Specification() {
 }
 
 class SpockExceptionInConditionSpec : Specification() {
-  fun `test`() {
+  fun `a feature`() {
     val getKey = { map: Map<String, String>, key: String ->
-      map[key] ?: throw SpockException("key does not exists")
+      val result = map.get(key)
+      if (result == null) {
+        throw SpockException("key does not exists")
+      }
+      result
     }
     val map = HashMap<String, String>()
     expect
@@ -69,12 +77,18 @@ class SpockExceptionInConditionSpec : Specification() {
   }
 }
 
-class Node(val child: Node?, val name: String)
+class DeepNode {
+  val b: DeepNode get() = this
+  val c: DeepNode get() = this
+  val d: DeepNode get() = this
+
+  fun e(): Boolean = true
+}
 
 class DeepNestingSpec : Specification() {
-  fun `test`() {
-    val map = HashMap<String, Node?>()
+  fun `a feature`() {
+    val map = HashMap<String, DeepNode>()
     expect
-    map["key"]!!.child!!.child!!.child!!.name.isEmpty()
+    map.get("key")!!.b.c.d.e()
   }
 }
