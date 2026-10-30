@@ -15,12 +15,14 @@
 package io.github.pshevche.spockk.smoke.extension
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
+import io.github.pshevche.spockk.lang.Stub
 import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.did
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.returns
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.variable
@@ -39,6 +41,7 @@ import spock.lang.Specification
 import spock.lang.TempDir
 import spock.lang.Unroll
 import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
@@ -73,11 +76,14 @@ class SnapshotterSpec : Specification() {
   @MigratedFrom("org.spockframework.smoke.extension.SnapshotterSpec#safeName calculation")
   fun `safeName calculation`(featureName: String, iterationIndex: Int, extension: String, snapshotId: String, safeName: String) {
     given
+    val method = Stub(Method::class.java) {
+      name returns "\$spock_feature_0_1"
+    }
     val featureInfo = FeatureInfo().apply {
       name = featureName
       parent = specificationContext.currentSpec
       isForceParameterized = iterationIndex > 0
-      featureMethod = MethodInfo().apply { reflection = FeatureMethodHolder::class.java.declaredMethods.single() }
+      featureMethod = MethodInfo().apply { reflection = method }
     }
     val iterationInfo = IterationInfo(featureInfo, iterationIndex, arrayOf(), iterationIndex + 1)
 
@@ -153,11 +159,6 @@ class SnapshotterSpec : Specification() {
 
     where
     variable(snapshotId).from("", "my-id")
-  }
-
-  @Suppress("unused")
-  private class FeatureMethodHolder {
-    fun `$spock_feature_0_1`() = Unit
   }
 
   private fun calculateSafeUniqueName(extension: String, iteration: IterationInfo, snapshotId: String): String {
