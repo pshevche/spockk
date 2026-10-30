@@ -17,6 +17,8 @@ package io.github.pshevche.spockk.smoke
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.smoke.VoidKotlinStaticMethod.foo
+import org.spockframework.runtime.model.parallel.Resources
+import spock.lang.ResourceLock
 import spock.lang.Specification
 import java.util.Collections
 import java.util.Collections.reverse
@@ -55,6 +57,7 @@ class VoidMethodCallsInExpectBlocks : Specification() {
     reverse(mutableListOf<Any>())
   }
 
+  @ResourceLock(Resources.SYSTEM_OUT)
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInExpectBlocks#invocation of void default Groovy method")
   fun `invocation of void default Groovy method`() {
     expect
