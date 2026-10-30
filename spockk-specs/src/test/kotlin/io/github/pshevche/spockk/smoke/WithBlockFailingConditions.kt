@@ -16,7 +16,6 @@ package io.github.pshevche.spockk.smoke
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.setup
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
@@ -35,7 +34,6 @@ class WithBlockFailingConditions : Specification() {
   @MigratedFrom("org.spockframework.smoke.WithBlockFailingConditions#basic usage")
   @FailsWith(ConditionNotSatisfiedError::class)
   fun `basic usage`() {
-    setup
     val list = listOf(1, 2)
 
     expect
@@ -56,7 +54,6 @@ class WithBlockFailingConditions : Specification() {
   @MigratedFrom("org.spockframework.smoke.WithBlockFailingConditions#nesting")
   @FailsWith(ConditionNotSatisfiedError::class)
   fun nesting() {
-    setup
     val list = listOf(1, 2)
 
     expect
@@ -115,24 +112,9 @@ class WithBlockFailingConditions : Specification() {
     }
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/326")
-  @MigratedFrom("org.spockframework.smoke.WithBlockFailingConditions#in block other than then/expect")
-  @FailsWith(ConditionNotSatisfiedError::class)
-  fun `in block other than then-expect`() {
-    setup
-    val list = listOf(1, 2)
-    verify(list) {
-      size == 3
-    }
-
-    expect
-    true
-  }
-
   @MigratedFrom("org.spockframework.smoke.WithBlockFailingConditions#in helper method")
   @FailsWith(ConditionNotSatisfiedError::class)
   fun `in helper method`() {
-    setup
     val list = listOf(1, 2)
 
     expect
@@ -144,7 +126,6 @@ class WithBlockFailingConditions : Specification() {
   )
   @FailsWith(ConditionNotSatisfiedError::class)
   fun `nested with expressions, the last one has a failing method condition`() {
-    setup
     val list = listOf(listOf(listOf("value")))
 
     expect
@@ -191,7 +172,8 @@ class WithBlockFailingConditions : Specification() {
 
     then
     val exception = thrown(expectedException)
-    exception.message!!.contains("foo")
+    (expectedException != Exception::class.java || exception.message == "foo") &&
+      (expectedException == Exception::class.java || exception.message!!.contains("foo"))
 
     where
     conditionMethod ; expectedException
@@ -212,7 +194,8 @@ class WithBlockFailingConditions : Specification() {
 
     then
     val exception = thrown(expectedException)
-    exception.message!!.contains("foo")
+    (expectedException != Exception::class.java || exception.message == "foo") &&
+      (expectedException == Exception::class.java || exception.message!!.contains("foo"))
 
     where
     conditionMethod ; expectedException
@@ -243,7 +226,8 @@ class WithBlockFailingConditions : Specification() {
 
     then
     val exception = thrown(expectedException)
-    exception.message!!.contains("foo")
+    (expectedException != Exception::class.java || exception.message == "foo") &&
+      (expectedException == Exception::class.java || exception.message!!.contains("foo"))
 
     where
     conditionMethod ; expectedException
@@ -264,7 +248,8 @@ class WithBlockFailingConditions : Specification() {
 
     then
     val exception = thrown(expectedException)
-    exception.message!!.contains("foo")
+    (expectedException != Exception::class.java || exception.message == "foo") &&
+      (expectedException == Exception::class.java || exception.message!!.contains("foo"))
 
     where
     conditionMethod ; expectedException

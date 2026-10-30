@@ -212,3 +212,9 @@ status = "blocked"
 reason = "An implicit condition that is a lambda-taking call such as `with(null) { false }` crashes the compiler with a StackOverflowError"
 gap = "https://github.com/pshevche/spockk/issues/819"
 decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlockFailingConditions#in block other than then/expect"]]
+status = "blocked"
+reason = "The upstream feature ends in a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
