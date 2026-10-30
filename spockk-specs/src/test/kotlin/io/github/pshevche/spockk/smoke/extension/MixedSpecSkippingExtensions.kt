@@ -44,18 +44,24 @@ class MixedSpecSkippingExtensions : Specification() {
   @MigratedFrom(
     "org.spockframework.smoke.extension.MixedSpecSkippingExtensions#feature skipping condition is not evaluated in skipped spec with inheritance"
   )
-  fun `feature skipping condition is not evaluated in skipped spec with inheritance`(fixture: InheritanceFixture) {
+  fun `feature skipping condition is not evaluated in skipped spec with inheritance`(
+    fixture: InheritanceFixture,
+    inherited: Boolean,
+    containersSkippedCount: Long,
+    containersFailedCount: Long
+  ) {
     `when`
     val results =
       EngineTestKit.engine("spock").selectors(*fixture.classes.map { selectClass(it) }.toTypedArray()).execute()
 
     then
     results.testEvents().assertStatistics { it.started(1).failed(0).skipped(0).aborted(0).succeeded(1) }
-    results.containerEvents().assertStatistics {
-      if (fixture.inherited) it.skipped(3).failed(0) else it.skipped(1).failed(2)
-    }
+    results.containerEvents().assertStatistics { it.skipped(containersSkippedCount).failed(containersFailedCount) }
 
     where
     variable(fixture).from(InheritanceFixtures.all)
+    variable(inherited).from(fixture.inherited)
+    variable(containersSkippedCount).from(if (inherited) 3L else 1L)
+    variable(containersFailedCount).from(if (inherited) 0L else 2L)
   }
 }

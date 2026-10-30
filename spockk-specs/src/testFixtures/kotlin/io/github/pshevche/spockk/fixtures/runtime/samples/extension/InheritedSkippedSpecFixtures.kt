@@ -14,7 +14,6 @@
 
 package io.github.pshevche.spockk.fixtures.runtime.samples.extension
 
-import groovy.lang.Closure
 import io.github.pshevche.spockk.lang.expect
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
