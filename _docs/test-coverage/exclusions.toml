@@ -185,3 +185,20 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.WithBlocks#fail if expected target type isn't met"]]
+status = "not-applicable"
+reason = "Spock's with(target, Type) checks the target's runtime type and raises a SpockAssertionError naming both types. Spockk's verify takes the target's static type as its receiver, so a mismatch is a Kotlin compile error or a ClassCastException from an explicit cast, not a Spockk assertion failure"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlocks#don't turn nested statements into conditions"]]
+status = "blocked"
+reason = "A lambda-taking call such as list.any { it == 2 } as an implicit condition crashes the Kotlin compiler with a StackOverflowError during IR lowering once the plugin rewrites the condition"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.WithBlocks#a closure encloses a with clause that has a method condition"]]
+status = "blocked"
+reason = "A verify call inside a lambda is not rewritten, so its conditions are silently ignored. The port compiles and passes even when the condition is false, so it would not test anything"
+gap = "https://github.com/pshevche/spockk/issues/820"
+decided = "2026-10-26"
