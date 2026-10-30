@@ -17,13 +17,16 @@ package io.github.pshevche.spockk.compilation.condition
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 
 @OptIn(ExperimentalCompilerApi::class)
 class ExceptionConditionValidationTest : BaseCompilationTest() {
 
+  @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#may only occur once in a then-block")
   fun `rejects a then block with more than one exception condition`() {
     `when`
     val result =
@@ -44,6 +47,7 @@ class ExceptionConditionValidationTest : BaseCompilationTest() {
     then
     !result.isSuccess()
     result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+    result.compilation.messages.contains("Spec.kt:8:1")
   }
 
   fun `rejects a captured thrown() alongside a different bare notThrown()`() {
@@ -109,5 +113,83 @@ class ExceptionConditionValidationTest : BaseCompilationTest() {
 
     then
     result.isSuccess()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#may only occur once in and'ed then-blocks")
+  fun `rejects exception conditions split across and'ed then blocks`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          throw java.io.IOException()
+
+          io.github.pshevche.spockk.lang.then
+          thrown(java.io.IOException::class.java)
+
+          io.github.pshevche.spockk.lang.and
+          thrown(Exception::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+    result.compilation.messages.contains("Spec.kt:10:1")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/712")
+  @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#may only occur once in chained then-blocks")
+  fun `rejects exception conditions split across chained then blocks`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          throw java.io.IOException()
+
+          io.github.pshevche.spockk.lang.then
+          thrown(java.io.IOException::class.java)
+
+          io.github.pshevche.spockk.lang.then
+          thrown(Exception::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+    result.compilation.messages.contains("Spec.kt:10:1")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/854")
+  @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#must be top-level statements")
+  fun `rejects a nested exception condition`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          val e = Exception()
+
+          io.github.pshevche.spockk.lang.`when`
+          throw e
+
+          io.github.pshevche.spockk.lang.then
+          thrown(Exception::class.java) == e
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Exception conditions are only allowed as top-level statements")
   }
 }
