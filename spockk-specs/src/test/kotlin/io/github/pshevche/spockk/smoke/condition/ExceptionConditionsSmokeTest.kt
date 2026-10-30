@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.smoke.condition
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
@@ -42,12 +43,36 @@ class ExceptionConditionsSmokeTest : Specification() {
 
   private class CustomError : Error()
 
+  private fun foobar(): Pair<String, String> = throw IllegalStateException("foo")
+
   fun `catches the thrown exception`() {
     `when`
     "".substring(5)
 
     then
     thrown(IndexOutOfBoundsException::class.java)
+  }
+
+  @MigratedFrom(
+    "org.spockframework.smoke.ast.condition.ExceptionConditionsAstSpec#thrown rewrite keeps correct method reference"
+  )
+  fun `thrown rewrite keeps correct method reference`() {
+    `when`
+    val foobar = foobar()
+
+    then
+    thrown(IllegalStateException::class.java)
+  }
+
+  @MigratedFrom(
+    "org.spockframework.smoke.ast.condition.ExceptionConditionsAstSpec#thrown rewrite keeps correct method reference for multi-assignments"
+  )
+  fun `thrown rewrite keeps correct method reference for multi-assignments`() {
+    `when`
+    val (foobar, b) = foobar()
+
+    then
+    thrown(IllegalStateException::class.java)
   }
 
   fun `captures the thrown exception into a variable`() {
