@@ -25,9 +25,16 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod
+import org.spockframework.runtime.model.parallel.ExecutionMode
+import spock.lang.Execution
 import spock.lang.Specification
 
+@Execution(ExecutionMode.SAME_THREAD)
 class CleanupBlocks : Specification() {
+
+  fun setup() {
+    CleanupBlocksLog.entries.clear()
+  }
 
   private data class Primitives(
     val b: Byte,
@@ -40,8 +47,10 @@ class CleanupBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#basic usage")
   fun `basic usage`() {
+    var x: Int
+
     setup
-    var x = 1
+    x = 1
 
     expect
     x == 1
@@ -52,8 +61,9 @@ class CleanupBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#may access all previously defined local vars")
   fun `may access all previously defined local vars`() {
-    setup
     var a: Int
+
+    setup
     var b: Int
     `when`
     var c: String
@@ -70,7 +80,6 @@ class CleanupBlocks : Specification() {
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#is executed if exception is thrown")
   fun `is executed if exception is thrown`() {
     `when`
-    CleanupBlocksLog.entries.clear()
     val events = execute(selectMethod(CleanupBlocksLogSpec::class.java, "feature throws"))
 
     then
@@ -84,7 +93,6 @@ class CleanupBlocks : Specification() {
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#feature exception and cleanup exception are both reported")
   fun `feature exception and cleanup exception are both reported`() {
     `when`
-    CleanupBlocksLog.entries.clear()
     val events = execute(selectMethod(CleanupBlocksLogSpec::class.java, "feature and cleanup throw"))
 
     then
@@ -98,7 +106,6 @@ class CleanupBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.CleanupBlocks#variable with primitive type can be declared in presence of cleanup-block")
   fun `variable with primitive type can be declared in presence of cleanup-block`() {
-    setup
     val x: Int = 1
 
     expect
@@ -163,7 +170,7 @@ class CleanupBlocks : Specification() {
   )
   fun `cleanup blocks don't destroy method reference when invocation is assigned to a multi-assignment with the same name`() {
     `when`
-    val (foobar, b) = foobar2()
+    val (foobar, b) = foobar()
 
     then
     consume(foobar)
@@ -175,6 +182,4 @@ class CleanupBlocks : Specification() {
   private fun consume(@Suppress("UNUSED_PARAMETER") value: Any) {}
 
   private fun foobar() = listOf("foo", "bar")
-
-  private fun foobar2() = Pair("foo", "bar")
 }

@@ -23,7 +23,7 @@ class CleanupBlocksLogSpec : Specification() {
   fun `feature throws`() {
     expect
     CleanupBlocksLog.entries += "feature"
-    throw IllegalArgumentException("feature")
+    throw IllegalArgumentException()
 
     cleanup
     CleanupBlocksLog.entries += "cleanup"
