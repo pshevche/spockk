@@ -23,7 +23,6 @@ import java.io.IOException
 object InheritanceTracker {
   val featureOrder = mutableListOf<Int>()
   val overriddenFeature = mutableListOf<Int>()
-  val privateFeature = mutableListOf<Int>()
 }
 
 open class FeatureOrderBase : Specification() {
@@ -149,24 +148,6 @@ class OverriddenFeatureDerived : OverriddenFeatureBase() {
   override fun foo() {
     setup
     InheritanceTracker.overriddenFeature.add(2)
-    expect
-    true
-  }
-}
-
-open class PrivateFeatureBase : Specification() {
-  private fun foo() {
-    setup
-    InheritanceTracker.privateFeature.add(1)
-    expect
-    true
-  }
-}
-
-class PrivateFeatureDerived : PrivateFeatureBase() {
-  private fun foo() {
-    setup
-    InheritanceTracker.privateFeature.add(2)
     expect
     true
   }

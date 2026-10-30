@@ -20,10 +20,13 @@ import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.executeAndC
 import io.github.pshevche.spockk.fixtures.runtime.samples.fixture.FixtureOrderDerived
 import io.github.pshevche.spockk.fixtures.runtime.samples.fixture.FixtureOrderTracker
 import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.CountsDerived
+import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.DerivedCleanupSpecThrows
+import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.DerivedCleanupThrows
+import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.DerivedSetupSpecThrows
+import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.DerivedSetupThrows
 import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.FeatureOrderDerived
 import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.InheritanceTracker
 import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.OverriddenFeatureDerived
-import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.PrivateFeatureDerived
 import io.github.pshevche.spockk.fixtures.runtime.samples.inheritance.SuperHelperDerived
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
@@ -59,15 +62,22 @@ class SpecInheritance : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.SpecInheritance#exception in base class fixture method causes failure")
-  fun `exception in base class fixture method causes failure`(fixtureMethod: String) {
+  fun `exception in base class fixture method causes failure`(fixture: Class<*>) {
     `when`
-    val failures = executeAndCollectFailures(selectClass("$INHERITANCE_SAMPLES.Derived${fixtureMethod.replaceFirstChar { it.uppercase() }}Throws"))
+    val failures = executeAndCollectFailures(selectClass(fixture))
 
     then
+    // failures.any { it is IOException } crashes the compiler, see https://github.com/pshevche/spockk/issues/819
     failures.filterIsInstance<IOException>().isNotEmpty()
 
     where
-    variable(fixtureMethod).from("setup", "cleanup", "setupSpec", "cleanupSpec")
+    variable(fixture)
+      .from(
+        DerivedSetupThrows::class.java,
+        DerivedCleanupThrows::class.java,
+        DerivedSetupSpecThrows::class.java,
+        DerivedCleanupSpecThrows::class.java
+      )
   }
 
   @MigratedFrom("org.spockframework.smoke.SpecInheritance#junit reports correct run/failure/ignore counts")
@@ -91,19 +101,6 @@ class SpecInheritance : Specification() {
     events.assertStatistics { it.succeeded(2) }
   }
 
-  @MigratedFrom(
-    "org.spockframework.smoke.SpecInheritance#private feature methods with same name can coexist peacefully in inheritance chain"
-  )
-  fun `private feature methods with same name can coexist peacefully in inheritance chain`() {
-    `when`
-    InheritanceTracker.privateFeature.clear()
-    val events = execute(selectClass(PrivateFeatureDerived::class.java))
-
-    then
-    InheritanceTracker.privateFeature == listOf(1, 2)
-    events.assertStatistics { it.succeeded(2) }
-  }
-
   @MigratedFrom("org.spockframework.smoke.SpecInheritance#can invoke super.helperMethod()")
   fun `can invoke super helperMethod()`() {
     `when`
@@ -113,5 +110,3 @@ class SpecInheritance : Specification() {
     events.assertStatistics { it.started(1).succeeded(1) }
   }
 }
-
-private const val INHERITANCE_SAMPLES = "io.github.pshevche.spockk.fixtures.runtime.samples.inheritance"

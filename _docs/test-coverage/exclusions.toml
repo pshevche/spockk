@@ -185,3 +185,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.SpecInheritance#private feature methods with same name can coexist peacefully in inheritance chain"]]
+status = "blocked"
+reason = "Upstream's feature consists of a setup block only, and Spockk rejects a feature that ends on setup"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
