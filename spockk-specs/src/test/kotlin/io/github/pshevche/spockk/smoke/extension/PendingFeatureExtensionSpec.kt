@@ -33,6 +33,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.PendingFeatu
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.PendingFeatureUnhandledWithPassingIterations
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.PendingFeatureWithReason
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -67,8 +68,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectClass(PendingFeatureFailing::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf(NOT_YET)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf(NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature includes reason in exception message")
@@ -77,8 +84,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectClass(PendingFeatureWithReason::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf("$NOT_YET Reason: 42")
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf("$NOT_YET Reason: 42")
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks feature that fails with exception as skipped")
@@ -87,8 +100,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectClass(PendingFeatureThrowing::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf(NOT_YET)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf(NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature rethrows non handled exceptions")
@@ -97,8 +116,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectClass(PendingFeatureUnhandledException::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureClasses() == listOf(IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureClasses() == listOf(IllegalArgumentException::class.java)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks passing feature as failed")
@@ -107,8 +132,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectClass(PendingFeaturePassing::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureMessages() == listOf(PASSES)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureMessages() == listOf(PASSES)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature ignores aborted feature")
@@ -117,8 +148,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectClass(PendingFeatureAborted::class.java))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf("ignored because I can")
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf("ignored because I can")
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks uprolled data driven feature where every iteration fails as skipped")
@@ -127,8 +164,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAllIterationsFail::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf(NOT_YET)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf(NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks unrolled data driven feature iterations that fail as skipped")
@@ -137,8 +180,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAllIterationsFail::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(1).failed(0).skipped(0).aborted(3) }
-    events.abortedReasons() == listOf(NOT_YET, NOT_YET, NOT_YET)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 1L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 3L
+      abortedReasons() == listOf(NOT_YET, NOT_YET, NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks uprolled data driven feature where one iteration fails others are successful as skipped")
@@ -147,8 +196,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureOneIterationFails::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf(NOT_YET)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf(NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks unrolled data driven feature where one iteration fails others are successful as skipped")
@@ -157,8 +212,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureOneIterationFails::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(3).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf(NOT_YET)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 3L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf(NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks uprolled data driven feature where all iterations pass as failed")
@@ -167,8 +228,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAllIterationsPass::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureMessages() == listOf(PASSES)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureMessages() == listOf(PASSES)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks unrolled data driven feature where all iterations pass as failed")
@@ -177,8 +244,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAllIterationsPass::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(3).failed(1).skipped(0).aborted(0) }
-    events.failureMessages() == listOf(PASSES)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 3L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureMessages() == listOf(PASSES)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature rethrows non handled exceptions in uprolled data driven feature")
@@ -187,9 +260,15 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledInIterations::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureClasses() == listOf(MultipleFailuresError::class.java)
-    events.multipleFailureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureClasses() == listOf(MultipleFailuresError::class.java)
+      multipleFailureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature does not rethrow non handled exceptions in unrolled data driven feature")
@@ -198,8 +277,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledInIterations::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(1).failed(3).skipped(0).aborted(0) }
-    events.failureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 1L
+      failed().count() == 3L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature rethrows non handled exceptions in uprolled data driven feature even if some iterations are failing")
@@ -208,8 +293,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledInSomeIterations::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureClasses() == listOf(IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureClasses() == listOf(IllegalArgumentException::class.java)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature does not rethrow non handled exceptions in unrolled data driven feature even if some iterations are failing")
@@ -218,8 +309,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledInSomeIterations::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(1).failed(1).skipped(0).aborted(2) }
-    events.abortedReasons() == listOf(NOT_YET, NOT_YET)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 1L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 2L
+      abortedReasons() == listOf(NOT_YET, NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature rethrows non handled exceptions in uprolled data driven feature even if some iterations are passing")
@@ -228,9 +325,15 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledWithPassingIterations::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureClasses() == listOf(MultipleFailuresError::class.java)
-    events.multipleFailureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureClasses() == listOf(MultipleFailuresError::class.java)
+      multipleFailureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature does not rethrow non handled exceptions in unrolled data driven feature even if some iterations are passing")
@@ -239,8 +342,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledWithPassingIterations::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(2).failed(2).skipped(0).aborted(0) }
-    events.failureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 2L
+      failed().count() == 2L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureClasses() == listOf(IllegalArgumentException::class.java, IllegalArgumentException::class.java)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature ignores uprolled data driven feature where all iterations are aborted")
@@ -249,9 +358,15 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAllIterationsAborted::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf("All iterations were aborted")
-    events.abortedCauseMessages() == listOf("ignored because I can", "ignored because I can", "ignored because I can")
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf("All iterations were aborted")
+      abortedCauseMessages() == listOf("ignored because I can", "ignored because I can", "ignored because I can")
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature ignores unrolled data driven feature where all iterations are aborted")
@@ -260,8 +375,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAllIterationsAborted::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(1).failed(0).skipped(0).aborted(3) }
-    events.abortedReasons() == listOf("ignored because I can", "ignored because I can", "ignored because I can")
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 1L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 3L
+      abortedReasons() == listOf("ignored because I can", "ignored because I can", "ignored because I can")
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks uprolled data driven feature where some iterations are aborted and some pass as failed")
@@ -270,8 +391,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAbortedAndPassingIterations::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureMessages() == listOf(PASSES)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureMessages() == listOf(PASSES)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks unrolled data driven feature where some iterations are aborted and some pass as failed")
@@ -280,9 +407,15 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAbortedAndPassingIterations::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(2).failed(1).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf("ignored because I can")
-    events.failureMessages() == listOf(PASSES)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 2L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf("ignored because I can")
+      failureMessages() == listOf(PASSES)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature marks uprolled data driven feature where some iterations are aborted and some fail as skipped")
@@ -291,8 +424,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAbortedAndFailingIterations::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(0).skipped(0).aborted(1) }
-    events.abortedReasons() == listOf(NOT_YET)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 1L
+      abortedReasons() == listOf(NOT_YET)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature does not mark unrolled data driven feature where some iterations are aborted and some fail as skipped")
@@ -301,8 +440,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureAbortedAndFailingIterations::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(1).failed(0).skipped(0).aborted(3) }
-    events.abortedReasons() == listOf("ignored because I can", NOT_YET, "ignored because I can")
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 1L
+      failed().count() == 0L
+      skipped().count() == 0L
+      aborted().count() == 3L
+      abortedReasons() == listOf("ignored because I can", NOT_YET, "ignored because I can")
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature rethrows non handled exceptions in uprolled data driven feature even if some iterations are aborted")
@@ -311,8 +456,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledWithAbortedIterations::class.java, "rolled"))
 
     then
-    events.assertStatistics { it.started(1).succeeded(0).failed(1).skipped(0).aborted(0) }
-    events.failureClasses() == listOf(IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 1L
+      succeeded().count() == 0L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 0L
+      failureClasses() == listOf(IllegalArgumentException::class.java)
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.PendingFeatureExtensionSpec#@PendingFeature does not rethrow non handled exceptions in unrolled data driven feature even if some iterations are aborted")
@@ -321,8 +472,14 @@ class PendingFeatureExtensionSpec : Specification() {
     val events = execute(selectMethod(PendingFeatureUnhandledWithAbortedIterations::class.java, "unrolled"))
 
     then
-    events.assertStatistics { it.started(4).succeeded(1).failed(1).skipped(0).aborted(2) }
-    events.abortedReasons() == listOf("ignored because I can", "ignored because I can")
-    events.failureClasses() == listOf(IllegalArgumentException::class.java)
+    verifyAll(events) {
+      started().count() == 4L
+      succeeded().count() == 1L
+      failed().count() == 1L
+      skipped().count() == 0L
+      aborted().count() == 2L
+      abortedReasons() == listOf("ignored because I can", "ignored because I can")
+      failureClasses() == listOf(IllegalArgumentException::class.java)
+    }
   }
 }

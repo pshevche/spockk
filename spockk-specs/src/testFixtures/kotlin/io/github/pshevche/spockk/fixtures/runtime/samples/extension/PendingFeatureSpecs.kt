@@ -65,8 +65,10 @@ class PendingFeaturePassing : Specification() {
 class PendingFeatureAborted : Specification() {
   @PendingFeature
   fun bar() {
-    expect
     throw TestAbortedException("ignored because I can")
+
+    expect
+    true
   }
 }
 
@@ -138,7 +140,7 @@ class PendingFeatureUnhandledInIterations : Specification() {
   @Rollup
   fun rolled(test: Boolean) {
     expect
-    throw IllegalArgumentException("test=$test")
+    throw IllegalArgumentException()
 
     where
     variable(test).from(false, false, false)
@@ -147,7 +149,7 @@ class PendingFeatureUnhandledInIterations : Specification() {
   @PendingFeature(exceptions = [IndexOutOfBoundsException::class])
   fun unrolled(test: Boolean) {
     expect
-    throw IllegalArgumentException("test=$test")
+    throw IllegalArgumentException()
 
     where
     variable(test).from(false, false, false)
@@ -159,7 +161,7 @@ class PendingFeatureUnhandledInSomeIterations : Specification() {
   @Rollup
   fun rolled(test: Boolean) {
     expect
-    throwIf(test, IllegalArgumentException())
+    if (test) throw IllegalArgumentException()
     throw IndexOutOfBoundsException()
 
     where
@@ -169,7 +171,7 @@ class PendingFeatureUnhandledInSomeIterations : Specification() {
   @PendingFeature(exceptions = [IndexOutOfBoundsException::class])
   fun unrolled(test: Boolean) {
     expect
-    throwIf(test, IllegalArgumentException())
+    if (test) throw IllegalArgumentException()
     throw IndexOutOfBoundsException()
 
     where
@@ -182,7 +184,7 @@ class PendingFeatureUnhandledWithPassingIterations : Specification() {
   @Rollup
   fun rolled(test: Boolean) {
     expect
-    throwIf(!test, IllegalArgumentException())
+    if (!test) throw IllegalArgumentException()
     test
 
     where
@@ -192,7 +194,7 @@ class PendingFeatureUnhandledWithPassingIterations : Specification() {
   @PendingFeature(exceptions = [IndexOutOfBoundsException::class])
   fun unrolled(test: Boolean) {
     expect
-    throwIf(!test, IllegalArgumentException())
+    if (!test) throw IllegalArgumentException()
     test
 
     where
@@ -204,8 +206,10 @@ class PendingFeatureAllIterationsAborted : Specification() {
   @PendingFeature
   @Rollup
   fun rolled(test: Boolean) {
-    expect
     throw TestAbortedException("ignored because I can")
+
+    expect
+    test
 
     where
     variable(test).from(true, true, true)
@@ -213,8 +217,10 @@ class PendingFeatureAllIterationsAborted : Specification() {
 
   @PendingFeature
   fun unrolled(test: Boolean) {
-    expect
     throw TestAbortedException("ignored because I can")
+
+    expect
+    test
 
     where
     variable(test).from(true, true, true)
@@ -225,8 +231,9 @@ class PendingFeatureAbortedAndPassingIterations : Specification() {
   @PendingFeature
   @Rollup
   fun rolled(test: Boolean) {
+    if (!test) throw TestAbortedException("ignored because I can")
+
     expect
-    abortIf(!test)
     test
 
     where
@@ -235,8 +242,9 @@ class PendingFeatureAbortedAndPassingIterations : Specification() {
 
   @PendingFeature
   fun unrolled(test: Boolean) {
+    if (!test) throw TestAbortedException("ignored because I can")
+
     expect
-    abortIf(!test)
     test
 
     where
@@ -248,8 +256,9 @@ class PendingFeatureAbortedAndFailingIterations : Specification() {
   @PendingFeature
   @Rollup
   fun rolled(test: Boolean) {
+    if (test) throw TestAbortedException("ignored because I can")
+
     expect
-    abortIf(test)
     test
 
     where
@@ -258,8 +267,9 @@ class PendingFeatureAbortedAndFailingIterations : Specification() {
 
   @PendingFeature
   fun unrolled(test: Boolean) {
+    if (test) throw TestAbortedException("ignored because I can")
+
     expect
-    abortIf(test)
     test
 
     where
@@ -272,7 +282,7 @@ class PendingFeatureUnhandledWithAbortedIterations : Specification() {
   @Rollup
   fun rolled(test: Boolean) {
     expect
-    throwIf(test, IllegalArgumentException())
+    if (test) throw IllegalArgumentException()
     throw TestAbortedException("ignored because I can")
 
     where
@@ -282,18 +292,10 @@ class PendingFeatureUnhandledWithAbortedIterations : Specification() {
   @PendingFeature(exceptions = [IndexOutOfBoundsException::class])
   fun unrolled(test: Boolean) {
     expect
-    throwIf(test, IllegalArgumentException())
+    if (test) throw IllegalArgumentException()
     throw TestAbortedException("ignored because I can")
 
     where
     variable(test).from(false, true, false)
   }
-}
-
-private fun abortIf(condition: Boolean) {
-  if (condition) throw TestAbortedException("ignored because I can")
-}
-
-private fun throwIf(condition: Boolean, exception: Exception) {
-  if (condition) throw exception
 }
