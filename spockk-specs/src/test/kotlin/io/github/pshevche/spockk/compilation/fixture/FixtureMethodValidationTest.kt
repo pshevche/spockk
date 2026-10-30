@@ -175,7 +175,7 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
                 var x = 42
 
                 fun cleanupSpec() {
-                    3.let { x = 0 }
+                    repeat(3) { x = 0 }
                 }
 
                 fun `some feature`() {
