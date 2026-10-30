@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.recognition.AbstractIntermediarySpecRecognitionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.recognition.DirectSpecRecognitionSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.recognition.FullyQualifiedIntermediarySpecRecognitionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.recognition.FullyQualifiedSpecRecognitionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.recognition.IntermediarySpecRecognitionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.recognition.SameUnitSpecRecognitionSpec
@@ -48,6 +49,7 @@ class SpecRecognition : Specification() {
       DirectSpecRecognitionSpec::class.java,
       FullyQualifiedSpecRecognitionSpec::class.java,
       IntermediarySpecRecognitionSpec::class.java,
+      FullyQualifiedIntermediarySpecRecognitionSpec::class.java,
       AbstractIntermediarySpecRecognitionSpec::class.java
     )
   }
@@ -58,11 +60,14 @@ class SpecRecognition : Specification() {
   fun `is properly recognized when inheriting from Specification base class through intermediary in same compilation unit`() {
     `when`
     val events = execute(selectClass(SameUnitSpecRecognitionSpec::class.java))
+    val failure = failureOf(events)
 
     then
     events.assertStatistics { it.started(1).failed(1) }
+    failure is SpockAssertionError
   }
 
+  // Lambdas inside a condition crash the compiler: https://github.com/pshevche/spockk/issues/819
   private fun failureOf(events: Events): Throwable? =
     events.failed().list().singleOrNull()
       ?.getRequiredPayload(TestExecutionResult::class.java)?.throwable?.orElse(null)

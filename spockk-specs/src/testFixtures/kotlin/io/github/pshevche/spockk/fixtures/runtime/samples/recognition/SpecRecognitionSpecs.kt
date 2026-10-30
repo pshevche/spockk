@@ -53,3 +53,10 @@ class SameUnitSpecRecognitionSpec : SameUnitIntermediarySpec() {
     assert(false)
   }
 }
+
+class FullyQualifiedIntermediarySpecRecognitionSpec : FullyQualifiedSpecRecognitionIntermediary() {
+  fun foo() {
+    expect
+    assert(false)
+  }
+}

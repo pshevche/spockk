@@ -19,3 +19,5 @@ import spock.lang.Specification
 open class SpecRecognitionIntermediary : Specification()
 
 abstract class AbstractSpecRecognitionIntermediary : Specification()
+
+open class FullyQualifiedSpecRecognitionIntermediary : spock.lang.Specification()
