@@ -21,53 +21,15 @@ import org.spockframework.runtime.extension.builtin.PreconditionContext
 import org.spockframework.runtime.model.parallel.ExecutionMode
 import spock.lang.Execution
 import spock.lang.IgnoreIf
+import spock.lang.Shared
 import spock.lang.Specification
-
-// Spock instantiates the @IgnoreIf closure class reflectively with (owner, thisObject).
-abstract class PreconditionClosure(owner: Any?, thisObject: Any?) : Closure<Any?>(owner, thisObject)
-
-class AlwaysTrue(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = 1 < 2
-}
-
-class AlwaysFalse(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = 1 > 2
-}
-
-class NonEmptyList(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = listOf(1, 2, 3)
-}
-
-class EmptyList(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = emptyList<Int>()
-}
-
-class OldJavaVersion(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = context.javaVersion < java.math.BigDecimal("1.5")
-}
-
-class EnvMismatch(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = context.let { it.env["PATH"] != System.getenv("PATH") }
-}
-
-class SysMismatch(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = context.let { it.sys["os.name"] != System.getProperty("os.name") }
-}
+import java.math.BigDecimal
 
 @Execution(ExecutionMode.SAME_THREAD)
 class ConditionallyIgnoreFeature : Specification() {
 
-  companion object {
-    @JvmStatic
-    val log = mutableListOf<Int>()
-  }
+  @Shared
+  val log = mutableListOf<Int>()
 
   @MigratedFrom("org.spockframework.smoke.extension.ConditionallyIgnoreFeature#should be ignored")
   @IgnoreIf(AlwaysTrue::class)
@@ -126,6 +88,44 @@ class ConditionallyIgnoreFeature : Specification() {
   }
 
   fun cleanupSpec() {
-    check(log.toSet() == setOf(2, 4, 5, 6, 7)) { "unexpected features ran: $log" }
+    assert(log.toSet() == setOf(2, 4, 5, 6, 7))
+  }
+
+  // Spock instantiates the @IgnoreIf closure class reflectively with (owner, thisObject).
+  abstract class PreconditionClosure(owner: Any?, thisObject: Any?) : Closure<Any?>(owner, thisObject)
+
+  class AlwaysTrue(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Any? = 1 < 2
+  }
+
+  class AlwaysFalse(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Any? = 1 > 2
+  }
+
+  class NonEmptyList(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Any? = listOf(1, 2, 3)
+  }
+
+  class EmptyList(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Any? = emptyList<Int>()
+  }
+
+  class OldJavaVersion(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Any? = context.javaVersion < BigDecimal("1.5")
+  }
+
+  class EnvMismatch(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Any? = context.env["PATH"] != context.env["PATH"]
+  }
+
+  class SysMismatch(owner: Any?, thisObject: Any?) : PreconditionClosure(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Any? = context.sys["os.name"] != context.sys["os.name"]
   }
 }
