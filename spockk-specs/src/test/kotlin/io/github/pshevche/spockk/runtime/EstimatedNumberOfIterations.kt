@@ -40,7 +40,7 @@ class EstimatedNumberOfIterations : Specification() {
   private val factory = DataIteratorFactory(Stub(IRunSupervisor::class.java))
 
   @MigratedFrom("org.spockframework.runtime.EstimatedNumberOfIterations#w/o data provider")
-  fun `w∕o data provider`() {
+  fun `without data provider`() {
     given
     val runContext = Stub(RunContext::class.java) {
       getConfiguration(RunnerConfiguration::class.java) returns RunnerConfiguration()
@@ -51,7 +51,7 @@ class EstimatedNumberOfIterations : Specification() {
       getDataVariableMultiplicationsMethod() returns null
     }
 
-    expect
+    expect("estimation is 1")
     factory.createFeatureDataIterator(contextFor(runContext).withCurrentFeature(featureInfo)).estimatedNumIterations == 1
   }
 
@@ -59,7 +59,7 @@ class EstimatedNumberOfIterations : Specification() {
   fun dataProcessor1(args: Array<Any?>): Array<Any?> = arrayOfNulls(0)
 
   @MigratedFrom("org.spockframework.runtime.EstimatedNumberOfIterations#w/ data provider that doesn't respond to size")
-  fun `w∕ data provider that doesn't respond to size`() {
+  fun `with data provider that doesn't respond to size`() {
     given
     val runContext = Stub(RunContext::class.java) {
       getConfiguration(RunnerConfiguration::class.java) returns RunnerConfiguration()
@@ -70,7 +70,7 @@ class EstimatedNumberOfIterations : Specification() {
       getDataVariableMultiplicationsMethod() returns null
     }
 
-    expect
+    expect("estimation is 'unknown', represented as -1")
     factory.createFeatureDataIterator(contextFor(runContext).withCurrentFeature(featureInfo)).estimatedNumIterations == -1
   }
 
@@ -81,7 +81,7 @@ class EstimatedNumberOfIterations : Specification() {
   fun dataProcessor2(args: Array<Any?>): Array<Any?> = args
 
   @MigratedFrom("org.spockframework.runtime.EstimatedNumberOfIterations#w/ data provider that responds to size")
-  fun `w∕ data provider that responds to size`() {
+  fun `with data provider that responds to size`() {
     given
     val runContext = Stub(RunContext::class.java) {
       getConfiguration(RunnerConfiguration::class.java) returns RunnerConfiguration()
@@ -92,7 +92,7 @@ class EstimatedNumberOfIterations : Specification() {
       getDataVariableMultiplicationsMethod() returns null
     }
 
-    expect
+    expect("estimation is size")
     factory.createFeatureDataIterator(contextFor(runContext).withCurrentFeature(featureInfo)).estimatedNumIterations == 3
   }
 
@@ -103,7 +103,7 @@ class EstimatedNumberOfIterations : Specification() {
   fun dataProcessor3(args: Array<Any?>): Array<Any?> = args
 
   @MigratedFrom("org.spockframework.runtime.EstimatedNumberOfIterations#w/ multiple data providers, all of which respond to size")
-  fun `w∕ multiple data providers, all of which respond to size`() {
+  fun `with multiple data providers, all of which respond to size`() {
     given
     val runContext = Stub(RunContext::class.java) {
       getConfiguration(RunnerConfiguration::class.java) returns RunnerConfiguration()
@@ -118,7 +118,7 @@ class EstimatedNumberOfIterations : Specification() {
       getDataVariableMultiplicationsMethod() returns null
     }
 
-    expect
+    expect("estimation is minimum")
     factory.createFeatureDataIterator(contextFor(runContext).withCurrentFeature(featureInfo)).estimatedNumIterations == 1
   }
 
@@ -135,7 +135,7 @@ class EstimatedNumberOfIterations : Specification() {
   fun dataProcessor4(args: Array<Any?>): Array<Any?> = args
 
   @MigratedFrom("org.spockframework.runtime.EstimatedNumberOfIterations#w/ multiple data providers, one of which doesn't respond to size")
-  fun `w∕ multiple data providers, one of which doesn't respond to size`() {
+  fun `with multiple data providers, one of which doesn't respond to size`() {
     given
     val runContext = Stub(RunContext::class.java) {
       getConfiguration(RunnerConfiguration::class.java) returns RunnerConfiguration()
@@ -150,7 +150,7 @@ class EstimatedNumberOfIterations : Specification() {
       getDataVariableMultiplicationsMethod() returns null
     }
 
-    expect
+    expect("estimation is minimum of others")
     factory.createFeatureDataIterator(contextFor(runContext).withCurrentFeature(featureInfo)).estimatedNumIterations == 2
   }
 
