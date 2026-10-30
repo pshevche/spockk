@@ -25,6 +25,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfCond
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfDataAIsNotOne
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfDataAIsOne
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfEnvVarMissing
+import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfFalse
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfFeatureInstanceFieldSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfFeatureInstanceSharedFieldSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfFeatureSharedFieldSpec
@@ -50,6 +51,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfStat
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfStaticMethodSkippedSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfSysPropPresent
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfThrowingConditionSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfTrue
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfUninstantiableConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfUnknownDataVariableSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IgnoreIfUnknownPropertySpec
@@ -79,7 +81,7 @@ class IgnoreIfShouldIgnoreShared(owner: Any?, thisObject: Any?) : IgnoreIfCondit
 class IgnoreIfTypedContext(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
   @Suppress("unused")
   fun doCall(context: PreconditionContext<IgnoreIfExtension>): Any? =
-    context.sys.containsKey("java.version")
+    !context.sys.contains("java.version")
 }
 
 private fun failingDataProvider(): Int = throw RuntimeException()
@@ -145,7 +147,7 @@ class IgnoreIfExtension : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreIfExtension#can skip data providers completely if no data variables are accessed")
-  @IgnoreIf(IgnoreIfAlways::class)
+  @IgnoreIf(IgnoreIfTrue::class)
   fun `can skip data providers completely if no data variables are accessed`(a: Int) {
     expect
     false
@@ -192,8 +194,8 @@ class IgnoreIfExtension : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreIfExtension#allows determinate use of multiple filters")
-  @Requires(IgnoreIfNever::class)
-  @IgnoreIf(IgnoreIfNever::class)
+  @Requires(IgnoreIfFalse::class)
+  @IgnoreIf(IgnoreIfFalse::class)
   fun `allows determinate use of multiple filters`() {
     expect
     false
@@ -205,8 +207,11 @@ class IgnoreIfExtension : Specification() {
     val events = executeAll(selectClass(IgnoreIfSpecTrueSpec::class.java))
 
     then
-    events.testEvents().count() == 0L
-    events.containerEvents().skipped().count() == 1L
+    events.testEvents().started().count() == 0L
+    events.testEvents().failed().count() == 0L
+    events.testEvents().skipped().count() == 0L
+    events.testEvents().aborted().count() == 0L
+    events.testEvents().succeeded().count() == 0L
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreIfExtension#spec usage with false")
@@ -216,10 +221,10 @@ class IgnoreIfExtension : Specification() {
 
     then
     events.testEvents().started().count() == 1L
-    events.testEvents().succeeded().count() == 1L
     events.testEvents().failed().count() == 0L
     events.testEvents().skipped().count() == 0L
     events.testEvents().aborted().count() == 0L
+    events.testEvents().succeeded().count() == 1L
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreIfExtension#ignored spec contains custom message")
@@ -243,10 +248,10 @@ class IgnoreIfExtension : Specification() {
 
     then
     events.testEvents().started().count() == testStartAndSucceededCount
-    events.testEvents().succeeded().count() == testStartAndSucceededCount
     events.testEvents().failed().count() == 0L
     events.testEvents().skipped().count() == 0L
     events.testEvents().aborted().count() == 0L
+    events.testEvents().succeeded().count() == testStartAndSucceededCount
     events.containerEvents().skipped().count() == specSkippedCount
 
     where
@@ -268,10 +273,10 @@ class IgnoreIfExtension : Specification() {
 
     then
     events.testEvents().started().count() == testStartAndSucceededCount
-    events.testEvents().succeeded().count() == testStartAndSucceededCount
     events.testEvents().failed().count() == 0L
     events.testEvents().skipped().count() == 0L
     events.testEvents().aborted().count() == 0L
+    events.testEvents().succeeded().count() == testStartAndSucceededCount
     events.containerEvents().skipped().count() == specSkippedCount
 
     where
@@ -293,10 +298,10 @@ class IgnoreIfExtension : Specification() {
 
     then
     events.testEvents().started().count() == testStartAndSucceededCount
-    events.testEvents().succeeded().count() == testStartAndSucceededCount
     events.testEvents().failed().count() == 0L
     events.testEvents().skipped().count() == 0L
     events.testEvents().aborted().count() == 0L
+    events.testEvents().succeeded().count() == testStartAndSucceededCount
     events.containerEvents().started().count() == 2L
     events.containerEvents().aborted().count() == specAbortedCount
 
@@ -383,8 +388,8 @@ class IgnoreIfExtension : Specification() {
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/894")
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreIfExtension#feature is ignored if at least one IgnoreIf annotation is true")
-  @IgnoreIf(IgnoreIfAlways::class)
-  @IgnoreIf(IgnoreIfNever::class)
+  @IgnoreIf(IgnoreIfTrue::class)
+  @IgnoreIf(IgnoreIfFalse::class)
   fun `feature is ignored if at least one IgnoreIf annotation is true`() {
     expect
     false
@@ -402,7 +407,7 @@ class IgnoreIfExtension : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/894")
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreIfExtension#feature is ignored if data variable accessing IgnoreIf annotation is true")
   @IgnoreIf(IgnoreIfDataAIsOne::class)
-  @IgnoreIf(IgnoreIfNever::class)
+  @IgnoreIf(IgnoreIfFalse::class)
   fun `feature is ignored if data variable accessing IgnoreIf annotation is true`(a: Int) {
     expect
     false
@@ -425,7 +430,7 @@ class IgnoreIfExtension : Specification() {
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/894")
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreIfExtension#feature is ignored if non data variable accessing IgnoreIf annotation is true")
-  @IgnoreIf(IgnoreIfAlways::class)
+  @IgnoreIf(IgnoreIfTrue::class)
   @IgnoreIf(IgnoreIfDataAIsNotOne::class)
   fun `feature is ignored if non data variable accessing IgnoreIf annotation is true`(a: Int) {
     expect

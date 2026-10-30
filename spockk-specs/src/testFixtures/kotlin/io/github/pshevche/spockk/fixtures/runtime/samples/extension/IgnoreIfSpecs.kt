@@ -37,6 +37,16 @@ class IgnoreIfNever(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, th
   fun doCall(context: PreconditionContext<*>): Any? = 1 > 2
 }
 
+class IgnoreIfTrue(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
+  @Suppress("unused")
+  fun doCall(context: PreconditionContext<*>): Any? = true
+}
+
+class IgnoreIfFalse(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
+  @Suppress("unused")
+  fun doCall(context: PreconditionContext<*>): Any? = false
+}
+
 class IgnoreIfAnyOs(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
   @Suppress("unused")
   fun doCall(context: PreconditionContext<*>): Any? = context.os.let {
@@ -46,7 +56,9 @@ class IgnoreIfAnyOs(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, th
 
 class IgnoreIfAnyJvm(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
   @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = (8..29).any { context.jvm.isJavaVersion(it) }
+  fun doCall(context: PreconditionContext<*>): Any? = context.jvm.let {
+    it.isJava8 || it.isJava9 || it.isJava10 || it.isJava11 || it.isJava12 || it.isJava13 || it.isJava14 || it.isJava15 || it.isJava16 || it.isJava17 || it.isJava18 || it.isJava19 || it.isJava20 || it.isJava21 || it.isJava22 || it.isJava23 || it.isJava24 || it.isJava25
+  }
 }
 
 class IgnoreIfEnvVarMissing(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
@@ -56,7 +68,7 @@ class IgnoreIfEnvVarMissing(owner: Any?, thisObject: Any?) : IgnoreIfCondition(o
 
 class IgnoreIfSysPropPresent(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
   @Suppress("unused")
-  fun doCall(context: PreconditionContext<*>): Any? = context.sys.containsKey("java.version")
+  fun doCall(context: PreconditionContext<*>): Any? = !context.sys.contains("java.version")
 }
 
 class IgnoreIfDataAIsOne(owner: Any?, thisObject: Any?) : IgnoreIfCondition(owner, thisObject) {
@@ -131,8 +143,8 @@ class IgnoreIfUninstantiableConditionSpec : Specification() {
 }
 
 class IgnoreIfAllFalseSpec : Specification() {
-  @IgnoreIf(IgnoreIfNever::class)
-  @IgnoreIf(IgnoreIfNever::class)
+  @IgnoreIf(IgnoreIfFalse::class)
+  @IgnoreIf(IgnoreIfFalse::class)
   fun foo() {
     expect
     false
@@ -155,7 +167,7 @@ class IgnoreIfSpecFalseSpec : Specification() {
   }
 }
 
-@IgnoreIf(reason = "dummy message", value = IgnoreIfAlways::class)
+@IgnoreIf(reason = "dummy message", value = IgnoreIfTrue::class)
 class IgnoreIfSpecWithReasonSpec : Specification() {
   fun `basic usage`() {
     expect
@@ -170,7 +182,7 @@ open class IgnoreIfInheritanceBaseSpec : Specification() {
   }
 }
 
-@IgnoreIf(value = IgnoreIfAlways::class, inherited = false)
+@IgnoreIf(value = IgnoreIfTrue::class, inherited = false)
 open class IgnoreIfNotInheritedFooSpec : IgnoreIfInheritanceBaseSpec() {
   fun `foo feature`() {
     expect
@@ -192,7 +204,7 @@ class IgnoreIfNotInheritedTestSpec : IgnoreIfNotInheritedBarSpec() {
   }
 }
 
-@IgnoreIf(value = IgnoreIfAlways::class, inherited = true)
+@IgnoreIf(value = IgnoreIfTrue::class, inherited = true)
 open class IgnoreIfInheritedFooSpec : IgnoreIfInheritanceBaseSpec() {
   fun `foo feature`() {
     expect
