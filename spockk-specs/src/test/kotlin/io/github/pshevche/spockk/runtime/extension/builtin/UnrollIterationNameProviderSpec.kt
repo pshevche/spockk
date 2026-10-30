@@ -32,7 +32,7 @@ class UnrollIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.extension.builtin.UnrollIterationNameProviderSpec#regex-like data values are substituted correctly (i.e. literally)"
   )
-  fun `regex-like data values are substituted correctly (i_e_ literally)`(value: Any?, name: String) {
+  fun `regex-like data values are substituted literally`(value: Any?, name: String) {
     given
     val nameGenerator = UnrollIterationNameProvider(null, "foo #dataVar bar", false)
     val iterationInfo = Stub(IterationInfo::class.java) {
@@ -44,9 +44,9 @@ class UnrollIterationNameProviderSpec : Specification() {
     nameGenerator.getName(iterationInfo) == name
 
     where
-    value                                ; name
-    "$"                                  ; "foo $ bar"
-    "#([a-zA-Z_\\$][\\w\\$]*)"            ; "foo #([a-zA-Z_\\$][\\w\\$]*) bar"
+    value                      ; name
+    "$"                        ; "foo $ bar"
+    "#([a-zA-Z_\\$][\\w\\$]*)" ; "foo #([a-zA-Z_\\$][\\w\\$]*) bar"
   }
 
   @MigratedFrom(
@@ -64,15 +64,15 @@ class UnrollIterationNameProviderSpec : Specification() {
     nameGenerator.getName(iterationInfo) == name
 
     where
-    value                      ; name
-    listOf(1, 2, 3)            ; "foo [1, 2, 3] bar"
+    value                           ; name
+    listOf(1, 2, 3)                 ; "foo [1, 2, 3] bar"
     linkedMapOf("a" to 1, "b" to 2) ; "foo [a:1, b:2] bar"
   }
 
   @MigratedFrom(
     "org.spockframework.runtime.extension.builtin.UnrollIterationNameProviderSpec#missing variables are rendered as #Error:dataVars"
   )
-  fun `missing variables are rendered as #Error_dataVars`() {
+  fun `missing variables are rendered as special placeholder values`() {
     given
     val nameGenerator = UnrollIterationNameProvider(null, "foo #dataVars bar", false)
     val iterationInfo = Stub(IterationInfo::class.java) {
@@ -87,7 +87,7 @@ class UnrollIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.extension.builtin.UnrollIterationNameProviderSpec#exceptions during variable eval are rendered as #Error:dataVars"
   )
-  fun `exceptions during variable eval are rendered as #Error_dataVars`() {
+  fun `exceptions during variable eval are rendered as special placeholder values`() {
     given
     val nameGenerator = UnrollIterationNameProvider(null, "foo #dataVar.foo bar", false)
     val iterationInfo = Stub(IterationInfo::class.java) {
