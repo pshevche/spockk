@@ -185,3 +185,15 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.extension.UseRestoreSystemPropertiesOnSpecClass#restores system properties for all methods (1)"]]
+status = "blocked"
+reason = "The feature body is only a setup: block. Spockk's block-order validator rejects a feature that ends with setup:, and a method with no block label is not discovered as a feature, so no faithful port compiles"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.UseRestoreSystemPropertiesOnSpecClass#restores system properties for all methods (2)"]]
+status = "blocked"
+reason = "Same as feature (1): the body is only a setup: block, which Spockk's block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-10-30"
