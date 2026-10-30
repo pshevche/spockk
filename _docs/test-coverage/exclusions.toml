@@ -435,3 +435,27 @@ status = "blocked"
 reason = "The feature has only a setup: block. Spockk rejects a feature that ends after setup/given, and adding an expect block would reshape the test"
 gap = "https://github.com/pshevche/spockk/issues/795"
 decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.InheritedTagExtension#class level tags"]]
+status = "blocked"
+reason = "Reading the tag values needs a lambda inside the condition, which crashes the Kotlin compiler with a StackOverflowError once the plugin rewrites it"
+gap = "https://github.com/pshevche/spockk/issues/938"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.InheritedTagExtension#method level tags"]]
+status = "blocked"
+reason = "Reading the tag values needs a lambda inside the condition, which crashes the Kotlin compiler with a StackOverflowError once the plugin rewrites it"
+gap = "https://github.com/pshevche/spockk/issues/938"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.InheritedTagExtension#multi tags"]]
+status = "blocked"
+reason = "Reading the tag values needs a lambda inside the condition, which crashes the Kotlin compiler with a StackOverflowError once the plugin rewrites it"
+gap = "https://github.com/pshevche/spockk/issues/938"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.InheritedTagExtension#inherited tags"]]
+status = "blocked"
+reason = "Reading the tag values needs a lambda inside the condition, which crashes the Kotlin compiler with a StackOverflowError once the plugin rewrites it"
+gap = "https://github.com/pshevche/spockk/issues/938"
+decided = "2026-10-30"
