@@ -25,39 +25,46 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MyBeanDiffSp
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MySubBean2DiffSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MySubBeanDiffSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameNamedClassesDiffSpec
-import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.junit.platform.testkit.engine.Events
 import org.spockframework.runtime.SpockComparisonFailure
 import spock.lang.PendingFeature
 import spock.lang.Specification
-import kotlin.reflect.KClass
 
 class DiffedObjectRendering : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.condition.DiffedObjectRendering#can handle null values")
   fun `can handle null values`() {
-    val failure = comparisonFailure(IntegerEqualsNullSpec::class)
+    `when`
+    val events = execute(selectClass(IntegerEqualsNullSpec::class.java))
 
-    expect
+    then
+    val failure = comparisonFailure(events)
     failure.actual.stringRepresentation == "1\n"
     failure.expected.stringRepresentation == "null"
   }
 
   @MigratedFrom("org.spockframework.smoke.condition.DiffedObjectRendering#it should render a bean properly")
   fun `it should render a bean properly`() {
-    val failure = comparisonFailure(MyBeanDiffSpec::class)
+    `when`
+    val events = execute(selectClass(MyBeanDiffSpec::class.java))
 
-    expect
+    then
+    val failure = comparisonFailure(events)
     failure.actual.stringRepresentation == "integer: 1\nstring: fun\n"
     failure.expected.stringRepresentation == "integer: 2\nstring: fun2\n"
   }
 
   @MigratedFrom("org.spockframework.smoke.condition.DiffedObjectRendering#it should render a bean sub-class properly")
   fun `it should render a bean sub-class properly`() {
-    val failure = comparisonFailure(MySubBeanDiffSpec::class)
+    `when`
+    val events = execute(selectClass(MySubBeanDiffSpec::class.java))
 
-    expect
+    then
+    val failure = comparisonFailure(events)
     failure.actual.stringRepresentation == "integer: 1\nstring: fun\n"
     failure.expected.stringRepresentation == "integer: 2\nstring: fun2\n"
   }
@@ -66,9 +73,11 @@ class DiffedObjectRendering : Specification() {
     "org.spockframework.smoke.condition.DiffedObjectRendering#it should render a bean with an interface properly"
   )
   fun `it should render a bean with an interface properly`() {
-    val failure = comparisonFailure(MyBean2DiffSpec::class)
+    `when`
+    val events = execute(selectClass(MyBean2DiffSpec::class.java))
 
-    expect
+    then
+    val failure = comparisonFailure(events)
     failure.actual.stringRepresentation == "long1: 1\nstring: fun\n"
     failure.expected.stringRepresentation == "long1: 2\nstring: fun2\n"
   }
@@ -77,9 +86,11 @@ class DiffedObjectRendering : Specification() {
     "org.spockframework.smoke.condition.DiffedObjectRendering#it should render a bean sub-class with an interface properly"
   )
   fun `it should render a bean sub-class with an interface properly`() {
-    val failure = comparisonFailure(MySubBean2DiffSpec::class)
+    `when`
+    val events = execute(selectClass(MySubBean2DiffSpec::class.java))
 
-    expect
+    then
+    val failure = comparisonFailure(events)
     failure.actual.stringRepresentation == "long1: 1\nstring: fun\n"
     failure.expected.stringRepresentation == "long1: 2\nstring: fun2\n"
   }
@@ -87,31 +98,33 @@ class DiffedObjectRendering : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/843")
   @MigratedFrom("org.spockframework.smoke.condition.DiffedObjectRendering#render class properly")
   fun `render class properly`() {
-    val failure = comparisonFailure(DifferentClassesDiffSpec::class)
+    `when`
+    val events = execute(selectClass(DifferentClassesDiffSpec::class.java))
 
-    expect
+    then
+    val failure = comparisonFailure(events)
     failure.actual.stringRepresentation == "class java.net.SocketTimeoutException [Bootstrap Class Loader]\n"
     failure.expected.stringRepresentation == "class java.lang.ClassNotFoundException [Bootstrap Class Loader]\n"
   }
 
   @MigratedFrom("org.spockframework.smoke.condition.DiffedObjectRendering#render class with class loader")
   fun `render class with class loader`() {
-    val failure = comparisonFailure(SameNamedClassesDiffSpec::class)
+    `when`
+    val events = execute(selectClass(SameNamedClassesDiffSpec::class.java))
+
+    then
+    val failure = comparisonFailure(events)
     val actual = failure.actual.stringRepresentation
     val expected = failure.expected.stringRepresentation
     val loaderAddress = Regex("(?<=@)[0-9a-fA-F]+")
     val rendering = "class ${IsolatedClazz::class.java.name} [${IsolatingClassLoader::class.java.name}@X]\n"
-
-    expect
     actual != expected
     actual.replaceFirst(loaderAddress, "X") == rendering
     expected.replaceFirst(loaderAddress, "X") == rendering
   }
 
-  private fun comparisonFailure(clazz: KClass<*>): SpockComparisonFailure {
-    val events = execute(selectClass(clazz.java))
-    return events.failed().list().single()
+  private fun comparisonFailure(events: Events): SpockComparisonFailure =
+    events.failed().list().single()
       .getRequiredPayload(TestExecutionResult::class.java)
       .throwable.orElseThrow() as SpockComparisonFailure
-  }
 }

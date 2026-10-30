@@ -15,19 +15,22 @@
 package io.github.pshevche.spockk.fixtures.runtime.samples.condition
 
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.setup
+import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.`when`
 import spock.lang.Specification
 import java.net.SocketTimeoutException
 
 class IntegerEqualsNullSpec : Specification() {
   fun `test`() {
-    val one: Any = 1
     expect
-    one == null
+    1 == null
   }
 }
 
 class MyBeanDiffSpec : Specification() {
   fun `test`() {
+    setup
     val b1 = MyBean().apply {
       integer = 1
       string = "fun"
@@ -43,6 +46,7 @@ class MyBeanDiffSpec : Specification() {
 
 class MySubBeanDiffSpec : Specification() {
   fun `test`() {
+    setup
     val b1 = MySubBean().apply {
       integer = 1
       string = "fun"
@@ -58,6 +62,7 @@ class MySubBeanDiffSpec : Specification() {
 
 class MyBean2DiffSpec : Specification() {
   fun `test`() {
+    setup
     val b1 = MyBean2().apply {
       setLong(1)
       string = "fun"
@@ -73,6 +78,7 @@ class MyBean2DiffSpec : Specification() {
 
 class MySubBean2DiffSpec : Specification() {
   fun `test`() {
+    setup
     val b1 = MySubBean2().apply {
       setLong(1)
       string = "fun"
@@ -95,9 +101,11 @@ class DifferentClassesDiffSpec : Specification() {
 
 class SameNamedClassesDiffSpec : Specification() {
   fun `test`() {
+    `when`
     val clazz1 = IsolatingClassLoader().loadClass(IsolatedClazz::class.java.name)
     val clazz2 = IsolatingClassLoader().loadClass(IsolatedClazz::class.java.name)
-    expect
+
+    then
     clazz1 == clazz2
   }
 }
