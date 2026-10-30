@@ -70,3 +70,36 @@ class StepwiseExecutionModeFixture : Specification() {
     variable(count).from((1..2).toList())
   }
 }
+
+@Stepwise
+class StepwiseSpecWithPlainDataDrivenFeature : Specification() {
+  fun step1(count: Int) {
+    expect
+    count != 3
+
+    where
+    variable(count).from((1..5).toList())
+  }
+}
+
+@Stepwise
+class StepwiseSpecWithStepwiseFeature : Specification() {
+  fun step1() {
+    expect
+    true
+  }
+
+  @Stepwise
+  fun step2(count: Int) {
+    expect
+    count != 3
+
+    where
+    variable(count).from((1..5).toList())
+  }
+
+  fun step3() {
+    expect
+    true
+  }
+}
