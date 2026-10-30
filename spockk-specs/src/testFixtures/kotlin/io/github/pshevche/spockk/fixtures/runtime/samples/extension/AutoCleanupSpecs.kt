@@ -25,7 +25,7 @@ class AutoCleanupAfterCleanupSpec : Specification() {
 
   fun feature() {
     expect
-    assert(!closable.called)
+    !closable.called
 
     cleanup
     assert(!closable.called)
@@ -42,7 +42,7 @@ class AutoCleanupAfterCleanupSpecSpec : Specification() {
 
   fun feature() {
     expect
-    assert(!closable.called)
+    !closable.called
 
     cleanup
     assert(!closable.called)
@@ -63,7 +63,7 @@ class AutoCleanupCustomMethodSpec : Specification() {
 
   fun feature() {
     expect
-    assert(true)
+    true
   }
 }
 
@@ -72,7 +72,7 @@ class AutoCleanupErrorSpec : Specification() {
 
   fun feature() {
     expect
-    assert(true)
+    true
   }
 }
 
@@ -82,7 +82,7 @@ class AutoCleanupQuietSpec : Specification() {
 
   fun feature() {
     expect
-    assert(true)
+    true
   }
 }
 
@@ -93,7 +93,7 @@ class AutoCleanupIndependentSpec : Specification() {
 
   fun feature() {
     expect
-    assert(true)
+    true
   }
 }
 
@@ -103,7 +103,7 @@ class AutoCleanupFieldInitFailsSpec : Specification() {
 
   fun feature() {
     expect
-    assert(true)
+    true
   }
 }
 
@@ -115,6 +115,6 @@ class AutoCleanupSharedFieldInitFailsSpec : Specification() {
 
   fun feature() {
     expect
-    assert(true)
+    true
   }
 }

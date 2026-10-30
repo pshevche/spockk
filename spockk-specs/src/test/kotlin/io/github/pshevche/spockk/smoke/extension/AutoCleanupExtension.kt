@@ -28,6 +28,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.AutoCleanupS
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.BoomException
 import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -44,10 +45,8 @@ class AutoCleanupExtension : Specification() {
   private fun failures(events: Events): List<Throwable> =
     events.failed().stream().map { it.getRequiredPayload(TestExecutionResult::class.java).throwable.get() }.toList()
 
-  private fun nestedFailures(events: Events): List<Throwable> =
-    (failures(events).single() as MultipleFailuresError).failures
-
-  private fun allBoom(failures: List<Throwable>): Boolean = failures.all { it is BoomException }
+  private fun multipleFailures(events: Events): MultipleFailuresError =
+    failures(events).single() as MultipleFailuresError
 
   private fun anyBoom(events: Events): Boolean = failures(events).any { it is BoomException }
 
@@ -57,6 +56,8 @@ class AutoCleanupExtension : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.AutoCleanupExtension#@AutoCleanup resources are cleaned up after cleanup()")
   fun `@AutoCleanup resources are cleaned up after cleanup()`() {
+    assert(!AutoCleanupResources.closable.called)
+
     `when`
     val events = execute(selectClass(AutoCleanupAfterCleanupSpec::class.java))
 
@@ -69,6 +70,8 @@ class AutoCleanupExtension : Specification() {
     "org.spockframework.smoke.extension.AutoCleanupExtension#@Shared @AutoCleanup resources are cleaned up after cleanupSpec()"
   )
   fun `@Shared @AutoCleanup resources are cleaned up after cleanupSpec()`() {
+    assert(!AutoCleanupResources.closable.called)
+
     `when`
     val events = execute(selectClass(AutoCleanupAfterCleanupSpecSpec::class.java))
 
@@ -118,12 +121,17 @@ class AutoCleanupExtension : Specification() {
     AutoCleanupResources.boom2.called
 
     and
-    nestedFailures(events).size == 2
-    allBoom(nestedFailures(events))
+    failures(events).size == 1
+    verify(multipleFailures(events)) {
+      failures[0] is BoomException
+      failures[1] is BoomException
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.AutoCleanupExtension#no cleanup if field initialization fails")
   fun `no cleanup if field initialization fails`() {
+    assert(!AutoCleanupResources.closable.called)
+
     `when`
     val events = execute(selectClass(AutoCleanupFieldInitFailsSpec::class.java))
 
@@ -134,6 +142,8 @@ class AutoCleanupExtension : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.AutoCleanupExtension#no cleanup if shared field initialization fails")
   fun `no cleanup if shared field initialization fails`() {
+    assert(!AutoCleanupResources.closable.called)
+
     `when`
     val events = EngineTestKit.engine("spock")
       .selectors(selectClass(AutoCleanupSharedFieldInitFailsSpec::class.java))
