@@ -663,7 +663,7 @@ class FeatureBlockStructureValidationTest : Specification() {
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/764")
   @MigratedFrom("org.spockframework.smoke.ExpectBlocks#may not contain exception conditions")
-  fun `rejects an expect block with an exception condition`() {
+  fun `may not contain exception conditions`() {
     `when`
     val result =
       transform(
@@ -682,7 +682,7 @@ class FeatureBlockStructureValidationTest : Specification() {
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/765")
   @MigratedFrom("org.spockframework.smoke.ExpectBlocks#may not contain interactions")
-  fun `rejects an expect block with an interaction`() {
+  fun `may not contain interactions`() {
     `when`
     val result =
       transform(
