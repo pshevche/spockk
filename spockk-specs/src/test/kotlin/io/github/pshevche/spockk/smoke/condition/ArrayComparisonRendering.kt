@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.smoke.condition
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
+import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.failureMessage
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.DefaultToStringArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArray2dEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArray3dEqualitySpec
@@ -23,10 +23,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValu
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArray2dEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ObjectArrayValueSpec
 import io.github.pshevche.spockk.lang.expect
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import spock.lang.Specification
-import kotlin.reflect.KClass
 
 class ArrayComparisonRendering : Specification() {
 
@@ -116,12 +113,5 @@ class ArrayComparisonRendering : Specification() {
       |[[[1, 2], [2, 5]], [[1, 2], [2, 5]]]
       |
       """.trimMargin()
-  }
-
-  private fun failureMessage(clazz: KClass<*>): String {
-    val events = execute(selectClass(clazz.java))
-    return events.failed().list().single()
-      .getRequiredPayload(TestExecutionResult::class.java)
-      .throwable.orElseThrow().message ?: ""
   }
 }

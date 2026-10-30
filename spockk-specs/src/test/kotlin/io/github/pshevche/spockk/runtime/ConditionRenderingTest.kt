@@ -15,7 +15,7 @@
 package io.github.pshevche.spockk.runtime
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
+import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.failureMessage
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ArithmeticExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegationSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ChainedExpressionSpec
@@ -58,10 +58,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPro
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
 import io.github.pshevche.spockk.lang.expect
-import org.junit.platform.engine.TestExecutionResult
-import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import spock.lang.Specification
-import kotlin.reflect.KClass
 
 class ConditionRenderingTest : Specification() {
 
@@ -676,12 +673,5 @@ class ConditionRenderingTest : Specification() {
       |[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
       |
       """.trimMargin()
-  }
-
-  private fun failureMessage(clazz: KClass<*>): String {
-    val events = execute(selectClass(clazz.java))
-    return events.failed().list().single()
-      .getRequiredPayload(TestExecutionResult::class.java)
-      .throwable.orElseThrow().message ?: ""
   }
 }
