@@ -63,6 +63,40 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static mock and real instance at the same time"]]
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time"]]
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time with interactions"]]
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time with Mockito mock maker"]]
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#SpyStatic with closure as IMockMakerSettings shall produce nice error message"]]
+status = "not-applicable"
+reason = "Checks the error for Groovy's SpyStatic(Type) { } closure being coerced to IMockMakerSettings with a null ID; a Kotlin lambda cannot be passed there without returning a MockMakerId, so the misuse cannot be written"
+decided = "2026-10-13"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#SpyStatic with closure returning something shall produce nice error message"]]
+status = "not-applicable"
+reason = "Same as 'SpyStatic with closure as IMockMakerSettings shall produce nice error message': relies on Groovy closure coercion to IMockMakerSettings that Kotlin does not have"
+decided = "2026-10-13"
+
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
 reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
@@ -185,3 +219,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#Mockito API Test static mock with response"]]
+status = "blocked"
+reason = "Upstream chains a second then block after the first; Spockk's block-order validator rejects consecutive then blocks"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-30"
