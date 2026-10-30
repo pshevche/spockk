@@ -43,9 +43,7 @@ class ExceptionConditionsSmokeTest : Specification() {
 
   private class CustomError : Error()
 
-  private fun foobar(): String = throw IllegalStateException("foo")
-
-  private fun pairFoobar(): Pair<String, String> = throw IllegalStateException("foo")
+  private fun foobar(): Pair<String, String> = throw IllegalStateException("foo")
 
   fun `catches the thrown exception`() {
     `when`
@@ -71,7 +69,7 @@ class ExceptionConditionsSmokeTest : Specification() {
   )
   fun `thrown rewrite keeps correct method reference for multi-assignments`() {
     `when`
-    val (foobar, b) = pairFoobar()
+    val (foobar, b) = foobar()
 
     then
     thrown(IllegalStateException::class.java)
