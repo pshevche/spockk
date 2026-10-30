@@ -45,15 +45,6 @@ class SameRepresentationsSameTypesSpec : Specification() {
   }
 }
 
-class SameRepresentationsDifferentTypesSpec : Specification() {
-  fun `test`() {
-    val x: Any = 1
-    val y: Any = "1"
-    expect
-    x == y
-  }
-}
-
 class SameRepresentationsDifferentArrayTypesSpec : Specification() {
   fun `test`() {
     val x: Any = intArrayOf(1)
@@ -105,7 +96,7 @@ class NestedEqualityTypeHintsSpec : Specification() {
     val x: Any = 1
     val y: Any = "1"
     expect
-    (x == y) == true
+    ((x == y) as Any) is String
   }
 }
 
@@ -114,7 +105,7 @@ class NestedEqualityEqualValuesSpec : Specification() {
     val x: Any = arrayListOf(1)
     val y: Any = LinkedList(listOf(1))
     expect
-    (x == y) == false
+    ((x == y) as Any) is String
   }
 }
 

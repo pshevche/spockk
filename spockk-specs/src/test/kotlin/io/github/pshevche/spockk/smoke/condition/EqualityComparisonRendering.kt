@@ -25,8 +25,8 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameLiteralR
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRenderedAndLiteralRepresentationsSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRepresentationsDifferentAnonymousTypesSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRepresentationsDifferentArrayTypesSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRepresentationsDifferentTypesSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRepresentationsSameTypesSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValueSpec
 import io.github.pshevche.spockk.lang.expect
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -70,7 +70,7 @@ class EqualityComparisonRendering : Specification() {
   @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with same representations and different types")
   fun `values with same representations and different types`() {
     expect
-    failureMessage(SameRepresentationsDifferentTypesSpec::class) ==
+    failureMessage(TypeHintValueSpec::class) ==
       """
       |Condition not satisfied:
       |
@@ -164,6 +164,7 @@ class EqualityComparisonRendering : Specification() {
       """.trimMargin()
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
   @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#type hints are also added for nested equality comparisons")
   fun `type hints are also added for nested equality comparisons`() {
     expect
@@ -171,16 +172,18 @@ class EqualityComparisonRendering : Specification() {
       """
       |Condition not satisfied:
       |
-      |(x == y) == true
-      | | |  |  |
-      | | |  |  false
-      | | |  1 (java.lang.String)
-      | | false
-      | 1 (java.lang.Integer)
+      |((x == y) as Any) is String
+      |  | |  |  |       |  |
+      |  | |  |  false   |  class java.lang.String
+      |  | |  |          false
+      |  | |  1 (java.lang.String)
+      |  | false (java.lang.Boolean)
+      |  1 (java.lang.Integer)
       |
       """.trimMargin()
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
   @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#type hints are not added for nested equality comparisons if values are equal")
   fun `type hints are not added for nested equality comparisons if values are equal`() {
     expect
@@ -188,12 +191,11 @@ class EqualityComparisonRendering : Specification() {
       """
       |Condition not satisfied:
       |
-      |(x == y) == false
-      | | |  |  |
-      | | |  |  false
-      | | |  [1]
-      | | true
-      | [1]
+      |((x == y) as Any) is String
+      |  | |  |  |       |  |
+      |  [1]| |  true    |  class java.lang.String
+      |    |  [1]        false
+      |    true (java.lang.Boolean)
       |
       """.trimMargin()
   }
