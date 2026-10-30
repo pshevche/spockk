@@ -16,7 +16,9 @@ package io.github.pshevche.spockk.compilation.condition
 
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.where
 
 class ImplicitConditionsCompilationTest : BaseCompilationTest() {
 
@@ -68,5 +70,77 @@ class ImplicitConditionsCompilationTest : BaseCompilationTest() {
   fun `verify call inside a top-level extension function is left unrewritten`() {
     expect
     assertTransformation(sampleFromResource("condition/VerifyInExtensionFunction"))
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#condition method #conditionMethod")
+  fun `condition method #conditionMethod`(conditionMethod: String, sampleName: String) {
+    expect
+    assertTransformation(sampleFromResource("condition/ConditionMethod$sampleName"))
+
+    where
+    conditionMethod ; sampleName
+    "verify"        ; "Verify"
+    "verifyAll"     ; "VerifyAll"
+    "verifyEach"    ; "VerifyEach"
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#condition method #conditionMethod with exception")
+  fun `condition method #conditionMethod with exception`(conditionMethod: String, sampleName: String) {
+    expect
+    assertTransformation(sampleFromResource("condition/ConditionMethod${sampleName}WithException"))
+
+    where
+    conditionMethod ; sampleName
+    "verify"        ; "Verify"
+    "verifyAll"     ; "VerifyAll"
+    "verifyEach"    ; "VerifyEach"
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#condition method #conditionMethod with only exception")
+  fun `condition method #conditionMethod with only exception`(conditionMethod: String, sampleName: String) {
+    expect
+    assertTransformation(sampleFromResource("condition/ConditionMethod${sampleName}WithOnlyException"))
+
+    where
+    conditionMethod ; sampleName
+    "verify"        ; "Verify"
+    "verifyAll"     ; "VerifyAll"
+    "verifyEach"    ; "VerifyEach"
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#condition method #conditionMethod within condition method #conditionMethod")
+  fun `condition method #conditionMethod within condition method #conditionMethod`(conditionMethod: String, sampleName: String) {
+    expect
+    assertTransformation(sampleFromResource("condition/ConditionMethod${sampleName}InsideItself"))
+
+    where
+    conditionMethod ; sampleName
+    "verify"        ; "Verify"
+    "verifyAll"     ; "VerifyAll"
+    "verifyEach"    ; "VerifyEach"
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#condition method #conditionMethod within condition method #conditionMethod with exception")
+  fun `condition method #conditionMethod within condition method #conditionMethod with exception`(conditionMethod: String, sampleName: String) {
+    expect
+    assertTransformation(sampleFromResource("condition/ConditionMethod${sampleName}InsideItselfWithException"))
+
+    where
+    conditionMethod ; sampleName
+    "verify"        ; "Verify"
+    "verifyAll"     ; "VerifyAll"
+    "verifyEach"    ; "VerifyEach"
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.condition.ConditionMethodsAstSpec#condition method #conditionMethod within condition method #conditionMethod with only exception")
+  fun `condition method #conditionMethod within condition method #conditionMethod with only exception`(conditionMethod: String, sampleName: String) {
+    expect
+    assertTransformation(sampleFromResource("condition/ConditionMethod${sampleName}InsideItselfWithOnlyException"))
+
+    where
+    conditionMethod ; sampleName
+    "verify"        ; "Verify"
+    "verifyAll"     ; "VerifyAll"
+    "verifyEach"    ; "VerifyEach"
   }
 }
