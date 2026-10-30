@@ -264,7 +264,7 @@ class MockMakerRegistrySpec : Specification() {
     val registry = registry(listOf(maker), null)
     val obj = "mockObj"
 
-    `when`
+    `when`("The registry will ask the maker, because the obj does not implement ISpockMockObject")
     registry.asMockOrNull(obj)
 
     then
@@ -353,24 +353,15 @@ class MockMakerRegistrySpec : Specification() {
     mock is StringBuilder
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/935")
   @MigratedFrom(
     "org.spockframework.mock.runtime.MockMakerRegistrySpec#Default MockMakerImpl throws UnsupportedOperationException on makeStaticMock"
   )
   fun `Default MockMakerImpl throws UnsupportedOperationException on makeStaticMock`() {
     given
-    val maker = Spy(
-      object : IMockMaker {
-        override fun getId() = TEST_ID
+    val maker = Spy(IMockMaker::class.java)
+    maker.id returns TEST_ID
 
-        override fun getCapabilities(): Set<MockMakerCapability> = emptySet()
-
-        override fun getPriority() = TEST_PRIORITY
-
-        override fun makeMock(settings: IMockCreationSettings): Any = throw UnsupportedOperationException()
-
-        override fun getMockability(settings: IMockCreationSettings) = IMockabilityResult.MOCKABLE
-      }
-    )
     `when`
     maker.makeStaticMock(Stub(IMockCreationSettings::class.java))
 
