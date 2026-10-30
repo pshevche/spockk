@@ -21,14 +21,14 @@ import spock.lang.Specification
 /** Conditions whose short-circuited sub-expressions are never evaluated, so they have no recorded value. */
 class PartialConditionEvaluation : Specification() {
 
+  private val x = 1
+  private val y = 2
+  private val z = 3
+
   private fun bar(x: Int, y: Int, z: Int): Boolean = error("must not be evaluated: $x $y $z")
 
   @MigratedFrom("org.spockframework.smoke.condition.PartialConditionEvaluation#test")
   fun test() {
-    val x = 1
-    val y = 2
-    val z = 3
-
     expect
     ((false && true) xor (true || bar(x, y, z)))
   }
