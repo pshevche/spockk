@@ -187,9 +187,16 @@ gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
 
 [["org.spockframework.smoke.WithBlocks#fail if expected target type isn't met"]]
-status = "not-applicable"
-reason = "Spock's with(target, Type) checks the target's runtime type and raises a SpockAssertionError naming both types. Spockk's verify takes the target's static type as its receiver, so a mismatch is a Kotlin compile error or a ClassCastException from an explicit cast, not a Spockk assertion failure"
-decided = "2026-10-26"
+status = "blocked"
+reason = "Spockk's verify has no overload that checks the target's expected type at runtime, so the Spock with(target, Type) call has no equivalent to compile against"
+gap = "https://github.com/pshevche/spockk/issues/945"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.WithBlocks#can state the expected target type"]]
+status = "blocked"
+reason = "Spockk's verify has no overload that states the target's expected type; an explicit cast would only exercise Kotlin's cast, not Spockk"
+gap = "https://github.com/pshevche/spockk/issues/945"
+decided = "2026-10-30"
 
 [["org.spockframework.smoke.WithBlocks#don't turn nested statements into conditions"]]
 status = "blocked"

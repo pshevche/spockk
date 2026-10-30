@@ -21,26 +21,17 @@ import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import spock.lang.Specification
 
-private open class WithBlocksPerson(
-  val name: String = "Fred",
-  val age: Int = 42,
-  val spouse: WithBlocksPerson? = null
-) {
+private class WithBlocksPerson(val name: String = "Fred", val age: Int = 42) {
   fun check() {
     assert(true)
   }
 }
-
-private open class WithBlocksEmployee(name: String = "Fred", val employer: String = "MarsTravelUnited") : WithBlocksPerson(name)
-
-private class WithBlocksManager(name: String) : WithBlocksEmployee(name)
 
 /** Spockk's `verify` corresponds to Spock's `with`. */
 class WithBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.WithBlocks#don't turn nested with expressions into condition")
   fun `don't turn nested with expressions into condition`() {
-    given
     val list = listOf(listOf(listOf("end")))
 
     expect
@@ -57,7 +48,6 @@ class WithBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.WithBlocks#can refer to properties of target object with property syntax")
   fun `can refer to properties of target object with property syntax`() {
-    given
     val person = WithBlocksPerson()
 
     expect
@@ -67,21 +57,8 @@ class WithBlocks : Specification() {
     }
   }
 
-  @MigratedFrom("org.spockframework.smoke.WithBlocks#can state the expected target type")
-  fun `can state the expected target type`() {
-    given
-    val fred = WithBlocksPerson(spouse = WithBlocksManager("Wilma"))
-
-    expect
-    verify(fred.spouse as WithBlocksEmployee) {
-      name == "Wilma"
-      employer == "MarsTravelUnited"
-    }
-  }
-
   @MigratedFrom("org.spockframework.smoke.WithBlocks#method condition is invoked on closure but not on the spec")
   fun `method condition is invoked on closure but not on the spec`() {
-    given
     val map = mapOf("value1" to 1, "value2" to 2)
 
     expect
@@ -93,7 +70,6 @@ class WithBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.WithBlocks#nested method conditions are invoked on closure but not on the spec")
   fun `nested method conditions are invoked on closure but not on the spec`() {
-    given
     val map = mapOf("value1" to 1, "value2" to 2)
 
     expect
@@ -109,7 +85,6 @@ class WithBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.WithBlocks#spec has methods with the same signature as the with target object")
   fun `spec has methods with the same signature as the with target object`() {
-    given
     val list = listOf(1, 2, 3)
 
     expect
