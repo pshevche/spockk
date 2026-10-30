@@ -18,7 +18,6 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.runtime.InvalidSpecException
-import org.spockframework.runtime.UnallowedExceptionThrownError
 import org.spockframework.runtime.WrongExceptionThrownError
 import spock.lang.FailsWith
 import spock.lang.Specification
