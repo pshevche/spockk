@@ -21,6 +21,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.includeexclu
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.includeexcludespecs.Spec2
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.includeexcludespecs.Spec3
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -37,8 +38,10 @@ class IncludeExcludeSpecs : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.IncludeExcludeSpecs#include specs based on annotations")
   fun `include specs based on annotations`(annotationTypes: List<Class<out Annotation>>, runCount: Int) {
+    val configure: RunnerConfiguration.() -> Unit = { include = criteria(annotationTypes) }
+
     `when`
-    val events = runSpecs { include = criteria(annotationTypes) }
+    val events = runSpecs(configure)
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -46,16 +49,16 @@ class IncludeExcludeSpecs : Specification() {
     events.skipped().count() == 0L
 
     where
-    annotationTypes                            ; runCount
-    listOf(Slow::class.java)                   ; 1
-    listOf(Fast::class.java)                   ; 1
-    listOf(Slow::class.java, Fast::class.java) ; 2
+    variable(annotationTypes).from(listOf(Slow::class.java), listOf(Fast::class.java), listOf(Slow::class.java, Fast::class.java))
+    variable(runCount).from(1, 1, 2)
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IncludeExcludeSpecs#exclude specs based on annotations")
   fun `exclude specs based on annotations`(annotationTypes: List<Class<out Annotation>>, runCount: Int) {
+    val configure: RunnerConfiguration.() -> Unit = { exclude = criteria(annotationTypes) }
+
     `when`
-    val events = runSpecs { exclude = criteria(annotationTypes) }
+    val events = runSpecs(configure)
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -63,10 +66,8 @@ class IncludeExcludeSpecs : Specification() {
     events.skipped().count() == 0L
 
     where
-    annotationTypes                            ; runCount
-    listOf(Slow::class.java)                   ; 2
-    listOf(Fast::class.java)                   ; 2
-    listOf(Slow::class.java, Fast::class.java) ; 1
+    variable(annotationTypes).from(listOf(Slow::class.java), listOf(Fast::class.java), listOf(Slow::class.java, Fast::class.java))
+    variable(runCount).from(2, 2, 1)
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IncludeExcludeSpecs#include and exclude specs based on annotations")
@@ -75,11 +76,13 @@ class IncludeExcludeSpecs : Specification() {
     annTypes2: List<Class<out Annotation>>,
     runCount: Int
   ) {
-    `when`
-    val events = runSpecs {
+    val configure: RunnerConfiguration.() -> Unit = {
       include = criteria(annTypes1)
       exclude = criteria(annTypes2)
     }
+
+    `when`
+    val events = runSpecs(configure)
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -87,16 +90,17 @@ class IncludeExcludeSpecs : Specification() {
     events.skipped().count() == 0L
 
     where
-    annTypes1                                  ; annTypes2                                  ; runCount
-    listOf(Slow::class.java)                   ; listOf(Slow::class.java)                   ; 0
-    listOf(Slow::class.java)                   ; listOf(Fast::class.java)                   ; 1
-    listOf(Slow::class.java)                   ; listOf(Slow::class.java, Fast::class.java) ; 0
-    listOf(Fast::class.java)                   ; listOf(Slow::class.java)                   ; 1
-    listOf(Fast::class.java)                   ; listOf(Fast::class.java)                   ; 0
-    listOf(Fast::class.java)                   ; listOf(Slow::class.java, Fast::class.java) ; 0
-    listOf(Slow::class.java, Fast::class.java) ; listOf(Slow::class.java)                   ; 1
-    listOf(Slow::class.java, Fast::class.java) ; listOf(Fast::class.java)                   ; 1
-    listOf(Slow::class.java, Fast::class.java) ; listOf(Slow::class.java, Fast::class.java) ; 0
+    variable(annTypes1).from(
+      listOf(Slow::class.java), listOf(Slow::class.java), listOf(Slow::class.java),
+      listOf(Fast::class.java), listOf(Fast::class.java), listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java), listOf(Slow::class.java, Fast::class.java), listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(annTypes2).from(
+      listOf(Slow::class.java), listOf(Fast::class.java), listOf(Slow::class.java, Fast::class.java),
+      listOf(Slow::class.java), listOf(Fast::class.java), listOf(Slow::class.java, Fast::class.java),
+      listOf(Slow::class.java), listOf(Fast::class.java), listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(runCount).from(0, 1, 0, 1, 0, 0, 1, 1, 0)
   }
 
   private fun criteria(annotationTypes: List<Class<out Annotation>>) =
