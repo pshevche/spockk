@@ -102,7 +102,7 @@ class CleanupBlockSmokeTest : Specification() {
     val (foobar, b) = foobar()
 
     then
-    println("$foobar$b")
+    println(foobar)
 
     cleanup
     assert(foobar == "foo")
