@@ -229,8 +229,10 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
 
     then
     val ex = thrown(SpockException::class.java)
-    ex.message!!.startsWith("Multiple $kind methods found in 'Spec'. Methods [")
-    ex.message!!.endsWith("]. There can only be one per specification class.")
+    ex.message ==
+      "Multiple $kind methods found in 'Spec'. " +
+      "Methods [public final void Spec.$fixtureMethod(), public final void Spec.$fixtureMethod(java.lang.String)]. " +
+      "There can only be one per specification class."
 
     where
     fixtureMethod ; kind
