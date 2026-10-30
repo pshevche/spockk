@@ -185,3 +185,83 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#nested lenient matching"]]
+status = "not-applicable"
+reason = "Renders Groovy's `=~` collection match-as-set operator. Kotlin has no `=~` operator and Spockk adds no equivalent, so there is no source construct to render"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#nested regex finding"]]
+status = "not-applicable"
+reason = "Renders the Groovy `=~` regex find operator, which yields a Matcher. Kotlin has no regex operators; `Regex.containsMatchIn` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#nested regex complex finding"]]
+status = "not-applicable"
+reason = "Renders the Groovy `=~` regex find operator, which yields a Matcher. Kotlin has no regex operators; `Regex.containsMatchIn` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#rendering of lenient matching with variables"]]
+status = "not-applicable"
+reason = "Renders Groovy's `=~` collection match-as-set operator. Kotlin has no `=~` operator and Spockk adds no equivalent, so there is no source construct to render"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#rendering of lenient matching with variable-literal"]]
+status = "not-applicable"
+reason = "Renders Groovy's `=~` collection match-as-set operator. Kotlin has no `=~` operator and Spockk adds no equivalent, so there is no source construct to render"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#rendering of lenient matching with literal-variable"]]
+status = "not-applicable"
+reason = "Renders Groovy's `=~` collection match-as-set operator. Kotlin has no `=~` operator and Spockk adds no equivalent, so there is no source construct to render"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#rendering of lenient matching with literals"]]
+status = "not-applicable"
+reason = "Renders Groovy's `=~` collection match-as-set operator. Kotlin has no `=~` operator and Spockk adds no equivalent, so there is no source construct to render"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#rendering of strict matching"]]
+status = "not-applicable"
+reason = "Renders Groovy's `==~` collection match-in-any-order operator. Kotlin has no `==~` operator and Spockk adds no equivalent, so there is no source construct to render"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#rendering of nested strict matching"]]
+status = "not-applicable"
+reason = "Renders Groovy's `==~` collection match-in-any-order operator. Kotlin has no `==~` operator and Spockk adds no equivalent, so there is no source construct to render"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#nested regex matching"]]
+status = "not-applicable"
+reason = "Renders the Groovy `==~` regex match operator. Kotlin has no regex operators; `Regex.matches` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#indirect regex find works with different representations"]]
+status = "not-applicable"
+reason = "Renders the Groovy `=~` regex find operator, which yields a Matcher. Kotlin has no regex operators; `Regex.containsMatchIn` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#regex find works with different representations"]]
+status = "not-applicable"
+reason = "Renders the Groovy `=~` regex find operator, which yields a Matcher. Kotlin has no regex operators; `Regex.containsMatchIn` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#regex find doesn't choke on non-String types"]]
+status = "not-applicable"
+reason = "Renders the Groovy `=~` regex find operator, which yields a Matcher. Kotlin has no regex operators; `Regex.containsMatchIn` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#indirect regex match works with different representations"]]
+status = "not-applicable"
+reason = "Renders the Groovy `==~` regex match operator. Kotlin has no regex operators; `Regex.matches` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#regex match with different representations"]]
+status = "not-applicable"
+reason = "Renders the Groovy `==~` regex match operator. Kotlin has no regex operators; `Regex.matches` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.CollectionConditionRendering#regex match doesn't choke on non-String types"]]
+status = "not-applicable"
+reason = "Renders the Groovy `==~` regex match operator. Kotlin has no regex operators; `Regex.matches` is an ordinary method call already covered by the generic method-call rendering tests"
+decided = "2026-10-27"
