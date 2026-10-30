@@ -29,7 +29,7 @@ class FilteringLogSpec : Specification() {
     FilteringLog.value += "1"
 
     expect
-    assert(true)
+    true
   }
 
   fun feature2() {
@@ -37,7 +37,7 @@ class FilteringLogSpec : Specification() {
     FilteringLog.value += "2"
 
     expect
-    assert(true)
+    true
   }
 
   fun feature3() {
@@ -45,6 +45,6 @@ class FilteringLogSpec : Specification() {
     FilteringLog.value += "3"
 
     expect
-    assert(true)
+    true
   }
 }

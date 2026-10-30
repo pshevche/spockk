@@ -53,6 +53,7 @@ class FeatureFiltering : Specification() {
     val events = execute(selectMethod(FilteringLogSpec::class.java, "xxx"))
 
     then
+    noExceptionThrown()
     events.started().count() == 0L
     FilteringLog.value == ""
   }

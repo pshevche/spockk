@@ -20,11 +20,11 @@ class FilteringDerivedSpec : FilteringBaseSpec() {
 
   fun feature3() {
     expect
-    assert(true)
+    true
   }
 
   fun feature4() {
     expect
-    assert(true)
+    true
   }
 }

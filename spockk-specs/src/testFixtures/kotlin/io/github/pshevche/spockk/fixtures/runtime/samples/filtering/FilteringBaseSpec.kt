@@ -21,11 +21,11 @@ abstract class FilteringBaseSpec : Specification() {
 
   fun feature1() {
     expect
-    assert(true)
+    true
   }
 
   fun feature2() {
     expect
-    assert(true)
+    true
   }
 }
