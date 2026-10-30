@@ -25,6 +25,6 @@ open class SharedFieldAccessFromSubclassBase : Specification() {
 class SharedFieldAccessFromSubclass : SharedFieldAccessFromSubclassBase() {
   fun `feature`() {
     expect
-    assert(x.length == 3)
+    x.length == 3
   }
 }
