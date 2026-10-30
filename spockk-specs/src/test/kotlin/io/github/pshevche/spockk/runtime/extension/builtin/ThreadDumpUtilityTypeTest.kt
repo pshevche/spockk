@@ -55,8 +55,10 @@ class ThreadDumpUtilityTypeTest : Specification() {
     additionalArgs: List<String>
   ) {
     expect
-    utility.getCommand(javaHome, PID) == listOf(tempDir.resolve("bin").resolve(utility.utilityFileName).toString(),
-      PID.toString()) + additionalArgs
+    utility.getCommand(javaHome, PID) == listOf(
+      tempDir.resolve("bin").resolve(utility.utilityFileName).toString(),
+      PID.toString()
+    ) + additionalArgs
 
     where
     utility ; javaHome                      ; additionalArgs
