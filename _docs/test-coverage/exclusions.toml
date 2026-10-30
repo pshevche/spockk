@@ -185,3 +185,103 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.ast.AstSpec#astToSourceFeatureBody renders only methods and its annotation by default"]]
+status = "not-applicable"
+reason = "Upstream checks how Spock's test-only AstNodeToScriptAdapter renders the Groovy AST that Spock's transform produces for a Groovy source snippet. Spockk has no Groovy AST to render: it transforms Kotlin IR, and IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#astToSourceSpecBody renders only methods, fields, properties, object initializers and their annotation by default"]]
+status = "not-applicable"
+reason = "Upstream checks how Spock's test-only AstNodeToScriptAdapter renders the Groovy AST that Spock's transform produces for a Groovy source snippet. Spockk has no Groovy AST to render: it transforms Kotlin IR, and IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#astToSourceFeatureBody can render everything"]]
+status = "not-applicable"
+reason = "Upstream checks how Spock's test-only AstNodeToScriptAdapter renders the Groovy AST that Spock's transform produces for a Groovy source snippet. Spockk has no Groovy AST to render: it transforms Kotlin IR, and IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#astToSourceFeatureBody can render everything (Groovy 4.0.2+)"]]
+status = "not-applicable"
+reason = "Upstream checks how Spock's test-only AstNodeToScriptAdapter renders the Groovy AST that Spock's transform produces for a Groovy source snippet. Spockk has no Groovy AST to render: it transforms Kotlin IR, and IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#astToSourceFeatureBody shows compile error in source"]]
+status = "not-applicable"
+reason = "Upstream checks how Spock's test-only AstNodeToScriptAdapter renders the Groovy AST that Spock's transform produces for a Groovy source snippet. Asserts that a Groovy compile error is embedded in the rendered Groovy source. Kotlin compile errors are reported by the K2 compiler and never rendered as source, and Spockk's error reporting is covered by the compile-error tests."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#groovy 3 language features"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#nested generic type arguments are rendered faithfully"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#elvis operator is rendered in short form"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#attribute access is rendered with the at sign"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#closure parameter lists are rendered faithfully"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#safe index accesses are rendered with the closing bracket"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#numeric literals keep their type suffix"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#range boundary exclusions are rendered on both sides"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#explicit type arguments of method calls are rendered"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#switch without a default case is rendered without a default label"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#try without a finally block is rendered without an empty one"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#for-in loops with an index variable render both variables"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#enums"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#full feature exercise"]]
+status = "not-applicable"
+reason = "Upstream calls compiler.transpile on plain Groovy classes, so no Spock transform is involved. It only snapshots how Spock's test-only AstNodeToScriptAdapter prints Groovy syntax, which has no Kotlin counterpart; Spockk's IR transformations are verified by the snapshot tests in compilation/ instead."
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.AstSpec#Primitive types are used in AST transformation"]]
+status = "not-applicable"
+reason = "Upstream checks how Spock's test-only AstNodeToScriptAdapter renders the Groovy AST that Spock's transform produces for a Groovy source snippet. Snapshots the Groovy AST of a Groovy-compiled spec per Groovy major version (groovy4/5/6). Spockk rewrites Kotlin IR, which has no equivalent Groovy-version-specific output."
+decided = "2026-10-26"
