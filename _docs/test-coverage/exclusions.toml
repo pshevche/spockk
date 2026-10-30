@@ -185,3 +185,18 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.UnsatisfiedConditions#number"]]
+status = "not-applicable"
+reason = "`expect: 0` relies on Groovy truth (0 is falsy); Kotlin's `expect` block requires a Boolean, so a bare Int does not compile"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.UnsatisfiedConditions#object"]]
+status = "not-applicable"
+reason = "`expect: null` relies on Groovy truth (null is falsy); Kotlin's `expect` block requires a Boolean, so null does not compile"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.UnsatisfiedConditions#collection"]]
+status = "not-applicable"
+reason = "`expect: []` relies on Groovy truth (an empty collection is falsy); Kotlin's `expect` block requires a Boolean, so a collection does not compile"
+decided = "2026-10-28"
