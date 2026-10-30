@@ -29,6 +29,6 @@ class SharedFieldTypeCompatibility :
 
   fun `feature`() {
     expect
-    assert(value == "1")
+    value == "1"
   }
 }
