@@ -106,7 +106,7 @@ class GroovyRuntimeUtilSpec : Specification() {
     val thisObject = ThisObject()
 
     expect
-    (GroovyRuntimeUtil.instantiateClosure(TestClosure::class.java, owner, thisObject) as Closure<*>).call(3) == 6
+    GroovyRuntimeUtil.instantiateClosure(TestClosure::class.java, owner, thisObject).call(3) == 6
   }
 
   @MigratedFrom("org.spockframework.runtime.GroovyRuntimeUtilSpec#asArgumentList")
