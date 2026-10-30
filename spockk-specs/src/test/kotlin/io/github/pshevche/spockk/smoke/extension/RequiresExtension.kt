@@ -68,8 +68,6 @@ class RequiresExtension : Specification() {
     "org.spockframework.smoke.extension.RequiresExtension#can skip data providers completely if no data variables are accessed by checking a `shared.` field",
     "org.spockframework.smoke.extension.RequiresExtension#allows determinate use of multiple filters",
     "org.spockframework.smoke.extension.RequiresExtension#feature is ignored if at least one Requires annotation is false",
-    "org.spockframework.smoke.extension.RequiresExtension#feature is not ignored if all Requires annotations are true",
-    "org.spockframework.smoke.extension.RequiresExtension#feature is ignored if at least one Requires annotation is false",
     "org.spockframework.smoke.extension.RequiresExtension#feature is not ignored if all Requires annotations are true"
   )
   fun verifyExecution() {
