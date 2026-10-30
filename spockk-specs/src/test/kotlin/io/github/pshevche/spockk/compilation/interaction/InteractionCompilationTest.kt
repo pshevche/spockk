@@ -168,6 +168,7 @@ class InteractionCompilationTest : BaseCompilationTest() {
       kotlin(
         "StaticInteraction.kt",
         """
+        import io.github.pshevche.spockk.lang.any
         import io.github.pshevche.spockk.lang.times
 
         interface Adder {
@@ -176,7 +177,6 @@ class InteractionCompilationTest : BaseCompilationTest() {
 
         class StaticInteraction : spock.lang.Specification() {
           fun foo() {
-            io.github.pshevche.spockk.lang.given
             val list = Mock(Adder::class.java)
 
             io.github.pshevche.spockk.lang.`when`
@@ -189,7 +189,7 @@ class InteractionCompilationTest : BaseCompilationTest() {
           companion object {
             @JvmStatic
             fun elementAdded(list: Adder) {
-              1 * list.add("elem")
+              1 * list.add(any())
             }
           }
         }
