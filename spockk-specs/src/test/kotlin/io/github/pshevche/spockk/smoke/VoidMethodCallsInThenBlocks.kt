@@ -18,6 +18,8 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.smoke.VoidKotlinStaticMethodInThenBlocks.foo
+import org.spockframework.runtime.model.parallel.Resources
+import spock.lang.ResourceLock
 import spock.lang.Specification
 import java.util.Collections
 import java.util.Collections.reverse
@@ -58,6 +60,7 @@ class VoidMethodCallsInThenBlocks : Specification() {
     Collections.shuffle(mutableListOf<Any>())
   }
 
+  @ResourceLock(Resources.SYSTEM_OUT)
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of void default Groovy method")
   fun `invocation of void default Groovy method`() {
     `when`("")
