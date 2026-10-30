@@ -17,6 +17,8 @@ package io.github.pshevche.spockk.mock.runtime.mockito
 import groovy.lang.Closure
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.any
+import io.github.pshevche.spockk.lang.anyMethod
+import io.github.pshevche.spockk.lang.does
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
@@ -31,11 +33,11 @@ import org.spockframework.mock.CannotCreateMockException
 import org.spockframework.mock.MockUtil
 import org.spockframework.mock.runtime.mockito.MockitoMockMaker
 import org.spockframework.mock.runtime.mockito.MockitoMockMakerSettings
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
 import spock.mock.MockMakers.mockito
+import spock.util.environment.Jvm
 import java.io.FileInputStream
 import java.io.Serializable
 import java.lang.reflect.Proxy
@@ -157,6 +159,7 @@ class MockitoMockMakerSpec : Specification() {
 
     then
     1 * sb.append(true) returns sb
+    0 * sb.anyMethod()
     res == sb
   }
 
@@ -171,6 +174,7 @@ class MockitoMockMakerSpec : Specification() {
 
     then
     1 * mock.finalMethod() returns "MockValue"
+    0 * mock.anyMethod()
     res == "MockValue"
   }
 
@@ -193,7 +197,7 @@ class MockitoMockMakerSpec : Specification() {
     spy.clear()
 
     then
-    1 * spy.clear()
+    1 * spy.clear() does { }
     // The clear should have been intercepted
     spy == startList
 
@@ -307,7 +311,6 @@ class MockitoMockMakerSpec : Specification() {
     e.name == null
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1501")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy const should be accessible in Groovy 3&4 with mockito")
   fun `Access protected Groovy const should be accessible in Groovy 3&4 with mockito`() {
@@ -318,7 +321,6 @@ class MockitoMockMakerSpec : Specification() {
     mySpy.accessStaticFlag()
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1501")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy field should be accessible in Groovy 3&4 with mockito")
   fun `Access protected Groovy field should be accessible in Groovy 3&4 with mockito`() {
@@ -346,8 +348,8 @@ class MockitoMockMakerSpec : Specification() {
     val s: DataClass = Mock(mapOf("mockMaker" to mockito))
 
     then
-    !s.boolField
-    s.stringField == null
+    !s.bool
+    s.string == null
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -357,8 +359,8 @@ class MockitoMockMakerSpec : Specification() {
     val s: DataClass = Stub(mapOf("mockMaker" to mockito))
 
     then
-    !s.boolField
-    s.stringField == ""
+    !s.bool
+    s.string == ""
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -368,8 +370,8 @@ class MockitoMockMakerSpec : Specification() {
     val s: DataClass = Spy(mapOf("mockMaker" to mockito))
 
     then
-    s.boolField
-    s.stringField == "data"
+    s.bool
+    s.string == "data"
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Spy class with Mockito API")
@@ -378,8 +380,8 @@ class MockitoMockMakerSpec : Specification() {
     val s: DataClass = Mockito.spy(DataClass::class.java)
 
     then
-    s.boolField
-    s.stringField == "data"
+    s.bool
+    s.string == "data"
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -389,8 +391,8 @@ class MockitoMockMakerSpec : Specification() {
     val s: DataClass = Spy(mapOf("mockMaker" to mockito, "constructorArgs" to emptyList<Any>()))
 
     then
-    s.boolField
-    s.stringField == "data"
+    s.bool
+    s.string == "data"
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -400,8 +402,8 @@ class MockitoMockMakerSpec : Specification() {
     val s: DataClass = Spy(mapOf("mockMaker" to mockito, "constructorArgs" to listOf(false, "data2")))
 
     then
-    !s.boolField
-    s.stringField == "data2"
+    !s.bool
+    s.string == "data2"
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -427,13 +429,20 @@ class MockitoMockMakerSpec : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Class is not mockable sample for asking org.mockito.plugins.MockMaker.isTypeMockable")
   fun `Class is not mockable sample for asking org mockito plugins MockMaker isTypeMockable`() {
+    given
+    val expectedMessage = if (Jvm.getCurrent().isJava8) {
+      "Cannot create mock for class java.lang.Class. mockito: Cannot mock wrapper types, String.class or Class.class"
+    } else {
+      "Cannot create mock for class java.lang.Class. " +
+        "mockito: Cannot mock primitive wrapper types, String, Class, or WeakReference"
+    }
+
     `when`
     Mock(mapOf("mockMaker" to mockito), Class::class.java)
 
     then
     val ex = thrown(CannotCreateMockException::class.java)
-    ex.message == "Cannot create mock for class java.lang.Class. " +
-      "mockito: Cannot mock primitive wrapper types, String, Class, or WeakReference"
+    ex.message == expectedMessage
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -451,7 +460,7 @@ class MockitoMockMakerSpec : Specification() {
   fun `Mocking interface from different classloader works with mockito MockMaker`() {
     given
     val mockUtil = MockUtil()
-    val interfaceClass = TestClassLoader().defineInterface("Interface")
+    val interfaceClass = ByteBuddyTestClassLoader().defineInterface("Interface")
 
     `when`
     val m = Mock(mapOf("mockMaker" to mockito), interfaceClass)
@@ -465,7 +474,7 @@ class MockitoMockMakerSpec : Specification() {
   fun `Mocking interface from different classloader works with default MockMaker`() {
     given
     val mockUtil = MockUtil()
-    val interfaceClass = TestClassLoader().defineInterface("Interface")
+    val interfaceClass = ByteBuddyTestClassLoader().defineInterface("Interface")
 
     `when`
     val m = Mock(interfaceClass)
@@ -480,7 +489,7 @@ class MockitoMockMakerSpec : Specification() {
   fun `Mocking with additional interface from different classloader works with mockito MockMaker`() {
     given
     val mockUtil = MockUtil()
-    val additionalInterfaceClass = TestClassLoader().defineInterface("AdditionalInterface1")
+    val additionalInterfaceClass = ByteBuddyTestClassLoader().defineInterface("AdditionalInterface1")
 
     `when`
     val m: Runnable = Mock(mapOf("mockMaker" to mockito, "additionalInterfaces" to listOf(additionalInterfaceClass)))
@@ -498,7 +507,7 @@ class MockitoMockMakerSpec : Specification() {
     }
   }
 
-  class TestClassLoader : ClassLoader() {
+  class ByteBuddyTestClassLoader : ClassLoader() {
     private val cache = HashMap<String, Class<*>>()
 
     @Synchronized
@@ -539,7 +548,7 @@ open class AccessProtectedSubClass : AccessProtectedBaseClass() {
   open fun accessStaticFlag(): Boolean = staticFlag
 }
 
-open class DataClass(open val boolField: Boolean, open val stringField: String?) {
+open class DataClass(open val bool: Boolean, open val string: String?) {
   constructor() : this(true, "data")
 }
 
