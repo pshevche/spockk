@@ -21,16 +21,15 @@ import spock.lang.FailsWith
 import spock.lang.Specification
 import kotlin.math.abs
 
+@FailsWith(ConditionNotSatisfiedError::class)
 class UnsatisfiedConditions : Specification() {
 
-  @FailsWith(ConditionNotSatisfiedError::class)
   @MigratedFrom("org.spockframework.smoke.condition.UnsatisfiedConditions#boolean")
   fun `boolean`() {
     expect
     false
   }
 
-  @FailsWith(ConditionNotSatisfiedError::class)
   @MigratedFrom("org.spockframework.smoke.condition.UnsatisfiedConditions#involving operators and methods")
   fun `involving operators and methods`() {
     expect
