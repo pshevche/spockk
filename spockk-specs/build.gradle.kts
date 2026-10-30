@@ -23,6 +23,11 @@ dependencies {
   testFixturesImplementation(libs.spock)
 }
 
+// spockk-core writes an extra kotlin_module file into its Kotlin classes dir, which javac reads from the classpath.
+tasks.named("compileTestFixturesJava") {
+  dependsOn(":spockk-core:generateLegacyKotlinModuleMetadata")
+}
+
 tasks.test {
   useJUnitPlatform()
   maxParallelForks = Runtime.getRuntime().availableProcessors() / 2

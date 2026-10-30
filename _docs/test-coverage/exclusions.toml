@@ -185,3 +185,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.StackTraceFiltering#exception in closure in feature method"]]
+status = "blocked"
+reason = "The expect row declares a local val directly after the expect label, which Kotlin parses as the 'expect' multiplatform modifier, so the fixture does not compile"
+gap = "https://github.com/pshevche/spockk/issues/937"
+decided = "2026-10-30"
