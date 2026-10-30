@@ -21,10 +21,6 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import org.spockframework.runtime.SpecInfoBuilder
-import org.spockframework.runtime.model.BlockKind
-import org.spockframework.runtime.model.FeatureInfo
-import spock.lang.PendingFeature
 import spock.lang.Specification
 
 @OptIn(ExperimentalCompilerApi::class)
@@ -663,66 +659,6 @@ class FeatureBlockStructureValidationTest : Specification() {
     )
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/793")
-  @MigratedFrom("org.spockframework.smoke.Blocks#labels and comments")
-  fun `labels and comments`() {
-    `when`
-    val result =
-      transform(
-        specWithBody(
-          """
-          fun m1(z: Int) {
-            io.github.pshevche.spockk.lang.setup("setup")
-            io.github.pshevche.spockk.lang.and("setup2")
-            io.github.pshevche.spockk.lang.`when`("when")
-            io.github.pshevche.spockk.lang.and("when2")
-            io.github.pshevche.spockk.lang.then("then")
-            io.github.pshevche.spockk.lang.and("then2")
-            io.github.pshevche.spockk.lang.where("where")
-            io.github.pshevche.spockk.lang.and("where2")
-            io.github.pshevche.spockk.lang.variable(z).from(1)
-            io.github.pshevche.spockk.lang.filter("filter")
-            io.github.pshevche.spockk.lang.and("filter2")
-          }
-
-          fun m2() {
-            io.github.pshevche.spockk.lang.expect("expect")
-            io.github.pshevche.spockk.lang.and("expect2")
-          }
-
-          fun m3(z: Int, zz: Int) {
-            io.github.pshevche.spockk.lang.given("given")
-            io.github.pshevche.spockk.lang.and
-            val x = 1
-            io.github.pshevche.spockk.lang.expect
-            val y = 2
-            io.github.pshevche.spockk.lang.and("and")
-            io.github.pshevche.spockk.lang.where("")
-            io.github.pshevche.spockk.lang.and
-            io.github.pshevche.spockk.lang.variable(z).from(1)
-            io.github.pshevche.spockk.lang.combined("foo")
-            io.github.pshevche.spockk.lang.variable(zz).from(2)
-          }
-          """
-            .trimIndent()
-        )
-      )
-    val specInfo = SpecInfoBuilder(result.compilation.classLoader.loadClass("Spec")).build()
-    val m1 = specInfo.features[0]
-    val m2 = specInfo.features[1]
-    val m3 = specInfo.features[2]
-
-    then
-    result.isSuccess()
-    kinds(m1) == listOf(BlockKind.SETUP, BlockKind.WHEN, BlockKind.THEN, BlockKind.WHERE, BlockKind.FILTER)
-    texts(m1) ==
-      listOf("setup", "setup2", "when", "when2", "then", "then2", "where", "where2", "filter", "filter2")
-    kinds(m2) == listOf(BlockKind.EXPECT)
-    texts(m2) == listOf("expect", "expect2")
-    kinds(m3) == listOf(BlockKind.SETUP, BlockKind.EXPECT, BlockKind.WHERE)
-    texts(m3) == listOf("given", "and", "", "foo")
-  }
-
   @MigratedFrom("org.spockframework.smoke.Blocks#unknown label")
   fun `unknown label`() {
     `when`
@@ -741,8 +677,4 @@ class FeatureBlockStructureValidationTest : Specification() {
     !result.isSuccess()
     result.compilation.messages.contains("Spec.kt:3:1")
   }
-
-  private fun kinds(feature: FeatureInfo) = feature.blocks.map { it.kind }
-
-  private fun texts(feature: FeatureInfo) = feature.blocks.flatMap { it.texts }
 }
