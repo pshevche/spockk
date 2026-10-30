@@ -24,6 +24,7 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.CannotCreateMockException
+import org.spockframework.runtime.extension.builtin.PreconditionContext
 import spock.lang.IgnoreIf
 import spock.lang.PendingFeature
 import spock.lang.Requires
@@ -35,7 +36,7 @@ import java.util.concurrent.Callable
 
 class Java21Compatible(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
   @Suppress("unused")
-  fun doCall(context: Any?): Boolean = Runtime.version().feature() >= 21
+  fun doCall(context: Any?): Boolean = (context as PreconditionContext<*>).jvm.isJava21Compatible
 }
 
 @IgnoreIf(value = Java21Compatible::class, reason = "Cglib doesn't support running on Java 21+")
@@ -109,26 +110,21 @@ class CglibMockMakerSpec : Specification() {
     val ex = thrown(CannotCreateMockException::class.java)
     ex.message == "Cannot create mock for class java.lang.StringBuilder. cglib: Cannot mock final classes."
   }
-}
 
-class Java21CompatibleRequired(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
-  @Suppress("unused")
-  fun doCall(context: Any?): Boolean = Runtime.version().feature() >= 21
-}
+  @Requires(value = Java21Compatible::class, reason = "Cglib doesn't support running on Java 21+")
+  class CglibMockMakerUnsupportedSpec : Specification() {
 
-@Requires(value = Java21CompatibleRequired::class, reason = "Cglib doesn't support running on Java 21+")
-class CglibMockMakerUnsupportedSpec : Specification() {
+    @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
+    @MigratedFrom(
+      "org.spockframework.mock.runtime.CglibMockMakerSpec#Mocking with cglib on Java 21+ will be rejected with useful error message."
+    )
+    fun `Mocking with cglib on Java 21+ will be rejected with useful error message`() {
+      `when`
+      Mock(mapOf("mockMaker" to MockMakers.cglib), List::class.java)
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
-  @MigratedFrom(
-    "org.spockframework.mock.runtime.CglibMockMakerSpec#Mocking with cglib on Java 21+ will be rejected with useful error message."
-  )
-  fun `Mocking with cglib on Java 21+ will be rejected with useful error message`() {
-    `when`
-    Mock(mapOf("mockMaker" to MockMakers.cglib), List::class.java)
-
-    then
-    val ex = thrown(CannotCreateMockException::class.java)
-    ex.message == "Cannot create mock for interface java.util.List. cglib: Mocking with cglib is not supported on Java 21 or newer."
+      then
+      val ex = thrown(CannotCreateMockException::class.java)
+      ex.message == "Cannot create mock for interface java.util.List. cglib: Mocking with cglib is not supported on Java 21 or newer."
+    }
   }
 }
