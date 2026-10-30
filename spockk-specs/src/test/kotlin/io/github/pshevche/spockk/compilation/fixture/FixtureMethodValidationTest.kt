@@ -18,11 +18,17 @@ import com.tschuchort.compiletesting.SourceFile
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
+import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.spockframework.runtime.SpecInfoBuilder
+import org.spockframework.runtime.SpockException
+import org.spockframework.runtime.model.MethodKind
+import spock.lang.PendingFeature
 
 @OptIn(ExperimentalCompilerApi::class)
 class FixtureMethodValidationTest : BaseCompilationTest() {
@@ -191,6 +197,49 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
 
     where
     variable(fixtureMethodName).from("setup", "cleanup", "setupSpec", "cleanupSpec")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/792")
+  @MigratedFrom("org.spockframework.runtime.model.SpecInfoSpec#multiple fixture methods are not supported")
+  fun `multiple fixture methods are not supported`(fixtureMethod: String, kind: MethodKind) {
+    given
+    val result =
+      transform(
+        specWithBody(
+          """
+                fun $fixtureMethod() {
+                    println("default")
+                }
+
+                fun $fixtureMethod(param: String) {
+                    println(param)
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    `when`
+    SpecInfoBuilder(result.compilation.classLoader.loadClass("Spec")).build()
+
+    then
+    val ex = thrown(SpockException::class.java)
+    ex.message ==
+      "Multiple $kind methods found in 'Spec'. " +
+      "Methods [public final void Spec.$fixtureMethod(), public final void Spec.$fixtureMethod(java.lang.String)]. " +
+      "There can only be one per specification class."
+
+    where
+    fixtureMethod ; kind
+    "setup"       ; MethodKind.SETUP
+    "cleanup"     ; MethodKind.CLEANUP
+    "setupSpec"   ; MethodKind.SETUP_SPEC
+    "cleanupSpec" ; MethodKind.CLEANUP_SPEC
   }
 
   fun `supports @Shared fields accessed in #fixtureMethodName`(fixtureMethodName: String) {
