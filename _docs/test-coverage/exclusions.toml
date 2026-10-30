@@ -185,3 +185,15 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.extension.TempDirInheritedSpec#TempDir works for inherited fields"]]
+status = "blocked"
+reason = "A @TempDir field declared in a superclass makes every feature of the derived spec fail with MissingPropertyException during field injection, so even a @PendingFeature port errors out"
+gap = "https://github.com/pshevche/spockk/issues/930"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.TempDirInheritedSpec#TempDir works for inherited shared fields"]]
+status = "blocked"
+reason = "A @Shared @TempDir field is never injected, and the base spec's inherited @TempDir field also breaks field injection, so even a @PendingFeature port errors out"
+gap = "https://github.com/pshevche/spockk/issues/928"
+decided = "2026-10-30"
