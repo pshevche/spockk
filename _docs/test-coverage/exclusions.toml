@@ -189,13 +189,13 @@ decided = "2026-10-14"
 [["org.spockframework.smoke.condition.ExplicitConditionsInFeatureMethods#in setup block"]]
 status = "blocked"
 reason = "Spockk's block-order validator rejects a feature that ends with a setup block"
-gap = "https://github.com/pshevche/spockk/issues/860"
+gap = "https://github.com/pshevche/spockk/issues/795"
 decided = "2026-10-27"
 
 [["org.spockframework.smoke.condition.ExplicitConditionsInFeatureMethods#nested in setup block"]]
 status = "blocked"
 reason = "Spockk's block-order validator rejects a feature that ends with a setup block"
-gap = "https://github.com/pshevche/spockk/issues/860"
+gap = "https://github.com/pshevche/spockk/issues/795"
 decided = "2026-10-27"
 
 [["org.spockframework.smoke.condition.ExplicitConditionsInFeatureMethods#in cleanup block"]]
