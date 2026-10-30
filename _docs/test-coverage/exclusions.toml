@@ -185,3 +185,88 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.MatcherConditions#work in expect-blocks"]]
+status = "not-applicable"
+reason = "Short matcher syntax (`x equalTo(42)`) is Groovy command-expression parsing that Spock's AST rewriter turns into a condition; Kotlin has no equivalent juxtaposition syntax"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#work in then-blocks"]]
+status = "not-applicable"
+reason = "Short matcher syntax (`x equalTo(42)`) is Groovy command-expression parsing that Spock's AST rewriter turns into a condition; Kotlin has no equivalent juxtaposition syntax"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#fail when matcher doesn't match (1)"]]
+status = "not-applicable"
+reason = "Short matcher syntax (`x equalTo(42)`) is Groovy command-expression parsing that Spock's AST rewriter turns into a condition; Kotlin has no equivalent juxtaposition syntax"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#fail when matcher doesn't match (2)"]]
+status = "not-applicable"
+reason = "Short matcher syntax (`x equalTo(42)`) is Groovy command-expression parsing that Spock's AST rewriter turns into a condition; Kotlin has no equivalent juxtaposition syntax"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#can have a numeric literal as actual"]]
+status = "not-applicable"
+reason = "Short matcher syntax (`x equalTo(42)`) is Groovy command-expression parsing that Spock's AST rewriter turns into a condition; Kotlin has no equivalent juxtaposition syntax"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#cannot have a string literal as actual (because matcher expression gets parsed as a method call)"]]
+status = "not-applicable"
+reason = "Exists upstream to document how Groovy parses a matcher expression with this actual as a method call; the quirk is Groovy parsing and cannot occur in Kotlin"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#cannot have a method expression as actual in Groovy 1.8 (because matcher expression gets parsed as a chained method call)"]]
+status = "not-applicable"
+reason = "Exists upstream to document how Groovy parses a matcher expression with this actual as a method call; the quirk is Groovy parsing and cannot occur in Kotlin"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#cannot have a property expression as actual (because matcher expression gets parsed as a method call)"]]
+status = "not-applicable"
+reason = "Exists upstream to document how Groovy parses a matcher expression with this actual as a method call; the quirk is Groovy parsing and cannot occur in Kotlin"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#can only be used where a condition is expected (1)"]]
+status = "not-applicable"
+reason = "Relies on Groovy's dynamic dispatch and Spock's block grammar permitting a feature with only a setup block; Spockk requires a setup block to be followed by when or expect, and any matcher call in those is a condition, so there is no Kotlin form of 'outside a condition'"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#can only be used where a condition is expected (2)"]]
+status = "not-applicable"
+reason = "Relies on Groovy's dynamic dispatch and Spock's block grammar permitting a feature with only a setup block; Spockk requires a setup block to be followed by when or expect, and any matcher call in those is a condition, so there is no Kotlin form of 'outside a condition'"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#can be explicit conditions (but only with 'that' or 'expect' syntax)"]]
+status = "blocked"
+reason = "assert(that(x, equalTo(42))) does not compile because that() returns Unit and assert needs a Boolean"
+gap = "https://github.com/pshevche/spockk/issues/875"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#can provide a custom message"]]
+status = "blocked"
+reason = "assert(that(x, equalTo(42))) does not compile because that() returns Unit and assert needs a Boolean"
+gap = "https://github.com/pshevche/spockk/issues/875"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#fail when matcher doesn't match (4)"]]
+status = "blocked"
+reason = "assert(that(x, equalTo(42))) does not compile because that() returns Unit and assert needs a Boolean"
+gap = "https://github.com/pshevche/spockk/issues/875"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#hamcrest matchers are also supported as constraints in interactions"]]
+status = "blocked"
+reason = "1 * list.add(equalTo(42)) does not compile: the interaction DSL expects the argument type, not a Hamcrest Matcher"
+gap = "https://github.com/pshevche/spockk/issues/877"
+decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#work with custom matcher implementations"]]
+status = "not-applicable"
+reason = "Short matcher syntax (`x equalTo(42)`) is Groovy command-expression parsing that Spock's AST rewriter turns into a condition; Kotlin has no equivalent juxtaposition syntax"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.condition.MatcherConditions#fail when matcher doesn't match (3)"]]
+status = "blocked"
+reason = "Upstream uses @FailsWith(ConditionNotSatisfiedError) behind the unsupported that() condition; @FailsWith cannot be combined with @PendingFeature, so the port cannot be committed while #875 is open"
+gap = "https://github.com/pshevche/spockk/issues/947"
+decided = "2026-10-30"
