@@ -190,5 +190,8 @@ class GlobalTimeoutExtension : Specification() {
     }
 
   private fun EngineExecutionResults.succeeded(): Boolean =
-    allEvents().failed().count() == 0L && allEvents().aborted().count() == 0L
+    testEvents().started().count() == 1L &&
+      testEvents().succeeded().count() == 1L &&
+      allEvents().failed().count() == 0L &&
+      allEvents().aborted().count() == 0L
 }
