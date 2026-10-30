@@ -20,13 +20,11 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
-import spock.lang.Issue
 import spock.lang.Specification
 import spock.lang.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Issue("https://github.com/spockframework/spock/issues/1282")
 class ParallelTempDirSpec : Specification() {
 
   @TempDir
