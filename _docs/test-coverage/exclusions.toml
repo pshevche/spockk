@@ -185,3 +185,15 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInNestedPositions#in implicit condition"]]
+status = "blocked"
+reason = "A lambda-taking call as the whole implicit condition crashes the Kotlin compiler with a StackOverflowError during IR lowering"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInNestedPositions#deeply nested"]]
+status = "blocked"
+reason = "A lambda-taking call as the whole implicit condition crashes the Kotlin compiler with a StackOverflowError during IR lowering"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-27"
