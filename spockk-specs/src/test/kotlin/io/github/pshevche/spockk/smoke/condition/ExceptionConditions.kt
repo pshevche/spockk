@@ -20,8 +20,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.AssignedThro
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BareThrownNullSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BareThrownWithoutTypeSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExplicitAndInferredTypeSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.FieldAssignmentThrownSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VariableAssignmentThrownSpec
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
@@ -135,11 +133,11 @@ class ExceptionConditions : Specification() {
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#catch base type")
   fun `catches the base Throwable type`() {
     `when`
-    throw IllegalStateException("boom")
+    "".get(0)
 
     then
-    val t: Throwable = thrown(Throwable::class.java)
-    t is IllegalStateException
+    val t: Throwable = thrown()
+    t is IndexOutOfBoundsException
   }
 
   @FailsWith(WrongExceptionThrownError::class)
@@ -270,8 +268,7 @@ class ExceptionConditions : Specification() {
   fun `when-block with var defs`() {
     `when`
     val x: Char? = null
-    var ch: Char? = null
-    ch = "".get(0)
+    val ch: Char? = "".get(0)
 
     then
     ch == null
@@ -385,13 +382,12 @@ class ExceptionConditions : Specification() {
     thrown(ConditionNotSatisfiedError::class.java)
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @FailsWith(value = WrongExceptionThrownError::class, reason = "known limitation, not relevant in practice")
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#are not able to observe a failing interaction")
   fun `are not able to observe a failing interaction`() {
-    given
-    val list = Mock(MutableList::class.java as Class<MutableList<Any>>) {
-      1 * remove(1)
-    }
+    val list: MutableList<Any> = Mock()
+    1 * list.remove(1)
 
     `when`
     list.add(1)
@@ -400,30 +396,30 @@ class ExceptionConditions : Specification() {
     thrown(InteractionNotSatisfiedError::class.java)
   }
 
+  private var ioException: IOException? = null
+
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/852")
+  @FailsWith(WrongExceptionThrownError::class)
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#can use field assignment rather than declaration (not encouraged)")
   fun `can use field assignment rather than declaration (not encouraged)`() {
     `when`
-    val events = execute(selectClass(FieldAssignmentThrownSpec::class.java))
+    throw RuntimeException()
 
     then
-    events.assertStatistics { it.started(1).failed(1) }
-    val throwable = events.failed().list().single()
-      .getRequiredPayload(TestExecutionResult::class.java).throwable.orElseThrow()
-    throwable is WrongExceptionThrownError
+    ioException = thrown()
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/852")
+  @FailsWith(WrongExceptionThrownError::class)
   @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#can use variable assignment rather than declaration (not encouraged)")
   fun `can use variable assignment rather than declaration (not encouraged)`() {
+    var ioException: IOException?
+
     `when`
-    val events = execute(selectClass(VariableAssignmentThrownSpec::class.java))
+    throw RuntimeException()
 
     then
-    events.assertStatistics { it.started(1).failed(1) }
-    val throwable = events.failed().list().single()
-      .getRequiredPayload(TestExecutionResult::class.java).throwable.orElseThrow()
-    throwable is WrongExceptionThrownError
+    ioException = thrown()
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/852")
@@ -449,6 +445,8 @@ class ExceptionConditions : Specification() {
     x = 3
     y = 4
     throw RuntimeException()
+    x = 5
+    y = 6
 
     then
     thrown(RuntimeException::class.java)

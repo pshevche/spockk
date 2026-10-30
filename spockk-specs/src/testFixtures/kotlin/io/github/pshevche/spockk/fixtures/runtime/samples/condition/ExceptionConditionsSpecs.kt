@@ -58,27 +58,3 @@ class ExplicitAndInferredTypeSpec : Specification() {
     val e: Exception = thrown(IOException::class.java)
   }
 }
-
-class FieldAssignmentThrownSpec : Specification() {
-  private var ioException: IOException? = null
-
-  fun `feature`() {
-    `when`
-    throw RuntimeException()
-
-    then
-    ioException = thrown()
-  }
-}
-
-class VariableAssignmentThrownSpec : Specification() {
-  fun `feature`() {
-    var ioException: IOException?
-
-    `when`
-    throw RuntimeException()
-
-    then
-    ioException = thrown()
-  }
-}

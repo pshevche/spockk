@@ -47,6 +47,7 @@ class ExceptionConditionValidationTest : BaseCompilationTest() {
     then
     !result.isSuccess()
     result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+    result.compilation.messages.contains("Spec.kt:8:1")
   }
 
   fun `rejects a captured thrown() alongside a different bare notThrown()`() {
@@ -137,6 +138,34 @@ class ExceptionConditionValidationTest : BaseCompilationTest() {
     then
     !result.isSuccess()
     result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+    result.compilation.messages.contains("Spec.kt:10:1")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/712")
+  @MigratedFrom("org.spockframework.smoke.condition.ExceptionConditions#may only occur once in chained then-blocks")
+  fun `rejects exception conditions split across chained then blocks`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          throw java.io.IOException()
+
+          io.github.pshevche.spockk.lang.then
+          thrown(java.io.IOException::class.java)
+
+          io.github.pshevche.spockk.lang.then
+          thrown(Exception::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("A 'then' block may only have a single exception condition")
+    result.compilation.messages.contains("Spec.kt:10:1")
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/854")

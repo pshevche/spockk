@@ -192,12 +192,6 @@ reason = "Spockk rejects consecutive then: blocks at compile time, so a chained 
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-27"
 
-[["org.spockframework.smoke.condition.ExceptionConditions#may only occur once in chained then-blocks"]]
-status = "blocked"
-reason = "Spockk rejects consecutive then: blocks at compile time, so the chained-block variant of the single-exception-condition rule cannot be written"
-gap = "https://github.com/pshevche/spockk/issues/712"
-decided = "2026-10-27"
-
 [["org.spockframework.smoke.condition.ExceptionConditions#(Java-style) exception condition must specify a type that is-a java.lang.Throwable"]]
 status = "not-applicable"
 reason = "thrown() is bounded to Throwable in Kotlin, so a non-Throwable declared type is rejected by the Kotlin compiler instead of at spec run time"
