@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.smoke.fixture
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
@@ -91,4 +92,21 @@ class CleanupBlockSmokeTest : Specification() {
     cleanup
     println("closing $opened")
   }
+
+  @MigratedFrom(
+    "org.spockframework.smoke.ast.CleanupBlocksAstSpec#cleanup rewrite keeps correct method reference for multi-assignments"
+  )
+  fun `cleanup rewrite keeps correct method reference for multi-assignments`() {
+    // behavior check: the destructuring temporary cannot be spelled in a transformed snapshot
+    `when`
+    val (foobar, b) = foobar()
+
+    then
+    println(foobar)
+
+    cleanup
+    assert(foobar == "foo")
+  }
+
+  private fun foobar(): Pair<String, String> = Pair("foo", "bar")
 }
