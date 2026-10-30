@@ -30,10 +30,8 @@ import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.testkit.engine.EngineExecutionResults
 import org.spockframework.runtime.InvalidSpecException
-import spock.lang.Issue
 import spock.lang.Specification
 
-@Issue("https://github.com/spockframework/spock/issues/134")
 class IgnoreExtension : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreExtension#ignore spec")
@@ -94,8 +92,9 @@ class IgnoreExtension : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreExtension#Ignore can be configured to be inherited")
-  fun `Ignore can be configured to be inherited`(leaf: Class<*>, testStartAndSucceededCount: Long, specSkippedCount: Long) {
+  fun `Ignore can be configured to be inherited`(inherited: Boolean, testStartAndSucceededCount: Long, specSkippedCount: Long) {
     `when`
+    val leaf = if (inherited) InheritedIgnoreTest::class.java else NonInheritedIgnoreTest::class.java
     val result = executeAll(*hierarchySelectors(leaf))
 
     then
@@ -107,9 +106,9 @@ class IgnoreExtension : Specification() {
     result.containerEvents().skipped().count() == specSkippedCount
 
     where
-    leaf                           ; testStartAndSucceededCount ; specSkippedCount
-    NonInheritedIgnoreTest::class.java ; 1L + 0L + 3L + 4L ; 1L
-    InheritedIgnoreTest::class.java    ; 1L                ; 3L
+    inherited ; testStartAndSucceededCount ; specSkippedCount
+    false     ; 1L + 0L + 3L + 4L          ; 1L
+    true      ; 1L                         ; 3L
   }
 
   private fun hierarchySelectors(leaf: Class<*>) =
