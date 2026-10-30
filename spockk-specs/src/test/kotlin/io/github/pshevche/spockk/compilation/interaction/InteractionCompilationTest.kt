@@ -18,12 +18,14 @@ import com.tschuchort.compiletesting.SourceFile.Companion.kotlin
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 
 /**
  * Covers the when/then interaction scoping shape
@@ -156,5 +158,47 @@ class InteractionCompilationTest : BaseCompilationTest() {
       leaveScopeIdx > realGreetCallIdx
       checkExceptionThrownIdx > leaveScopeIdx
     }
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/807")
+  @MigratedFrom("org.spockframework.smoke.StaticMethodsInSpecifications#may not contain interactions")
+  fun `may not contain interactions`() {
+    `when`
+    val result = transform(
+      kotlin(
+        "StaticInteraction.kt",
+        """
+        import io.github.pshevche.spockk.lang.any
+        import io.github.pshevche.spockk.lang.times
+
+        interface Adder {
+          fun add(elem: String)
+        }
+
+        class StaticInteraction : spock.lang.Specification() {
+          fun foo() {
+            val list = Mock(Adder::class.java)
+
+            io.github.pshevche.spockk.lang.`when`
+            list.add("elem")
+
+            io.github.pshevche.spockk.lang.then
+            elementAdded(list)
+          }
+
+          companion object {
+            @JvmStatic
+            fun elementAdded(list: Adder) {
+              1 * list.add(any())
+            }
+          }
+        }
+        """.trimIndent()
+      )
+    )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Interactions cannot be declared in static scope")
   }
 }

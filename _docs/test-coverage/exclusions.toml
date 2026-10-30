@@ -185,3 +185,8 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.StaticMethodsInSpecifications#may not create mocks"]]
+status = "not-applicable"
+reason = "Spock rejects Mock() in a static method with a custom compile error. In Kotlin, Mock is an instance member of Specification, so a companion object function cannot reference it at all (Unresolved reference), and the rejection comes from the Kotlin compiler rather than from Spockk"
+decided = "2026-10-26"
