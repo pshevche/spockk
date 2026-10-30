@@ -28,9 +28,11 @@ import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import spock.lang.Specification
+import spock.lang.Unroll
 
 class IgnoreRestExtension : Specification() {
 
+  @Unroll("Ignore #ignored methods")
   @MigratedFrom("org.spockframework.smoke.extension.IgnoreRestExtension#ignore some methods")
   fun `ignore some methods`(spec: Class<*>, run: Int, ignored: Int) {
     `when`

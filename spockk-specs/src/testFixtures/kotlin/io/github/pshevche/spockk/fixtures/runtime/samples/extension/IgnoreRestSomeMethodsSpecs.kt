@@ -21,7 +21,7 @@ import spock.lang.Specification
 class IgnoreRestSomeMethodsSpec1 : Specification() {
   fun `foo`() {
     expect
-    assert(true)
+    assert(false)
   }
 
   @IgnoreRest
@@ -32,7 +32,7 @@ class IgnoreRestSomeMethodsSpec1 : Specification() {
 
   fun `baz`() {
     expect
-    assert(true)
+    assert(false)
   }
 }
 
@@ -51,7 +51,7 @@ class IgnoreRestSomeMethodsSpec2 : Specification() {
 
   fun `baz`() {
     expect
-    assert(true)
+    assert(false)
   }
 }
 

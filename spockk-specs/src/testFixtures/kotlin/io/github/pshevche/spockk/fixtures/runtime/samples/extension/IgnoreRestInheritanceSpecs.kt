@@ -39,14 +39,14 @@ class IgnoreRestDerivedSpec1 : IgnoreRestBaseSpec1() {
 
   fun `feature4`() {
     expect
-    assert(true)
+    assert(false)
   }
 }
 
 open class IgnoreRestBaseSpec2 : Specification() {
   fun `feature1`() {
     expect
-    assert(true)
+    assert(false)
   }
 
   fun `feature2`() {
