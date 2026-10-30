@@ -27,7 +27,7 @@ import java.util.Collections.reverse
 class VoidMethodCallsInThenBlocks : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of void Groovy instance method")
-  fun `invocation of void Groovy instance method`() {
+  fun `invocation of void Kotlin instance method`() {
     `when`("")
 
     then
@@ -35,8 +35,9 @@ class VoidMethodCallsInThenBlocks : Specification() {
     this.voidInstanceMethod()
   }
 
+  @Suppress("RemoveRedundantQualifierName")
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of void Groovy static method")
-  fun `invocation of void Groovy static method`() {
+  fun `invocation of void Kotlin static method`() {
     `when`("")
 
     then
@@ -52,6 +53,7 @@ class VoidMethodCallsInThenBlocks : Specification() {
     mutableListOf<Any>().clear()
   }
 
+  @Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of void Java static method")
   fun `invocation of void Java static method`() {
     `when`("")
@@ -62,7 +64,7 @@ class VoidMethodCallsInThenBlocks : Specification() {
 
   @ResourceLock(Resources.SYSTEM_OUT)
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of void default Groovy method")
-  fun `invocation of void default Groovy method`() {
+  fun `invocation of void default Kotlin method`() {
     `when`("")
 
     then
@@ -70,7 +72,7 @@ class VoidMethodCallsInThenBlocks : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of void default Groovy static method")
-  fun `invocation of void default Groovy static method`() {
+  fun `invocation of void default Kotlin static method`() {
     `when`("")
 
     then
@@ -79,13 +81,14 @@ class VoidMethodCallsInThenBlocks : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of statically imported void Groovy method")
-  fun `invocation of statically imported void Groovy method`() {
+  fun `invocation of statically imported void Kotlin method`() {
     `when`("")
 
     then
     foo()
   }
 
+  @Suppress("ReplaceJavaStaticMethodWithKotlinAnalog")
   @MigratedFrom("org.spockframework.smoke.VoidMethodCallsInThenBlocks#invocation of statically imported void Java method")
   fun `invocation of statically imported void Java method`() {
     `when`("")
