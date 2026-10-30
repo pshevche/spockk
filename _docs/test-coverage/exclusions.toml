@@ -185,3 +185,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.Blocks#labels and comments"]]
+status = "blocked"
+reason = "The faithful port asserts m1.blocks.map { it.kind } == listOf(...) inline in expect/and, and a lambda inside a condition crashes the Kotlin backend with a StackOverflowError, so the test source set no longer compiles. Once that is fixed it still needs the filter and combined block labels (https://github.com/pshevche/spockk/issues/793) and should land as @PendingFeature on that issue"
+gap = "https://github.com/pshevche/spockk/issues/938"
+decided = "2026-10-30"

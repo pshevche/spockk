@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -656,5 +657,24 @@ class FeatureBlockStructureValidationTest : Specification() {
         """
         .trimIndent()
     )
+  }
+
+  @MigratedFrom("org.spockframework.smoke.Blocks#unknown label")
+  fun `unknown label`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          setuppp
+          val a = 1
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:3:1")
   }
 }
