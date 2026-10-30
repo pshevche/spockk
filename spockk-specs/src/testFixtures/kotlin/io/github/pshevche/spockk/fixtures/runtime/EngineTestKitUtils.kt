@@ -15,10 +15,14 @@
 package io.github.pshevche.spockk.fixtures.runtime
 
 import org.junit.platform.engine.DiscoverySelector
+import org.junit.platform.launcher.PostDiscoveryFilter
 import org.junit.platform.testkit.engine.EngineTestKit
 import org.junit.platform.testkit.engine.Events
 
 object EngineTestKitUtils {
   fun execute(vararg selectors: DiscoverySelector): Events =
     EngineTestKit.engine("spock").selectors(*selectors).execute().testEvents().debug()
+
+  fun execute(selector: DiscoverySelector, filter: PostDiscoveryFilter): Events =
+    EngineTestKit.engine("spock").selectors(selector).filters(filter).execute().testEvents().debug()
 }
