@@ -67,7 +67,7 @@ class SpecRecognition : Specification() {
     failure is SpockAssertionError
   }
 
-  // Lambdas inside a condition crash the compiler: https://github.com/pshevche/spockk/issues/819
+  // Extracted in `when` because a lambda inside a condition crashes the compiler.
   private fun failureOf(events: Events): Throwable? =
     events.failed().list().singleOrNull()
       ?.getRequiredPayload(TestExecutionResult::class.java)?.throwable?.orElse(null)

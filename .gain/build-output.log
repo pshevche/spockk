@@ -1,0 +1,85 @@
+Reusing configuration cache.
+> Task :spockk-specs:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :spockk-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :spockk-compiler-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :spockk-specs:processTestFixturesResources NO-SOURCE
+> Task :spockk-core:processResources NO-SOURCE
+> Task :spockk-core:sourcesJar UP-TO-DATE
+> Task :spockk-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :spockk-specs:processResources NO-SOURCE
+> Task :spockk-compiler-plugin:processResources NO-SOURCE
+> Task :spockk-compiler-plugin:generatePomFileForMavenPublication
+> Task :spockk-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :spockk-compiler-plugin:generateBuildConfigClasses UP-TO-DATE
+> Task :spockk-gradle-plugin:generatePomFileForPluginMavenPublication
+> Task :spockk-core:generatePomFileForMavenPublication
+> Task :spockk-compiler-plugin:sourcesJar UP-TO-DATE
+> Task :spockk-gradle-plugin:generateBuildConfigClasses UP-TO-DATE
+> Task :spockk-specs:processTestResources UP-TO-DATE
+> Task :spockk-gradle-plugin:processResources UP-TO-DATE
+> Task :spockk-core:compileKotlin UP-TO-DATE
+> Task :spockk-gradle-plugin:generatePomFileForSpockkPluginMarkerMavenPublication
+> Task :spockk-gradle-plugin:signSpockkPluginMarkerMavenPublication SKIPPED
+> Task :spockk-compiler-plugin:kaptGenerateStubsKotlin UP-TO-DATE
+> Task :spockk-gradle-plugin:sourcesJar UP-TO-DATE
+> Task :spockk-core:compileJava NO-SOURCE
+> Task :spockk-core:classes UP-TO-DATE
+> Task :spockk-core:javadoc NO-SOURCE
+> Task :spockk-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :spockk-core:generateLegacyKotlinModuleMetadata UP-TO-DATE
+> Task :spockk-gradle-plugin:compileJava NO-SOURCE
+> Task :spockk-gradle-plugin:classes UP-TO-DATE
+> Task :spockk-core:plainJavadocJar UP-TO-DATE
+> Task :spockk-gradle-plugin:javadoc NO-SOURCE
+> Task :spockk-gradle-plugin:jar UP-TO-DATE
+> Task :spockk-gradle-plugin:publishSpockkPluginMarkerMavenPublicationToRepoForTestRepository
+> Task :spockk-gradle-plugin:javadocJar UP-TO-DATE
+> Task :spockk-gradle-plugin:generateMetadataFileForPluginMavenPublication
+> Task :spockk-gradle-plugin:signPluginMavenPublication SKIPPED
+> Task :spockk-compiler-plugin:kaptKotlin UP-TO-DATE
+> Task :spockk-core:jar
+> Task :spockk-compiler-plugin:compileKotlin UP-TO-DATE
+> Task :spockk-compiler-plugin:compileJava NO-SOURCE
+> Task :spockk-compiler-plugin:classes UP-TO-DATE
+> Task :spockk-compiler-plugin:javadoc NO-SOURCE
+> Task :spockk-compiler-plugin:jar UP-TO-DATE
+> Task :spockk-specs:compileKotlin NO-SOURCE
+> Task :spockk-compiler-plugin:plainJavadocJar UP-TO-DATE
+> Task :spockk-specs:compileJava NO-SOURCE
+> Task :spockk-specs:classes UP-TO-DATE
+> Task :spockk-compiler-plugin:generateMetadataFileForMavenPublication
+> Task :spockk-specs:jar UP-TO-DATE
+> Task :spockk-gradle-plugin:publishPluginMavenPublicationToRepoForTestRepository
+> Task :spockk-gradle-plugin:publishAllPublicationsToRepoForTestRepository
+> Task :spockk-specs:compileTestFixturesKotlin UP-TO-DATE
+> Task :spockk-specs:compileTestFixturesJava NO-SOURCE
+> Task :spockk-specs:testFixturesClasses UP-TO-DATE
+> Task :spockk-specs:testFixturesJar UP-TO-DATE
+> Task :spockk-specs:compileTestKotlin UP-TO-DATE
+> Task :spockk-specs:compileTestJava NO-SOURCE
+> Task :spockk-specs:testClasses UP-TO-DATE
+> Task :spockk-compiler-plugin:publishMavenPublicationToRepoForTestRepository
+> Task :spockk-compiler-plugin:publishAllPublicationsToRepoForTestRepository
+
+> Task :spockk-core:shadowJar
+'META-INF/io.github.pshevche.spockk_spockk-core.kotlin_module' is matched by com.github.jengelman.gradle.plugins.shadow.transformers.KotlinModuleMetadataTransformer_Decorated but its DuplicatesStrategy is EXCLUDE — duplicates may be silently dropped before the transformer processes them.
+Set it to INCLUDE or WARN to ensure all duplicates are processed by the transformer.
+See https://gradleup.com/shadow/configuration/merging/#handling-duplicates-strategy for more details.
+'META-INF/spockk-core.kotlin_module' is matched by com.github.jengelman.gradle.plugins.shadow.transformers.KotlinModuleMetadataTransformer_Decorated but its DuplicatesStrategy is EXCLUDE — duplicates may be silently dropped before the transformer processes them.
+Set it to INCLUDE or WARN to ensure all duplicates are processed by the transformer.
+See https://gradleup.com/shadow/configuration/merging/#handling-duplicates-strategy for more details.
+'META-INF/services/org.junit.platform.engine.TestEngine' is matched by com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer but its DuplicatesStrategy is EXCLUDE — duplicates may be silently dropped before the transformer processes them.
+Set it to INCLUDE or WARN to ensure all duplicates are processed by the transformer.
+See https://gradleup.com/shadow/configuration/merging/#handling-duplicates-strategy for more details.
+'META-INF/services/org.junit.platform.engine.discovery.DiscoverySelectorIdentifierParser' is matched by com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer but its DuplicatesStrategy is EXCLUDE — duplicates may be silently dropped before the transformer processes them.
+Set it to INCLUDE or WARN to ensure all duplicates are processed by the transformer.
+See https://gradleup.com/shadow/configuration/merging/#handling-duplicates-strategy for more details.
+
+> Task :spockk-core:generateMetadataFileForMavenPublication
+> Task :spockk-core:publishMavenPublicationToRepoForTestRepository
+> Task :spockk-core:publishAllPublicationsToRepoForTestRepository
+> Task :spockk-specs:test
+
+BUILD SUCCESSFUL in 2s
+37 actionable tasks: 14 executed, 23 up-to-date
+Configuration cache entry reused.

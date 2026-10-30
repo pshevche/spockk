@@ -54,7 +54,7 @@ class SameUnitSpecRecognitionSpec : SameUnitIntermediarySpec() {
   }
 }
 
-class FullyQualifiedIntermediarySpecRecognitionSpec : FullyQualifiedSpecRecognitionIntermediary() {
+class FullyQualifiedIntermediarySpecRecognitionSpec : io.github.pshevche.spockk.fixtures.runtime.samples.recognition.FullyQualifiedSpecRecognitionIntermediary() {
   fun foo() {
     expect
     assert(false)
