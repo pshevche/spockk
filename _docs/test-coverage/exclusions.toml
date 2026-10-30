@@ -188,13 +188,13 @@ decided = "2026-10-14"
 
 [["org.spockframework.smoke.ast.BlocksAst#all observable blocks with empty labels"]]
 status = "blocked"
-reason = "Spockk has no filter or combined block labels, so the upstream feature body does not compile"
+reason = "Spockk has no filter or combined block labels, and its block-order validator rejects when after expect (https://github.com/pshevche/spockk/issues/665), so the upstream feature body does not compile"
 gap = "https://github.com/pshevche/spockk/issues/793"
 decided = "2026-10-26"
 
 [["org.spockframework.smoke.ast.BlocksAst#all observable blocks with labels and blocks"]]
 status = "blocked"
-reason = "Spockk has no filter or combined block labels, so the upstream feature body does not compile"
+reason = "Spockk has no filter or combined block labels, and its block-order validator rejects when after expect (https://github.com/pshevche/spockk/issues/665), so the upstream feature body does not compile"
 gap = "https://github.com/pshevche/spockk/issues/793"
 decided = "2026-10-26"
 
