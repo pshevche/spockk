@@ -188,12 +188,12 @@ decided = "2026-10-14"
 
 [["org.spockframework.smoke.ast.condition.CollectionConditionAstSpec#collection condition matchCollectionsAsSet is transformed correctly"]]
 status = "not-applicable"
-reason = "Snapshots how Groovy's ConditionRewriter handles the `=~` collection operator (Groovy's match-as-set extension on collections). Kotlin has no `=~` operator and Spockk adds no equivalent, so there is no source construct to transform"
+reason = "Snapshots how Spock's ConditionRewriter turns the `=~` collection operator into `SpockRuntime.matchCollectionsAsSet`. Kotlin has no `=~` operator for the rewriter to carry, and Spockk adds no equivalent, so there is no source construct to transform"
 decided = "2026-10-26"
 
 [["org.spockframework.smoke.ast.condition.CollectionConditionAstSpec#collection condition matchCollectionsInAnyOrder is transformed correctly"]]
 status = "not-applicable"
-reason = "Snapshots how Groovy's ConditionRewriter handles the `==~` collection operator (Groovy's match-in-any-order extension on collections). Kotlin has no `==~` operator and Spockk adds no equivalent, so there is no source construct to transform"
+reason = "Snapshots how Spock's ConditionRewriter turns the `==~` collection operator into `SpockRuntime.matchCollectionsInAnyOrder`. Kotlin has no `==~` operator for the rewriter to carry, and Spockk adds no equivalent, so there is no source construct to transform"
 decided = "2026-10-26"
 
 [["org.spockframework.smoke.ast.condition.CollectionConditionAstSpec#regex find conditions are transformed correctly"]]
