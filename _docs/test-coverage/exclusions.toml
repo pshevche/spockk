@@ -259,3 +259,14 @@ status = "blocked"
 reason = "1 * list.add(equalTo(42)) does not compile: the interaction DSL expects the argument type, not a Hamcrest Matcher"
 gap = "https://github.com/pshevche/spockk/issues/877"
 decided = "2026-10-28"
+
+[["org.spockframework.smoke.condition.MatcherConditions#work with custom matcher implementations"]]
+status = "not-applicable"
+reason = "Short matcher syntax (`x equalTo(42)`) is Groovy command-expression parsing that Spock's AST rewriter turns into a condition; Kotlin has no equivalent juxtaposition syntax"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.condition.MatcherConditions#fail when matcher doesn't match (3)"]]
+status = "blocked"
+reason = "Upstream uses @FailsWith(ConditionNotSatisfiedError) behind the unsupported that() condition; @FailsWith cannot be combined with @PendingFeature, so the port cannot be committed while #875 is open"
+gap = "https://github.com/pshevche/spockk/issues/947"
+decided = "2026-10-30"
