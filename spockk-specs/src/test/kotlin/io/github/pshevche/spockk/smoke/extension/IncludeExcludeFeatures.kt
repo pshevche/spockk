@@ -20,6 +20,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.extension.Fast
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.IncludeExcludeSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.Slow
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -35,8 +36,12 @@ class IncludeExcludeFeatures : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.IncludeExcludeFeatures#include methods based on annotations")
   fun `include methods based on annotations`(annotationTypes: List<Class<out Annotation>>, runCount: Int) {
+    val config: RunnerConfiguration.() -> Unit = {
+      include = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) }
+    }
+
     `when`
-    val events = runSpec { include = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) } }
+    val events = runSpec(config)
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -44,38 +49,22 @@ class IncludeExcludeFeatures : Specification() {
     events.skipped().count() == 0L
 
     where
-    annotationTypes                    ; runCount
-    listOf(Slow::class.java)            ; 1
-    listOf(Fast::class.java)            ; 1
-    listOf(Slow::class.java, Fast::class.java) ; 2
-  }
-
-  @MigratedFrom(
-    "org.spockframework.smoke.extension.IncludeExcludeFeatures#include methods based on annotations using different configuration style"
-  )
-  fun `include methods based on annotations using different configuration style`(
-    annotationTypes: List<Class<out Annotation>>,
-    runCount: Int
-  ) {
-    `when`
-    val events = runSpec { annotationTypes.forEach { include.annotations.add(it) } }
-
-    then
-    events.succeeded().count() == runCount.toLong()
-    events.failed().count() == 0L
-    events.skipped().count() == 0L
-
-    where
-    annotationTypes                    ; runCount
-    listOf(Slow::class.java)            ; 1
-    listOf(Fast::class.java)            ; 1
-    listOf(Slow::class.java, Fast::class.java) ; 2
+    variable(annotationTypes).from(
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(runCount).from(1, 1, 2)
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IncludeExcludeFeatures#exclude methods based on annotations")
   fun `exclude methods based on annotations`(annotationTypes: List<Class<out Annotation>>, runCount: Int) {
+    val config: RunnerConfiguration.() -> Unit = {
+      exclude = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) }
+    }
+
     `when`
-    val events = runSpec { exclude = IncludeExcludeCriteria().apply { annotations.addAll(annotationTypes) } }
+    val events = runSpec(config)
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -83,10 +72,12 @@ class IncludeExcludeFeatures : Specification() {
     events.skipped().count() == 0L
 
     where
-    annotationTypes                    ; runCount
-    listOf(Slow::class.java)            ; 2
-    listOf(Fast::class.java)            ; 2
-    listOf(Slow::class.java, Fast::class.java) ; 1
+    variable(annotationTypes).from(
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(runCount).from(2, 2, 1)
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.IncludeExcludeFeatures#include and exclude features based on annotations")
@@ -95,11 +86,13 @@ class IncludeExcludeFeatures : Specification() {
     annTypes2: List<Class<out Annotation>>,
     runCount: Int
   ) {
-    `when`
-    val events = runSpec {
+    val config: RunnerConfiguration.() -> Unit = {
       include = IncludeExcludeCriteria().apply { annotations.addAll(annTypes1) }
       exclude = IncludeExcludeCriteria().apply { annotations.addAll(annTypes2) }
     }
+
+    `when`
+    val events = runSpec(config)
 
     then
     events.succeeded().count() == runCount.toLong()
@@ -107,16 +100,29 @@ class IncludeExcludeFeatures : Specification() {
     events.skipped().count() == 0L
 
     where
-    annTypes1                          ; annTypes2                          ; runCount
-    listOf(Slow::class.java)            ; listOf(Slow::class.java)            ; 0
-    listOf(Slow::class.java)            ; listOf(Fast::class.java)            ; 1
-    listOf(Slow::class.java)            ; listOf(Slow::class.java, Fast::class.java) ; 0
-    listOf(Fast::class.java)            ; listOf(Slow::class.java)            ; 1
-    listOf(Fast::class.java)            ; listOf(Fast::class.java)            ; 0
-    listOf(Fast::class.java)            ; listOf(Slow::class.java, Fast::class.java) ; 0
-    listOf(Slow::class.java, Fast::class.java) ; listOf(Slow::class.java)     ; 1
-    listOf(Slow::class.java, Fast::class.java) ; listOf(Fast::class.java)     ; 1
-    listOf(Slow::class.java, Fast::class.java) ; listOf(Slow::class.java, Fast::class.java) ; 0
+    variable(annTypes1).from(
+      listOf(Slow::class.java),
+      listOf(Slow::class.java),
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Fast::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(annTypes2).from(
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java),
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java),
+      listOf(Slow::class.java),
+      listOf(Fast::class.java),
+      listOf(Slow::class.java, Fast::class.java)
+    )
+    variable(runCount).from(0, 1, 0, 1, 0, 0, 1, 1, 0)
   }
 
   private fun runSpec(configure: RunnerConfiguration.() -> Unit) =

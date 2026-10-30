@@ -185,3 +185,8 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.extension.IncludeExcludeFeatures#include methods based on annotations using different configuration style"]]
+status = "not-applicable"
+reason = "Upstream's only difference from the sibling feature is the Groovy closure DSL in a configuration script (`include { annotation(it) }`), which is parsed by Spock's Groovy configuration builder. Kotlin has no such DSL, and RunnerConfiguration only offers one way to set the criteria, already covered by 'include methods based on annotations'"
+decided = "2026-10-30"
