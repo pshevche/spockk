@@ -19,6 +19,6 @@ import org.junit.platform.testkit.engine.EngineTestKit
 import org.junit.platform.testkit.engine.Events
 
 object EngineTestKitUtils {
-  fun execute(selector: DiscoverySelector): Events =
-    EngineTestKit.engine("spock").selectors(selector).execute().testEvents().debug()
+  fun execute(vararg selectors: DiscoverySelector): Events =
+    EngineTestKit.engine("spock").selectors(*selectors).execute().testEvents().debug()
 }
