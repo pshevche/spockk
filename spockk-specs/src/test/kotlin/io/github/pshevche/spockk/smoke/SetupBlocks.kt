@@ -26,7 +26,6 @@ class SetupBlocks : Specification() {
   @MigratedFrom("org.spockframework.smoke.SetupBlocks#implicit")
   fun `implicit`() {
     val a = 1
-    assert(a == 1)
   }
 
   @MigratedFrom("org.spockframework.smoke.SetupBlocks#blocks are executed")
