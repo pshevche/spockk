@@ -19,7 +19,6 @@ import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.where
-import org.spockframework.runtime.SpecificationContext
 import org.spockframework.runtime.extension.ExtensionAnnotation
 import org.spockframework.runtime.extension.IAnnotationDrivenExtension
 import org.spockframework.runtime.extension.builtin.RetryConditionContext
@@ -303,7 +302,7 @@ class RetryConditionFixture : Specification() {
   fun bar(message: String) {
     RetryTracker.featureCounter.incrementAndGet()
     expect
-    throw AssertionError(message)
+    assert(false) { message }
 
     where
     variable(message).from("1", "2", "3")
@@ -334,10 +333,7 @@ class RetryUnexpectedExceptionFixture : Specification() {
 
 class InstanceSharedValueIsTwoCondition(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
   @Suppress("unused") // invoked reflectively by Groovy's Closure.call() dispatch
-  fun doCall(): Boolean {
-    val spec = (delegate as RetryConditionContext<*>).instance as Specification
-    return ((spec.specificationContext as SpecificationContext).sharedInstance as RetrySharedFieldFixture).value == 2
-  }
+  fun doCall(): Boolean = (delegate as RetryConditionContext<*>).let { (it.instance as RetrySharedFieldFixture).value == 2 }
 }
 
 class RetrySharedFieldFixture : Specification() {

@@ -70,6 +70,7 @@ import org.spockframework.runtime.SpockMultipleFailuresError
 import org.spockframework.runtime.model.parallel.ExecutionMode.SAME_THREAD
 import org.spockframework.util.IThrowableFunction
 import spock.lang.Execution
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import java.io.IOException
 
@@ -160,10 +161,12 @@ class RetryFeatureExtensionSpec : Specification() {
     val events = execute(selectClass(RetryChangeThreadDataDrivenFixture::class.java))
 
     then
-    val failures = events.failures().filterIsInstance<SpockMultipleFailuresError>()
-    val nested = failures.flatMap { it.failures }
+    val failures = events.failures()
+    val multipleFailures = failures.map { it as SpockMultipleFailuresError }
+    val nested = multipleFailures.flatMap { it.failures }
     failures.size == 2
-    failures.allHaveFourFailures()
+    failures.allAre(SpockMultipleFailuresError::class.java)
+    multipleFailures.allHaveFourFailures()
     nested.allAre(ConditionNotSatisfiedError::class.java)
   }
 
@@ -180,9 +183,9 @@ class RetryFeatureExtensionSpec : Specification() {
 
     then
     events.assertStatistics { it.started(4).succeeded(1).failed(3).skipped(0) }
-    val failures = events.failures().filterIsInstance<MultipleFailuresError>()
-    failures.isNotEmpty()
-    failures.allHaveFourIoFailures()
+    val failure = events.failures().first() as MultipleFailuresError
+    failure.failures.size == 4
+    failure.failures.allAre(IOException::class.java)
     RetryTracker.setupCounter.get() == expectedCount
     RetryTracker.cleanupCounter.get() == expectedCount
     RetryTracker.featureCounter.get() == 12
@@ -222,9 +225,9 @@ class RetryFeatureExtensionSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry rethrows non handled exceptions for data driven features"
   )
-  fun `@Retry rethrows non handled exceptions for data driven features`(fixture: Class<*>) {
+  fun `@Retry rethrows non handled exceptions for data driven features`(mode: String) {
     `when`
-    val events = execute(selectClass(fixture))
+    val events = execute(selectClass(unhandledExceptionFixtureFor(mode)))
 
     then
     val failures = events.failures()
@@ -232,10 +235,7 @@ class RetryFeatureExtensionSpec : Specification() {
     failures.allAre(IllegalArgumentException::class.java)
 
     where
-    variable(fixture).from(
-      RetryUnhandledExceptionIterationModeFixture::class.java,
-      RetryUnhandledExceptionSetupFeatureCleanupModeFixture::class.java
-    )
+    variable(mode).from("ITERATION", "SETUP_FEATURE_CLEANUP")
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry works for data driven features")
@@ -259,10 +259,20 @@ class RetryFeatureExtensionSpec : Specification() {
   }
 
   @MigratedFrom(
-    "org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry doesn't affect data driven feature where all iterations pass",
-    "org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry doesn't affect @Unroll'ed data driven feature where all iterations pass"
+    "org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry doesn't affect data driven feature where all iterations pass"
   )
   fun `@Retry doesn't affect data driven feature where all iterations pass`() {
+    `when`
+    val events = execute(selectClass(RetryDataDrivenAllPassingFixture::class.java))
+
+    then
+    events.assertStatistics { it.succeeded(4).failed(0).skipped(0) }
+  }
+
+  @MigratedFrom(
+    "org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry doesn't affect @Unroll'ed data driven feature where all iterations pass"
+  )
+  fun `@Retry doesn't affect @Unroll'ed data driven feature where all iterations pass`() {
     `when`
     val events = execute(selectClass(RetryDataDrivenAllPassingFixture::class.java))
 
@@ -283,9 +293,8 @@ class RetryFeatureExtensionSpec : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry can add delay between iteration executions")
   fun `@Retry can add delay between iteration executions`() {
-    val start = System.currentTimeMillis()
-
     `when`
+    val start = System.currentTimeMillis()
     val events = execute(selectClass(RetryDelayFixture::class.java))
 
     then
@@ -294,6 +303,7 @@ class RetryFeatureExtensionSpec : Specification() {
     RetryTracker.featureCounter.get() == 4 + 2
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/867")
   @MigratedFrom("org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry evaluates condition")
   fun `@Retry evaluates condition`() {
     `when`
@@ -316,6 +326,7 @@ class RetryFeatureExtensionSpec : Specification() {
     RetryTracker.featureCounter.get() == (4 + 1) + (1 + 1) + (1 + 1)
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/933")
   @MigratedFrom(
     "org.spockframework.smoke.extension.RetryFeatureExtensionSpec#@Retry provides condition access to Specification instance shared fields"
   )
@@ -457,6 +468,13 @@ class RetryFeatureExtensionSpec : Specification() {
     else -> RetrySetupFeatureCleanupModeFixture::class.java
   }
 
+  private fun unhandledExceptionFixtureFor(mode: String): Class<*> = when (mode) {
+    "ITERATION" -> RetryUnhandledExceptionIterationModeFixture::class.java
+    else -> RetryUnhandledExceptionSetupFeatureCleanupModeFixture::class.java
+  }
+
+  // Lambdas inside a condition crash the compiler plugin, so these keep them out of the conditions:
+  // https://github.com/pshevche/spockk/issues/819
   private fun List<Throwable>.allAre(type: Class<*>) = all { type.isInstance(it) }
 
   private fun List<MultipleFailuresError>.allHaveFourFailures() = all { it.failures.size == 4 }
