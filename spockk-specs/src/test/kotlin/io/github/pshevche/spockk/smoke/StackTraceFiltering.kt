@@ -16,24 +16,25 @@ package io.github.pshevche.spockk.smoke
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.CallChainException
-import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.CallChainSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.CauseLoopSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.ClosureInExpectBlockSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.ClosureInFieldInitializerSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.ClosureInFixtureMethodSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.ClosureInHelperMethodSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.ClosureInSetupBlockSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingBaseSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingCleanupSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingCleanupSpecSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingDataProcessorSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingDataProviderCreationSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingDerivedDataProcessorSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingDerivedSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingMultiVariableDataProcessorSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingSetupBlockConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingSetupSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.FailingSetupSpecSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.JavaCallChain
+import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.JavaCallChainSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.KotlinCallChain
+import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.KotlinCallChainSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.NestedExplicitConditionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.SuppressedSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.UnsatisfiedExplicitConditionSpec
@@ -42,6 +43,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.stacktrace.WrongExcept
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
+import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.testkit.engine.EngineTestKit
@@ -75,42 +77,26 @@ class StackTraceFiltering : Specification() {
     e.frames() == listOf("${UnsatisfiedExplicitConditionSpec::class.java.name}|a feature|37")
   }
 
-  // Upstream also runs this against a Java call chain; Kotlin and Java frames filter identically, so one chain is kept.
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#exception in call chain")
-  fun `exception in call chain`() {
+  fun `exception in call chain`(spec: Class<*>, chain: Class<*>, specLine: Int) {
     `when`
-    val e = failureOf(CallChainSpec::class.java)
+    val e = failureOf(spec)
 
     then
     e is CallChainException
     e.frames() == listOf(
-      "${KotlinCallChain::class.java.name}|c|62",
-      "${KotlinCallChain.StaticInner::class.java.name}|staticInner|72",
-      "${KotlinCallChain.Inner::class.java.name}|inner|66",
-      "${KotlinCallChain::class.java.name}|b|59",
-      "${KotlinCallChain::class.java.name}|a|55",
-      "${CallChainSpec::class.java.name}|a feature|44"
+      "${chain.name}|c|27",
+      "${chain.name}\$StaticInner|staticInner|37",
+      "${chain.name}\$Inner|inner|31",
+      "${chain.name}|b|24",
+      "${chain.name}|a|20",
+      "${spec.name}|a feature|$specLine"
     )
-  }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/804")
-  @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#exception in closure in feature method")
-  fun `exception in closure in feature method`() {
-    `when`
-    val inSetupBlock = failureOf(ClosureInSetupBlockSpec::class.java)
-    val inExpectBlock = failureOf(ClosureInExpectBlockSpec::class.java)
-
-    then
-    inSetupBlock is ConditionNotSatisfiedError
-    inSetupBlock.frames() == listOf(
-      "${ClosureInSetupBlockSpec::class.java.name}|a feature\$lambda\$0|80",
-      "${ClosureInSetupBlockSpec::class.java.name}|a feature|81"
-    )
-    inExpectBlock is ConditionNotSatisfiedError
-    inExpectBlock.frames() == listOf(
-      "${ClosureInExpectBlockSpec::class.java.name}|a feature\$lambda\$0|91",
-      "${ClosureInExpectBlockSpec::class.java.name}|a feature|91"
-    )
+    where
+    spec ; chain ; specLine
+    KotlinCallChainSpec::class.java ; KotlinCallChain::class.java ; 44
+    JavaCallChainSpec::class.java ; JavaCallChain::class.java ; 54
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/761")
@@ -122,9 +108,9 @@ class StackTraceFiltering : Specification() {
     then
     e is ConditionNotSatisfiedError
     e.frames() == listOf(
-      "${ClosureInHelperMethodSpec::class.java.name}|helper\$lambda\$0|102",
-      "${ClosureInHelperMethodSpec::class.java.name}|helper|103",
-      "${ClosureInHelperMethodSpec::class.java.name}|a feature|98"
+      "${ClosureInHelperMethodSpec::class.java.name}|helper\$lambda\$0|70",
+      "${ClosureInHelperMethodSpec::class.java.name}|helper|71",
+      "${ClosureInHelperMethodSpec::class.java.name}|a feature|66"
     )
   }
 
@@ -137,8 +123,8 @@ class StackTraceFiltering : Specification() {
     then
     e is ConditionNotSatisfiedError
     e.frames() == listOf(
-      "${ClosureInFixtureMethodSpec::class.java.name}|setup\$lambda\$0|109",
-      "${ClosureInFixtureMethodSpec::class.java.name}|setup|110"
+      "${ClosureInFixtureMethodSpec::class.java.name}|setup\$lambda\$0|77",
+      "${ClosureInFixtureMethodSpec::class.java.name}|setup|78"
     )
   }
 
@@ -151,29 +137,27 @@ class StackTraceFiltering : Specification() {
     then
     e is ConditionNotSatisfiedError
     e.frames() == listOf(
-      "${ClosureInFieldInitializerSpec::class.java.name}|\$spock_initializeFields\$lambda\$0|120",
-      "${ClosureInFieldInitializerSpec::class.java.name}|\$spock_initializeFields|120"
+      "${ClosureInFieldInitializerSpec::class.java.name}|\$spock_initializeFields\$lambda\$0|88",
+      "${ClosureInFieldInitializerSpec::class.java.name}|\$spock_initializeFields|88"
     )
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/761")
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#stack trace is truncated below invocation of fixture method")
-  fun `stack trace is truncated below invocation of fixture method`() {
+  fun `stack trace is truncated below invocation of fixture method`(spec: Class<*>, fixtureMethod: String, line: Int) {
     `when`
-    val inSetup = failureOf(FailingSetupSpec::class.java)
-    val inCleanup = failureOf(FailingCleanupSpec::class.java)
-    val inSetupSpec = failureOf(FailingSetupSpecSpec::class.java)
-    val inCleanupSpec = failureOf(FailingCleanupSpecSpec::class.java)
+    val e = failureOf(spec)
 
     then
-    inSetup is ConditionNotSatisfiedError
-    inSetup.frames() == listOf("${FailingSetupSpec::class.java.name}|setup|130")
-    inCleanup is ConditionNotSatisfiedError
-    inCleanup.frames() == listOf("${FailingCleanupSpec::class.java.name}|cleanup|141")
-    inSetupSpec is ConditionNotSatisfiedError
-    inSetupSpec.frames() == listOf("${FailingSetupSpecSpec::class.java.name}|setupSpec|152")
-    inCleanupSpec is ConditionNotSatisfiedError
-    inCleanupSpec.frames() == listOf("${FailingCleanupSpecSpec::class.java.name}|cleanupSpec|163")
+    e is ConditionNotSatisfiedError
+    e.frames() == listOf("${spec.name}|$fixtureMethod|$line")
+
+    where
+    spec ; fixtureMethod ; line
+    FailingSetupSpec::class.java ; "setup" ; 98
+    FailingCleanupSpec::class.java ; "cleanup" ; 109
+    FailingSetupSpecSpec::class.java ; "setupSpec" ; 120
+    FailingCleanupSpecSpec::class.java ; "cleanupSpec" ; 131
   }
 
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#feature method names are also restored for base specs")
@@ -183,7 +167,7 @@ class StackTraceFiltering : Specification() {
 
     then
     e is ConditionNotSatisfiedError
-    e.frames() == listOf("${FailingBaseSpec::class.java.name}|let me fail|175")
+    e.frames() == listOf("${FailingBaseSpec::class.java.name}|let me fail|143")
   }
 
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#when creation of data provider fails, stack trace points to corresponding parameterization")
@@ -194,24 +178,26 @@ class StackTraceFiltering : Specification() {
     then
     e is RuntimeException
     e.frames() == listOf(
-      "${FailingDataProviderCreationSpec.Companion::class.java.name}|failingProvider|193",
-      "${FailingDataProviderCreationSpec::class.java.name}|foo|188"
+      "${FailingDataProviderCreationSpec.Companion::class.java.name}|failingProvider|161",
+      "${FailingDataProviderCreationSpec::class.java.name}|foo|156"
     )
   }
 
-  // Upstream's third row (`y = 1`) has no Kotlin equivalent: where-block variables cannot be assigned.
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/805")
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#when data processor fails, stack trace source position points to corresponding parameterization")
-  fun `when data processor fails, stack trace source position points to corresponding parameterization`() {
+  fun `when data processor fails, stack trace source position points to corresponding parameterization`(spec: Class<*>, line: Int) {
     `when`
-    val single = failureOf(FailingDataProcessorSpec::class.java)
-    val multi = failureOf(FailingMultiVariableDataProcessorSpec::class.java)
+    val e = failureOf(spec)
 
     then
-    single is ClassCastException
-    single.frames() == listOf("${FailingDataProcessorSpec::class.java.name}|foo|204")
-    multi is ClassCastException
-    multi.frames() == listOf("${FailingMultiVariableDataProcessorSpec::class.java.name}|foo|220")
+    e is ClassCastException
+    e.frames() == listOf("${spec.name}|foo|$line")
+
+    where
+    spec ; line
+    FailingDataProcessorSpec::class.java ; 172
+    FailingDerivedDataProcessorSpec::class.java ; 192
+    FailingMultiVariableDataProcessorSpec::class.java ; 203
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/761")
@@ -222,7 +208,7 @@ class StackTraceFiltering : Specification() {
 
     then
     e is ConditionNotSatisfiedError
-    e.stackTrace[0].lineNumber == 226
+    e.stackTrace[0].lineNumber == 209
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/326")
@@ -233,7 +219,7 @@ class StackTraceFiltering : Specification() {
 
     then
     e is ConditionNotSatisfiedError
-    e.stackTrace[0].lineNumber == 238
+    e.stackTrace[0].lineNumber == 221
   }
 
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#causes get filtered as well")
@@ -243,8 +229,8 @@ class StackTraceFiltering : Specification() {
 
     then
     e is WrongExceptionThrownError
-    e.frames() == listOf("${WrongExceptionCauseSpec::class.java.name}|a feature|251")
-    e.cause!!.frames() == listOf("${WrongExceptionCauseSpec::class.java.name}|a feature|248")
+    e.frames() == listOf("${WrongExceptionCauseSpec::class.java.name}|a feature|234")
+    e.cause!!.frames() == listOf("${WrongExceptionCauseSpec::class.java.name}|a feature|231")
   }
 
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#stack traces are filtered on rendering expression info value")
@@ -282,9 +268,9 @@ class StackTraceFiltering : Specification() {
 
     then
     e is WrongExceptionThrownError
-    e.cause!!.frames() == listOf("${CauseLoopSpec::class.java.name}|a feature|258")
-    e.cause!!.cause.frames() == listOf("${CauseLoopSpec::class.java.name}|a feature|259")
-    e.cause!!.cause!!.cause.frames() == listOf("${CauseLoopSpec::class.java.name}|a feature|258")
+    e.cause!!.frames() == listOf("${CauseLoopSpec::class.java.name}|a feature|241")
+    e.cause!!.cause.frames() == listOf("${CauseLoopSpec::class.java.name}|a feature|242")
+    e.cause!!.cause!!.cause.frames() == listOf("${CauseLoopSpec::class.java.name}|a feature|241")
   }
 
   @MigratedFrom("org.spockframework.smoke.StackTraceFiltering#suppressed get filtered as well")
@@ -294,8 +280,8 @@ class StackTraceFiltering : Specification() {
 
     then
     e is WrongExceptionThrownError
-    e.cause!!.frames() == listOf("${SuppressedSpec::class.java.name}|a feature|271")
-    e.cause!!.suppressed.first().frames() == listOf("${SuppressedSpec::class.java.name}|a feature|272")
+    e.cause!!.frames() == listOf("${SuppressedSpec::class.java.name}|a feature|254")
+    e.cause!!.suppressed.first().frames() == listOf("${SuppressedSpec::class.java.name}|a feature|255")
   }
 
   private fun failureOf(spec: Class<*>): Throwable =

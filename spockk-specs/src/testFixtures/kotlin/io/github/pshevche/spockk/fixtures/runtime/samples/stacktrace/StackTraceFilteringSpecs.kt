@@ -38,7 +38,7 @@ class UnsatisfiedExplicitConditionSpec : Specification() {
   }
 }
 
-class CallChainSpec : Specification() {
+class KotlinCallChainSpec : Specification() {
   fun `a feature`() {
     setup
     KotlinCallChain().a()
@@ -48,49 +48,17 @@ class CallChainSpec : Specification() {
   }
 }
 
-class CallChainException : RuntimeException()
-
-class KotlinCallChain {
-  fun a() {
-    b()
-  }
-
-  fun b() {
-    Inner().inner()
-  }
-
-  fun c(): Unit = throw CallChainException()
-
-  inner class Inner {
-    fun inner() {
-      StaticInner().staticInner()
-    }
-  }
-
-  class StaticInner {
-    fun staticInner() {
-      KotlinCallChain().c()
-    }
-  }
-}
-
-class ClosureInSetupBlockSpec : Specification() {
+class JavaCallChainSpec : Specification() {
   fun `a feature`() {
     setup
-    val cl = { assert(false) }
-    cl()
+    JavaCallChain().a()
 
     expect
     true
   }
 }
 
-class ClosureInExpectBlockSpec : Specification() {
-  fun `a feature`() {
-    expect
-    Runnable { assert(false) }.run()
-  }
-}
+class CallChainException : RuntimeException()
 
 class ClosureInHelperMethodSpec : Specification() {
   fun `a feature`() {
@@ -208,6 +176,21 @@ class FailingDataProcessorSpec : Specification() {
   companion object {
     @Suppress("UNCHECKED_CAST")
     fun wronglyTypedProvider() = listOf<Any>("not an int") as List<Int>
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T> wronglyTypedValue() = "not an int" as T
+  }
+}
+
+class FailingDerivedDataProcessorSpec : Specification() {
+  fun foo(x: Int, y: Int, z: Int) {
+    expect
+    true
+
+    where
+    variable(x).from(listOf(1))
+    variable(y).from(FailingDataProcessorSpec.wronglyTypedValue<Int>())
+    variable(z).from(listOf(1))
   }
 }
 
