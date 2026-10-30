@@ -64,23 +64,27 @@ gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
 [["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static mock and real instance at the same time"]]
-status = "not-applicable"
-reason = "Needs one class with both real static members (called via invokestatic, so Mockito can intercept) and instance members; Kotlin only emits invokestatic call sites for object and top-level members, which cannot have instances. Porting it with separate classes would change what the feature tests"
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
 decided = "2026-10-13"
 
 [["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time"]]
-status = "not-applicable"
-reason = "Same constraint as 'static mock and real instance at the same time': a Kotlin class cannot have both an interceptable static method and a mockable instance method"
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
 decided = "2026-10-13"
 
 [["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time with interactions"]]
-status = "not-applicable"
-reason = "Same constraint as 'static mock and real instance at the same time': a Kotlin class cannot have both an interceptable static method and a mockable instance method"
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
 decided = "2026-10-13"
 
 [["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#static and instance mock at the same time with Mockito mock maker"]]
-status = "not-applicable"
-reason = "Same constraint as 'static mock and real instance at the same time': a Kotlin class cannot have both an interceptable static method and a mockable instance method"
+status = "blocked"
+reason = "Needs a Java fixture class with both a static and an instance method; spockk-specs cannot compile Java test sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
 decided = "2026-10-13"
 
 [["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#SpyStatic with closure as IMockMakerSettings shall produce nice error message"]]
@@ -215,3 +219,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#Mockito API Test static mock with response"]]
+status = "blocked"
+reason = "Upstream chains a second then block after the first; Spockk's block-order validator rejects consecutive then blocks"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-30"

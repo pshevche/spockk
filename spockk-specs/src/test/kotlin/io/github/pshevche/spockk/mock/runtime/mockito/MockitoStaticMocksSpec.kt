@@ -15,7 +15,6 @@
 package io.github.pshevche.spockk.mock.runtime.mockito
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.anyMethod
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect
@@ -30,8 +29,8 @@ import org.mockito.exceptions.base.MockitoException
 import org.spockframework.mock.CannotCreateMockException
 import org.spockframework.mock.MockUtil
 import org.spockframework.runtime.InvalidSpecException
-import spock.lang.Issue
 import spock.lang.PendingFeature
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.mock.IMockMakerSettings
 import spock.mock.MockMakers
@@ -40,31 +39,12 @@ import java.util.concurrent.Executors
 
 class MockitoStaticMocksSpec : Specification() {
 
+  @Shared
   private val mockUtil = MockUtil()
 
   fun cleanup() {
     check(!mockUtil.isStaticMock(StaticClass::class.java)) { "StaticClass static mock was not cleaned up" }
     check(!mockUtil.isStaticMock(StaticClass2::class.java)) { "StaticClass2 static mock was not cleaned up" }
-  }
-
-  @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#Mockito API Test static mock with response")
-  fun `Mockito API Test static mock with response`() {
-    given
-    val mock = Mockito.mockStatic(StaticClass::class.java)
-    mock.`when`<String> { StaticClass.staticMethod() }.thenReturn(MOCK_VALUE)
-
-    `when`
-    val result = StaticClass.staticMethod()
-
-    then
-    result == MOCK_VALUE
-    mock.verify { StaticClass.staticMethod() }
-
-    and
-    !mockUtil.isStaticMock(StaticClass::class.java)
-
-    cleanup
-    mock.close()
   }
 
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#Mockito API Test static mock with no response defined")
@@ -92,6 +72,7 @@ class MockitoStaticMocksSpec : Specification() {
 
     `when`
     SpyStatic(StaticClass::class.java)
+    StaticClass.staticMethod() returns MOCK_VALUE2
 
     then
     val ex = thrown(CannotCreateMockException::class.java)
@@ -106,6 +87,7 @@ class MockitoStaticMocksSpec : Specification() {
   fun `Mockito and Spock API Test static mock on same class inverse Spock first`() {
     given
     SpyStatic(StaticClass::class.java)
+    StaticClass.staticMethod() returns MOCK_VALUE2
 
     `when`
     Mockito.mockStatic(StaticClass::class.java)
@@ -139,6 +121,7 @@ class MockitoStaticMocksSpec : Specification() {
 
     `when`
     SpyStatic(StaticClass::class.java)
+    StaticClass.staticMethod() returns MOCK_VALUE2
 
     then
     val ex = thrown(CannotCreateMockException::class.java)
@@ -469,7 +452,6 @@ class MockitoStaticMocksSpec : Specification() {
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/710")
-  @Issue("https://github.com/spockframework/spock/issues/2161")
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoStaticMocksSpec#SpyStatic with varargs in method")
   fun `SpyStatic with varargs in method`() {
     given
