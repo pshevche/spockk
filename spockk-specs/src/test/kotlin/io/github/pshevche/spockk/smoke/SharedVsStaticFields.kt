@@ -20,7 +20,9 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldLife
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.StaticFieldLifecycle
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
+import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.spockframework.runtime.SpockComparisonFailure
 import spock.lang.Specification
 
 class SharedVsStaticFields : Specification() {
@@ -41,9 +43,13 @@ class SharedVsStaticFields : Specification() {
     `when`
     val firstRun = execute(selectClass(StaticFieldLifecycle::class.java))
     val secondRun = execute(selectClass(StaticFieldLifecycle::class.java))
+    val failureTypes = secondRun.failed().stream()
+      .map { it.getPayload(TestExecutionResult::class.java).get().throwable.get().javaClass }
+      .toList()
 
     then
     firstRun.assertStatistics { it.started(2).succeeded(2) }
     secondRun.assertStatistics { it.started(2).failed(2) }
+    failureTypes == listOf(SpockComparisonFailure::class.java, SpockComparisonFailure::class.java)
   }
 }
