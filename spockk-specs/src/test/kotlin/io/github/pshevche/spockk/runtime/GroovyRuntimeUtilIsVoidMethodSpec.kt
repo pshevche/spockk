@@ -141,7 +141,9 @@ class GroovyRuntimeUtilIsVoidMethodSpec : Specification() {
   @MigratedFrom("org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void java.lang.Class method")
   fun `void java_lang_Class method`() {
     expect
-    isVoidMethod(Collections::class.java, "notify")
+    synchronized(Collections::class.java) {
+      assert(isVoidMethod(Collections::class.java, "notify"))
+    }
   }
 
   @MigratedFrom("org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void DGM method")
