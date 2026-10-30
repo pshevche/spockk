@@ -26,18 +26,18 @@ import spock.lang.Retry
 import spock.lang.Specification
 
 class AlwaysTrue(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
-  @Suppress("unused") // invoked reflectively by Groovy's Closure.call() dispatch
+  @Suppress("unused")
   fun doCall(context: PreconditionContext<*>): Boolean = true
 }
 
 class AlwaysFalse(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
-  @Suppress("unused") // invoked reflectively by Groovy's Closure.call() dispatch
+  @Suppress("unused")
   fun doCall(context: PreconditionContext<*>): Boolean = false
 }
 
 /** Mirrors upstream's `data.get("i") && false`: reads the data variable, then yields false. */
 class DataVariableAndFalse(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
-  @Suppress("unused") // invoked reflectively by Groovy's Closure.call() dispatch
+  @Suppress("unused")
   fun doCall(context: PreconditionContext<*>): Boolean = context.data["i"] != null && false
 }
 
@@ -84,7 +84,7 @@ class IgnoreIfThenRetrySpec : Specification() {
   @Retry
   fun feature() {
     expect
-    assert(false)
+    false
   }
 }
 
@@ -93,7 +93,7 @@ class RetryThenIgnoreIfSpec : Specification() {
   @IgnoreIf(AlwaysTrue::class)
   fun feature() {
     expect
-    assert(false)
+    false
   }
 }
 
@@ -102,7 +102,7 @@ class IgnoreIfThenRetryParameterizedSpec : Specification() {
   @Retry
   fun feature(i: Int) {
     expect
-    assert(false)
+    false
 
     where
     variable(i).from(listOf(1, 2))
@@ -114,7 +114,7 @@ class RetryThenIgnoreIfParameterizedSpec : Specification() {
   @IgnoreIf(AlwaysTrue::class)
   fun feature(i: Int) {
     expect
-    assert(false)
+    false
 
     where
     variable(i).from(listOf(1, 2))
@@ -126,7 +126,7 @@ class RequiresFalseThenRetrySpec : Specification() {
   @Retry
   fun feature() {
     expect
-    assert(false)
+    false
   }
 }
 
@@ -135,7 +135,7 @@ class RequiresDataIterationRetrySpec : Specification() {
   @Retry(mode = Retry.Mode.ITERATION)
   fun feature(i: Int) {
     expect
-    assert(false)
+    false
 
     where
     variable(i).from(listOf(1, 2))
@@ -147,7 +147,7 @@ class RequiresDataFeatureRetrySpec : Specification() {
   @Retry(mode = Retry.Mode.SETUP_FEATURE_CLEANUP)
   fun feature(i: Int) {
     expect
-    assert(false)
+    false
 
     where
     variable(i).from(listOf(1, 2))
