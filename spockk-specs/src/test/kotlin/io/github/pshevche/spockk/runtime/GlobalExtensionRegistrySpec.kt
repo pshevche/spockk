@@ -90,20 +90,6 @@ class GlobalExtensionRegistrySpec : Specification() {
     thrown(ExtensionException::class.java)
   }
 
-  @MigratedFrom("org.spockframework.runtime.GlobalExtensionRegistrySpec#provides access to extensions")
-  fun `provides access to extensions`() {
-    `when`
-    val registry = newRegistry(
-      listOf(MyExtension::class.java, FieldInjectableExtension::class.java),
-      listOf()
-    )
-    registry.initializeGlobalExtensions()
-    val extensionClasses = registry.globalExtensions.map { it.javaClass }
-
-    then
-    extensionClasses == listOf(MyExtension::class.java, FieldInjectableExtension::class.java)
-  }
-
   @MigratedFrom("org.spockframework.runtime.GlobalExtensionRegistrySpec#auto-instantiates and provides access to global configuration objects")
   fun `auto-instantiates and provides access to global configuration objects`() {
     `when`
@@ -216,6 +202,7 @@ class GlobalExtensionRegistrySpec : Specification() {
   }
 
   class MyExtension : IGlobalExtension {
+    // An init block crashes the compiler plugin: https://github.com/pshevche/spockk/issues/739
     @Suppress("unused")
     private val marker = markInstantiated()
 

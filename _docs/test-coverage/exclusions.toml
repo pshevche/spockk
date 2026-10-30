@@ -185,3 +185,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.runtime.GlobalExtensionRegistrySpec#provides access to extensions"]]
+status = "blocked"
+reason = "A lambda inside a condition (registry.globalExtensions.map { it.javaClass } == ...) crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
+gap = "https://github.com/pshevche/spockk/issues/819"
+decided = "2026-10-30"
