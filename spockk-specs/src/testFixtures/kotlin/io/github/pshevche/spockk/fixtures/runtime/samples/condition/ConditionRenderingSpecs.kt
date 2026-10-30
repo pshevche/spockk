@@ -19,9 +19,11 @@ import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.verifyEach
 import spock.lang.Specification
+import java.lang.Boolean.parseBoolean
 import java.lang.Integer.MAX_VALUE
 import java.lang.Math.min
 import java.lang.Thread.State.BLOCKED
+import java.sql.Date
 
 class SimpleComparisonSpec : Specification() {
   fun `test`() {
@@ -424,7 +426,7 @@ class ExplicitTargetCallSpec : Specification() {
     val a = listOf(1)
     val b = 0
     expect
-    a.get(b) == 5
+    a.get(b) == null
   }
 }
 
@@ -442,7 +444,7 @@ class JavaStaticMethodCallSpec : Specification() {
     val a = 1
     val b = 2
     expect
-    Math.max(a, b) == 5
+    Math.max(a, b) == null
   }
 }
 
@@ -467,7 +469,7 @@ class StaticImportCallSpec : Specification() {
     val a = 1
     val b = 2
     expect
-    min(a, b) == 5
+    min(a, b) == null
   }
 }
 
@@ -475,7 +477,7 @@ class TopLevelStaticCallSpec : Specification() {
   fun `test`() {
     val a = "no"
     expect
-    java.lang.Boolean.parseBoolean(a)
+    parseBoolean(a)
   }
 }
 
@@ -484,7 +486,7 @@ class BinaryOperatorSpec : Specification() {
     val a = 0
     val b = 1
     expect
-    a * b == 5
+    a * b != 0
   }
 }
 
@@ -501,7 +503,7 @@ class PrefixIncrementSpec : Specification() {
   fun `test`() {
     var x = 0
     expect
-    ++x == 5
+    ++x == null
   }
 }
 
@@ -518,7 +520,7 @@ class InclusiveRangeSpec : Specification() {
     val a = 1
     val b = 2
     expect
-    (a..b) == 5..6
+    (a..b) == null
   }
 }
 
@@ -527,22 +529,28 @@ class ExclusiveRangeSpec : Specification() {
     val a = 1
     val b = 2
     expect
-    (a..<b) == 5..6
+    (a..<b) == null
   }
 }
 
 class CollectionPropertySpec : Specification() {
+  class Nine {
+    val empty = false
+
+    override fun toString() = "[9]"
+  }
+
   fun `test`() {
-    val a = listOf(9)
+    val a = Nine()
     expect
-    a.size == 5
+    a.empty == true
   }
 }
 
 class JavaStaticFieldSpec : Specification() {
   fun `test`() {
     expect
-    Integer.MIN_VALUE == 5
+    Integer.MIN_VALUE == null
   }
 }
 
@@ -557,7 +565,7 @@ class SameNameClassesSpec : Specification() {
   fun `test`() {
     val date = java.util.Date(0)
     expect
-    date.javaClass == java.sql.Date::class.java
+    date.javaClass == Date::class.java
   }
 }
 
@@ -583,7 +591,7 @@ class UnaryMinusSpec : Specification() {
   fun `test`() {
     val a = 1
     expect
-    -a == 5
+    -a == null
   }
 }
 
@@ -591,7 +599,7 @@ class UnaryPlusSpec : Specification() {
   fun `test`() {
     val a = 1
     expect
-    +a == 5
+    +a == null
   }
 }
 
@@ -653,5 +661,60 @@ class VariableExpressionSpec : Specification() {
     val x = false
     expect
     x
+  }
+}
+
+class ConstructorCallSpec : Specification() {
+  fun `test`() {
+    val a = 1
+    expect
+    ArrayList<Int>(a) == null
+  }
+}
+
+class InnerClassConstructorCallSpec : Specification() {
+  inner class NonStaticInnerClass {
+    override fun toString() = "nsi"
+  }
+
+  fun `test`() {
+    expect
+    NonStaticInnerClass() == null
+  }
+}
+
+class ConstructorNamedArgumentsSpec : Specification() {
+  class Person2(val name: String, val age: Int) {
+    override fun toString() = "p"
+  }
+
+  fun `test`() {
+    val fred = "fred"
+    val fredsAge = 25
+    expect
+    Person2(name = fred, age = fredsAge) == null
+  }
+}
+
+class ClassLiteralSpec : Specification() {
+  fun `test`() {
+    expect
+    List::class.java == String::class.java
+  }
+}
+
+@Suppress("ktlint:standard:comment-wrapping")
+class ClassLiteralWithCommentsSpec : Specification() {
+  fun `test`() {
+    expect
+    java.util./*.awt.*/List::class.java == java.lang.String::class.java // I. Like. Dots.
+  }
+}
+
+class TypeCheckSpec : Specification() {
+  fun `test`() {
+    val date: Any = java.util.Date(0)
+    expect
+    date is Date
   }
 }

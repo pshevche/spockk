@@ -23,9 +23,13 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.BooleanNegat
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CastToBooleanSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ChainedExpressionSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CharValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClassLiteralSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClassLiteralWithCommentsSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClassValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CollectionPropertySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ConstantsOnlySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ConstructorCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ConstructorNamedArgumentsSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CustomObjectDiffSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.DefaultToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyListValueSpec
@@ -38,6 +42,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ExplicitTarg
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ImplicitTargetCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.InclusiveRangeSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IndexAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.InnerClassConstructorCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntArrayValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.JavaStaticFieldSpec
@@ -75,6 +80,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThreeArgumen
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThrowingToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TopLevelMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TopLevelStaticCallSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeCheckSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.UnaryMinusSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.UnaryPlusSpec
@@ -83,7 +89,9 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VariableExpr
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
+import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import spock.lang.PendingFeature
@@ -673,7 +681,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |a.get(b) == 5
+      |a.get(b) == null
       || |   |  |
       || 1   0  false
       |[1]
@@ -697,20 +705,6 @@ class ConditionRenderingTest : Specification() {
       """.trimMargin()
   }
 
-  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with named arguments")
-  fun `MethodCallExpression with named arguments`() {
-    expect
-    failureMessage(NamedArgumentsCallSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |person.eat(what = steak, where = tokyo)
-      ||          |      |      |
-      |p          steak  tokyo  false
-      |
-      """.trimMargin()
-  }
-
   @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#StaticMethodCallExpression")
   fun `StaticMethodCallExpression`() {
     expect
@@ -718,7 +712,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |min(a, b) == 5
+      |min(a, b) == null
       ||   |  |  |
       |1   1  2  false
       |
@@ -746,7 +740,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |a * b == 5
+      |a * b != 0
       || | | |
       |0 0 1 false
       |
@@ -778,6 +772,20 @@ class ConditionRenderingTest : Specification() {
       """.trimMargin()
   }
 
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#VariableExpression")
+  fun `VariableExpression`() {
+    expect
+    failureMessage(VariableExpressionSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x
+      ||
+      |false
+      |
+      """.trimMargin()
+  }
+
   @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#RangeExpression")
   fun `RangeExpression`() {
     expect
@@ -785,7 +793,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |(a..b) == 5..6
+      |(a..b) == null
       | |  |  |
       | 1  2  false
       |
@@ -794,7 +802,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |(a..<b) == 5..6
+      |(a..<b) == null
       | |   |  |
       | 1   2  false
       |
@@ -915,44 +923,6 @@ class ConditionRenderingTest : Specification() {
       """.trimMargin()
   }
 
-  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#VariableExpression")
-  fun `VariableExpression`() {
-    expect
-    failureMessage(VariableExpressionSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x
-      ||
-      |false
-      |
-      """.trimMargin()
-  }
-
-  @ResourceLock("TimeZone.default")
-  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ClassExpression with different classes with same name")
-  fun `ClassExpression with different classes with same name`() {
-    val defaultTimeZone = TimeZone.getDefault()
-    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
-    try {
-      expect
-      failureMessage(SameNameClassesSpec::class) ==
-        """
-      |Condition not satisfied:
-      |
-      |date.javaClass == java.sql.Date::class.java
-      ||    |            |    |
-      ||    |            |    false
-      ||    |            class java.sql.Date
-      ||    class java.util.Date
-      |Thu Jan 01 00:00:00 UTC 1970
-      |
-        """.trimMargin()
-    } finally {
-      TimeZone.setDefault(defaultTimeZone)
-    }
-  }
-
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/848")
   @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression invoking static method")
   fun `MethodCallExpression invoking static method`() {
@@ -961,9 +931,9 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |Math.max(a, b) == 5
-      ||    |   |  |   |
-      ||    2   1  2   false
+      |Math.max(a, b) == null
+      ||    |   |  |  |
+      ||    2   1  2  false
       |class java.lang.Math
       |
       """.trimMargin()
@@ -977,9 +947,9 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |a.size == 5
-      || |    |
-      || 1    false
+      |a.empty == true
+      || |     |
+      || false false
       |[9]
       |
       """.trimMargin()
@@ -987,7 +957,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |Integer.MIN_VALUE == 5
+      |Integer.MIN_VALUE == null
       ||       |         |
       ||       |         false
       ||       -2147483648
@@ -1004,7 +974,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |++x == 5
+      |++x == null
       ||   |
       |1   false
       |
@@ -1019,7 +989,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |-a == 5
+      |-a == null
       ||| |
       ||1 false
       |-1
@@ -1035,7 +1005,7 @@ class ConditionRenderingTest : Specification() {
       """
       |Condition not satisfied:
       |
-      |+a == 5
+      |+a == null
       ||| |
       ||1 false
       |1
@@ -1056,6 +1026,150 @@ class ConditionRenderingTest : Specification() {
       |        false
       |
       """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/948")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#MethodCallExpression with named arguments")
+  fun `MethodCallExpression with named arguments`() {
+    expect
+    failureMessage(NamedArgumentsCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |person.eat(what = steak, where = tokyo)
+      ||      |          |              |
+      |p      false      steak          tokyo
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/843")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ConstructorCallExpression")
+  fun `ConstructorCallExpression`() {
+    expect
+    failureMessage(ConstructorCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |ArrayList<Int>(a) == null
+      ||              |  |
+      |[]             1  false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/843")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ConstructorCallExpression for non-static inner class")
+  fun `ConstructorCallExpression for non-static inner class`() {
+    expect
+    failureMessage(InnerClassConstructorCallSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |NonStaticInnerClass() == null
+      ||                     |
+      |nsi                   false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/843")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ConstructorCallExpression with named arguments")
+  fun `ConstructorCallExpression with named arguments`() {
+    expect
+    failureMessage(ConstructorNamedArgumentsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |Person2(name = fred, age = fredsAge) == null
+      ||              |           |         |
+      |p              fred        25        false
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ClassExpression")
+  fun `ClassExpression`() {
+    expect
+    failureMessage(ClassLiteralSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |List::class.java == String::class.java
+      ||                |  |
+      ||                |  class java.lang.String
+      ||                false
+      |interface java.util.List
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ClassExpression with dot-containing comments")
+  fun `ClassExpression with dot-containing comments`() {
+    expect
+    failureMessage(ClassLiteralWithCommentsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |java.util./*.awt.*/List::class.java == java.lang.String::class.java
+      |                   |                |            |
+      |                   |                false        class java.lang.String
+      |                   interface java.util.List
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
+  @ResourceLock("TimeZone.default")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#instanceof expression")
+  fun `instanceof expression`() {
+    given
+    val defaultTimeZone = TimeZone.getDefault()
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+
+    expect
+    failureMessage(TypeCheckSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |date is Date
+      ||    |  |
+      ||    |  class java.sql.Date
+      ||    false
+      |Thu Jan 01 00:00:00 UTC 1970 (java.util.Date)
+      |
+      """.trimMargin()
+
+    cleanup
+    TimeZone.setDefault(defaultTimeZone)
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
+  @ResourceLock("TimeZone.default")
+  @MigratedFrom("org.spockframework.smoke.condition.ConditionRendering#ClassExpression with different classes with same name")
+  fun `ClassExpression with different classes with same name`() {
+    given
+    val defaultTimeZone = TimeZone.getDefault()
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+
+    expect
+    failureMessage(SameNameClassesSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |date.javaClass == Date::class.java
+      ||    |         |  |
+      ||    |         |  class java.sql.Date
+      ||    |         false
+      ||    class java.util.Date
+      |Thu Jan 01 00:00:00 UTC 1970
+      |
+      """.trimMargin()
+
+    cleanup
+    TimeZone.setDefault(defaultTimeZone)
   }
 
   private fun failureMessage(clazz: KClass<*>): String {
