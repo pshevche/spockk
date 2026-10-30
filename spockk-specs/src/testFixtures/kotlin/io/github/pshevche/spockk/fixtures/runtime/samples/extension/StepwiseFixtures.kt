@@ -17,8 +17,59 @@ package io.github.pshevche.spockk.fixtures.runtime.samples.extension
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
+import org.spockframework.runtime.model.parallel.ExecutionMode
+import spock.lang.Rollup
 import spock.lang.Specification
 import spock.lang.Stepwise
+
+/** Reports back the number of started iterations of [StepwiseRollupFixture]. */
+object RollupIterationCounter {
+  val count: ThreadLocal<Int> = ThreadLocal.withInitial { 0 }
+}
+
+class StepwiseBasicFixture : Specification() {
+  @Stepwise
+  fun step1(count: Int) {
+    expect
+    count != 3
+
+    where
+    variable(count).from((1..5).toList())
+  }
+}
+
+class StepwiseRollupFixture : Specification() {
+  @Stepwise
+  @Rollup
+  fun step1(count: Int) {
+    RollupIterationCounter.count.set(RollupIterationCounter.count.get() + 1)
+
+    expect
+    count != 3
+
+    where
+    variable(count).from((1..5).toList())
+  }
+}
+
+class StepwiseNotDataDrivenFixture : Specification() {
+  @Stepwise
+  fun step1() {
+    expect
+    true
+  }
+}
+
+class StepwiseExecutionModeFixture : Specification() {
+  @Stepwise
+  fun step1(count: Int) {
+    expect
+    specificationContext.currentFeature.executionMode.get() == ExecutionMode.SAME_THREAD
+
+    where
+    variable(count).from((1..2).toList())
+  }
+}
 
 @Stepwise
 class StepwiseSpecWithPlainDataDrivenFeature : Specification() {
