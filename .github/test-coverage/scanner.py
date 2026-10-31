@@ -29,7 +29,10 @@ def _find_annotations(text: str) -> list[Annotation]:
     parenthesis inside a string argument (e.g. a reason mentioning `assert()`)
     does not truncate the match early."""
     annotations: list[Annotation] = []
+    scanned_to = 0
     for m in ANNOTATION_NAME_RE.finditer(text):
+        if m.start() < scanned_to:
+            continue
         name = m.group(1)
         i = m.end()
         while i < len(text) and text[i] in " \t":
@@ -44,6 +47,7 @@ def _find_annotations(text: str) -> list[Annotation]:
                     depth -= 1
                 j += 1
             annotations.append((name, text[i + 1 : j - 1], m.start(), j))
+            scanned_to = j
         else:
             annotations.append((name, None, m.start(), i))
     return annotations
