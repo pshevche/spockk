@@ -186,6 +186,96 @@ reason = "An anonymous object literal inside a condition crashes the Kotlin comp
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
 
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void Java instance method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#non-void Java instance method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void Java static method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#non-void Java static method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void Groovy instance method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#untyped Groovy instance method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#typed Groovy instance method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void Groovy static method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#untyped Groovy static method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#typed Groovy static method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#non-void java.lang.Class method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void java.lang.Class method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void DGM method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#non-void DGM method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void DGSM method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#non-void DGSM method"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#Groovy method that takes a String with a GString"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#method with null target"]]
+status = "not-applicable"
+reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
+decided = "2026-10-31"
+
 [["org.spockframework.smoke.extension.TempDirParameterSpec#test"]]
 status = "blocked"
 reason = "The class injects @TempDir into setupSpec and setup parameters, and the compiler plugin rejects any fixture method with parameters"
