@@ -185,3 +185,9 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.mock.ErrorReporting#error 'wrong invocation order' is reported even if object under test swallows exception"]]
+status = "blocked"
+reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-10-31"
