@@ -203,3 +203,8 @@ status = "blocked"
 reason = "A @Shared @TempDir field is never injected, and the base spec's inherited @TempDir field also breaks field injection, so even a @PendingFeature port errors out"
 gap = "https://github.com/pshevche/spockk/issues/928"
 decided = "2026-10-30"
+
+[["org.spockframework.smoke.mock.GenericMockInvocations#mock with parameterized parameter and return types"]]
+status = "not-applicable"
+reason = "Upstream marks the feature @Ignore (\"appears to run into a groovy 2.3.x bug\"), so it never runs upstream and there is no behavior left to cover"
+decided = "2026-10-31"
