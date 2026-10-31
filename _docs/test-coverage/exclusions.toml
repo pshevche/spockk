@@ -185,3 +185,107 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match instanceof argument"]]
+status = "blocked"
+reason = "Spockk has no typed argument constraint (`_ as Type`); `any()` would drop the type check"
+gap = "https://github.com/pshevche/spockk/issues/684"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match code argument"]]
+status = "blocked"
+reason = "Spockk has no code (closure predicate) argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match nested closure in code argument"]]
+status = "blocked"
+reason = "Spockk has no code (closure predicate) argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match code argument as assertions"]]
+status = "blocked"
+reason = "Spockk has no code (closure predicate) argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match code argument with type"]]
+status = "blocked"
+reason = "Spockk has no code (closure predicate) argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match negate null argument argument"]]
+status = "blocked"
+reason = "Spockk has no negated argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match negate other argument  argument"]]
+status = "blocked"
+reason = "Spockk has no negated argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match negate code argument  argument"]]
+status = "blocked"
+reason = "Spockk has no negated argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match negate type argument  argument"]]
+status = "blocked"
+reason = "Spockk has no negated argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match negate code argument with type"]]
+status = "blocked"
+reason = "Spockk has no negated argument constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match named argument with type matcher (named args only, explicit map)"]]
+status = "blocked"
+reason = "Spockk has no typed argument constraint (`_ as Type`) for a map value"
+gap = "https://github.com/pshevche/spockk/issues/684"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match named argument with type matcher (named args only, explicit map and positional arguments)"]]
+status = "blocked"
+reason = "Spockk has no typed argument constraint (`_ as Type`) for a map value"
+gap = "https://github.com/pshevche/spockk/issues/684"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match named argument (named args only, map expression)"]]
+status = "not-applicable"
+reason = "Exercises Groovy's named-argument call syntax (`m(foo: 'bar')`), which Kotlin lacks; the explicit-map variants cover the same matching"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match named argument (named args only, map expression and positional arguments)"]]
+status = "not-applicable"
+reason = "Exercises Groovy's named-argument call syntax (`m(foo: 'bar')`), which Kotlin lacks; the explicit-map variants cover the same matching"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match named argument with type matcher (named args only, map expression)"]]
+status = "not-applicable"
+reason = "Exercises Groovy's named-argument call syntax (`m(foo: 'bar')`), which Kotlin lacks; the explicit-map variants cover the same matching"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match named argument with type matcher (named args only, map expression and positional arguments)"]]
+status = "not-applicable"
+reason = "Exercises Groovy's named-argument call syntax (`m(foo: 'bar')`), which Kotlin lacks; the explicit-map variants cover the same matching"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match multi matcher (w/ varargs)"]]
+status = "blocked"
+reason = "Combines typed, negated and code argument constraints, none of which Spockk can express"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ArgumentMatching#match multi spread matcher (w/ varargs)"]]
+status = "blocked"
+reason = "Spockk has no spread wildcard (`*_`) to match any argument list"
+gap = "https://github.com/pshevche/spockk/issues/955"
+decided = "2026-10-31"
