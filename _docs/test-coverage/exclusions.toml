@@ -185,3 +185,39 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.mock.ChainedResponseGenerators#stub response response"]]
+status = "blocked"
+reason = "Chaining several responses on one interaction crashes the compiler plugin"
+gap = "https://github.com/pshevche/spockk/issues/957"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ChainedResponseGenerators#chaining constant responses"]]
+status = "blocked"
+reason = "Chaining several responses on one interaction crashes the compiler plugin"
+gap = "https://github.com/pshevche/spockk/issues/957"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ChainedResponseGenerators#chaining iterable responses"]]
+status = "blocked"
+reason = "Spockk has no iterable response operator, and chaining is unsupported too"
+gap = "https://github.com/pshevche/spockk/issues/781"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ChainedResponseGenerators#chaining code responses"]]
+status = "blocked"
+reason = "Chaining several responses on one interaction crashes the compiler plugin"
+gap = "https://github.com/pshevche/spockk/issues/957"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ChainedResponseGenerators#chaining different responses"]]
+status = "blocked"
+reason = "Chaining several responses on one interaction crashes the compiler plugin (the upstream feature also uses an iterable response, see #781)"
+gap = "https://github.com/pshevche/spockk/issues/957"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ChainedResponseGenerators#chaining in then-block"]]
+status = "blocked"
+reason = "Chaining several responses on one interaction crashes the compiler plugin (the upstream feature also uses an iterable response, see #781)"
+gap = "https://github.com/pshevche/spockk/issues/957"
+decided = "2026-10-31"
