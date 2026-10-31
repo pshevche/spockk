@@ -334,3 +334,8 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockGlobalClass#Wildcard matching for static class methods returns correct results"]]
+status = "not-applicable"
+reason = "The feature relies on GroovySpy(ClassA, global: true) replacing static ClassA.get(_) calls through Groovy's metaclass registry; Kotlin static and companion calls never go through the metaclass, so global Groovy mocks have nothing to intercept"
+decided = "2026-10-31"
