@@ -185,3 +185,13 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.mock.GroovyMocks#implement GroovyObject"]]
+status = "not-applicable"
+reason = "GroovyMock exists to create mocks with Groovy metaclass dispatch, and the feature asserts the mock implements GroovyObject. Spockk has no GroovyMock equivalent, and Kotlin types never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocks#global GroovyMocks can't be created for a type that is already mocked"]]
+status = "not-applicable"
+reason = "Global GroovyMock, GroovyStub and GroovySpy replace the Groovy metaclass of a type. Kotlin types never go through Groovy's metaclass, and Spockk has no equivalent of these entry points"
+decided = "2026-10-31"
