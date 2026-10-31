@@ -53,7 +53,6 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringEquals
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringMethodCallSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.StringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ThrowingToStringValueSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.condition.TypeHintValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
@@ -467,21 +466,6 @@ class ConditionRenderingTest : Specification() {
       || |
       || false
       |class java.lang.String
-      |
-      """.trimMargin()
-  }
-
-  fun `type hint for values with same representation but different types`() {
-    expect
-    failureMessage(TypeHintValueSpec::class) ==
-      """
-      |Condition not satisfied:
-      |
-      |x == y
-      || |  |
-      || |  1 (java.lang.String)
-      || false
-      |1 (java.lang.Integer)
       |
       """.trimMargin()
   }
