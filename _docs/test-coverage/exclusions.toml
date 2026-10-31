@@ -334,3 +334,73 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub interface"]]
+status = "not-applicable"
+reason = "GroovyMock exists to intercept dynamic Groovy-only behavior (metaclass dispatch) that Kotlin types never go through. Spockk has no GroovyMock, and the plain-Mock variant of this same feature is covered by the JavaMockBasics port"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub class"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub call at creation time"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub call beforehand"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub call in then-block"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can mock interface"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can mock class"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can mock call at creation time"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub and mock call at creation time"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can mock call beforehand"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub and mock call beforehand"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can mock call in then-block"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#can stub and mock call in then-block"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockBasics#using >>_ returns stubbed value"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': this feature runs against GroovyMock, which has no Spockk equivalent"
+decided = "2026-10-31"
