@@ -328,4 +328,9 @@ decided = "2026-10-31"
 status = "blocked"
 reason = "Spockk has no interaction { } block, so a spec that follows an interaction { } with a condition does not compile"
 gap = "https://github.com/pshevche/spockk/issues/944"
+
+[["org.spockframework.smoke.mock.ErrorReporting#error 'wrong invocation order' is reported even if object under test swallows exception"]]
+status = "blocked"
+reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
+gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
