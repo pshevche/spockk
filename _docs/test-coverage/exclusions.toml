@@ -334,3 +334,58 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Creating a Global GroovyMock from abstract class shall not fail"]]
+status = "not-applicable"
+reason = "Global GroovyMock/GroovySpy replace the target class's Groovy metaclass so static calls are intercepted. Kotlin code calls static members through direct JVM bytecode and never consults the metaclass, so the interception this feature exercises cannot exist in Kotlin"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Static property access to staticName is working for the non-spied class"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Static getProperty() access to staticName is working when a global spy was created"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Static setProperty() to staticMutableField is working when a global spy was created"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Static invokeMethod() to callsOuterStaticMethod is working when a global spy was created"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Creating a Global GroovySpy from abstract class shall not fail"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Asserting on a Global GroovySpy Class for call made on instance shall fail"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Asserting on a Global GroovySpy object for call made on instance"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Asserting on a Global GroovySpy object for static calls shall fail"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Asserting on a Global GroovySpy object for subclass instance call shall fail"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass#Two global mocks"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Creating a Global GroovyMock from abstract class shall not fail': it relies on a global GroovyMock/GroovySpy intercepting static or instance calls through the Groovy metaclass, which Kotlin never uses"
+decided = "2026-10-31"
