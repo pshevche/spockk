@@ -334,3 +334,43 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#can spy on concrete instances"]]
+status = "not-applicable"
+reason = "GroovySpy intercepts calls through the Groovy metaclass of a Groovy object. Spockk has no GroovySpy equivalent, and Kotlin types never go through Groovy's metaclass; the plain Spy variant of this behavior is covered by the Spies port"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#using >>_ does not call original method and produces stubbed value"]]
+status = "not-applicable"
+reason = "Needs GroovySpy, which wraps a Groovy object and intercepts through its metaclass. Spockk has no GroovySpy equivalent, and Kotlin types never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#spying on concrete instances can use partial mocking"]]
+status = "not-applicable"
+reason = "Needs GroovySpy, which wraps a Groovy object and intercepts through its metaclass. Spockk has no GroovySpy equivalent, and Kotlin types never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#can spy on instances of classes with no default constructor"]]
+status = "not-applicable"
+reason = "Needs GroovySpy, which wraps a Groovy object and intercepts through its metaclass. Spockk has no GroovySpy equivalent, and Kotlin types never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#can define interactions for spy on instances directly with closure"]]
+status = "not-applicable"
+reason = "Needs GroovySpy, which wraps a Groovy object and intercepts through its metaclass. Spockk has no GroovySpy equivalent, and Kotlin types never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#inferred type is ignored for instance mocks"]]
+status = "not-applicable"
+reason = "Needs GroovySpy, which wraps a Groovy object and intercepts through its metaclass. Spockk has no GroovySpy equivalent, and Kotlin types never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#do not allow spying on other mocks"]]
+status = "not-applicable"
+reason = "Needs GroovySpy, which wraps a Groovy object and intercepts through its metaclass. Spockk has no GroovySpy equivalent, and Kotlin types never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpies#known issue copy fields"]]
+status = "not-applicable"
+reason = "Depends on GroovySpy copying fields of a JDK class (java.util.ArrayList) on Java 17+. Spockk has no GroovySpy equivalent, so there is no GroovySpy field-copy path to exercise"
+decided = "2026-10-31"
