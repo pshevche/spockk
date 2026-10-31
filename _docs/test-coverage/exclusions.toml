@@ -185,3 +185,28 @@ status = "blocked"
 reason = "An anonymous object literal inside a condition crashes the Kotlin compiler during IR lowering once the plugin rewrites the condition"
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
+
+[["org.spockframework.smoke.mock.AdditionalInterfaces#groovy stubs"]]
+status = "not-applicable"
+reason = "GroovyStub exists to intercept Groovy metaclass dispatch, which Kotlin types never go through, so it adds nothing over the plain Stub variant ported as 'java stubs'"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.AdditionalInterfaces#groovy mocks"]]
+status = "not-applicable"
+reason = "GroovyMock exists to intercept Groovy metaclass dispatch, which Kotlin types never go through, so it adds nothing over the plain Mock variant ported as 'java mocks'"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.AdditionalInterfaces#groovy spies"]]
+status = "not-applicable"
+reason = "GroovySpy exists to intercept Groovy metaclass dispatch, which Kotlin types never go through, so it adds nothing over the plain Spy variant ported as 'java spies'"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.AdditionalInterfaces#groovy mocks for final class cannot have additionalInterfaces"]]
+status = "not-applicable"
+reason = "Checks a GroovyMock-specific restriction (global/final-class interception via Groovy metaclass), and GroovyMock has no Kotlin-specific behavior to exercise"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.AdditionalInterfaces#groovy global mocks cannot have additionalInterfaces"]]
+status = "not-applicable"
+reason = "Checks a GroovyMock-specific restriction on global mocks, which rely on Groovy metaclass interception that Kotlin types never go through"
+decided = "2026-10-31"
