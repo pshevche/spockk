@@ -293,3 +293,39 @@ status = "blocked"
 reason = "A @Shared @TempDir field is never injected, and the base spec's inherited @TempDir field also breaks field injection, so even a @PendingFeature port errors out"
 gap = "https://github.com/pshevche/spockk/issues/928"
 decided = "2026-10-30"
+
+[["org.spockframework.smoke.mock.ExplicitInteractions#basic usage"]]
+status = "blocked"
+reason = "Spockk has no interaction { } block, so a spec that wraps a call to a helper that declares the interaction in interaction { } does not compile"
+gap = "https://github.com/pshevche/spockk/issues/944"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ExplicitInteractions#with helper variables"]]
+status = "blocked"
+reason = "Spockk has no interaction { } block, so a spec that declares an interaction with local helper variables inside interaction { } does not compile"
+gap = "https://github.com/pshevche/spockk/issues/944"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ExplicitInteractions#multiple"]]
+status = "blocked"
+reason = "Spockk has no interaction { } block, so a spec that declares two interactions, each in its own interaction { } does not compile"
+gap = "https://github.com/pshevche/spockk/issues/944"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ExplicitInteractions#in and'ed blocks"]]
+status = "blocked"
+reason = "Spockk has no interaction { } block, so a spec that declares interactions in interaction { } across a then and an and block does not compile"
+gap = "https://github.com/pshevche/spockk/issues/944"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ExplicitInteractions#followed by implicit interaction"]]
+status = "blocked"
+reason = "Spockk has no interaction { } block, so a spec that follows an interaction { } with an inline interaction does not compile"
+gap = "https://github.com/pshevche/spockk/issues/944"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ExplicitInteractions#followed by condition"]]
+status = "blocked"
+reason = "Spockk has no interaction { } block, so a spec that follows an interaction { } with a condition does not compile"
+gap = "https://github.com/pshevche/spockk/issues/944"
+decided = "2026-10-31"
