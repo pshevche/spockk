@@ -334,3 +334,33 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockPropertySpec#Class with propertyMissing() works normally"]]
+status = "not-applicable"
+reason = "GroovyMock and GroovySpy intercept Groovy property dispatch (propertyMissing, getProperty/setProperty on the metaclass), which Kotlin properties never go through. Spockk has no GroovyMock or GroovySpy, and plain mocks already cover getter and setter interactions"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockPropertySpec#Class with propertyMissing() setter works normally"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Class with propertyMissing() works normally': this feature depends on Groovy property dispatch through GroovyMock or GroovySpy, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockPropertySpec#Spy on property getter"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Class with propertyMissing() works normally': this feature depends on Groovy property dispatch through GroovyMock or GroovySpy, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockPropertySpec#Spy on property getter method"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Class with propertyMissing() works normally': this feature depends on Groovy property dispatch through GroovyMock or GroovySpy, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockPropertySpec#Spy on property setter"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Class with propertyMissing() works normally': this feature depends on Groovy property dispatch through GroovyMock or GroovySpy, which has no Spockk equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockPropertySpec#Spy on property setter method"]]
+status = "not-applicable"
+reason = "Same reasoning as 'Class with propertyMissing() works normally': this feature depends on Groovy property dispatch through GroovyMock or GroovySpy, which has no Spockk equivalent"
+decided = "2026-10-31"
