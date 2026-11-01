@@ -334,3 +334,28 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.InvalidMockCreation#field w/ missing type"]]
+status = "not-applicable"
+reason = "Kotlin requires a declared or inferable type for the property, so `val list = Mock()` does not compile and the missing-type error can never surface at runtime"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InvalidMockCreation#local w/ missing type"]]
+status = "not-applicable"
+reason = "Kotlin cannot infer the type argument of `val list = Mock()`, so it is a compile error; with an explicit type, even `Any`, the mock type is known and no InvalidSpecException is thrown"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InvalidMockCreation#field w/ wrong argument"]]
+status = "not-applicable"
+reason = "`Mock(1)` is rejected by the Kotlin compiler (no matching overload), where Groovy fails at runtime with MissingMethodException"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InvalidMockCreation#local w/ wrong argument"]]
+status = "not-applicable"
+reason = "`Mock(1)` is rejected by the Kotlin compiler (no matching overload), where Groovy fails at runtime with MissingMethodException"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InvalidMockCreation#expr w/ wrong argument"]]
+status = "not-applicable"
+reason = "`Mock(1)` is rejected by the Kotlin compiler (no matching overload), where Groovy fails at runtime with MissingMethodException"
+decided = "2026-11-01"
