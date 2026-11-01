@@ -334,3 +334,21 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.MethodMatching#match any method name"]]
+status = "blocked"
+reason = "anyMethod() matches regardless of arguments, so the argument constraint of list._(1) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1004"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MethodMatching#match method name pattern"]]
+status = "blocked"
+reason = "The interaction DSL has no regex method name constraint (list./a.\\w/(1))"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MethodMatching#doesn't match method name pattern"]]
+status = "blocked"
+reason = "The interaction DSL has no regex method name constraint (list./b.\\w/(1))"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-01"
