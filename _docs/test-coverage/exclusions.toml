@@ -334,3 +334,21 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.JavaSpyBasics#can stub call at creation time"]]
+status = "blocked"
+reason = "Creation-time interactions on a class spy need a Spy(type) { ... } builder overload, which Spockk lacks; Spy(instance) { ... } cannot spy ArrayList on JDK 17+"
+gap = "https://github.com/pshevche/spockk/issues/935"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaSpyBasics#can mock call at creation time"]]
+status = "blocked"
+reason = "Creation-time interactions on a class spy need a Spy(type) { ... } builder overload, which Spockk lacks; Spy(instance) { ... } cannot spy ArrayList on JDK 17+"
+gap = "https://github.com/pshevche/spockk/issues/935"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaSpyBasics#can stub and mock call at creation time"]]
+status = "blocked"
+reason = "Creation-time interactions on a class spy need a Spy(type) { ... } builder overload, which Spockk lacks; Spy(instance) { ... } cannot spy ArrayList on JDK 17+"
+gap = "https://github.com/pshevche/spockk/issues/935"
+decided = "2026-11-01"
