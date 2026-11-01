@@ -334,3 +334,40 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing properties in initializer closure without 'it' does not work if the property is also a parameter"]]
+status = "not-applicable"
+reason = "Groovy closure delegate resolution decides whether the name hits the mock or a local, parameter, field or spec property. In a Kotlin builder lambda the lookup rules differ (locals shadow the receiver, the receiver shadows outer members), so this scenario has no equivalent"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing properties in initializer closure without 'it' does not work if the property is also a local variable"]]
+status = "not-applicable"
+reason = "Groovy closure delegate resolution decides whether the name hits the mock or a local, parameter, field or spec property. In a Kotlin builder lambda the lookup rules differ (locals shadow the receiver, the receiver shadows outer members), so this scenario has no equivalent"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing properties in initializer closure without 'it' does not work if the property is also a field"]]
+status = "not-applicable"
+reason = "Groovy closure delegate resolution decides whether the name hits the mock or a local, parameter, field or spec property. In a Kotlin builder lambda the lookup rules differ (locals shadow the receiver, the receiver shadows outer members), so this scenario has no equivalent"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing properties in initializer closure without 'it' does not work if the property is also a spec property"]]
+status = "not-applicable"
+reason = "Groovy closure delegate resolution decides whether the name hits the mock or a local, parameter, field or spec property. In a Kotlin builder lambda the lookup rules differ (locals shadow the receiver, the receiver shadows outer members), so this scenario has no equivalent"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InteractionsWithPropertySyntax#setting a property cannot be mocked with property syntax"]]
+status = "not-applicable"
+reason = "Asserts that Groovy's 'props.length = 10' is not recognized as an interaction. Kotlin assignment is a statement, not an expression, so '1 * (props.length = 10)' cannot be written"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InteractionsWithPropertySyntax#setting a property can be mocked with method syntax"]]
+status = "blocked"
+reason = "Kotlin exposes no setLength(10) method on a property, and the interaction DSL has no other syntax for a property setter"
+gap = "https://github.com/pshevche/spockk/issues/985"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InteractionsWithPropertySyntax#property names patterns are supported"]]
+status = "blocked"
+reason = "The interaction DSL has no regex method name constraint"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-01"
