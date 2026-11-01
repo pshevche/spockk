@@ -334,3 +334,32 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.JavaStubs#don't match wildcard target"]]
+status = "blocked"
+reason = "The interaction DSL has no wildcard target, so 0 * _.getName() has no Kotlin spelling"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaStubs#can call real method on class"]]
+status = "blocked"
+reason = "The interaction DSL has no callRealMethod(), so a response cannot delegate to the real implementation"
+gap = "https://github.com/pshevche/spockk/issues/1002"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaStubs#can stub final methods with mockito with closure"]]
+status = "blocked"
+reason = "No Stub overload combines an options map with a builder block, so the call does not compile"
+gap = "https://github.com/pshevche/spockk/issues/991"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaStubs#can stub final methods with mockito with closure and specified type"]]
+status = "blocked"
+reason = "No Stub overload combines an options map with a builder block, so the call does not compile"
+gap = "https://github.com/pshevche/spockk/issues/991"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaStubs#no static type specified"]]
+status = "not-applicable"
+reason = "Calls Stub() with no type and relies on Groovy failing to infer one at runtime; Kotlin rejects a Stub() whose type cannot be inferred at compile time"
+decided = "2026-11-01"
