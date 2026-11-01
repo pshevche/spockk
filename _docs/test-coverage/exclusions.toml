@@ -334,3 +334,39 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.MockingAndBridgeMethods#bridge methods are not intercepted"]]
+status = "blocked"
+reason = "Spockk response lambdas only receive the argument list, not the IMockInvocation, so the feature's check on the intercepted method (its parameter types) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MockingAndBridgeMethods#bridge methods that override concrete methods in a supertype are still intercepted - check stubbed values"]]
+status = "blocked"
+reason = "The feature declares its response statements inside the when block, which Spockk's interaction DSL rejects at runtime"
+gap = "https://github.com/pshevche/spockk/issues/992"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MockingAndBridgeMethods#bridge methods that override concrete methods in a supertype are still intercepted - check mocking"]]
+status = "blocked"
+reason = "Spockk response lambdas only receive the argument list, not the IMockInvocation, so the feature's check on the intercepted method (Method.isBridge) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MockingAndBridgeMethods#check mocking of non-bridge methods"]]
+status = "blocked"
+reason = "Spockk response lambdas only receive the argument list, not the IMockInvocation, so the feature's check on the intercepted method (Method.isBridge) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MockingAndBridgeMethods#bridge methods that override concrete methods in a supertype are still intercepted - check stubbing"]]
+status = "blocked"
+reason = "Spockk response lambdas only receive the argument list, not the IMockInvocation, so the feature's check on the intercepted method (Method.isBridge) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MockingAndBridgeMethods#bridge methods that override concrete methods in a supertype are still intercepted - check spying"]]
+status = "blocked"
+reason = "Spockk response lambdas only receive the argument list, not the IMockInvocation, so the feature's check on the intercepted method (Method.isBridge) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-01"
