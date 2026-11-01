@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.InteractionScopes#local interactions are valid during execution of associated when-block"]]
+status = "blocked"
+reason = "The block-order validator rejects an expect block directly after a then block, which the feature needs"
+gap = "https://github.com/pshevche/spockk/issues/981"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.InteractionScopes#global interactions are valid from the point of their definition to the end of the iteration"]]
+status = "blocked"
+reason = "The block-order validator rejects a when block directly after an expect block, which the feature needs"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-01"
