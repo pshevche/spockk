@@ -334,3 +334,43 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+[["org.spockframework.smoke.mock.ResponseGenerators#return iterable response"]]
+status = "blocked"
+reason = "Spockk has no iterable (chained) response operator equivalent to Spock's >>>"
+gap = "https://github.com/pshevche/spockk/issues/781"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.ResponseGenerators#return closure"]]
+status = "not-applicable"
+reason = "Spock distinguishes a closure used as a code response from a closure returned as a value by casting to Closure. Kotlin lambdas passed to did/does are always code responses and there is no Groovy Closure cast"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.ResponseGenerators#auto-coercion of GString return value to String (as in plain Groovy)"]]
+status = "not-applicable"
+reason = "Groovy coerces a mock's return value to the method's declared return type at runtime (GString to String). Kotlin is statically typed, so the compiler rejects a mismatched response and there is nothing to coerce"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.ResponseGenerators#auto-coercion of Integer return value to BigDecimal (as in plain Groovy)"]]
+status = "not-applicable"
+reason = "Groovy coerces a mock's return value to the method's declared return type at runtime (Integer to BigDecimal). Kotlin is statically typed, so the compiler rejects a mismatched response and there is nothing to coerce"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.ResponseGenerators#auto-coercion for multi-results"]]
+status = "not-applicable"
+reason = "Groovy coerces a mock's return value to the method's declared return type at runtime (Integer to BigDecimal across a multi-result list). Kotlin is statically typed, so the compiler rejects a mismatched response and there is nothing to coerce"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.ResponseGenerators#auto-coercion for code responses"]]
+status = "not-applicable"
+reason = "Groovy coerces a mock's return value to the method's declared return type at runtime (Integer to BigDecimal from a code response). Kotlin is statically typed, so the compiler rejects a mismatched response and there is nothing to coerce"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.ResponseGenerators#auto-coercion from List to Set"]]
+status = "not-applicable"
+reason = "Groovy coerces a mock's return value to the method's declared return type at runtime (List to Set). Kotlin is statically typed, so the compiler rejects a mismatched response and there is nothing to coerce"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.ResponseGenerators#access single arg with destructuring"]]
+status = "not-applicable"
+reason = "Spock unwraps a single argument when a closure declares a typed parameter, a Groovy closure parameter dispatch rule. Spockk response lambdas always receive the argument list"
+decided = "2026-11-02"
