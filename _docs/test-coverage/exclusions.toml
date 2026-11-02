@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.RemainingBehaviorSameAsForUnorderedInteractions#too few invocations for one of the when-blocks"]]
+status = "blocked"
+reason = "The block-order validator rejects consecutive then blocks, which the feature needs to check each when-block's interactions separately"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.RemainingBehaviorSameAsForUnorderedInteractions#too many invocations for one of the when-blocks"]]
+status = "blocked"
+reason = "The block-order validator rejects consecutive then blocks, which the feature needs to check each when-block's interactions separately"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
