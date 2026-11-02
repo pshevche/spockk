@@ -33,6 +33,11 @@ class ScannerTest(unittest.TestCase):
         key = "org.spockframework.smoke.C#each condition gets its own values (no undesired aliasing)"
         self.assertEqual("ported", self.cov[key].status)
 
+    def test_annotation_lookalike_inside_a_key_is_not_an_annotation(self):
+        # Upstream feature names such as "@PendingFeature marks ..." must not read as a real annotation.
+        c = self.cov["org.spockframework.smoke.D#@PendingFeature marks failing feature as skipped"]
+        self.assertEqual("ported", c.status)
+
 
 if __name__ == "__main__":
     unittest.main()
