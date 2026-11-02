@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.MultiThreaded#mocks can block and wait on conditions in a response chain"]]
+status = "blocked"
+reason = "The feature chains two blocking responses on one interaction with `>>`, and Spockk's interaction DSL cannot chain responses"
+gap = "https://github.com/pshevche/spockk/issues/957"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.MultiThreaded#mocks can block and wait on conditions in the contents of a response chain result"]]
+status = "blocked"
+reason = "The feature supplies a list of response closures with `>>>`, and Spockk's interaction DSL has no iterable response operator"
+gap = "https://github.com/pshevche/spockk/issues/781"
+decided = "2026-11-02"
