@@ -334,3 +334,21 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.OverlappingInteractions#invocations are spread over overlapping interactions"]]
+status = "blocked"
+reason = "Upstream uses the negated argument constraint `!0`; Spockk's interaction DSL only has any() and literal equality, so the Kotlin equivalent cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.OverlappingInteractions#invocations are spread over overlapping ordered interactions"]]
+status = "blocked"
+reason = "Upstream uses the negated argument constraint `!0`; Spockk's interaction DSL only has any() and literal equality, so the Kotlin equivalent cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.OverlappingInteractions#invocations are not spread over overlapping interactions in different scopes"]]
+status = "blocked"
+reason = "Upstream declares `1 * list.add(1)` outside any when/then pair; Spockk does not recognize interactions in the feature's setup scope, and @FailsWith cannot be combined with @PendingFeature (#947), so no faithful test can be committed"
+gap = "https://github.com/pshevche/spockk/issues/693"
+decided = "2026-11-02"
