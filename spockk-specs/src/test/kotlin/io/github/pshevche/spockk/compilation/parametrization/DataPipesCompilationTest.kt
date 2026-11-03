@@ -18,10 +18,12 @@ import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 
 @OptIn(ExperimentalCompilerApi::class)
 class DataPipesCompilationTest : BaseCompilationTest() {
@@ -182,5 +184,114 @@ class DataPipesCompilationTest : BaseCompilationTest() {
         """
         .trimIndent()
     )
+  }
+
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#data variable collides with local variable"
+  )
+  fun `data variable collides with local variable`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          fun `parameterized feature`(x: Int) {
+              val x = 0
+              io.github.pshevche.spockk.lang.expect
+              assert(x == 0)
+
+              io.github.pshevche.spockk.lang.where
+              io.github.pshevche.spockk.lang.variable(x).from(1, 2)
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Data provider must reference a feature method variable")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1047")
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#duplicate explicit data variable"
+  )
+  fun `duplicate explicit data variable`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          fun `parameterized feature`(x: Int) {
+              io.github.pshevche.spockk.lang.expect
+              assert(true)
+
+              io.github.pshevche.spockk.lang.where
+              io.github.pshevche.spockk.lang.variable(x).from(1)
+              io.github.pshevche.spockk.lang.variable(x).from(2)
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Duplicate declaration of data variable 'x'")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1047")
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#duplicate data variable in multi-parameterization"
+  )
+  fun `duplicate data variable in multi-parameterization`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          fun `parameterized feature`(x: Int) {
+              io.github.pshevche.spockk.lang.expect
+              assert(true)
+
+              io.github.pshevche.spockk.lang.where
+              io.github.pshevche.spockk.lang.variables(x, x).from(listOf(1), listOf(1))
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Duplicate declaration of data variable 'x'")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1050")
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#data variable name must not use the reserved internal prefix"
+  )
+  fun `data variable name must not use the reserved internal prefix`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          fun `parameterized feature`(`${'$'}spock_reserved`: Int) {
+              io.github.pshevche.spockk.lang.expect
+              assert(true)
+
+              io.github.pshevche.spockk.lang.where
+              io.github.pshevche.spockk.lang.variable(`${'$'}spock_reserved`).from(1, 2)
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("the '\$spock_' prefix is reserved")
   }
 }

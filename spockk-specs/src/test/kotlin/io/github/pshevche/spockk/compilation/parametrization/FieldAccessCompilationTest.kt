@@ -17,9 +17,11 @@ package io.github.pshevche.spockk.compilation.parametrization
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 
 @OptIn(ExperimentalCompilerApi::class)
 class FieldAccessCompilationTest : BaseCompilationTest() {
@@ -215,6 +217,9 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
     )
   }
 
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#cells cannot reference instance fields"
+  )
   fun `data tables cannot reference non-companion fields`() {
     `when`
     val result =
@@ -310,5 +315,110 @@ class FieldAccessCompilationTest : BaseCompilationTest() {
         """
         .trimIndent()
     )
+  }
+
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#data variable hides (but doesn't collide with) instance field"
+  )
+  fun `data variable hides (but doesn't collide with) instance field`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          private val x = 1
+
+          fun `parameterized feature`(x: Int) {
+              io.github.pshevche.spockk.lang.expect
+              assert(x == 2)
+
+              io.github.pshevche.spockk.lang.where
+              io.github.pshevche.spockk.lang.variable(x).from(2)
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    result.isSuccess()
+  }
+
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#data variable hides (but doesn't collide with) static field"
+  )
+  fun `data variable hides (but doesn't collide with) static field`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          companion object {
+            val x = 1
+          }
+
+          fun `parameterized feature`(x: Int) {
+              io.github.pshevche.spockk.lang.expect
+              assert(x == 2)
+
+              io.github.pshevche.spockk.lang.where
+              x ; `_`
+              2 ; `_`
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    result.isSuccess()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1048")
+  @MigratedFrom(
+    "org.spockframework.smoke.parameterization.InvalidWhereBlocks#right-hand side of parameterization may not reference instance fields (only @Shared and static fields)"
+  )
+  fun `right-hand side of parameterization may not reference instance fields (only @Shared and static fields)`() {
+    `when`
+    val plain =
+      transform(
+        specWithBody(
+          """
+          private val instanceField = 1
+
+          fun `parameterized feature`(x: Int) {
+              io.github.pshevche.spockk.lang.expect
+              assert(x == 1)
+
+              io.github.pshevche.spockk.lang.where
+              io.github.pshevche.spockk.lang.variable(x).from(listOf(1, instanceField, 2))
+          }
+          """
+            .trimIndent()
+        )
+      )
+    val nested =
+      transform(
+        specWithBody(
+          """
+          private val instanceField = 1
+
+          fun `parameterized feature`(x: Int) {
+              io.github.pshevche.spockk.lang.expect
+              assert(x == 1)
+
+              io.github.pshevche.spockk.lang.where
+              io.github.pshevche.spockk.lang.variable(x).from(run { run { listOf(instanceField) } })
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !plain.isSuccess()
+    plain.compilation.messages.contains("Only companion object members and @Shared fields may be accessed from here")
+    !nested.isSuccess()
+    nested.compilation.messages.contains("Only companion object members and @Shared fields may be accessed from here")
   }
 }
