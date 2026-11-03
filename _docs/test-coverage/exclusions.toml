@@ -334,3 +334,21 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.ParameterizationScopes#in closure scope of derived data value"]]
+status = "blocked"
+reason = "A derived data variable that evaluates to a List and references another variable makes the compiler plugin reject the where block"
+gap = "https://github.com/pshevche/spockk/issues/1054"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.ParameterizationScopes#in nested closure scope of derived data value"]]
+status = "blocked"
+reason = "A derived data variable that evaluates to a List and references another variable makes the compiler plugin reject the where block"
+gap = "https://github.com/pshevche/spockk/issues/1054"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.ParameterizationScopes#in nested closure scope"]]
+status = "blocked"
+reason = "A lambda nested inside a condition makes the compiler plugin overflow the stack during IR lowering"
+gap = "https://github.com/pshevche/spockk/issues/938"
+decided = "2026-11-03"
