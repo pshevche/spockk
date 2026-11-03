@@ -334,3 +334,123 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.DataTables#data tables with #separators can be combined"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#combined data table columns can use previous data table column values within one table"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#filter block can exclude first iteration"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#filter block can exclude last iteration"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#filter block supports derived data variables"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#filter block supports shared fields"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#filter block supports static fields"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#filter block can not exclude all iterations"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#filtered iterations are logged"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#combined data table columns can use previous data table column values across tables"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#data tables with different widths can be combined"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#data tables starting with table separator can be combined"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#data tables ending with table separator can be combined"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#data tables and data pipes can be combined"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#data pipes and data tables can be combined"]]
+status = "blocked"
+reason = "Needs the `combined:` and/or `filter:` block labels, which Spockk does not define"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#tables with different separators can be mixed"]]
+status = "not-applicable"
+reason = "Mixes `|` and `;` separated tables; Kotlin has no `|` cell separator and spec tables are `;`-separated only, so there is no separator mix to exercise"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#cells can be separated with single or double pipe operator"]]
+status = "not-applicable"
+reason = "Exercises `|` and `||` as cell separators; Kotlin has no such operators and Spockk tables use `;` only (the `;`-separated behavior is covered by the other ported table features)"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#tables can be surrounded by borders of semicolons and underscores"]]
+status = "not-applicable"
+reason = "Relies on `____` underscore-only border lines and `|`/`||` separators; underscore-only identifiers are reserved in Kotlin and `|` does not exist, so the syntax cannot be written"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#consistent use of cell separators is not enforced"]]
+status = "not-applicable"
+reason = "Mixes `|` and `||` within one table; Kotlin has no pipe cell separators"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#two or more underscores can be used to separate multiple data tables"]]
+status = "not-applicable"
+reason = "Tests `__`..`____...` underscore table separators; Spockk separates tables with `and`, and underscore-only identifiers are reserved in Kotlin"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#cells can be separated with any amount of semicolons"]]
+status = "not-applicable"
+reason = "Tests runs of `;;`, `;;;` as one cell separator; Kotlin rejects consecutive semicolons (empty statements) at parse time, so the table cannot be written"
+decided = "2026-11-03"
