@@ -334,3 +334,33 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.WildcardUsages#match any argument that has a certain type"]]
+status = "blocked"
+reason = "Spockk interactions only have the untyped any() wildcard; there is no equivalent of Spock's `_ as Map` type constraint, which is what this feature tests"
+gap = "https://github.com/pshevche/spockk/issues/684"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.mock.WildcardUsages#match any target"]]
+status = "blocked"
+reason = "The interaction DSL has no wildcard target, so Spock's `1 * _.add(\"abc\")` has no Kotlin spelling"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.mock.WildcardUsages#match any method name"]]
+status = "blocked"
+reason = "anyMethod() takes no arguments, so Spock's `2 * list1._(1)` (any method name with a fixed argument) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1004"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.mock.WildcardUsages#match any invocation on a mock object"]]
+status = "blocked"
+reason = "The interaction DSL has no wildcard target, so Spock's `3 * _._` has no Kotlin spelling"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.mock.WildcardUsages#match any invocation on a mock object (short syntax)"]]
+status = "blocked"
+reason = "The interaction DSL has no wildcard target, so Spock's `3 * _` has no Kotlin spelling"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-03"
