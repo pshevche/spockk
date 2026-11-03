@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.ValidMockCreation#field typed w/ mock untyped"]]
+status = "blocked"
+reason = "A spec field initialized with a bare Mock() fails the whole class at construction, so no feature in the class can run; the field cannot be committed even with @PendingFeature"
+gap = "https://github.com/pshevche/spockk/issues/694"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.mock.ValidMockCreation#creation in closure"]]
+status = "blocked"
+reason = "Mock() inside a lambda nested in another lambda crashes the compiler plugin"
+gap = "https://github.com/pshevche/spockk/issues/1038"
+decided = "2026-11-03"
