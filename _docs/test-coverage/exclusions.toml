@@ -334,3 +334,153 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.DataProviders#array"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#map"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#matcher"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#string"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#iterator"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#iterable"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#disguised iterable"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#enumeration"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#estimate iterations correctly for Iterators"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#call size only once"]]
+status = "blocked"
+reason = "Spockk data pipes only accept a List or vararg source, so this provider type cannot be written in a where block"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data pipes can be combined"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#combined label can have a comment"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#multi-assignments can be combined"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#multi-assignments with unequal sub-lengths can be combined"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#multi-assignments with unequal lengths can be combined"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#derived data variables before or after combination do not take part and work"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data pipes before or after combination do not take part and work"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#multi-assignment data pipes before or after combination do not take part and work"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data tables before or after combination do not take part and work"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#combination before or after combination do not take part and work"]]
+status = "blocked"
+reason = "Spockk has no combined block label"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#null value"]]
+status = "not-applicable"
+reason = "Data providers are non-null Kotlin lists, so a null provider cannot be written"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data pipe consisting of single variable expression has line information in stack trace"]]
+status = "not-applicable"
+reason = "Depends on Groovy MissingPropertyException for an undefined variable; an unresolved reference is a Kotlin compile error"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data provider with asserting closure produces error rethrower variable in data provider method"]]
+status = "not-applicable"
+reason = "Snapshot of Groovy AST generated for assert statements inside closures, which has no Kotlin counterpart"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data variable with asserting closure produces error rethrower variable in data processor method"]]
+status = "not-applicable"
+reason = "Snapshot of Groovy AST generated for assert statements inside closures, which has no Kotlin counterpart"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data provider with asserting closure works properly"]]
+status = "not-applicable"
+reason = "Guards Groovy's rewriting of assert statements inside closures in where blocks; Kotlin lambdas have no such rewriting"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#data variable with asserting closure works properly"]]
+status = "not-applicable"
+reason = "Guards Groovy's rewriting of assert statements inside closures in where blocks; Kotlin lambdas have no such rewriting"
+decided = "2026-11-03"
