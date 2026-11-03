@@ -334,3 +334,51 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#no parameters"]]
+status = "not-applicable"
+reason = "Spock allows data variables with no matching method parameter. Kotlin cannot reference an undeclared variable in a feature body, so the shape cannot exist"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#fewer parameters than data variables"]]
+status = "not-applicable"
+reason = "Spock allows data variables with no matching method parameter. Kotlin cannot reference an undeclared variable in a feature body, so the shape cannot exist"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#data variable that is not a parameter"]]
+status = "not-applicable"
+reason = "Spock allows data variables with no matching method parameter. Kotlin cannot reference an undeclared variable in a feature body, so the shape cannot exist"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#data value type can be coerced to parameter type"]]
+status = "not-applicable"
+reason = "Relies on Groovy's dynamic type coercion of data values (Integer to String) at injection time. Kotlin is statically typed and rejects the mismatched pipe at compile time"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#data value type can not be coerced to parameter type"]]
+status = "not-applicable"
+reason = "Asserts a GroovyCastException from Groovy's dynamic coercion. Kotlin rejects the mismatched types at compile time, so there is no runtime coercion to fail"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#data values are casted with type-coercion"]]
+status = "not-applicable"
+reason = "Relies on Groovy coercing String data values to Integer and int parameters. Kotlin rejects the mismatched types at compile time"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#method arguments in #fixtureMethod that are eventually provided by extensions throw an exception at runtime if not set"]]
+status = "blocked"
+reason = "The compiler plugin rejects fixture methods that declare parameters, so setupSpec/setup/cleanup/cleanupSpec cannot take extension-provided arguments"
+gap = "https://github.com/pshevche/spockk/issues/927"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#method arguments in #fixtureMethod can be provided by extensions"]]
+status = "blocked"
+reason = "The compiler plugin rejects fixture methods that declare parameters, so setupSpec/setup/cleanup/cleanupSpec cannot take extension-provided arguments"
+gap = "https://github.com/pshevche/spockk/issues/927"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.MethodParameters#method arguments in #fixtureMethod can be provided by extensions by setting the whole arguments array"]]
+status = "blocked"
+reason = "The compiler plugin rejects fixture methods that declare parameters, so setupSpec/setup/cleanup/cleanupSpec cannot take extension-provided arguments"
+gap = "https://github.com/pshevche/spockk/issues/927"
+decided = "2026-11-03"
