@@ -19,6 +19,7 @@ import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.verifyEach
 import spock.lang.Specification
+import java.io.Serializable
 
 class SimpleComparisonSpec : Specification() {
   fun `test`() {
@@ -472,5 +473,110 @@ class SetContainingSpec : Specification() {
     val b = (10..15).toSet()
     expect
     a == b
+  }
+}
+
+class DifferentRepresentationsEqualitySpec : Specification() {
+  fun `test`() {
+    val x = 1
+    val y = 2
+    expect
+    x == y
+  }
+}
+
+class EqualityPerson(val name: String) {
+  override fun toString() = name
+
+  override fun equals(other: Any?) = false
+
+  override fun hashCode() = 0
+}
+
+class SameRepresentationSameTypeEqualitySpec : Specification() {
+  fun `test`() {
+    val x = EqualityPerson("Fred")
+    val y = EqualityPerson("Fred")
+    expect
+    x == y
+  }
+}
+
+class SameRepresentationDifferentArrayTypesEqualitySpec : Specification() {
+  fun `test`() {
+    val x: Any = intArrayOf(1)
+    val y: Any = arrayOf("1")
+    expect
+    x == y
+  }
+}
+
+private fun firstFoo(): Any = object : Serializable {
+  override fun toString() = "foo"
+}
+
+private fun secondFoo(): Any = object : Serializable {
+  override fun toString() = "foo"
+}
+
+class SameRepresentationDifferentAnonymousTypesEqualitySpec : Specification() {
+  fun `test`() {
+    val x = firstFoo()
+    val y = secondFoo()
+    expect
+    x == y
+  }
+}
+
+class SameRenderedAndLiteralRepresentationsEqualitySpec : Specification() {
+  fun `test`() {
+    val x: Any = "123"
+    expect
+    x == 123
+  }
+}
+
+class SameLiteralRepresentationsEqualitySpec : Specification() {
+  fun `test`() {
+    val x: Any = arrayListOf(0, 1)
+    val y: Any = setOf(0, 1)
+    expect
+    x == y
+  }
+}
+
+class NullVersusStringEqualitySpec : Specification() {
+  fun `test`() {
+    val x: Any? = null
+    val y: Any = "null"
+    expect
+    x == y
+  }
+}
+
+class NestedEqualityTypeHintsSpec : Specification() {
+  fun `test`() {
+    val x: Any = 1
+    val y: Any = "1"
+    expect
+    ((x == y) as Any) is String
+  }
+}
+
+class NestedEqualityEqualValuesNoTypeHintsSpec : Specification() {
+  fun `test`() {
+    val x: Any = listOf(1)
+    val y: Any = arrayListOf(1)
+    expect
+    ((x == y) as Any) is String
+  }
+}
+
+class EqualsMethodNoTypeHintsSpec : Specification() {
+  fun `test`() {
+    val x: Any = 1
+    val y: Any = "1"
+    expect
+    x.equals(y)
   }
 }
