@@ -334,3 +334,8 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.condition.EqualityComparisonRendering#values with same literal representations (Groovy 2)"]]
+status = "not-applicable"
+reason = "Guarded upstream by @Requires on Groovy 2; Spockk builds against Groovy 5, where the Groovy 3+ variant ('values with same literal representations') is the one that applies"
+decided = "2026-11-05"
