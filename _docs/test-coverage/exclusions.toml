@@ -334,3 +334,123 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#final where-block variable can be used in data table cells"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#final where-block variable is evaluated once and reused across providers"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#final where-block variable can be used in a derived data variable"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#where-block variable is not visible in the feature body"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot even declare the variable whose scoping it checks, so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#where-block variable initializer can read a @Shared field"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#final where-block variable works with combined data providers"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829) and defines no combined block label (issue 793), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#final multiple-assignment where-block variables can be used"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), including destructuring declarations, so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#final multiple-assignment where-block variables are evaluated once and reused across providers"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), including destructuring declarations, so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#a where-block variable can reference an earlier where-block variable"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#a where-block variable closure can capture another where-block variable"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#a where-block variable can be the source of data pipes"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#filter-block can reference a where-block variable"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829) and defines no filter block label (issue 793), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#a failing where-block variable initializer fails the feature with the original exception"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#an AutoCloseable where-block variable is closed once after the feature completes"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#AutoCloseable where-block variables are closed in reverse declaration order"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#a failure while closing a where-block variable is swallowed"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#already-created where-block variables are closed in reverse order when a later initializer throws"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#already-created destructured where-block variables are closed when a later initializer throws"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), including destructuring declarations, so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#a close failure while cleaning up after a failed initializer is attached as suppressed"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.WhereBlockVariables#a where-block variable that is not AutoCloseable is left untouched"]]
+status = "blocked"
+reason = "Spockk's where block rejects a plain local declaration (issue 829), so the feature cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-05"
