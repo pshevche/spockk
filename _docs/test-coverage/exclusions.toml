@@ -334,3 +334,24 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.UnrolledFeatureMethods#method name can act as naming pattern"]]
+status = "not-applicable"
+reason = "The feature declares its name as a naming pattern containing property expressions (#actor.details.name.size()). JVM method names cannot contain '.', so Kotlin cannot declare a feature with such a name"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.UnrolledFeatureMethods#naming pattern in @Unroll annotation wins over naming pattern in method name"]]
+status = "not-applicable"
+reason = "The feature's method name is itself a naming pattern with property expressions (#actor.details.age). JVM method names cannot contain '.', so Kotlin cannot declare a feature with such a name"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.UnrolledFeatureMethods#method name can still contain parentheses"]]
+status = "not-applicable"
+reason = "The feature name embeds method-call expressions (#actor.getName()). JVM method names cannot contain '.', so Kotlin cannot declare a feature with such a name"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.UnrolledFeatureMethods#unroll annotations are not inheritable"]]
+status = "blocked"
+reason = "The fixture needs data-driven features in a spec class that has subclasses, which crashes the compiler plugin"
+gap = "https://github.com/pshevche/spockk/issues/776"
+decided = "2026-11-05"
