@@ -334,3 +334,91 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-parameterization with placeholder in first position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-derived-parameterization with placeholder in first position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-parameterization with placeholder in second position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-derived-parameterization with placeholder in second position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-parameterization with placeholder in last position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-derived-parameterization with placeholder in last position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-parameterization with placeholder in wrong position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-parameterization with multiple placeholders"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-derived-parameterization with placeholder in wrong position"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-derived-parameterization with multiple placeholders"]]
+status = "blocked"
+reason = "Spockk data variables have no `_` placeholder to skip an element of a multi-variable pipe"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#nested multi-parameterization"]]
+status = "blocked"
+reason = "Spockk has no placeholder or nested destructuring of a multi-variable pipe element"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#simple, multi-, derived and multi-derived parameterizations used together"]]
+status = "blocked"
+reason = "The feature mixes in pipes with `_` placeholders, which Spockk data variables cannot express"
+gap = "https://github.com/pshevche/spockk/issues/1057"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#arguments may not be used before they have been assigned"]]
+status = "blocked"
+reason = "A pipe referencing a variable declared later crashes the Kotlin backend instead of failing the feature"
+gap = "https://github.com/pshevche/spockk/issues/1058"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#multi-parameterization with named parameters"]]
+status = "not-applicable"
+reason = "Destructures Groovy maps by key (`[b: 3, a: 3]`) into data variables; Kotlin has no map-to-variable destructuring by name"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.parameterization.Parameterizations#nested multi-parameterization with named parameters"]]
+status = "not-applicable"
+reason = "Destructures Groovy maps by key (`[b: 3, a: 3]`) into data variables; Kotlin has no map-to-variable destructuring by name"
+decided = "2026-11-05"
