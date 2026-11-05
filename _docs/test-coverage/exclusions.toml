@@ -334,3 +334,38 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.traits.BasicTraitUsage#call trait method"]]
+status = "not-applicable"
+reason = "Exercises Groovy traits (@Stepwise spec implementing MyTrait, which carries state and mixes in setup/cleanup/setupSpec fixture methods). Kotlin has no trait construct: interfaces cannot hold state, and their methods are not mixed in as fixture methods, so there is nothing to port"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.traits.BasicTraitUsage#mutate trait state"]]
+status = "not-applicable"
+reason = "Exercises Groovy traits (@Stepwise spec implementing MyTrait, which carries state and mixes in setup/cleanup/setupSpec fixture methods). Kotlin has no trait construct: interfaces cannot hold state, and their methods are not mixed in as fixture methods, so there is nothing to port"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.traits.BasicTraitUsage#call trait method from condition"]]
+status = "not-applicable"
+reason = "Exercises Groovy traits (@Stepwise spec implementing MyTrait, which carries state and mixes in setup/cleanup/setupSpec fixture methods). Kotlin has no trait construct: interfaces cannot hold state, and their methods are not mixed in as fixture methods, so there is nothing to port"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.traits.BasicTraitUsage#access trait state from condition"]]
+status = "not-applicable"
+reason = "Exercises Groovy traits (@Stepwise spec implementing MyTrait, which carries state and mixes in setup/cleanup/setupSpec fixture methods). Kotlin has no trait construct: interfaces cannot hold state, and their methods are not mixed in as fixture methods, so there is nothing to port"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.traits.BasicTraitUsage#mix in setup() method"]]
+status = "not-applicable"
+reason = "Exercises Groovy traits (@Stepwise spec implementing MyTrait, which carries state and mixes in setup/cleanup/setupSpec fixture methods). Kotlin has no trait construct: interfaces cannot hold state, and their methods are not mixed in as fixture methods, so there is nothing to port"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.traits.BasicTraitUsage#mix in cleanup() method"]]
+status = "not-applicable"
+reason = "Exercises Groovy traits (@Stepwise spec implementing MyTrait, which carries state and mixes in setup/cleanup/setupSpec fixture methods). Kotlin has no trait construct: interfaces cannot hold state, and their methods are not mixed in as fixture methods, so there is nothing to port"
+decided = "2026-11-05"
+
+[["org.spockframework.smoke.traits.BasicTraitUsage#mix in setupSpec() method"]]
+status = "not-applicable"
+reason = "Exercises Groovy traits (@Stepwise spec implementing MyTrait, which carries state and mixes in setup/cleanup/setupSpec fixture methods). Kotlin has no trait construct: interfaces cannot hold state, and their methods are not mixed in as fixture methods, so there is nothing to port"
+decided = "2026-11-05"
