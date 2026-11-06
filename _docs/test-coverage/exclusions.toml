@@ -334,3 +334,23 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["spock.util.concurrent.PollingConditionsSpec#fails if condition is not met and assert keyword is used for def declared conditions object with condition method '#conditionMethod' and field"]]
+status = "not-applicable"
+reason = "Kotlin is statically typed, so a conditions object declared with 'def' (resolved by its runtime type in Groovy) has no equivalent; the same polling failure is covered by the 'fails if any condition isn't satisfied in time' port"
+decided = "2026-11-06"
+
+[["spock.util.concurrent.PollingConditionsSpec#fails if condition is not met and assert keyword is used for def declared conditions object with condition method '#conditionMethod' and local variable"]]
+status = "not-applicable"
+reason = "Kotlin is statically typed, so a conditions object declared with 'def' (resolved by its runtime type in Groovy) has no equivalent; the same polling failure is covered by the 'fails if any condition isn't satisfied in time' port"
+decided = "2026-11-06"
+
+[["spock.util.concurrent.PollingConditionsSpec#fails if condition is not met and assert keyword is not used for def declared conditions object with condition method '#conditionMethod' and field"]]
+status = "not-applicable"
+reason = "Relies on Groovy rewriting implicit conditions inside a closure whose receiver type is only known at runtime via 'def'; Kotlin has static types and no implicit conditions in lambdas"
+decided = "2026-11-06"
+
+[["spock.util.concurrent.PollingConditionsSpec#fails if condition is not met and assert keyword is not used for def declared conditions object with condition method '#conditionMethod' and local variable"]]
+status = "not-applicable"
+reason = "Relies on Groovy rewriting implicit conditions inside a closure whose receiver type is only known at runtime via 'def'; Kotlin has static types and no implicit conditions in lambdas"
+decided = "2026-11-06"
