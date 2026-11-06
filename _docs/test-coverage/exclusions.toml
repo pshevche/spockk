@@ -334,3 +334,9 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["spock.util.OperatingSystemSpec#provides convenience methods to test for family"]]
+status = "blocked"
+reason = "Lambdas in more than one where-table column make the Kotlin backend fail with a JVM signature clash"
+gap = "https://github.com/pshevche/spockk/issues/1081"
+decided = "2026-11-06"
