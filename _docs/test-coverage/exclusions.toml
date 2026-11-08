@@ -63,6 +63,12 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.runtime.ConfigurationScriptLoaderSpec#configuration script that cannot be compiled is rejected"]]
+status = "blocked"
+reason = "Every Groovy script fails to compile in the spockk-specs test JVM (Gradle's Groovy 4 shadows Groovy 6), so a port would pass for the wrong reason and cannot be a @PendingFeature that fails until the gap is closed"
+gap = "https://github.com/pshevche/spockk/issues/718"
+decided = "2026-10-13"
+
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
 reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
