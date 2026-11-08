@@ -334,3 +334,104 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#mock call to GroovyObject.getProperty Groovy 2&3"]]
+status = "not-applicable"
+reason = "Exercises GroovyObject.getProperty on a mock; Kotlin classes are not GroovyObjects and have no dynamic property dispatch"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#mock call to GroovyObject.getProperty Groovy >=4.0.7"]]
+status = "not-applicable"
+reason = "Exercises GroovyObject.getProperty on a mock; Kotlin classes are not GroovyObjects and have no dynamic property dispatch"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#mock call to GroovyObject.setProperty"]]
+status = "not-applicable"
+reason = "Exercises GroovyObject.setProperty on a mock; Kotlin classes are not GroovyObjects and have no dynamic property dispatch"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#mock call to GroovyObject.invokeMethod"]]
+status = "not-applicable"
+reason = "Exercises GroovyObject.invokeMethod on a mock; Kotlin classes are not GroovyObjects and have no dynamic method dispatch"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#mock call to GroovyObject.setMetaClass"]]
+status = "not-applicable"
+reason = "Exercises GroovyObject.setMetaClass on a mock; Kotlin classes have no Groovy metaclass"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#call to GroovyObject.getMetaClass returns meta class for mocked type"]]
+status = "not-applicable"
+reason = "Exercises GroovyObject.getMetaClass on a mock; Kotlin classes have no Groovy metaclass"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#cannot mock call to GroovyObject.getMetaClass"]]
+status = "not-applicable"
+reason = "Exercises GroovyObject.getMetaClass on a mock; Kotlin classes have no Groovy metaclass"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#cannot mock GDK method"]]
+status = "not-applicable"
+reason = "Exercises a Groovy GDK extension method (Object.any) on a mock; GDK methods do not exist in Kotlin"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#dynamic methods are considered to not exist"]]
+status = "not-applicable"
+reason = "Calls an undeclared method on a mock via Groovy dynamic dispatch; Kotlin rejects unknown methods at compile time"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#cannot mock GDK property"]]
+status = "not-applicable"
+reason = "Exercises a Groovy GDK property (Object.properties) on a mock; GDK properties do not exist in Kotlin"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#dynamic properties are considered to not exist"]]
+status = "not-applicable"
+reason = "Reads an undeclared property on a mock via Groovy dynamic dispatch; Kotlin rejects unknown properties at compile time"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Mock object boolean (is) accessor via dot-notation"]]
+status = "not-applicable"
+reason = "Tests Groovy resolving a property read to an isX() method; Kotlin property syntax does not apply to functions declared in Kotlin"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Mock object boolean (get) accessor via dot-notation"]]
+status = "not-applicable"
+reason = "Tests Groovy resolving a property read to a getX() method; Kotlin property syntax does not apply to functions declared in Kotlin"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Mock object boolean (get + is) accessor via dot-notation (Groovy 2&3)"]]
+status = "not-applicable"
+reason = "Tests Groovy's get/is property resolution order; Kotlin has no such resolution"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Mock object boolean (get + is) accessor via dot-notation (Groovy 4)"]]
+status = "not-applicable"
+reason = "Tests Groovy's get/is property resolution order; Kotlin has no such resolution"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Real object boolean (get + is) accessor via dot-notation (Groovy 2&3)"]]
+status = "not-applicable"
+reason = "Tests Groovy's get/is property resolution order on a real object; Kotlin has no such resolution"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Real object boolean (get + is) accessor via dot-notation (Groovy 4)"]]
+status = "not-applicable"
+reason = "Tests Groovy's get/is property resolution order on a real object; Kotlin has no such resolution"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Mock object non-boolean (get + is) accessor via dot-notation"]]
+status = "not-applicable"
+reason = "Tests Groovy's get/is property resolution order; Kotlin has no such resolution"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#Mock object non-boolean (is) pseudo accessor via dot-notation"]]
+status = "not-applicable"
+reason = "Expects a Groovy MissingPropertyException for a non-boolean isX() accessor; Kotlin rejects the unknown property at compile time"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaMocksForGroovyClasses#mock declared property that is written with property syntax"]]
+status = "blocked"
+reason = "The interaction DSL has no syntax for a Kotlin property setter, since an assignment is not an expression"
+gap = "https://github.com/pshevche/spockk/issues/985"
+decided = "2026-11-01"
