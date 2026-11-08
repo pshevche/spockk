@@ -334,3 +334,221 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#duplicate data variable"]]
+status = "not-applicable"
+reason = "Kotlin has no implicit data variables: every data variable is a feature parameter, and a duplicate parameter name is rejected by the Kotlin compiler itself. The explicit-parameter case is covered by 'duplicate explicit data variable'"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#referencing a data variable in a data provider is not allowed"]]
+status = "not-applicable"
+reason = "Spockk deliberately lets a data pipe reference earlier feature variables when the reference is the only value ('variable(b).from(a)'), so Spock's rule that providers cannot see data variables does not exist"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#referencing a data variable in a closure in a data provider is not allowed"]]
+status = "not-applicable"
+reason = "Spockk deliberately lets a data pipe reference earlier feature variables, so Spock's rule that providers cannot see data variables does not exist"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#referencing a data table variable in a data table like data provider is not allowed"]]
+status = "not-applicable"
+reason = "Spockk deliberately lets a data pipe reference earlier feature variables, so Spock's rule that providers cannot see data table variables does not exist"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#referencing a data table parameter in a data table cell is not allowed"]]
+status = "not-applicable"
+reason = "Exercises Spock's internal '$spock_p_' parameter names inside a table cell; Spockk generates different internal names that user code cannot spell"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#referencing a data table parameter in a closure in a data table cell is not allowed"]]
+status = "not-applicable"
+reason = "Exercises Spock's internal '$spock_p_' parameter names inside a table cell; Spockk generates different internal names that user code cannot spell"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#referencing a data table parameter in a data provider is not allowed"]]
+status = "not-applicable"
+reason = "Exercises Spock's internal '$spock_p_' parameter names inside a data provider; Spockk generates different internal names that user code cannot spell"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#two or more underscores can not be used to separate multiple data tables if they represent a local variable"]]
+status = "not-applicable"
+reason = "Spockk where blocks hold a single data table, so there is no underscore separator between tables"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#two or more underscores can not be used to separate multiple data tables if they represent a field"]]
+status = "not-applicable"
+reason = "Spockk where blocks hold a single data table, so there is no underscore separator between tables"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#different tables have to have same row count"]]
+status = "not-applicable"
+reason = "Spockk where blocks hold a single data table, so there is no second table whose row count could differ"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#filter block may not reference instance fields"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#table with just a header in combination is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#table with just a header in combination is not allowed with semicolon"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label outside where block is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using filter label before where block is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between data table and derived data variable is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between derived data variable and data table is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between data pipe and derived data variable is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between data pipe and derived data variable is not allowed even with separator"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between data pipe and derived data variable is not allowed even with separator in front"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between derived data variable and data pipe is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between derived data variable and data pipe is not allowed even with separator"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label between derived data variable and data pipe is not allowed even with separator in front"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#using combined label within semicolon data table row is not allowed"]]
+status = "blocked"
+reason = "No filter or combined block labels in Spockk, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#right-hand side of data variable may not reference instance fields (only @Shared and static fields)"]]
+status = "blocked"
+reason = "Spockk has no derived data variable statements in a where block, so the spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#where-block variable must be declared final, not def"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#where-block variable must be declared before any data variable"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#multiple-assignment where-block variables must be declared final"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#multiple-assignment where-block variables do not support the '_' wildcard"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#single where-block variables do not support the '_' wildcard"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#a failing multiple-assignment target does not expose earlier targets"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#an unused final where-block variable compiles"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#data variable cannot reuse a where-block variable name"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#where-block variable initializer cannot read an instance field"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#where-block variable name must not use the reserved internal prefix"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#where-block variables require at least one data variable"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#duplicate where-block variable names are rejected by Groovy's scope check"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.InvalidWhereBlocks#duplicate multiple-assignment where-block variable names are rejected by Groovy's scope check"]]
+status = "blocked"
+reason = "Spockk where blocks reject plain local declarations, so a where-block variable does not compile"
+gap = "https://github.com/pshevche/spockk/issues/829"
+decided = "2026-11-03"
