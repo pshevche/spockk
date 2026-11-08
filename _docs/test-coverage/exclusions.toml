@@ -334,3 +334,8 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.PartialMocking#cannot stub (or mock) private method"]]
+status = "not-applicable"
+reason = "Upstream names a private method in a Spy stub and relies on Groovy ignoring access modifiers, so the stub silently never applies. Kotlin cannot reference a private member from the interaction, so there is nothing to express"
+decided = "2026-11-02"
