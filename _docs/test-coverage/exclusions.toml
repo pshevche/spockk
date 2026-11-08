@@ -334,3 +334,34 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.verifyall.VerifyAllSpecification#assertion blocks should work as expected (reported only once)"]]
+status = "blocked"
+reason = "PollingConditions.eventually takes a Groovy Closure, so a Kotlin lambda does not compile against it"
+gap = "https://github.com/pshevche/spockk/issues/1071"
+decided = "2026-11-05"
+
+[["org.spockframework.verifyall.VerifyAllSpecification#verifyAll with target null fails"]]
+status = "not-applicable"
+reason = "Kotlin's null safety rejects a nullable verifyAll target at compile time (the lambda receiver would be nullable), so the runtime null check has nothing to exercise"
+decided = "2026-11-05"
+
+[["org.spockframework.verifyall.VerifyAllSpecification#verifyAll with target null and incompatible class fails"]]
+status = "not-applicable"
+reason = "Spockk's verifyAll has no class-checked overload, and a null target is rejected at compile time by Kotlin's null safety"
+decided = "2026-11-05"
+
+[["org.spockframework.verifyall.VerifyAllSpecification#verifyAll with target and incompatible class fails"]]
+status = "not-applicable"
+reason = "Spockk's verifyAll has no class-checked overload; the receiver type is checked statically by Kotlin, so a mismatched target cannot compile"
+decided = "2026-11-05"
+
+[["org.spockframework.verifyall.VerifyAllSpecification#verifyAll with target and class"]]
+status = "not-applicable"
+reason = "Spockk's verifyAll has no class-checked overload; the receiver type is inferred statically, which the 'verifyAll with target' port already covers"
+decided = "2026-11-05"
+
+[["org.spockframework.verifyall.VerifyAllSpecification#verifyAll with target and class and failures"]]
+status = "not-applicable"
+reason = "Spockk's verifyAll has no class-checked overload; the receiver type is inferred statically, which the 'verifyAll with target and failures' port already covers"
+decided = "2026-11-05"
