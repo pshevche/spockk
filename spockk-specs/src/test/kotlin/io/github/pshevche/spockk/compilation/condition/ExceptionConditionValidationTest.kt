@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.compilation.condition
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
@@ -109,5 +110,28 @@ class ExceptionConditionValidationTest : BaseCompilationTest() {
 
     then
     result.isSuccess()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#multiple thrown clauses")
+  fun `multiple thrown clauses`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.`when`
+          val x = 42
+
+          io.github.pshevche.spockk.lang.then
+          thrown(IllegalArgumentException::class.java)
+          thrown(java.io.IOException::class.java)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("A 'then' block may only have a single exception condition")
   }
 }
