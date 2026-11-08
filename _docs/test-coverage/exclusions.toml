@@ -340,3 +340,15 @@ status = "blocked"
 reason = "The spec asserts that an explicit assert in setupSpec, cleanupSpec, setup and cleanup throws ConditionNotSatisfiedError, but Spockk does not rewrite assert in fixture methods and @PendingFeature cannot mark a fixture method, so the port would fail the whole class"
 gap = "https://github.com/pshevche/spockk/issues/761"
 decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFields#explicit condition in instance field"]]
+status = "blocked"
+reason = "A feature that ends after a setup block does not compile, and this one has no when or expect block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFields#explicit condition in shared field"]]
+status = "blocked"
+reason = "A feature that ends after a setup block does not compile, and this one has no when or expect block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
