@@ -334,3 +334,14 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.osgi.OsgiPackagePrivateMemberMockSpec#OSGi package private mock shall be mockable with ByteBuddy"]]
+status = "blocked"
+reason = "Kotlin cannot declare package-private members, so the fixture classes must be Java, and spockk-specs cannot compile Java sources yet"
+gap = "https://github.com/pshevche/spockk/issues/943"
+decided = "2026-11-03"
+
+[["org.spockframework.smoke.mock.osgi.OsgiPackagePrivateMemberMockSpec#OSGi package private mock is not mockable in Java 8 due to MethodHandles.Lookup API not available"]]
+status = "not-applicable"
+reason = "The feature only runs on Java 8 (@IgnoreIf on any newer JVM), and the project builds on JDK 21 only"
+decided = "2026-11-03"
