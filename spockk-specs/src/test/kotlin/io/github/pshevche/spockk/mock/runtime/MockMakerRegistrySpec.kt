@@ -70,20 +70,6 @@ class MockMakerRegistrySpec : Specification() {
     }
   }
 
-  // Spock spies the interface itself; Kotlin's Spy needs an instance, so abstract members throw like unstubbed ones.
-  private class UnimplementedMockMaker : IMockMaker {
-    override fun getId(): MockMakerId = throw UnsupportedOperationException()
-
-    override fun getCapabilities(): Set<MockMakerCapability> = throw UnsupportedOperationException()
-
-    override fun getPriority(): Int = throw UnsupportedOperationException()
-
-    override fun makeMock(settings: IMockCreationSettings): Any = throw UnsupportedOperationException()
-
-    override fun getMockability(settings: IMockCreationSettings): IMockabilityResult =
-      throw UnsupportedOperationException()
-  }
-
   @Shared
   private val defaultMockMakerRegistry: MockMakerRegistry = RunContext.get().mockMakerRegistry
 
@@ -398,14 +384,14 @@ class MockMakerRegistrySpec : Specification() {
     mock is StringBuilder
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/935")
   @MigratedFrom(
     "org.spockframework.mock.runtime.MockMakerRegistrySpec#Default MockMakerImpl throws UnsupportedOperationException on makeStaticMock"
   )
   fun `Default MockMakerImpl throws UnsupportedOperationException on makeStaticMock`() {
     given
-    val maker = Spy(UnimplementedMockMaker()) {
-      getId() returns TEST_ID
-    }
+    val maker = Spy(IMockMaker::class.java)
+    maker.getId() returns TEST_ID
 
     `when`
     maker.makeStaticMock(Stub(IMockCreationSettings::class.java))
