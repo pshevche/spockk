@@ -334,3 +334,133 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock instance method"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#global mocking is undone before next method"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#calls real method if call isn't mocked"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#calls real method if mocked call provides no result"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#does not call real method if mocked call provides result"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#can call real method when providing result"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#can call real method with changed arguments"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock dynamic instance method"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature also stubs methods and properties that the class does not declare, resolved through Groovy's MOP"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock dynamic instance method called via MOP"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature also stubs methods and properties that the class does not declare, resolved through Groovy's MOP"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock dynamic property getter called via MOP"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature also stubs methods and properties that the class does not declare, resolved through Groovy's MOP"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock dynamic property setter called via MOP"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature also stubs methods and properties that the class does not declare, resolved through Groovy's MOP"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock final instance method"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock final class"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock static method"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock dynamic static method"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature also stubs methods and properties that the class does not declare, resolved through Groovy's MOP"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#mock constructor"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#type casts are not swallowed"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature also depends on Groovy's runtime overload selection with null casts"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#type casts are not swallowed when stubbing"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature also depends on Groovy's runtime overload selection with null casts"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Accessing non-existing property throws MissingPropertyException"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Accessing non-existing property through global spy throws MissingPropertyException"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Non-existing property miss through global spy carries the getter attempt as suppressed exception"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Accessing non-existing property setter throws MissingPropertyException"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Accessing non-existing property setter through global spy throws MissingPropertyException"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Non-existing property setter miss through global spy carries the setter attempt as suppressed exception"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Accessing static field through global spy shall only log single invocation"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovySpiesThatAreGlobal#Accessing real fields through global spy works like in reality"]]
+status = "not-applicable"
+reason = "GroovySpy(type, global: true) intercepts every instance of the type through Groovy's metaclass, which has no Kotlin or JVM equivalent; the feature asserts Groovy's MissingPropertyException and property resolution"
+decided = "2026-10-31"
