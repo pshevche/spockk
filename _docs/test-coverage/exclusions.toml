@@ -196,6 +196,7 @@ decided = "2026-10-30"
 status = "blocked"
 reason = "Same as feature (1): the body is only a setup: block, which Spockk's block-order validator rejects"
 gap = "https://github.com/pshevche/spockk/issues/860"
+
 [["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void Java instance method"]]
 status = "not-applicable"
 reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
