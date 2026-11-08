@@ -334,3 +334,51 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["spock.util.time.MutableClockSpec#MutableClock always returns same instant if not modified"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
+
+[["spock.util.time.MutableClockSpec#MutableClock can be set directly"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
+
+[["spock.util.time.MutableClockSpec#MutableClock can be advanced with plus"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
+
+[["spock.util.time.MutableClockSpec#MutableClock can be rewound with minus"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
+
+[["spock.util.time.MutableClockSpec#MutableClock and use next to advance by specified amount"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
+
+[["spock.util.time.MutableClockSpec#MutableClock and use next to rewind by specified amount"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
+
+[["spock.util.time.MutableClockSpec#MutableClock can be adjusted with TemporalAdjuster #adjusterName"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
+
+[["spock.util.time.MutableClockSpec#MutableClock can be modified with a function #description"]]
+status = "blocked"
+reason = "Spockk rejects an expect block followed by a when block, which this feature uses"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-06"
