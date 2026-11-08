@@ -334,3 +334,92 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#wildcard interaction error includes unsatisfied interaction context"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#multiple unsatisfied interactions with wildcard"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#unsatisfied interaction on different mock is not shown"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#unsatisfied interaction on different method is not shown"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#satisfied interactions are not shown in unsatisfied list"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#partially matched interaction shown as unsatisfied"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#non-exhausted wildcard-count interaction is shown"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#wildcard method interaction shown with argument mismatch"]]
+status = "blocked"
+reason = "anyMethod() cannot constrain arguments, so `list._(1)` (any method, argument 1) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1004"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#wildcard target interaction shown with argument mismatch"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#wildcard target and method interaction shown with argument mismatch"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#multiple arguments show per-argument mismatch"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#varargs interaction shows mismatch"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#non-exhausted interaction in-order is shown"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#non-exhausted interaction in other scope is shown"]]
+status = "blocked"
+reason = "Spockk has no wildcard target, so the `0 * _` catch-all this feature asserts on does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooManyInvocations#casts are printed for mock invocations"]]
+status = "not-applicable"
+reason = "Relies on GroovyMock(SomeStatic, global: true) intercepting a Groovy static call through the metaclass; Kotlin has no global static mock equivalent"
+decided = "2026-11-02"
