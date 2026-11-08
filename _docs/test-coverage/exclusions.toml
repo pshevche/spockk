@@ -202,7 +202,7 @@ decided = "2026-10-26"
 status = "blocked"
 reason = "The feature body uses given, expect, when, then in sequence, and Spockk's block-order validator rejects when after expect"
 gap = "https://github.com/pshevche/spockk/issues/665"
-decided = "2026-10-26"\
+decided = "2026-10-26"
 
 [["org.spockframework.smoke.extension.UseRestoreSystemPropertiesOnSpecClass#restores system properties for all methods (1)"]]
 status = "blocked"
