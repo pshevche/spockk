@@ -334,3 +334,21 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.MockCreationWithClosure#wildcard is scoped to current mock object"]]
+status = "blocked"
+reason = "Spockk has no wildcard target for an interaction, so a Mock builder block that matches every method of the mock (_ >>> [42, true]) cannot be written"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MockCreationWithClosure#mock method"]]
+status = "blocked"
+reason = "Cardinality on a Mock builder block interaction is never verified, so the expected TooFewInvocationsError never fires; @PendingFeature cannot be combined with @FailsWith (#947), so the port cannot be committed as pending"
+gap = "https://github.com/pshevche/spockk/issues/965"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.MockCreationWithClosure#mock property"]]
+status = "blocked"
+reason = "Cardinality on a Mock builder block interaction is never verified, so the expected TooFewInvocationsError never fires; @PendingFeature cannot be combined with @FailsWith (#947), so the port cannot be committed as pending"
+gap = "https://github.com/pshevche/spockk/issues/965"
+decided = "2026-11-01"
