@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.compilation.fixture
 
 import io.github.pshevche.spockk.compilation.BaseCompilationTest
 import io.github.pshevche.spockk.compilation.TransformationSample.Companion.sampleFromResource
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.where
@@ -28,5 +29,11 @@ class CleanupBlockCompilationTest : BaseCompilationTest() {
 
     where
     variable(sampleName).from("CleanupBlock", "CleanupBlockWithWhere")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.ast.CleanupBlocksAstSpec#cleanup rewrite keeps correct method reference")
+  fun `cleanup rewrite keeps correct method reference`() {
+    expect
+    assertTransformation(sampleFromResource("cleanup/CleanupBlockMethodReference"))
   }
 }
