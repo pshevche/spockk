@@ -19,12 +19,11 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
-import io.github.pshevche.spockk.lang.variables
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.spockframework.runtime.ConditionNotSatisfiedError
 import org.spockframework.runtime.SpockTimeoutError
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Retry
 import spock.lang.Specification
@@ -35,8 +34,8 @@ import kotlin.concurrent.thread
 
 class PollingConditionsSpec : Specification() {
 
-  private var fieldConditions = PollingConditions()
   private val conditions = PollingConditions()
+  private var fieldConditions = PollingConditions()
 
   @MigratedFrom("spock.util.concurrent.PollingConditionsSpec#defaults")
   fun `defaults`() {
@@ -49,21 +48,46 @@ class PollingConditionsSpec : Specification() {
 
   @Retry
   @MigratedFrom(
-    "spock.util.concurrent.PollingConditionsSpec#succeeds if all conditions are eventually satisfied with condition method '#conditionMethod' and field",
-    "spock.util.concurrent.PollingConditionsSpec#succeeds if all conditions are eventually satisfied with condition method '#conditionMethod' and local variable"
+    "spock.util.concurrent.PollingConditionsSpec#succeeds if all conditions are eventually satisfied with condition method '#conditionMethod' and field"
   )
-  fun `succeeds if all conditions are eventually satisfied`(conditionMethod: String, onField: Boolean) {
-    given
-    val num = AtomicInteger(0)
+  fun `succeeds if all conditions are eventually satisfied with condition method '#conditionMethod' and field`(
+    conditionMethod: String
+  ) {
+    `when`
+    fieldConditions = PollingConditions()
+    val num = AtomicInteger(42)
     val str = AtomicReference<String?>(null)
-    val polling = pollingConditions(onField)
-    num.set(42)
     thread {
       Thread.sleep(500)
       str.set("hello")
     }
+    poll(fieldConditions, conditionMethod) {
+      assert(num.get() == 42)
+      assert(str.get() == "hello")
+    }
 
+    then
+    noExceptionThrown()
+
+    where
+    variable(conditionMethod).from(".eventually", ".call", "")
+  }
+
+  @Retry
+  @MigratedFrom(
+    "spock.util.concurrent.PollingConditionsSpec#succeeds if all conditions are eventually satisfied with condition method '#conditionMethod' and local variable"
+  )
+  fun `succeeds if all conditions are eventually satisfied with condition method '#conditionMethod' and local variable`(
+    conditionMethod: String
+  ) {
     `when`
+    val num = AtomicInteger(42)
+    val str = AtomicReference<String?>(null)
+    val polling = PollingConditions()
+    thread {
+      Thread.sleep(500)
+      str.set("hello")
+    }
     poll(polling, conditionMethod) {
       assert(num.get() == 42)
       assert(str.get() == "hello")
@@ -73,24 +97,41 @@ class PollingConditionsSpec : Specification() {
     noExceptionThrown()
 
     where
-    conditionMethod ; onField
-    "eventually" ; true
-    "eventually" ; false
-    "call" ; true
-    "call" ; false
+    variable(conditionMethod).from(".eventually", ".call", "")
   }
 
   @MigratedFrom(
-    "spock.util.concurrent.PollingConditionsSpec#fails if any condition isn't satisfied in time with condition method '#conditionMethod' and field",
-    "spock.util.concurrent.PollingConditionsSpec#fails if any condition isn't satisfied in time with condition method '#conditionMethod' and local variable"
+    "spock.util.concurrent.PollingConditionsSpec#fails if any condition isn't satisfied in time with condition method '#conditionMethod' and field"
   )
-  fun `fails if any condition isn't satisfied in time`(conditionMethod: String, onField: Boolean) {
-    given
+  fun `fails if any condition isn't satisfied in time with condition method '#conditionMethod' and field`(
+    conditionMethod: String
+  ) {
+    `when`
+    fieldConditions = PollingConditions().also { it.timeout = 0.1 }
     val num = AtomicInteger(42)
     val str = AtomicReference<String?>(null)
-    val polling = pollingConditions(onField, timeout = 0.1)
+    poll(fieldConditions, conditionMethod) {
+      assert(num.get() == 42)
+      assert(str.get() == "bye")
+    }
 
+    then
+    thrown(SpockTimeoutError::class.java)
+
+    where
+    variable(conditionMethod).from(".eventually", ".call", "")
+  }
+
+  @MigratedFrom(
+    "spock.util.concurrent.PollingConditionsSpec#fails if any condition isn't satisfied in time with condition method '#conditionMethod' and local variable"
+  )
+  fun `fails if any condition isn't satisfied in time with condition method '#conditionMethod' and local variable`(
+    conditionMethod: String
+  ) {
     `when`
+    val num = AtomicInteger(42)
+    val str = AtomicReference<String?>(null)
+    val polling = PollingConditions().also { it.timeout = 0.1 }
     poll(polling, conditionMethod) {
       assert(num.get() == 42)
       assert(str.get() == "bye")
@@ -100,26 +141,45 @@ class PollingConditionsSpec : Specification() {
     thrown(SpockTimeoutError::class.java)
 
     where
-    conditionMethod ; onField
-    "eventually" ; true
-    "eventually" ; false
-    "call" ; true
-    "call" ; false
+    variable(conditionMethod).from(".eventually", ".call", "")
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1071")
-  @Issue("https://github.com/spockframework/spock/issues/413")
   @MigratedFrom(
-    "spock.util.concurrent.PollingConditionsSpec#reports failed condition of last failed attempt with condition method '#conditionMethod' and field",
-    "spock.util.concurrent.PollingConditionsSpec#reports failed condition of last failed attempt with condition method '#conditionMethod' and local variable"
+    "spock.util.concurrent.PollingConditionsSpec#reports failed condition of last failed attempt with condition method '#conditionMethod' and field"
   )
-  fun `reports failed condition of last failed attempt`(conditionMethod: String, onField: Boolean) {
-    given
+  fun `reports failed condition of last failed attempt with condition method '#conditionMethod' and field`(
+    conditionMethod: String
+  ) {
+    `when`
+    fieldConditions = PollingConditions().also { it.timeout = 0.1 }
     val num = AtomicInteger(42)
     val str = AtomicReference<String?>(null)
-    val polling = pollingConditions(onField, timeout = 0.1)
+    poll(fieldConditions, conditionMethod) {
+      assert(num.get() == 42)
+      assert(str.get() == "bye")
+    }
 
+    then
+    val e = thrown(SpockTimeoutError::class.java)
+    val cause = e.cause as ConditionNotSatisfiedError
+    cause.condition.text == "str.get() == \"bye\""
+
+    where
+    variable(conditionMethod).from(".eventually", ".call", "")
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1071")
+  @MigratedFrom(
+    "spock.util.concurrent.PollingConditionsSpec#reports failed condition of last failed attempt with condition method '#conditionMethod' and local variable"
+  )
+  fun `reports failed condition of last failed attempt with condition method '#conditionMethod' and local variable`(
+    conditionMethod: String
+  ) {
     `when`
+    val num = AtomicInteger(42)
+    val str = AtomicReference<String?>(null)
+    val polling = PollingConditions().also { it.timeout = 0.1 }
     poll(polling, conditionMethod) {
       assert(num.get() == 42)
       assert(str.get() == "bye")
@@ -131,27 +191,46 @@ class PollingConditionsSpec : Specification() {
     cause.condition.text == "str.get() == \"bye\""
 
     where
-    conditionMethod ; onField
-    "eventually" ; true
-    "eventually" ; false
-    "call" ; true
-    "call" ; false
+    variable(conditionMethod).from(".eventually", ".call", "")
   }
 
   @MigratedFrom(
-    "spock.util.concurrent.PollingConditionsSpec#can override timeout per invocation with condition method '#conditionMethod' and field",
-    "spock.util.concurrent.PollingConditionsSpec#can override timeout per invocation with condition method '#conditionMethod' and local variable"
+    "spock.util.concurrent.PollingConditionsSpec#can override timeout per invocation with condition method '#conditionMethod' and field"
   )
-  fun `can override timeout per invocation`(conditionMethod: String, onField: Boolean) {
-    given
+  fun `can override timeout per invocation with condition method '#conditionMethod' and field`(
+    conditionMethod: String
+  ) {
+    `when`
+    fieldConditions = PollingConditions()
     val num = AtomicInteger(0)
-    val polling = pollingConditions(onField)
     thread {
       Thread.sleep(250)
       num.set(42)
     }
+    pollWithTimeout(fieldConditions, conditionMethod, 0.0) {
+      assert(num.get() == 42)
+    }
 
+    then
+    thrown(SpockTimeoutError::class.java)
+
+    where
+    variable(conditionMethod).from(".within", ".call", "")
+  }
+
+  @MigratedFrom(
+    "spock.util.concurrent.PollingConditionsSpec#can override timeout per invocation with condition method '#conditionMethod' and local variable"
+  )
+  fun `can override timeout per invocation with condition method '#conditionMethod' and local variable`(
+    conditionMethod: String
+  ) {
     `when`
+    val num = AtomicInteger(0)
+    val polling = PollingConditions()
+    thread {
+      Thread.sleep(250)
+      num.set(42)
+    }
     pollWithTimeout(polling, conditionMethod, 0.0) {
       assert(num.get() == 42)
     }
@@ -160,17 +239,12 @@ class PollingConditionsSpec : Specification() {
     thrown(SpockTimeoutError::class.java)
 
     where
-    conditionMethod ; onField
-    "within" ; true
-    "within" ; false
-    "call" ; true
-    "call" ; false
+    variable(conditionMethod).from(".within", ".call", "")
   }
 
   @Retry
   @MigratedFrom("spock.util.concurrent.PollingConditionsSpec#provides fine-grained control over polling rhythm")
   fun `provides fine-grained control over polling rhythm`() {
-    given
     conditions.initialDelay = 0.01
     conditions.delay = 0.2
     conditions.factor = 2.0
@@ -192,13 +266,15 @@ class PollingConditionsSpec : Specification() {
     spans[1] < spans[2]
   }
 
-  @MigratedFrom("spock.util.concurrent.PollingConditionsSpec#correctly handles checks that take longer than given check interval")
+  @MigratedFrom(
+    "spock.util.concurrent.PollingConditionsSpec#correctly handles checks that take longer than given check interval"
+  )
   fun `correctly handles checks that take longer than given check interval`() {
-    given
-    val condition = pollingConditions(false, timeout = 0.05)
+    given("polling condition with small timeout")
+    val condition = PollingConditions().also { it.timeout = 0.05 }
     var secondAttempt = false
 
-    `when`
+    `when`("first attempt already takes longer than the timeout")
     condition.eventually(
       closure {
         try {
@@ -210,81 +286,92 @@ class PollingConditionsSpec : Specification() {
       }
     )
 
-    then
+    then("there will be no second one")
     thrown(SpockTimeoutError::class.java)
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1071")
   @MigratedFrom("spock.util.concurrent.PollingConditionsSpec#correctly creates timeout error message")
-  fun `correctly creates timeout error message`(onTimeout: Closure<String>?, expectedMessageSuffix: String) {
+  fun `correctly creates timeout error message`(onTimeoutClosure: String?, expectedMessageSuffix: String) {
     given
-    val polling = pollingConditions(false, timeout = 0.1)
+    val onTimeout = onTimeoutClosure?.let(::timeoutClosure)
+    val polling = PollingConditions().also { it.timeout = 0.1 }
     polling.onTimeout(onTimeout)
 
     `when`
-    polling.eventually(closure { assert(1 == 0) })
+    polling.eventually(closure { 1 == 0 })
 
     then
     val e = thrown(SpockTimeoutError::class.java)
     timeoutMessage(expectedMessageSuffix).matches(e.message!!)
 
     where
-    onTimeout ; expectedMessageSuffix
-    null ; ""
-    noArgClosure ; ": test"
-    throwableArgClosure ; ": ConditionNotSatisfiedError"
+    onTimeoutClosure        ; expectedMessageSuffix
+    null                    ; ""
+    "noArgClosure"          ; ": test"
+    "throwableArgClosure"   ; ": ConditionNotSatisfiedError"
   }
 
-  @MigratedFrom("spock.util.concurrent.PollingConditionsSpec#correctly creates timeout error message when onTimeout called multiple times")
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1071")
+  @MigratedFrom(
+    "spock.util.concurrent.PollingConditionsSpec#correctly creates timeout error message when onTimeout called multiple times"
+  )
   fun `correctly creates timeout error message when onTimeout called multiple times`(
-    onTimeout: Closure<String>?,
-    secondOnTimeout: Closure<String>?,
+    onTimeoutClosure: String?,
+    secondOnTimeoutClosure: String?,
     expectedMessageSuffix: String
   ) {
     given
-    val polling = pollingConditions(false, timeout = 0.1)
+    val onTimeout = onTimeoutClosure?.let(::timeoutClosure)
+    val secondOnTimeout = secondOnTimeoutClosure?.let(::timeoutClosure)
+    val polling = PollingConditions().also { it.timeout = 0.1 }
     polling.onTimeout(onTimeout)
     polling.onTimeout(secondOnTimeout)
 
     `when`
-    polling.eventually(closure { assert(1 == 0) })
+    polling.eventually(closure { 1 == 0 })
 
     then
     val e = thrown(SpockTimeoutError::class.java)
     timeoutMessage(expectedMessageSuffix).matches(e.message!!)
 
     where
-    onTimeout ; secondOnTimeout ; expectedMessageSuffix
-    noArgClosure ; null ; ""
-    null ; noArgClosure ; ": test"
-    throwableArgClosure ; noArgClosure ; ": test"
-  }
-
-  private fun pollingConditions(onField: Boolean, timeout: Double = 1.0): PollingConditions {
-    val polling = PollingConditions().also { it.timeout = timeout }
-    if (!onField) return polling
-    fieldConditions = polling
-    return fieldConditions
+    onTimeoutClosure      ; secondOnTimeoutClosure ; expectedMessageSuffix
+    "noArgClosure"        ; null                   ; ""
+    null                  ; "noArgClosure"         ; ": test"
+    "throwableArgClosure" ; "noArgClosure"         ; ": test"
   }
 
   private fun poll(polling: PollingConditions, method: String, body: () -> Unit) {
     when (method) {
-      "eventually" -> polling.eventually(closure(body))
-      "call" -> polling.call(closure(body))
+      ".eventually" -> polling.eventually(closure(body))
+      ".call" -> polling.call(closure(body))
+      "" -> polling(closure(body))
       else -> error("Unknown condition method: $method")
     }
   }
 
   private fun pollWithTimeout(polling: PollingConditions, method: String, timeout: Double, body: () -> Unit) {
     when (method) {
-      "within" -> polling.within(timeout, closure(body))
-      "call" -> polling.call(timeout, closure(body))
+      ".within" -> polling.within(timeout, closure(body))
+      ".call" -> polling.call(timeout, closure(body))
+      "" -> polling(timeout, closure(body))
       else -> error("Unknown condition method: $method")
     }
   }
 
+  private operator fun PollingConditions.invoke(body: Closure<*>) = call(body)
+
+  private operator fun PollingConditions.invoke(timeout: Double, body: Closure<*>) = call(timeout, body)
+
   private fun timeoutMessage(suffix: String) =
     Regex("""Condition not satisfied after \d+(\.\d+)? seconds and \d+ attempts""" + Regex.escape(suffix))
+
+  private fun timeoutClosure(name: String): Closure<String> = when (name) {
+    "noArgClosure" -> noArgClosure
+    "throwableArgClosure" -> throwableArgClosure
+    else -> error("Unknown closure: $name")
+  }
 
   private fun closure(body: () -> Unit): Closure<Any?> = object : Closure<Any?>(this) {
     @Suppress("unused")
