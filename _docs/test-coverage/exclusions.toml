@@ -186,6 +186,17 @@ reason = "An anonymous object literal inside a condition crashes the Kotlin comp
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
 
+[["org.spockframework.smoke.extension.UseRestoreSystemPropertiesOnSpecClass#restores system properties for all methods (1)"]]
+status = "blocked"
+reason = "The feature body is only a setup: block. Spockk's block-order validator rejects a feature that ends with setup:, and a method with no block label is not discovered as a feature, so no faithful port compiles"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.UseRestoreSystemPropertiesOnSpecClass#restores system properties for all methods (2)"]]
+status = "blocked"
+reason = "Same as feature (1): the body is only a setup: block, which Spockk's block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/860"
+
 [["org.spockframework.runtime.GroovyRuntimeUtilIsVoidMethodSpec#void Java instance method"]]
 status = "not-applicable"
 reason = "Exercises GroovyRuntimeUtil.isVoidMethod, which resolves methods through the Groovy metaclass (dynamic dispatch, DGM and DGSM extension methods, GString coercion). Kotlin code never goes through that path, so this class needs a Kotlin-aware replacement rather than a port"
@@ -346,3 +357,21 @@ status = "blocked"
 reason = "The block-order validator rejects a when block directly after an expect block, which the feature needs"
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-11-01"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFixtureMethods#dummy feature that triggers setup and cleanup"]]
+status = "blocked"
+reason = "The spec asserts that an explicit assert in setupSpec, cleanupSpec, setup and cleanup throws ConditionNotSatisfiedError, but Spockk does not rewrite assert in fixture methods and @PendingFeature cannot mark a fixture method, so the port would fail the whole class"
+gap = "https://github.com/pshevche/spockk/issues/761"
+decided = "2026-10-27"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFields#explicit condition in instance field"]]
+status = "blocked"
+reason = "A feature that ends after a setup block does not compile, and this one has no when or expect block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
+
+[["org.spockframework.smoke.condition.ExplicitConditionsInFields#explicit condition in shared field"]]
+status = "blocked"
+reason = "A feature that ends after a setup block does not compile, and this one has no when or expect block"
+gap = "https://github.com/pshevche/spockk/issues/795"
+decided = "2026-10-30"
