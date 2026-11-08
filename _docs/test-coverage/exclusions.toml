@@ -186,6 +186,24 @@ reason = "An anonymous object literal inside a condition crashes the Kotlin comp
 gap = "https://github.com/pshevche/spockk/issues/749"
 decided = "2026-10-14"
 
+[["org.spockframework.smoke.ast.BlocksAst#all observable blocks with empty labels"]]
+status = "blocked"
+reason = "Spockk has no filter or combined block labels, and its block-order validator rejects when after expect (https://github.com/pshevche/spockk/issues/665), so the upstream feature body does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.BlocksAst#all observable blocks with labels and blocks"]]
+status = "blocked"
+reason = "Spockk has no filter or combined block labels, and its block-order validator rejects when after expect (https://github.com/pshevche/spockk/issues/665), so the upstream feature body does not compile"
+gap = "https://github.com/pshevche/spockk/issues/793"
+decided = "2026-10-26"
+
+[["org.spockframework.smoke.ast.BlocksAst#all observable blocks with GString labels"]]
+status = "blocked"
+reason = "The feature body uses given, expect, when, then in sequence, and Spockk's block-order validator rejects when after expect"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-26"
+
 [["org.spockframework.smoke.extension.UseRestoreSystemPropertiesOnSpecClass#restores system properties for all methods (1)"]]
 status = "blocked"
 reason = "The feature body is only a setup: block. Spockk's block-order validator rejects a feature that ends with setup:, and a method with no block label is not discovered as a feature, so no faithful port compiles"
