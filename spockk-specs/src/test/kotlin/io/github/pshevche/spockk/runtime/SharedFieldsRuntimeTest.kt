@@ -16,9 +16,7 @@ package io.github.pshevche.spockk.runtime
 
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldAccessFromSubclass
-import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldLifecycle
 import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldTypeCompatibility
-import io.github.pshevche.spockk.fixtures.runtime.samples.fields.StaticFieldLifecycle
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -40,25 +38,5 @@ class SharedFieldsRuntimeTest : Specification() {
 
     then
     events.assertStatistics { it.started(1).succeeded(1) }
-  }
-
-  fun `shared fields reset between spec runs`() {
-    `when`
-    val firstRun = execute(selectClass(SharedFieldLifecycle::class.java))
-    val secondRun = execute(selectClass(SharedFieldLifecycle::class.java))
-
-    then
-    firstRun.assertStatistics { it.started(2).succeeded(2) }
-    secondRun.assertStatistics { it.started(2).succeeded(2) }
-  }
-
-  fun `static fields persist between spec runs`() {
-    `when`
-    val firstRun = execute(selectClass(StaticFieldLifecycle::class.java))
-    val secondRun = execute(selectClass(StaticFieldLifecycle::class.java))
-
-    then
-    firstRun.assertStatistics { it.started(2).succeeded(2) }
-    secondRun.assertStatistics { it.started(2).failed(2) }
   }
 }

@@ -1,0 +1,55 @@
+/*
+ * Copyright 2026 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.github.pshevche.spockk.smoke
+
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
+import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
+import io.github.pshevche.spockk.fixtures.runtime.samples.fields.SharedFieldLifecycle
+import io.github.pshevche.spockk.fixtures.runtime.samples.fields.StaticFieldLifecycle
+import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.`when`
+import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.spockframework.runtime.SpockComparisonFailure
+import spock.lang.Specification
+
+class SharedVsStaticFields : Specification() {
+
+  @MigratedFrom("org.spockframework.smoke.SharedVsStaticFields#shared fields are not shared between subsequent runs")
+  fun `shared fields are not shared between subsequent runs`() {
+    `when`
+    val firstRun = execute(selectClass(SharedFieldLifecycle::class.java))
+    val secondRun = execute(selectClass(SharedFieldLifecycle::class.java))
+
+    then
+    firstRun.assertStatistics { it.started(2).succeeded(2) }
+    secondRun.assertStatistics { it.started(2).succeeded(2) }
+  }
+
+  @MigratedFrom("org.spockframework.smoke.SharedVsStaticFields#static fields are shared between subsequent runs")
+  fun `static fields are shared between subsequent runs`() {
+    `when`
+    val firstRun = execute(selectClass(StaticFieldLifecycle::class.java))
+    val secondRun = execute(selectClass(StaticFieldLifecycle::class.java))
+    val failureTypes = secondRun.failed().stream()
+      .map { it.getPayload(TestExecutionResult::class.java).get().throwable.get().javaClass }
+      .toList()
+
+    then
+    firstRun.assertStatistics { it.started(2).succeeded(2) }
+    secondRun.assertStatistics { it.started(2).failed(2) }
+    failureTypes == listOf(SpockComparisonFailure::class.java, SpockComparisonFailure::class.java)
+  }
+}

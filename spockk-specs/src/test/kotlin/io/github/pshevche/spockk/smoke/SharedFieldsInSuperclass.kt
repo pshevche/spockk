@@ -14,14 +14,11 @@
 
 package io.github.pshevche.spockk.smoke
 
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import spock.lang.Shared
 import spock.lang.Specification
 
-/**
- * Base class with shared fields of different visibility modifiers.
- * Tests that shared fields are accessible from derived classes.
- */
 abstract class SharedFieldsInSuperclassBase : Specification() {
 
   @Shared
@@ -31,34 +28,35 @@ abstract class SharedFieldsInSuperclassBase : Specification() {
   protected val sharedProtected = "sharedProtected"
 
   @Shared
+  @JvmField
   val sharedPublic = "sharedPublic"
 
   @Shared
-  internal val sharedProperty = "sharedProperty"
+  val sharedProperty = "sharedProperty"
 
-  fun `can access private shared field from base class`() {
+  @MigratedFrom("org.spockframework.smoke.SharedFieldsInSuperclass#can access shared private field")
+  fun `can access shared private field`() {
     expect
     sharedPrivate == "sharedPrivate"
   }
 
-  fun `can access protected shared field from base class`() {
+  @MigratedFrom("org.spockframework.smoke.SharedFieldsInSuperclass#can access shared protected field")
+  fun `can access shared protected field`() {
     expect
     sharedProtected == "sharedProtected"
   }
 
-  fun `can access public shared field from base class`() {
+  @MigratedFrom("org.spockframework.smoke.SharedFieldsInSuperclass#can access shared public field")
+  fun `can access shared public field`() {
     expect
     sharedPublic == "sharedPublic"
   }
 
-  fun `can access internal shared field from base class`() {
+  @MigratedFrom("org.spockframework.smoke.SharedFieldsInSuperclass#can access shared property")
+  fun `can access shared property`() {
     expect
     sharedProperty == "sharedProperty"
   }
 }
 
-/**
- * Derived class that inherits shared fields from base class.
- * The features in the base class run in the context of this derived class.
- */
 class SharedFieldsInSuperclass : SharedFieldsInSuperclassBase()
