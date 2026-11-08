@@ -17,9 +17,14 @@ package io.github.pshevche.spockk.compilation
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
+import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.spockframework.runtime.SpecInfoBuilder
+import org.spockframework.runtime.model.BlockKind
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 @OptIn(ExperimentalCompilerApi::class)
@@ -656,5 +661,92 @@ class FeatureBlockStructureValidationTest : Specification() {
         """
         .trimIndent()
     )
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/793")
+  @MigratedFrom("org.spockframework.smoke.Blocks#labels and comments")
+  fun `labels and comments`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          fun m1(z: Int) {
+              io.github.pshevche.spockk.lang.setup("setup")
+              io.github.pshevche.spockk.lang.and("setup2")
+              io.github.pshevche.spockk.lang.`when`("when")
+              io.github.pshevche.spockk.lang.and("when2")
+              io.github.pshevche.spockk.lang.then("then")
+              io.github.pshevche.spockk.lang.and("then2")
+              io.github.pshevche.spockk.lang.where("where")
+              io.github.pshevche.spockk.lang.and("where2")
+              io.github.pshevche.spockk.lang.filter("filter")
+              io.github.pshevche.spockk.lang.and("filter2")
+          }
+
+          fun m2() {
+              io.github.pshevche.spockk.lang.expect("expect")
+              io.github.pshevche.spockk.lang.and("expect2")
+          }
+
+          fun m3(z: Int, zz: Int) {
+              io.github.pshevche.spockk.lang.given("given")
+              io.github.pshevche.spockk.lang.and
+              val x = 0
+              io.github.pshevche.spockk.lang.expect
+              val y = 0
+              io.github.pshevche.spockk.lang.and("and")
+              io.github.pshevche.spockk.lang.where("")
+              io.github.pshevche.spockk.lang.and
+              io.github.pshevche.spockk.lang.variable(z).from(1)
+              io.github.pshevche.spockk.lang.combined("foo")
+              io.github.pshevche.spockk.lang.variable(zz).from(2)
+          }
+          """
+            .trimIndent()
+        )
+      )
+    val specInfo = SpecInfoBuilder(result.compilation.classLoader.loadClass("Spec")).build()
+    val m1 = specInfo.features[0]
+    val m2 = specInfo.features[1]
+    val m3 = specInfo.features[2]
+    val m1Kinds = m1.blocks.map { it.kind }
+    val m1Texts = m1.blocks.flatMap { it.texts }
+    val m2Kinds = m2.blocks.map { it.kind }
+    val m2Texts = m2.blocks.flatMap { it.texts }
+    val m3Kinds = m3.blocks.map { it.kind }
+    val m3Texts = m3.blocks.flatMap { it.texts }
+
+    then
+    m1Kinds == listOf(BlockKind.SETUP, BlockKind.WHEN, BlockKind.THEN, BlockKind.WHERE, BlockKind.FILTER)
+    m1Texts == listOf("setup", "setup2", "when", "when2", "then", "then2", "where", "where2", "filter", "filter2")
+
+    and
+    m2Kinds == listOf(BlockKind.EXPECT)
+    m2Texts == listOf("expect", "expect2")
+
+    and
+    m3Kinds == listOf(BlockKind.SETUP, BlockKind.EXPECT, BlockKind.WHERE)
+    m3Texts == listOf("given", "and", "", "foo")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.Blocks#unknown label")
+  fun `unknown label`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          io.github.pshevche.spockk.lang.setuppp
+          val a = 1
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("Spec.kt:3:")
+    result.compilation.messages.contains("Unresolved reference 'setuppp'")
   }
 }
