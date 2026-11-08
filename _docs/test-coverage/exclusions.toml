@@ -495,3 +495,39 @@ status = "blocked"
 reason = "Spockk response lambdas only receive the argument list, not the IMockInvocation, so the feature's check on the intercepted method (Method.isBridge) cannot be written"
 gap = "https://github.com/pshevche/spockk/issues/1011"
 decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.OrderedInteractions#basic passing example"]]
+status = "blocked"
+reason = "Needs consecutive then blocks to express the ordered interaction, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.OrderedInteractions#basic failing example"]]
+status = "blocked"
+reason = "Needs consecutive then blocks to express the ordered interaction, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.OrderedInteractions#order of invocations belonging to interactions in same then-block is undefined"]]
+status = "blocked"
+reason = "Needs consecutive then blocks to express the ordered interaction, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.OrderedInteractions#'too many invocations' wins over 'wrong invocation order'"]]
+status = "blocked"
+reason = "Needs consecutive then blocks to express the ordered interaction, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.OrderedInteractions#up to five previous mock invocations are rendered"]]
+status = "blocked"
+reason = "Needs consecutive then blocks to express the ordered interaction, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.OrderedInteractions#mock invocation order works correctly with nested invocations"]]
+status = "blocked"
+reason = "Needs consecutive then blocks to express the ordered interaction, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/712"
+decided = "2026-11-02"
