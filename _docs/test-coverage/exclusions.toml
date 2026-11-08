@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GlobalInteractions#required interaction"]]
+status = "blocked"
+reason = "A Mock builder block does not verify its cardinality, and @FailsWith cannot be combined with @PendingFeature to commit the failing port meanwhile"
+gap = "https://github.com/pshevche/spockk/issues/965"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GlobalInteractions#required interaction defined in helper method"]]
+status = "blocked"
+reason = "A Mock builder block does not verify its cardinality, and @FailsWith cannot be combined with @PendingFeature to commit the failing port meanwhile"
+gap = "https://github.com/pshevche/spockk/issues/965"
+decided = "2026-10-31"
