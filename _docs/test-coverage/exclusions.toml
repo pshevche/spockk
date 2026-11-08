@@ -334,3 +334,13 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#interactions of methods callable in vararg-style can be written in list-style"]]
+status = "not-applicable"
+reason = "The feature relies on Groovy equality treating an array and a list as equal; Kotlin does not type-check a List against an array parameter"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#interactions of methods not callable in vararg-style cannot be written in vararg-style"]]
+status = "not-applicable"
+reason = "The feature relies on Groovy's dynamic dispatch accepting a vararg-style interaction on a non-vararg method; Kotlin rejects that call at compile time"
+decided = "2026-11-02"
