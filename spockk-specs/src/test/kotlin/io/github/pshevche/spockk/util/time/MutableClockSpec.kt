@@ -33,6 +33,7 @@ import java.time.temporal.TemporalAmount
 
 class MutableClockSpec : Specification() {
 
+  // Upstream declares these as @Shared; see https://github.com/pshevche/spockk/issues/1101
   companion object {
     private val defaultTime: ZonedDateTime = ZonedDateTime.of(2000, 6, 5, 12, 30, 30, 100, UTC)
     private val defaultInstant: Instant = defaultTime.toInstant()
