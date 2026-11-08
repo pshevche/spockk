@@ -35,7 +35,6 @@ import org.spockframework.mock.CannotCreateMockException
 import org.spockframework.mock.MockUtil
 import org.spockframework.mock.runtime.mockito.MockitoMockMaker
 import org.spockframework.mock.runtime.mockito.MockitoMockMakerSettings
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.mock.DetachedMockFactory
@@ -135,15 +134,12 @@ class MockitoMockMakerSpec : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Use specific MockMaker mockito intercept call for class")
   fun `Use specific MockMaker mockito intercept call for class`() {
-    given
-    val m: java.util.ArrayList<Int> = Mock(mapOf("mockMaker" to MockMakers.mockito))
-
     `when`
+    val m: java.util.ArrayList<Int> = Mock(mapOf("mockMaker" to MockMakers.mockito))
     m.get(any()) returns 1
-    val first = m.get(0)
 
     then
-    first == 1
+    m.get(0) == 1
     m.javaClass.name == "java.util.ArrayList"
   }
 
@@ -176,37 +172,8 @@ class MockitoMockMakerSpec : Specification() {
 
     then
     1 * mock.finalMethod() returns "MockValue"
+    0 * mock.anyMethod()
     res == "MockValue"
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
-  @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Use constructor args")
-  fun `Use constructor args`() {
-    given
-    val startList = arrayListOf(1, 2, 3)
-
-    `when`
-    val spy: java.util.ArrayList<Int> = Spy(mapOf("mockMaker" to MockMakers.mockito, "constructorArgs" to listOf(startList)))
-
-    then
-    spy[0] == 1
-    spy[1] == 2
-    spy[2] == 3
-    spy == startList
-
-    `when`
-    spy.clear()
-
-    then
-    1 * spy.clear()
-    spy == startList
-
-    `when`
-    spy.clear()
-
-    then
-    spy != startList
-    spy.size == 0
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -309,7 +276,6 @@ class MockitoMockMakerSpec : Specification() {
     e.name == null
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1501")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy const should be accessible in Groovy 3&4 with mockito")
   fun `Access protected const should be accessible with mockito`() {
@@ -320,7 +286,6 @@ class MockitoMockMakerSpec : Specification() {
     mySpy.accessStaticFlag()
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1501")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Access protected Groovy field should be accessible in Groovy 3&4 with mockito")
   fun `Access protected field should be accessible with mockito`() {
@@ -363,6 +328,7 @@ class MockitoMockMakerSpec : Specification() {
     )
 
     then
+    // Upstream's getProperty/GroovyObject declaring-class check is omitted: Kotlin classes are not GroovyObjects.
     mySpy.accessStaticFlag()
   }
 

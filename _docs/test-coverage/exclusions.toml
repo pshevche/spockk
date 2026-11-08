@@ -364,3 +364,9 @@ decided = "2026-11-08"
 status = "not-applicable"
 reason = "Stubs an interaction on a null-valued receiver (`nullObj.toString() >> \"\"`), which relies on Groovy's dynamic dispatch on null; in Kotlin a null receiver is rejected by the type system or resolves to the Any?.toString() extension, so no interaction target can be expressed"
 decided = "2026-11-08"
+
+[["org.spockframework.mock.runtime.mockito.MockitoMockMakerSpec#Use constructor args"]]
+status = "blocked"
+reason = "The block-order validator rejects expect: directly after a then: block, which the feature needs between its second and third interaction"
+gap = "https://github.com/pshevche/spockk/issues/981"
+decided = "2026-11-08"
