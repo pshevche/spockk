@@ -334,3 +334,9 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.parameterization.UprolledFeatureMethods#rollup annotations are not inheritable"]]
+status = "blocked"
+reason = "The fixture needs a data-driven feature in a spec class that has a subclass, which crashes the compiler plugin"
+gap = "https://github.com/pshevche/spockk/issues/776"
+decided = "2026-11-05"
