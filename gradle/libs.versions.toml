@@ -7,13 +7,13 @@ spock = "2.5-groovy-6.0"
 [plugins]
 buildconfig = { id = "com.github.gmazzo.buildconfig", version = "6.1.2" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version = "1.23.8" }
-intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.19.0" }
+intellij-platform = { id = "org.jetbrains.intellij.platform", version = "2.20.0" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.37.0" }
 node = { id = "com.github.node-gradle.node", version = "7.1.0" }
 plugin-publish = { id = "com.gradle.plugin-publish", version = "2.2.1" }
 shadow = { id = "com.gradleup.shadow", version = "9.6.1" }
-spotless = { id = "com.diffplug.spotless", version = "8.10.4" }
+spotless = { id = "com.diffplug.spotless", version = "8.11.0" }
 
 [libraries]
 google-autoservice = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
