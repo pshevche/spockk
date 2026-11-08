@@ -334,3 +334,33 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockClassWithPropertyMissingSpec#Class with propertyMissing() works normally"]]
+status = "not-applicable"
+reason = "Relies on Groovy's propertyMissing() hook to resolve an undeclared property at runtime; Kotlin classes have no such dynamic dispatch and a missing property is a compile error"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockClassWithPropertyMissingSpec#Class with propertyMissing() setter works normally"]]
+status = "not-applicable"
+reason = "Relies on Groovy's propertyMissing(name, value) hook to intercept assignment to an undeclared property; Kotlin has no such dynamic dispatch"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockClassWithPropertyMissingSpec#Class with propertyMissing() as global spy"]]
+status = "not-applicable"
+reason = "GroovySpy with global: true intercepts Groovy metaclass dispatch on a class with propertyMissing(); Kotlin classes never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockClassWithPropertyMissingSpec#Class with propertyMissing() setter as global spy"]]
+status = "not-applicable"
+reason = "GroovySpy with global: true intercepts Groovy metaclass dispatch of a propertyMissing(name, value) setter; Kotlin classes never go through Groovy's metaclass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockClassWithPropertyMissingSpec#Spy on synthetic property of a Class with propertyMissing"]]
+status = "not-applicable"
+reason = "Spies on a synthetic property resolved through Groovy's propertyMissing() hook via a global GroovySpy; neither exists for Kotlin classes"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMockClassWithPropertyMissingSpec#Spy on synthetic property setter of a Class with propertyMissing"]]
+status = "not-applicable"
+reason = "Spies on a synthetic property setter resolved through Groovy's propertyMissing() hook via a global GroovySpy; neither exists for Kotlin classes"
+decided = "2026-10-31"
