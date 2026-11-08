@@ -334,3 +334,26 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.SpreadWildcardUsage#match any arguments"]]
+status = "blocked"
+reason = "Spockk's interaction DSL has no spread wildcard, so there is no way to write an interaction that matches any argument list"
+gap = "https://github.com/pshevche/spockk/issues/955"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.SpreadWildcardUsage#match any remaining arguments"]]
+status = "blocked"
+reason = "Matching a fixed leading argument followed by any remaining arguments needs a spread wildcard, which Spockk's interaction DSL lacks; any() matches exactly one argument"
+gap = "https://github.com/pshevche/spockk/issues/955"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.SpreadWildcardUsage#mach any remaining arguments (w/ varargs)"]]
+status = "blocked"
+reason = "Every interaction in the feature relies on a spread wildcard over a vararg method's arguments, which Spockk's interaction DSL lacks"
+gap = "https://github.com/pshevche/spockk/issues/955"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.SpreadWildcardUsage#may only be used at the end of an argument list"]]
+status = "not-applicable"
+reason = "Checks that Spock rejects the Groovy spread token *_ in a non-trailing position; Kotlin has no such token in an interaction, so the invalid placement cannot be written"
+decided = "2026-11-02"
