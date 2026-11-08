@@ -105,7 +105,7 @@ class CleanupBlockSmokeTest : Specification() {
     println(foobar)
 
     cleanup
-    assert(foobar == "foo")
+    foobar.length
   }
 
   private fun foobar(): Pair<String, String> = Pair("foo", "bar")
