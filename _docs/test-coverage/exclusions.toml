@@ -334,3 +334,58 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#dynamic method"]]
+status = "not-applicable"
+reason = "Calls a method (greet) that the interface does not declare, resolved through Groovy's metaclass by GroovyMock. Kotlin cannot call an undeclared method"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#DGM method"]]
+status = "not-applicable"
+reason = "Calls a Groovy DefaultGroovyMethods extension (dump) on a GroovyMock. Kotlin has no DGM and Spockk has no GroovyMock"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#get dynamic property"]]
+status = "not-applicable"
+reason = "Reads a property (age) the interface does not declare through Groovy's metaclass; does not compile in Kotlin"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#get DGM property"]]
+status = "not-applicable"
+reason = "Reads a DefaultGroovyMethods property (properties) on a GroovyMock; Kotlin has no DGM"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#set dynamic property"]]
+status = "not-applicable"
+reason = "Writes a property (age) the interface does not declare through Groovy's metaclass; does not compile in Kotlin"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#set DGM property"]]
+status = "not-applicable"
+reason = "Assigns the Groovy metaClass property of a GroovyMock; Kotlin objects have no metaClass"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Mock global interface is not supported"]]
+status = "not-applicable"
+reason = "Tests that GroovyMock(Runnable, global: true) is rejected. Global mocks replace the Groovy metaclass of a type, and Spockk has no GroovyMock or global option"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed is getters Groovy >=4 semantic check"]]
+status = "not-applicable"
+reason = "Checks Groovy 4 property resolution (no property for a boxed Boolean is getter) on a Groovy-compiled anonymous object; Kotlin has no such property resolution"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed is getters Groovy <= 3 semantic check"]]
+status = "not-applicable"
+reason = "Checks Groovy 3 property resolution for a boxed Boolean is getter; Groovy property resolution rules do not exist in Kotlin, and Spockk targets Groovy 4 or newer"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed is getters is not mockable Groovy >= 4"]]
+status = "not-applicable"
+reason = "Asserts that Groovy 4 throws MissingPropertyException for property access of a boxed Boolean is getter; Kotlin has no Groovy property access. The mockable method-call half is covered by the boxed get getters port"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed is getters shall be mockable Groovy <= 3"]]
+status = "not-applicable"
+reason = "Groovy 3 property-syntax stubbing of a boxed Boolean is getter; Groovy property syntax does not exist in Kotlin, and Spockk targets Groovy 4 or newer"
+decided = "2026-10-31"
