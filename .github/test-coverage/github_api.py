@@ -156,4 +156,5 @@ class GitHub:
         return self.paginate(f"/issues/{issue_number}/sub_issues")
 
     def add_sub_issue(self, parent_number, sub_issue_id):
-        self.post(f"/issues/{parent_number}/sub_issues", {"sub_issue_id": sub_issue_id})
+        # A sub-issue may have only one parent; replace_parent moves it when an area was renamed or split.
+        self.post(f"/issues/{parent_number}/sub_issues", {"sub_issue_id": sub_issue_id, "replace_parent": True})
