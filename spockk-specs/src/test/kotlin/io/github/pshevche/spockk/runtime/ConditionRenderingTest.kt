@@ -23,11 +23,13 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CharValueSpe
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ClassValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.CustomObjectDiffSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.DefaultToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.DifferentRepresentationsEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyListValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EmptyToStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EnumWithToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.EqualsMethodNoTypeHintsSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.IntegerEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.ListValueSpec
@@ -36,9 +38,17 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.LogicalOrSpe
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MapValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineStringValueSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.MultiLineToStringValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedEqualityEqualValuesNoTypeHintsSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedEqualityTypeHintsSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NestedVerifyInVerifyAllSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullValueSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.NullVersusStringEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.PropertyAccessSpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameLiteralRepresentationsEqualitySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRenderedAndLiteralRepresentationsEqualitySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRepresentationDifferentAnonymousTypesEqualitySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRepresentationDifferentArrayTypesEqualitySpec
+import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SameRepresentationSameTypeEqualitySpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetContainedSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetContainingSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.SetLargeLargeDifferencesSpec
@@ -58,6 +68,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyAllPro
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyEachPropertyAccessSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.condition.VerifyPropertyAccessSpec
 import io.github.pshevche.spockk.lang.expect
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class ConditionRenderingTest : Specification() {
@@ -471,6 +482,7 @@ class ConditionRenderingTest : Specification() {
       """.trimMargin()
   }
 
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with same representations and different types")
   fun `type hint for values with same representation but different types`() {
     expect
     failureMessage(TypeHintValueSpec::class) ==
@@ -671,6 +683,169 @@ class ConditionRenderingTest : Specification() {
       || missing: []
       || extra: [5, 6, 7, 8, 9, 16, 17, 18, 19, 20]
       |[5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with different representations")
+  fun `values with different representations`() {
+    expect
+    failureMessage(DifferentRepresentationsEqualitySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x == y
+      || |  |
+      |1 |  2
+      |  false
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with same representations and same types")
+  fun `values with same representations and same types`() {
+    val rendering = failureMessage(SameRepresentationSameTypeEqualitySpec::class)
+      .replace(Regex("(?<=@)[0-9a-f]+"), "X")
+    expect
+    rendering ==
+      """
+      |Condition not satisfied:
+      |
+      |x == y
+      || |  |
+      || |  Fred (io.github.pshevche.spockk.fixtures.runtime.samples.condition.EqualityPerson@X)
+      || false
+      |Fred (io.github.pshevche.spockk.fixtures.runtime.samples.condition.EqualityPerson@X)
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with same representations and different array types")
+  fun `values with same representations and different array types`() {
+    expect
+    failureMessage(SameRepresentationDifferentArrayTypesEqualitySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x == y
+      || |  |
+      || |  [1] (java.lang.String[])
+      || false
+      |[1] (int[])
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with same representations and different anonymous types")
+  fun `values with same representations and different anonymous types`() {
+    expect
+    failureMessage(SameRepresentationDifferentAnonymousTypesEqualitySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x == y
+      || |  |
+      || |  foo (io.github.pshevche.spockk.fixtures.runtime.samples.condition.ConditionRenderingSpecsKt${'$'}secondFoo${'$'}1)
+      || false
+      |foo (io.github.pshevche.spockk.fixtures.runtime.samples.condition.ConditionRenderingSpecsKt${'$'}firstFoo${'$'}1)
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with same rendered and literal representations")
+  fun `values with same rendered and literal representations`() {
+    expect
+    failureMessage(SameRenderedAndLiteralRepresentationsEqualitySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x == 123
+      || |  |
+      || |  123 (java.lang.Integer)
+      || false
+      |123 (java.lang.String)
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#values with same literal representations")
+  fun `values with same literal representations`() {
+    expect
+    failureMessage(SameLiteralRepresentationsEqualitySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x == y
+      || |  |
+      || |  [0, 1] (java.util.LinkedHashSet)
+      || false
+      |[0, 1] (java.util.ArrayList)
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#null values")
+  fun `null values`() {
+    expect
+    failureMessage(NullVersusStringEqualitySpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x == y
+      || |  |
+      || |  null (java.lang.String)
+      || false
+      |null (void)
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#type hints are also added for nested equality comparisons")
+  fun `type hints are also added for nested equality comparisons`() {
+    expect
+    failureMessage(NestedEqualityTypeHintsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |((x == y) as Any) is String
+      | | |  |  |
+      | | |  |  false
+      | | |  1 (java.lang.String)
+      | | false (java.lang.Boolean)
+      | 1 (java.lang.Integer)
+      |
+      """.trimMargin()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/849")
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#type hints are not added for nested equality comparisons if values are equal")
+  fun `type hints are not added for nested equality comparisons if values are equal`() {
+    expect
+    failureMessage(NestedEqualityEqualValuesNoTypeHintsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |((x == y) as Any) is String
+      | | |  |  |
+      | | |  |  false
+      | | |  [1]
+      | | true (java.lang.Boolean)
+      | [1]
+      |
+      """.trimMargin()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#type hints are not added when equals method is used (but only when equality operator is used)")
+  fun `type hints are not added when equals method is used`() {
+    expect
+    failureMessage(EqualsMethodNoTypeHintsSpec::class) ==
+      """
+      |Condition not satisfied:
+      |
+      |x.equals(y)
+      || |      |
+      |1 false  1
       |
       """.trimMargin()
   }
