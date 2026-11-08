@@ -334,3 +334,133 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#physical method"]]
+status = "not-applicable"
+reason = "GroovyMock exists to create mocks with Groovy metaclass dispatch. Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#argument coercion"]]
+status = "not-applicable"
+reason = "The feature relies on Groovy coercing a GString argument to String before it matches the interaction. Kotlin string templates are plain Strings, so there is nothing to coerce"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#final physical method"]]
+status = "not-applicable"
+reason = "GroovyMock exists to create mocks with Groovy metaclass dispatch. Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#dynamic method"]]
+status = "not-applicable"
+reason = "The feature targets a method or property that exists only through Groovy metaclass dispatch (dynamic or DGM members). Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#DGM method"]]
+status = "not-applicable"
+reason = "The feature targets a method or property that exists only through Groovy metaclass dispatch (dynamic or DGM members). Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#physical method via GroovyObject.invokeMethod"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#dynamic method via GroovyObject.invokeMethod"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#DGM method via GroovyObject.invokeMethod"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#get physical property"]]
+status = "not-applicable"
+reason = "GroovyMock exists to create mocks with Groovy metaclass dispatch. Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#get final physical property"]]
+status = "not-applicable"
+reason = "GroovyMock exists to create mocks with Groovy metaclass dispatch. Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#get dynamic property"]]
+status = "not-applicable"
+reason = "The feature targets a method or property that exists only through Groovy metaclass dispatch (dynamic or DGM members). Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#get DGM property"]]
+status = "not-applicable"
+reason = "The feature targets a method or property that exists only through Groovy metaclass dispatch (dynamic or DGM members). Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#get physical property via GroovyObject.getProperty"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#get dynamic property via GroovyObject.getProperty"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#get DGM property via GroovyObject.getProperty"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#set physical property"]]
+status = "not-applicable"
+reason = "GroovyMock exists to create mocks with Groovy metaclass dispatch. Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#set dynamic property"]]
+status = "not-applicable"
+reason = "The feature targets a method or property that exists only through Groovy metaclass dispatch (dynamic or DGM members). Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#set DGM property"]]
+status = "not-applicable"
+reason = "The feature targets a method or property that exists only through Groovy metaclass dispatch (dynamic or DGM members). Kotlin types never go through Groovy's metaclass, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#set physical property via GroovyObject.setProperty"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#set dynamic property via GroovyObject.setProperty"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#set DGM property via GroovyObject.setProperty"]]
+status = "not-applicable"
+reason = "The feature calls GroovyObject.invokeMethod/getProperty/setProperty on a GroovyMock. Kotlin types do not implement GroovyObject, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#Mock object boolean (is) accessor via dot-notation"]]
+status = "not-applicable"
+reason = "The feature checks how Groovy's property syntax resolves is/get accessors on a GroovyMock. Kotlin property syntax is resolved at compile time, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#Mock object boolean (get) accessor via dot-notation"]]
+status = "not-applicable"
+reason = "The feature checks how Groovy's property syntax resolves is/get accessors on a GroovyMock. Kotlin property syntax is resolved at compile time, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#Mock object boolean (get + is) accessor via dot-notation"]]
+status = "not-applicable"
+reason = "The feature checks how Groovy's property syntax resolves is/get accessors on a GroovyMock. Kotlin property syntax is resolved at compile time, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#Mock object non-boolean (get + is) accessor via dot-notation"]]
+status = "not-applicable"
+reason = "The feature checks how Groovy's property syntax resolves is/get accessors on a GroovyMock. Kotlin property syntax is resolved at compile time, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForGroovyClasses#Mock object boolean accessor via method"]]
+status = "not-applicable"
+reason = "The feature checks how Groovy's property syntax resolves is/get accessors on a GroovyMock. Kotlin property syntax is resolved at compile time, and Spockk has no GroovyMock equivalent"
+decided = "2026-10-31"
