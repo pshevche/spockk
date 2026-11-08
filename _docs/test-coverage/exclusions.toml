@@ -334,3 +334,28 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyStubBasics#can stub interface"]]
+status = "not-applicable"
+reason = "Every feature is inherited from the abstract StubBasics and differs from JavaStubBasics only in creating the double with GroovyMock. GroovyMock/GroovyStub/GroovySpy target Groovy metaclass dispatch, which Kotlin types never go through, and Spockk has no GroovyMock API, so there is nothing Groovy-specific left to port"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.GroovyStubBasics#can stub class"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': the only difference from the JavaStubBasics variant is GroovyMock, which has no Spockk or Kotlin equivalent"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.GroovyStubBasics#can stub call at creation time"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': the only difference from the JavaStubBasics variant is GroovyMock, which has no Spockk or Kotlin equivalent"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.GroovyStubBasics#can stub call beforehand"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': the only difference from the JavaStubBasics variant is GroovyMock, which has no Spockk or Kotlin equivalent"
+decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.GroovyStubBasics#can stub call in then-block"]]
+status = "not-applicable"
+reason = "Same reasoning as 'can stub interface': the only difference from the JavaStubBasics variant is GroovyMock, which has no Spockk or Kotlin equivalent"
+decided = "2026-11-01"
