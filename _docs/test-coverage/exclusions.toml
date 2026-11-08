@@ -334,3 +334,13 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["spock.util.EmbeddedSpecRunnerClassLoaderSpec#EmbeddedSpecRunner with different ClassLoader"]]
+status = "not-applicable"
+reason = "Tests Spock's EmbeddedSpecRunner, a test utility that compiles Groovy spec source at runtime against a custom ClassLoader. Spockk has no such runner and its specs are compiled ahead of time, so there is no behavior to port"
+decided = "2026-11-06"
+
+[["spock.util.EmbeddedSpecRunnerClassLoaderSpec#EmbeddedSpecRunner with different ClassLoader - unable to see Spock"]]
+status = "not-applicable"
+reason = "Same as 'EmbeddedSpecRunner with different ClassLoader': asserts that EmbeddedSpecRunner's Groovy compilation fails with 'unable to resolve class Specification' when the ClassLoader hides Spock. Spockk has no embedded runner or runtime Groovy compilation"
+decided = "2026-11-06"
