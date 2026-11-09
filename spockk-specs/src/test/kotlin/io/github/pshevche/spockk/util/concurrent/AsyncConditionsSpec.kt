@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.util.concurrent
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.runtime.SpockAssertionError
@@ -32,7 +31,6 @@ class AsyncConditionsSpec : Specification() {
 
   @MigratedFrom("spock.util.concurrent.AsyncConditionsSpec#passing example - check passes")
   fun `passing example - check passes`() {
-    given
     val conds = AsyncConditions()
 
     `when`
@@ -50,7 +48,6 @@ class AsyncConditionsSpec : Specification() {
   @FailsWith(SpockAssertionError::class)
   @MigratedFrom("spock.util.concurrent.AsyncConditionsSpec#failing example 1 - eval fails")
   fun `failing example 1 - eval fails`() {
-    given
     val conds = AsyncConditions()
 
     `when`
@@ -67,7 +64,6 @@ class AsyncConditionsSpec : Specification() {
   @FailsWith(SpockTimeoutError::class)
   @MigratedFrom("spock.util.concurrent.AsyncConditionsSpec#failing example 2 - eval is missing")
   fun `failing example 2 - eval is missing`() {
-    given
     val conds = AsyncConditions()
 
     expect
@@ -77,7 +73,6 @@ class AsyncConditionsSpec : Specification() {
   @FailsWith(SpockTimeoutError::class)
   @MigratedFrom("spock.util.concurrent.AsyncConditionsSpec#one passing and one missing eval")
   fun `one passing and one missing eval`() {
-    given
     val conds = AsyncConditions(2)
 
     `when`
@@ -95,7 +90,6 @@ class AsyncConditionsSpec : Specification() {
   @FailsWith(SpockAssertionError::class)
   @MigratedFrom("spock.util.concurrent.AsyncConditionsSpec#one failing and one missing eval")
   fun `one failing and one missing eval`() {
-    given
     val conds = AsyncConditions(2)
 
     `when`
@@ -111,7 +105,6 @@ class AsyncConditionsSpec : Specification() {
 
   @MigratedFrom("spock.util.concurrent.AsyncConditionsSpec#multiple passing evals")
   fun `multiple passing evals`() {
-    given
     val conds = AsyncConditions(3)
 
     `when`
