@@ -93,15 +93,12 @@ class CglibMockMakerSpec : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.mock.runtime.CglibMockMakerSpec#Use specific MockMaker cglib intercept call for class")
   fun `Use specific MockMaker cglib intercept call for class`() {
-    given
-    val m: java.util.ArrayList<Int> = Mock(mapOf("mockMaker" to MockMakers.cglib))
-
     `when`
-    val first = m.get(0)
+    val m: java.util.ArrayList<Int> = Mock(mapOf("mockMaker" to MockMakers.cglib))
+    m.get(any()) returns 1
 
     then
-    m.get(any()) returns 1
-    first == 1
+    m.get(0) == 1
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
