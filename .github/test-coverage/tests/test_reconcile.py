@@ -542,6 +542,19 @@ class ApplyHierarchyTest(unittest.TestCase):
 
         self.assertEqual([(1, 2020)], github.sub_issue_calls)
 
+    def test_links_to_an_unchanged_pre_existing_area_via_known_issues(self):
+        github = _FakeGitHub()
+        mutations = [
+            Mutation(kind="create_issue", target="A", payload={"title": "t", "body": "b", "labels": []}, reason="new"),
+            Mutation(kind="link_sub_issue", target="mocking-1->A",
+                     payload={"parent_ns": "area", "parent_key": "mocking-1", "child_ns": "spec", "child_key": "A"},
+                     reason="attach"),
+        ]
+
+        apply(mutations, github, sleep=lambda seconds: None, known={"area:mocking-1": (30, 3030)})
+
+        self.assertEqual([(30, github.post_results[0]["id"])], github.sub_issue_calls)
+
 
 class _FakeGitHub:
     def __init__(self):
