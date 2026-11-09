@@ -18,6 +18,7 @@ spotless = { id = "com.diffplug.spotless", version = "8.11.0" }
 [libraries]
 google-autoservice = { module = "com.google.auto.service:auto-service", version.ref = "auto-service" }
 google-autoservice-annotations = { module = "com.google.auto.service:auto-service-annotations", version.ref = "auto-service" }
+h2 = { module = "com.h2database:h2", version = "2.5.252" }
 hamcrest = { module = "org.hamcrest:hamcrest", version = "3.0" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
