@@ -17,8 +17,10 @@ package io.github.pshevche.spockk.config
 import groovy.lang.Closure
 import groovy.lang.GroovyObject
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
+import io.github.pshevche.spockk.lang.Stub
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.returns
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
@@ -28,35 +30,39 @@ import org.spockframework.runtime.GroovyRuntimeUtil
 import org.spockframework.runtime.IConfigurationRegistry
 import org.spockframework.runtime.model.parallel.ExecutionMode
 import spock.config.RunnerConfiguration
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Subject
 import java.math.BigDecimal
 
 class ParallelConfigurationSpec : Specification() {
 
+  @Shared
   private val availableProcessors = Runtime.getRuntime().availableProcessors()
 
   @Subject
   private val runnerConfiguration = RunnerConfiguration()
 
-  private val configurationRegistry = object : IConfigurationRegistry {
-    override fun <T : Any?> getConfigurationByType(clazz: Class<T>): T? = null
-
-    override fun getConfigurationByName(name: String): Any? = if (name == "runner") runnerConfiguration else null
-
-    override fun <T : Any?> instantiateExtension(extension: Class<T>): T = extension.getDeclaredConstructor().newInstance()
-  }
+  private lateinit var configurationRegistry: IConfigurationRegistry
 
   private val builder = ConfigurationBuilder()
+
+  // A Stub builder block cannot be assigned to a field directly: https://github.com/pshevche/spockk/issues/940
+  fun setup() {
+    val registry = Stub(IConfigurationRegistry::class.java) {
+      getConfigurationByName("runner") returns runnerConfiguration
+    }
+    configurationRegistry = registry
+  }
 
   @MigratedFrom("spock.config.ParallelConfigurationSpec#check default values")
   fun `check default values`() {
     expect
-    verifyAll {
-      runnerConfiguration.parallel.enabled == java.lang.Boolean.getBoolean("spock.parallel.enabled")
-      runnerConfiguration.parallel.defaultSpecificationExecutionMode == ExecutionMode.CONCURRENT
-      runnerConfiguration.parallel.defaultExecutionMode == ExecutionMode.CONCURRENT
-      runnerConfiguration.parallel.parallelExecutionConfiguration.parallelism == maxOf(availableProcessors - 2, 1)
+    verifyAll(runnerConfiguration.parallel) {
+      enabled == java.lang.Boolean.getBoolean("spock.parallel.enabled")
+      defaultSpecificationExecutionMode == ExecutionMode.CONCURRENT
+      defaultExecutionMode == ExecutionMode.CONCURRENT
+      parallelExecutionConfiguration.parallelism == maxOf(availableProcessors - 2, 1)
     }
   }
 
@@ -73,10 +79,10 @@ class ParallelConfigurationSpec : Specification() {
     builder.build(configurationRegistry, script)
 
     then
-    verifyAll {
-      runnerConfiguration.parallel.enabled
-      runnerConfiguration.parallel.defaultSpecificationExecutionMode == ExecutionMode.SAME_THREAD
-      runnerConfiguration.parallel.defaultExecutionMode == ExecutionMode.SAME_THREAD
+    verifyAll(runnerConfiguration.parallel) {
+      enabled
+      defaultSpecificationExecutionMode == ExecutionMode.SAME_THREAD
+      defaultExecutionMode == ExecutionMode.SAME_THREAD
     }
   }
 
@@ -92,12 +98,12 @@ class ParallelConfigurationSpec : Specification() {
     builder.build(configurationRegistry, script)
 
     then
-    verifyAll {
-      runnerConfiguration.parallel.parallelExecutionConfiguration.parallelism == 55
-      runnerConfiguration.parallel.parallelExecutionConfiguration.maxPoolSize == 55 + 256
-      runnerConfiguration.parallel.parallelExecutionConfiguration.minimumRunnable == 55
-      runnerConfiguration.parallel.parallelExecutionConfiguration.corePoolSize == 55
-      runnerConfiguration.parallel.parallelExecutionConfiguration.keepAliveSeconds == 30
+    verifyAll(runnerConfiguration.parallel.parallelExecutionConfiguration) {
+      parallelism == 55
+      maxPoolSize == 55 + 256
+      minimumRunnable == 55
+      corePoolSize == 55
+      keepAliveSeconds == 30
     }
   }
 
@@ -114,12 +120,12 @@ class ParallelConfigurationSpec : Specification() {
     builder.build(configurationRegistry, script)
 
     then
-    verifyAll {
-      runnerConfiguration.parallel.parallelExecutionConfiguration.parallelism == expectedParallelism
-      runnerConfiguration.parallel.parallelExecutionConfiguration.maxPoolSize == expectedParallelism + 256
-      runnerConfiguration.parallel.parallelExecutionConfiguration.minimumRunnable == expectedParallelism
-      runnerConfiguration.parallel.parallelExecutionConfiguration.corePoolSize == expectedParallelism
-      runnerConfiguration.parallel.parallelExecutionConfiguration.keepAliveSeconds == 30
+    verifyAll(runnerConfiguration.parallel.parallelExecutionConfiguration) {
+      parallelism == expectedParallelism
+      maxPoolSize == expectedParallelism + 256
+      minimumRunnable == expectedParallelism
+      corePoolSize == expectedParallelism
+      keepAliveSeconds == 30
     }
   }
 
@@ -136,12 +142,12 @@ class ParallelConfigurationSpec : Specification() {
     builder.build(configurationRegistry, script)
 
     then
-    verifyAll {
-      runnerConfiguration.parallel.parallelExecutionConfiguration.parallelism == expectedParallelism
-      runnerConfiguration.parallel.parallelExecutionConfiguration.maxPoolSize == expectedParallelism + 256
-      runnerConfiguration.parallel.parallelExecutionConfiguration.minimumRunnable == expectedParallelism
-      runnerConfiguration.parallel.parallelExecutionConfiguration.corePoolSize == expectedParallelism
-      runnerConfiguration.parallel.parallelExecutionConfiguration.keepAliveSeconds == 30
+    verifyAll(runnerConfiguration.parallel.parallelExecutionConfiguration) {
+      parallelism == expectedParallelism
+      maxPoolSize == expectedParallelism + 256
+      minimumRunnable == expectedParallelism
+      corePoolSize == expectedParallelism
+      keepAliveSeconds == 30
     }
   }
 
