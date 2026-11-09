@@ -22,7 +22,6 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.lang.Timeout
@@ -30,20 +29,15 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.concurrent.thread
 
-interface IndexedLookup {
-  fun get(index: Int): Any?
-}
-
 class MultiThreaded : Specification() {
 
-  @Issue("https://github.com/spockframework/spock/issues/583")
   @MigratedFrom("org.spockframework.smoke.mock.MultiThreaded#mocks can block and wait on conditions")
   fun `mocks can block and wait on conditions`() {
     given
     val latch1 = CountDownLatch(1)
     val latch2 = CountDownLatch(1)
     val latch3 = CountDownLatch(2)
-    val aList = Mock(IndexedLookup::class.java)
+    val aList = Mock(java.util.List::class.java)
 
     `when`
     thread {
@@ -63,17 +57,14 @@ class MultiThreaded : Specification() {
     1 * aList.get(any()) did {
       latch1.countDown()
       assert(latch2.await(10, SECONDS))
-      null
     }
 
     1 * aList.get(any()) did {
       latch2.countDown()
       assert(latch1.await(10, SECONDS))
-      null
     }
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1899")
   @Timeout(30)
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.MultiThreaded#mock response generators do not deadlock when self-referencing")
