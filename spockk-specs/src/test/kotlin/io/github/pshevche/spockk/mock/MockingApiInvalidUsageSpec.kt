@@ -20,12 +20,18 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.spockframework.runtime.InvalidSpecException
+import spock.lang.Shared
 import spock.lang.Specification
-import spock.mock.MockMakers
 import spock.mock.MockingApi
 import java.lang.reflect.InvocationTargetException
 
 class MockingApiInvalidUsageSpec : Specification() {
+
+  @Shared
+  private val closure: Closure<*> = object : Closure<Any?>(Any()) {}
+
+  @Shared
+  private val opts: Map<String, Any?> = mapOf()
 
   @MigratedFrom("spock.mock.MockingApiInvalidUsageSpec#Invalid usage check")
   fun `Invalid usage check`(methodName: String, args: List<Any?>) {
@@ -41,62 +47,32 @@ class MockingApiInvalidUsageSpec : Specification() {
     methodName   ; args
     "Mock"       ; listOf<Any?>()
     "Mock"       ; listOf<Any?>(Runnable::class.java)
-    "Mock"       ; listOf<Any?>(Runnable::class.java, CLOSURE)
-    "Mock"       ; listOf<Any?>(OPTS)
-    "Mock"       ; listOf<Any?>(OPTS, Runnable::class.java)
-    "Mock"       ; listOf<Any?>(OPTS, Runnable::class.java, CLOSURE)
-    "Mock"       ; listOf<Any?>(OPTS, CLOSURE)
-    "Mock"       ; listOf<Any?>(CLOSURE)
+    "Mock"       ; listOf<Any?>(Runnable::class.java, closure)
+    "Mock"       ; listOf<Any?>(opts)
+    "Mock"       ; listOf<Any?>(opts, Runnable::class.java)
+    "Mock"       ; listOf<Any?>(opts, Runnable::class.java, closure)
+    "Mock"       ; listOf<Any?>(opts, closure)
+    "Mock"       ; listOf<Any?>(closure)
 
     "Stub"       ; listOf<Any?>()
     "Stub"       ; listOf<Any?>(Runnable::class.java)
-    "Stub"       ; listOf<Any?>(Runnable::class.java, CLOSURE)
-    "Stub"       ; listOf<Any?>(OPTS)
-    "Stub"       ; listOf<Any?>(OPTS, Runnable::class.java)
-    "Stub"       ; listOf<Any?>(OPTS, Runnable::class.java, CLOSURE)
-    "Stub"       ; listOf<Any?>(OPTS, CLOSURE)
-    "Stub"       ; listOf<Any?>(CLOSURE)
+    "Stub"       ; listOf<Any?>(Runnable::class.java, closure)
+    "Stub"       ; listOf<Any?>(opts)
+    "Stub"       ; listOf<Any?>(opts, Runnable::class.java)
+    "Stub"       ; listOf<Any?>(opts, Runnable::class.java, closure)
+    "Stub"       ; listOf<Any?>(opts, closure)
+    "Stub"       ; listOf<Any?>(closure)
 
     "Spy"        ; listOf<Any?>()
     "Spy"        ; listOf<Any?>(Runnable::class.java)
-    "Spy"        ; listOf<Any?>(Runnable::class.java, CLOSURE)
-    "Spy"        ; listOf<Any?>(OPTS)
-    "Spy"        ; listOf<Any?>(OPTS, Runnable::class.java)
-    "Spy"        ; listOf<Any?>(OPTS, Runnable::class.java, CLOSURE)
-    "Spy"        ; listOf<Any?>(OPTS, CLOSURE)
-    "Spy"        ; listOf<Any?>(CLOSURE)
+    "Spy"        ; listOf<Any?>(Runnable::class.java, closure)
+    "Spy"        ; listOf<Any?>(opts)
+    "Spy"        ; listOf<Any?>(opts, Runnable::class.java)
+    "Spy"        ; listOf<Any?>(opts, Runnable::class.java, closure)
+    "Spy"        ; listOf<Any?>(opts, closure)
+    "Spy"        ; listOf<Any?>(closure)
     "Spy"        ; listOf<Any?>("Obj")
-    "Spy"        ; listOf<Any?>("Obj", CLOSURE)
-
-    "GroovyMock" ; listOf<Any?>()
-    "GroovyMock" ; listOf<Any?>(Runnable::class.java)
-    "GroovyMock" ; listOf<Any?>(Runnable::class.java, CLOSURE)
-    "GroovyMock" ; listOf<Any?>(OPTS)
-    "GroovyMock" ; listOf<Any?>(OPTS, Runnable::class.java)
-    "GroovyMock" ; listOf<Any?>(OPTS, Runnable::class.java, CLOSURE)
-    "GroovyMock" ; listOf<Any?>(OPTS, CLOSURE)
-    "GroovyMock" ; listOf<Any?>(CLOSURE)
-
-    "GroovyStub" ; listOf<Any?>()
-    "GroovyStub" ; listOf<Any?>(Runnable::class.java)
-    "GroovyStub" ; listOf<Any?>(Runnable::class.java, CLOSURE)
-    "GroovyStub" ; listOf<Any?>(OPTS)
-    "GroovyStub" ; listOf<Any?>(OPTS, Runnable::class.java)
-    "GroovyStub" ; listOf<Any?>(OPTS, Runnable::class.java, CLOSURE)
-    "GroovyStub" ; listOf<Any?>(OPTS, CLOSURE)
-    "GroovyStub" ; listOf<Any?>(CLOSURE)
-
-    "GroovySpy"  ; listOf<Any?>()
-    "GroovySpy"  ; listOf<Any?>(Runnable::class.java)
-    "GroovySpy"  ; listOf<Any?>(Runnable::class.java, CLOSURE)
-    "GroovySpy"  ; listOf<Any?>(OPTS)
-    "GroovySpy"  ; listOf<Any?>(OPTS, Runnable::class.java)
-    "GroovySpy"  ; listOf<Any?>(OPTS, Runnable::class.java, CLOSURE)
-    "GroovySpy"  ; listOf<Any?>(OPTS, CLOSURE)
-    "GroovySpy"  ; listOf<Any?>(CLOSURE)
-
-    "SpyStatic"  ; listOf<Any?>(Runnable::class.java)
-    "SpyStatic"  ; listOf<Any?>(Runnable::class.java, MockMakers.mockito)
+    "Spy"        ; listOf<Any?>("Obj", closure)
   }
 
   // Picks the most specific overload by runtime argument types, like Groovy's dynamic dispatch.
@@ -111,10 +87,5 @@ class MockingApiInvalidUsageSpec : Specification() {
     } catch (e: InvocationTargetException) {
       throw e.targetException
     }
-  }
-
-  companion object {
-    private val CLOSURE = object : Closure<Any?>(Any()) {}
-    private val OPTS = mapOf<String, Any?>()
   }
 }
