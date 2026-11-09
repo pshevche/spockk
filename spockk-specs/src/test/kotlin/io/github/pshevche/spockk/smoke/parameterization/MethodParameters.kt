@@ -29,7 +29,6 @@ import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.testkit.engine.Events
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
@@ -82,7 +81,6 @@ class MethodParameters : Specification() {
     variable(y).from(1, 2)
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/652")
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.MethodParameters#more parameters than data variables throw exception if not injected by some extension"
   )
@@ -94,7 +92,6 @@ class MethodParameters : Specification() {
     message == "No argument was provided for parameters: 'z' in method: '${MoreParametersThanDataVariablesSpec::class.java.name}.foo'"
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/651")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1052")
   @MigratedFrom("org.spockframework.smoke.parameterization.MethodParameters#data values are injected by name, not order")
   fun `data values are injected by name, not order`(y: Int, x: Int) {
@@ -106,7 +103,6 @@ class MethodParameters : Specification() {
     variable(y).from(2, 4)
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/652")
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.MethodParameters#method parameters that are eventually provided by extensions throw an exception at runtime if not set"
   )
