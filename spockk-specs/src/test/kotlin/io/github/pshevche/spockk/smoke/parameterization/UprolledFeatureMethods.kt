@@ -72,6 +72,7 @@ class UprolledFeatureMethods : Specification() {
     variable(fixture).from(UnrolledEmptyProviderFixture::class.java, RolledEmptyProviderFixture::class.java)
   }
 
+  // Features are renamed to avoid a dot, see https://github.com/pshevche/spockk/issues/1103.
   @MigratedFrom("org.spockframework.smoke.parameterization.UprolledFeatureMethods#can roll up a whole class at once")
   fun `can roll up a whole class at once`() {
     `when`

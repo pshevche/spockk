@@ -57,7 +57,8 @@ class RolledEmptyProviderFixture : Specification() {
   }
 }
 
-// Feature names cannot contain '.', so they differ from upstream's "#actor.details.name".
+// Upstream names these features "#actor.details.name" and "#actor.details.age"; a dot is not allowed in a
+// JVM method name, see https://github.com/pshevche/spockk/issues/1103.
 @Rollup
 class RollupWholeClassFixture : Specification() {
   fun `#actorName`(actor: UprollActor) {
