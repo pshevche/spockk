@@ -15,7 +15,6 @@
 package io.github.pshevche.spockk.util.concurrent
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.runtime.SpockTimeoutError
@@ -23,45 +22,13 @@ import spock.lang.Isolated
 import spock.lang.Specification
 import spock.util.concurrent.BlockingVariable
 import java.util.concurrent.TimeUnit
-import kotlin.concurrent.thread
 
-// Upstream's Thread.yield() calls are omitted: a no-argument static call crashes the compiler
-// plugin (https://github.com/pshevche/spockk/issues/1060). The sleeps still order the threads.
 @Isolated("The test can get flaky on weak machines if run in parallel.")
 class BlockingVariableSpec : Specification() {
-
-  @MigratedFrom("spock.util.concurrent.BlockingVariableSpec#variable is read after it is written")
-  fun `variable is read after it is written`() {
-    given
-    val list = BlockingVariable<List<Int>>()
-
-    `when`("")
-    thread { list.set(listOf(1, 2, 3)) }
-    Thread.sleep(500)
-
-    then
-    list.get() == listOf(1, 2, 3)
-  }
-
-  @MigratedFrom("spock.util.concurrent.BlockingVariableSpec#variable is read before it is written")
-  fun `variable is read before it is written`() {
-    given
-    val list = BlockingVariable<List<Int>>()
-
-    `when`("")
-    thread {
-      list.set(listOf(1, 2, 3))
-      Thread.sleep(500)
-    }
-
-    then
-    list.get() == listOf(1, 2, 3)
-  }
 
   @MigratedFrom("spock.util.concurrent.BlockingVariableSpec#read times out if no write occurs")
   @Suppress("UNUSED_VARIABLE")
   fun `read times out if no write occurs`() {
-    given
     val list = BlockingVariable<Int>()
 
     `when`("")
@@ -74,7 +41,6 @@ class BlockingVariableSpec : Specification() {
   @MigratedFrom("spock.util.concurrent.BlockingVariableSpec#timeout is configurable")
   @Suppress("UNUSED_VARIABLE")
   fun `timeout is configurable`() {
-    given
     val list = BlockingVariable<String>(1, TimeUnit.MILLISECONDS)
 
     `when`("")

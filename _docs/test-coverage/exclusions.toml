@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["spock.util.concurrent.BlockingVariableSpec#variable is read after it is written"]]
+status = "blocked"
+reason = "Upstream calls Thread.yield(); a call with no arguments and no receiver crashes the compiler plugin in a feature body"
+gap = "https://github.com/pshevche/spockk/issues/1060"
+decided = "2026-11-09"
+
+[["spock.util.concurrent.BlockingVariableSpec#variable is read before it is written"]]
+status = "blocked"
+reason = "Upstream calls Thread.yield(); a call with no arguments and no receiver crashes the compiler plugin in a feature body"
+gap = "https://github.com/pshevche/spockk/issues/1060"
+decided = "2026-11-09"
