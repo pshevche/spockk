@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.smoke.parameterization
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.variable
-import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.where
 import spock.lang.Shared
 import spock.lang.Specification
@@ -68,28 +67,26 @@ class SqlDataSource : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.SqlDataSource#multi-parameterization")
-  fun `multi-parameterization`(a: Int, b: Int, c: Int) {
+  fun `multi-parameterization`(row: Map<String, Int>, a: Int, b: Int, c: Int) {
     expect
     max(a, b) == c
 
     where
-    variables(a, b, c).from(
-      rows(connection, "select a, b, c from data").map { it.getValue("a") },
-      rows(connection, "select a, b, c from data").map { it.getValue("b") },
-      rows(connection, "select a, b, c from data").map { it.getValue("c") }
-    )
+    variable(row).from(rows(connection, "select a, b, c from data"))
+    variable(a).from(row.getValue("a"))
+    variable(b).from(row.getValue("b"))
+    variable(c).from(row.getValue("c"))
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.SqlDataSource#multi-parameterization with wildcard")
-  fun `multi-parameterization with wildcard`(a: Int, c: Int, b: Int) {
+  fun `multi-parameterization with wildcard`(row: Map<String, Int>, a: Int, c: Int, b: Int) {
     expect
     max(a, b) == c
 
     where
-    variables(a, c, b).from(
-      rows(connection, "select * from data").map { it.getValue("a") },
-      rows(connection, "select * from data").map { it.getValue("c") },
-      rows(connection, "select * from data").map { it.getValue("b") }
-    )
+    variable(row).from(rows(connection, "select * from data"))
+    variable(a).from(row.getValue("a"))
+    variable(c).from(row.getValue("c"))
+    variable(b).from(row.getValue("b"))
   }
 }
