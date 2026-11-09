@@ -39,6 +39,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.Succe
 import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.SuccessfulIfSomeUnrolledAreSuccessfulAndSomeSkippedFixture
 import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.SuccessfulIfSomeUprolledAreSuccessfulAndSomeSkippedFixture
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verifyAll
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -56,8 +57,27 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SkippedIfAllUprolledAreSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 1, testsSucceeded = 0, testsFailed = 0, totalStarted = 3, totalSkipped = 0, totalAborted = 1, totalSucceeded = 2, totalFailure = 0)
-    result.failureTypes.isEmpty()
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 1
+      testsSucceededCount == 0
+      testsFailedCount == 0
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 1
+      totalSucceededCount == 2
+      totalFailureCount == 0
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be skipped if there is one uprolled iteration and it is skipped")
@@ -66,8 +86,27 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SkippedIfThereIsOneUprolledIterationAndItIsSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 1, testsSucceeded = 0, testsFailed = 0, totalStarted = 3, totalSkipped = 0, totalAborted = 1, totalSucceeded = 2, totalFailure = 0)
-    result.failureTypes.isEmpty()
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 1
+      testsSucceededCount == 0
+      testsFailedCount == 0
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 1
+      totalSucceededCount == 2
+      totalFailureCount == 0
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if some uprolled iterations are successful and some skipped")
@@ -76,8 +115,27 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfSomeUprolledAreSuccessfulAndSomeSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 1, testsFailed = 0, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 3, totalFailure = 0)
-    result.failureTypes.isEmpty()
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 1
+      testsFailedCount == 0
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 3
+      totalFailureCount == 0
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be failing if some uprolled iterations are failing and some skipped")
@@ -86,8 +144,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(FailingIfSomeUprolledAreFailingAndSomeSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be failing if there is one uprolled iteration and it is failing")
@@ -96,8 +175,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(FailingIfThereIsOneUprolledIterationAndItIsFailingFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be error if some uprolled iterations are erroring and some skipped")
@@ -106,8 +206,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(ErrorIfSomeUprolledAreErroringAndSomeSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(Error::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(Error::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if all uprolled iterations are successful")
@@ -116,8 +237,27 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfAllUprolledAreSuccessfulFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 1, testsFailed = 0, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 3, totalFailure = 0)
-    result.failureTypes.isEmpty()
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 1
+      testsFailedCount == 0
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 3
+      totalFailureCount == 0
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be failing if some uprolled iterations are failing and some successful")
@@ -126,8 +266,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(FailingIfSomeUprolledAreFailingAndSomeSuccessfulFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be error if some uprolled iterations are erroring and some successful")
@@ -136,8 +297,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(ErrorIfSomeUprolledAreErroringAndSomeSuccessfulFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(Error::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(Error::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be failing if all uprolled iterations are failing")
@@ -146,9 +328,30 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(FailingIfAllUprolledAreFailingFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(MultipleFailuresError::class.java)
-    result.nestedFailureTypes == listOf(SpockComparisonFailure::class.java, SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(MultipleFailuresError::class.java)
+      nestedFailureTypes == listOf(SpockComparisonFailure::class.java, SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be failing if some uprolled iterations are erroring and some failing")
@@ -157,9 +360,30 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(FailingIfSomeUprolledAreErroringAndSomeFailingFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(MultipleFailuresError::class.java)
-    result.nestedFailureTypes == listOf(Error::class.java, SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(MultipleFailuresError::class.java)
+      nestedFailureTypes == listOf(Error::class.java, SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be failing if all uprolled iterations are erroring")
@@ -168,9 +392,30 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(FailingIfAllUprolledAreErroringFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 0, containersStarted = 2, containersSkipped = 0, containersAborted = 0, containersSucceeded = 2, containersFailed = 0, testsStarted = 1, testsSkipped = 0, testsAborted = 0, testsSucceeded = 0, testsFailed = 1, totalStarted = 3, totalSkipped = 0, totalAborted = 0, totalSucceeded = 2, totalFailure = 1)
-    result.failureTypes == listOf(MultipleFailuresError::class.java)
-    result.nestedFailureTypes == listOf(Error::class.java, Error::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(MultipleFailuresError::class.java)
+      nestedFailureTypes == listOf(Error::class.java, Error::class.java)
+
+      dynamicallyRegisteredCount == 0
+
+      containersStartedCount == 2
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 2
+      containersFailedCount == 0
+
+      testsStartedCount == 1
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 0
+      testsFailedCount == 1
+
+      totalStartedCount == 3
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 2
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if all unrolled iterations are skipped")
@@ -179,8 +424,27 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfAllUnrolledAreSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 2, testsSucceeded = 1, testsFailed = 0, totalStarted = 5, totalSkipped = 0, totalAborted = 2, totalSucceeded = 3, totalFailure = 0)
-    result.failureTypes.isEmpty()
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 2
+      testsSucceededCount == 1
+      testsFailedCount == 0
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 2
+      totalSucceededCount == 3
+      totalFailureCount == 0
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if some unrolled iterations are successful and some skipped")
@@ -189,8 +453,27 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfSomeUnrolledAreSuccessfulAndSomeSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 1, testsSucceeded = 2, testsFailed = 0, totalStarted = 5, totalSkipped = 0, totalAborted = 1, totalSucceeded = 4, totalFailure = 0)
-    result.failureTypes.isEmpty()
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 1
+      testsSucceededCount == 2
+      testsFailedCount == 0
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 1
+      totalSucceededCount == 4
+      totalFailureCount == 0
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if some unrolled iterations are failing and some skipped")
@@ -199,8 +482,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfSomeUnrolledAreFailingAndSomeSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 1, testsSucceeded = 1, testsFailed = 1, totalStarted = 5, totalSkipped = 0, totalAborted = 1, totalSucceeded = 3, totalFailure = 1)
-    result.failureTypes == listOf(SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 1
+      testsSucceededCount == 1
+      testsFailedCount == 1
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 1
+      totalSucceededCount == 3
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if some unrolled iterations are erroring and some skipped")
@@ -209,8 +513,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfSomeUnrolledAreErroringAndSomeSkippedFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 1, testsSucceeded = 1, testsFailed = 1, totalStarted = 5, totalSkipped = 0, totalAborted = 1, totalSucceeded = 3, totalFailure = 1)
-    result.failureTypes == listOf(Error::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(Error::class.java)
+
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 1
+      testsSucceededCount == 1
+      testsFailedCount == 1
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 1
+      totalSucceededCount == 3
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if all unrolled iterations are successful")
@@ -219,8 +544,27 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfAllUnrolledAreSuccessfulFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 0, testsSucceeded = 3, testsFailed = 0, totalStarted = 5, totalSkipped = 0, totalAborted = 0, totalSucceeded = 5, totalFailure = 0)
-    result.failureTypes.isEmpty()
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 3
+      testsFailedCount == 0
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 5
+      totalFailureCount == 0
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if some unrolled iterations are failing and some successful")
@@ -229,8 +573,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfSomeUnrolledAreFailingAndSomeSuccessfulFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 0, testsSucceeded = 2, testsFailed = 1, totalStarted = 5, totalSkipped = 0, totalAborted = 0, totalSucceeded = 4, totalFailure = 1)
-    result.failureTypes == listOf(SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 2
+      testsFailedCount == 1
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 4
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if some unrolled iterations are erroring and some successful")
@@ -239,8 +604,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfSomeUnrolledAreErroringAndSomeSuccessfulFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 0, testsSucceeded = 2, testsFailed = 1, totalStarted = 5, totalSkipped = 0, totalAborted = 0, totalSucceeded = 4, totalFailure = 1)
-    result.failureTypes == listOf(Error::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(Error::class.java)
+
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 2
+      testsFailedCount == 1
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 4
+      totalFailureCount == 1
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if all unrolled iterations are failing")
@@ -249,8 +635,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfAllUnrolledAreFailingFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 0, testsSucceeded = 1, testsFailed = 2, totalStarted = 5, totalSkipped = 0, totalAborted = 0, totalSucceeded = 3, totalFailure = 2)
-    result.failureTypes == listOf(SpockComparisonFailure::class.java, SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(SpockComparisonFailure::class.java, SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 1
+      testsFailedCount == 2
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 3
+      totalFailureCount == 2
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if some unrolled iterations are erroring and some failing")
@@ -259,8 +666,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfSomeUnrolledAreErroringAndSomeFailingFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 0, testsSucceeded = 1, testsFailed = 2, totalStarted = 5, totalSkipped = 0, totalAborted = 0, totalSucceeded = 3, totalFailure = 2)
-    result.failureTypes == listOf(Error::class.java, SpockComparisonFailure::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(Error::class.java, SpockComparisonFailure::class.java)
+
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 1
+      testsFailedCount == 2
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 3
+      totalFailureCount == 2
+    }
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.ParameterizedFeatureNodeStatuses#should be successful if all unrolled iterations are erroring")
@@ -269,8 +697,29 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(SuccessfulIfAllUnrolledAreErroringFixture::class.java)
 
     then
-    result.counts == NodeCounts(dynamicallyRegistered = 2, containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0, testsStarted = 3, testsSkipped = 0, testsAborted = 0, testsSucceeded = 1, testsFailed = 2, totalStarted = 5, totalSkipped = 0, totalAborted = 0, totalSucceeded = 3, totalFailure = 2)
-    result.failureTypes == listOf(Error::class.java, Error::class.java)
+    verifyAll(result) {
+      failureTypes == listOf(Error::class.java, Error::class.java)
+
+      dynamicallyRegisteredCount == 2
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 3
+      testsSkippedCount == 0
+      testsAbortedCount == 0
+      testsSucceededCount == 1
+      testsFailedCount == 2
+
+      totalStartedCount == 5
+      totalSkippedCount == 0
+      totalAbortedCount == 0
+      totalSucceededCount == 3
+      totalFailureCount == 2
+    }
   }
 
   @MigratedFrom(
@@ -281,34 +730,52 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val result = run(StepwiseIterationsTest::class.java)
 
     then
-    result.counts == NodeCounts(
-      dynamicallyRegistered = 5,
-      containersStarted = 3, containersSkipped = 0, containersAborted = 0, containersSucceeded = 3, containersFailed = 0,
-      testsStarted = 6, testsSkipped = 0, testsAborted = 1, testsSucceeded = 5, testsFailed = 0,
-      totalStarted = 8, totalSkipped = 0, totalAborted = 1, totalSucceeded = 7, totalFailure = 0
-    )
+    verifyAll(result) {
+      dynamicallyRegisteredCount == 5
+
+      containersStartedCount == 3
+      containersSkippedCount == 0
+      containersAbortedCount == 0
+      containersSucceededCount == 3
+      containersFailedCount == 0
+
+      testsStartedCount == 6
+      testsSkippedCount == 0
+      testsAbortedCount == 1
+      testsSucceededCount == 5
+      testsFailedCount == 0
+
+      totalStartedCount == 8
+      totalSkippedCount == 0
+      totalAbortedCount == 1
+      totalSucceededCount == 7
+      totalFailureCount == 0
+    }
   }
 
-  private data class NodeCounts(
-    val dynamicallyRegistered: Int,
-    val containersStarted: Int,
-    val containersSkipped: Int,
-    val containersAborted: Int,
-    val containersSucceeded: Int,
-    val containersFailed: Int,
-    val testsStarted: Int,
-    val testsSkipped: Int,
-    val testsAborted: Int,
-    val testsSucceeded: Int,
-    val testsFailed: Int,
-    val totalStarted: Int,
-    val totalSkipped: Int,
-    val totalAborted: Int,
-    val totalSucceeded: Int,
-    val totalFailure: Int
-  )
-
-  private class RunResult(val counts: NodeCounts, val failureTypes: List<Class<out Throwable>>, val nestedFailureTypes: List<Class<out Throwable>>)
+  private class RunResult(
+    val dynamicallyRegisteredCount: Int,
+    val containersStartedCount: Int,
+    val containersSkippedCount: Int,
+    val containersAbortedCount: Int,
+    val containersSucceededCount: Int,
+    val containersFailedCount: Int,
+    val testsStartedCount: Int,
+    val testsSkippedCount: Int,
+    val testsAbortedCount: Int,
+    val testsSucceededCount: Int,
+    val testsFailedCount: Int,
+    val totalStartedCount: Int,
+    val totalSkippedCount: Int,
+    val totalAbortedCount: Int,
+    val totalSucceededCount: Int,
+    val totalFailureCount: Int,
+    val failures: List<Throwable>
+  ) {
+    val failureTypes: List<Class<out Throwable>> = failures.map { it.javaClass }
+    val nestedFailureTypes: List<Class<out Throwable>> =
+      failures.filterIsInstance<MultipleFailuresError>().flatMap { it.failures }.map { it.javaClass }
+  }
 
   private fun run(fixture: Class<*>): RunResult {
     val results = EngineTestKit.engine("spock").selectors(selectClass(fixture)).execute()
@@ -317,28 +784,24 @@ class ParameterizedFeatureNodeStatuses : Specification() {
     val tests = results.testEvents()
     val failures = all.failed().list()
       .mapNotNull { it.getRequiredPayload(TestExecutionResult::class.java).throwable.orElse(null) }
-    val nested = failures.filterIsInstance<MultipleFailuresError>().flatMap { it.failures }
     return RunResult(
-      NodeCounts(
-        dynamicallyRegistered = all.dynamicallyRegistered().count().toInt(),
-        containersStarted = containers.started().count().toInt(),
-        containersSkipped = containers.skipped().count().toInt(),
-        containersAborted = containers.aborted().count().toInt(),
-        containersSucceeded = containers.succeeded().count().toInt(),
-        containersFailed = containers.failed().count().toInt(),
-        testsStarted = tests.started().count().toInt(),
-        testsSkipped = tests.skipped().count().toInt(),
-        testsAborted = tests.aborted().count().toInt(),
-        testsSucceeded = tests.succeeded().count().toInt(),
-        testsFailed = tests.failed().count().toInt(),
-        totalStarted = all.started().count().toInt(),
-        totalSkipped = all.skipped().count().toInt(),
-        totalAborted = all.aborted().count().toInt(),
-        totalSucceeded = all.succeeded().count().toInt(),
-        totalFailure = all.failed().count().toInt()
-      ),
-      failures.map { it.javaClass },
-      nested.map { it.javaClass }
+      dynamicallyRegisteredCount = all.dynamicallyRegistered().count().toInt(),
+      containersStartedCount = containers.started().count().toInt(),
+      containersSkippedCount = containers.skipped().count().toInt(),
+      containersAbortedCount = containers.aborted().count().toInt(),
+      containersSucceededCount = containers.succeeded().count().toInt(),
+      containersFailedCount = containers.failed().count().toInt(),
+      testsStartedCount = tests.started().count().toInt(),
+      testsSkippedCount = tests.skipped().count().toInt(),
+      testsAbortedCount = tests.aborted().count().toInt(),
+      testsSucceededCount = tests.succeeded().count().toInt(),
+      testsFailedCount = tests.failed().count().toInt(),
+      totalStartedCount = all.started().count().toInt(),
+      totalSkippedCount = all.skipped().count().toInt(),
+      totalAbortedCount = all.aborted().count().toInt(),
+      totalSucceededCount = all.succeeded().count().toInt(),
+      totalFailureCount = all.failed().count().toInt(),
+      failures = failures
     )
   }
 }

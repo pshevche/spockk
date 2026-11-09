@@ -26,16 +26,10 @@ import org.spockframework.runtime.model.FeatureInfo
 import spock.lang.Rollup
 import spock.lang.Specification
 
-abstract class AbortingSpecification : Specification() {
-  protected fun abort(): Unit = throw TestAbortedException()
-
-  protected fun raiseError(): Unit = throw Error()
-}
-
-class SkippedIfAllUprolledAreSkippedFixture : AbortingSpecification() {
+class SkippedIfAllUprolledAreSkippedFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    abort()
+    throw TestAbortedException()
 
     expect
     a in listOf(1, 2)
@@ -45,10 +39,10 @@ class SkippedIfAllUprolledAreSkippedFixture : AbortingSpecification() {
   }
 }
 
-class SkippedIfThereIsOneUprolledIterationAndItIsSkippedFixture : AbortingSpecification() {
+class SkippedIfThereIsOneUprolledIterationAndItIsSkippedFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    abort()
+    throw TestAbortedException()
 
     expect
     a in listOf(1, 2)
@@ -58,10 +52,10 @@ class SkippedIfThereIsOneUprolledIterationAndItIsSkippedFixture : AbortingSpecif
   }
 }
 
-class SuccessfulIfSomeUprolledAreSuccessfulAndSomeSkippedFixture : AbortingSpecification() {
+class SuccessfulIfSomeUprolledAreSuccessfulAndSomeSkippedFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    if (a == 1) abort()
+    if (a == 1) throw TestAbortedException()
 
     expect
     a == 2
@@ -71,10 +65,10 @@ class SuccessfulIfSomeUprolledAreSuccessfulAndSomeSkippedFixture : AbortingSpeci
   }
 }
 
-class FailingIfSomeUprolledAreFailingAndSomeSkippedFixture : AbortingSpecification() {
+class FailingIfSomeUprolledAreFailingAndSomeSkippedFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    if (a == 1) abort()
+    if (a == 1) throw TestAbortedException()
 
     expect
     a == 3
@@ -84,7 +78,7 @@ class FailingIfSomeUprolledAreFailingAndSomeSkippedFixture : AbortingSpecificati
   }
 }
 
-class FailingIfThereIsOneUprolledIterationAndItIsFailingFixture : AbortingSpecification() {
+class FailingIfThereIsOneUprolledIterationAndItIsFailingFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
     expect
@@ -95,11 +89,11 @@ class FailingIfThereIsOneUprolledIterationAndItIsFailingFixture : AbortingSpecif
   }
 }
 
-class ErrorIfSomeUprolledAreErroringAndSomeSkippedFixture : AbortingSpecification() {
+class ErrorIfSomeUprolledAreErroringAndSomeSkippedFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    if (a == 1) abort()
-    raiseError()
+    if (a == 1) throw TestAbortedException()
+    throw Error()
 
     expect
     true
@@ -109,7 +103,7 @@ class ErrorIfSomeUprolledAreErroringAndSomeSkippedFixture : AbortingSpecificatio
   }
 }
 
-class SuccessfulIfAllUprolledAreSuccessfulFixture : AbortingSpecification() {
+class SuccessfulIfAllUprolledAreSuccessfulFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
     expect
@@ -120,7 +114,7 @@ class SuccessfulIfAllUprolledAreSuccessfulFixture : AbortingSpecification() {
   }
 }
 
-class FailingIfSomeUprolledAreFailingAndSomeSuccessfulFixture : AbortingSpecification() {
+class FailingIfSomeUprolledAreFailingAndSomeSuccessfulFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
     expect
@@ -131,10 +125,10 @@ class FailingIfSomeUprolledAreFailingAndSomeSuccessfulFixture : AbortingSpecific
   }
 }
 
-class ErrorIfSomeUprolledAreErroringAndSomeSuccessfulFixture : AbortingSpecification() {
+class ErrorIfSomeUprolledAreErroringAndSomeSuccessfulFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    if (a == 1) raiseError()
+    if (a == 1) throw Error()
 
     expect
     a == 2
@@ -144,7 +138,7 @@ class ErrorIfSomeUprolledAreErroringAndSomeSuccessfulFixture : AbortingSpecifica
   }
 }
 
-class FailingIfAllUprolledAreFailingFixture : AbortingSpecification() {
+class FailingIfAllUprolledAreFailingFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
     expect
@@ -155,10 +149,10 @@ class FailingIfAllUprolledAreFailingFixture : AbortingSpecification() {
   }
 }
 
-class FailingIfSomeUprolledAreErroringAndSomeFailingFixture : AbortingSpecification() {
+class FailingIfSomeUprolledAreErroringAndSomeFailingFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    if (a == 1) raiseError()
+    if (a == 1) throw Error()
 
     expect
     a == 3
@@ -168,10 +162,10 @@ class FailingIfSomeUprolledAreErroringAndSomeFailingFixture : AbortingSpecificat
   }
 }
 
-class FailingIfAllUprolledAreErroringFixture : AbortingSpecification() {
+class FailingIfAllUprolledAreErroringFixture : Specification() {
   @Rollup
   fun `a feature`(a: Int) {
-    raiseError()
+    throw Error()
 
     expect
     a in listOf(1, 2)
@@ -181,9 +175,9 @@ class FailingIfAllUprolledAreErroringFixture : AbortingSpecification() {
   }
 }
 
-class SuccessfulIfAllUnrolledAreSkippedFixture : AbortingSpecification() {
+class SuccessfulIfAllUnrolledAreSkippedFixture : Specification() {
   fun `a feature`(a: Int) {
-    abort()
+    throw TestAbortedException()
 
     expect
     a in listOf(1, 2)
@@ -193,9 +187,9 @@ class SuccessfulIfAllUnrolledAreSkippedFixture : AbortingSpecification() {
   }
 }
 
-class SuccessfulIfSomeUnrolledAreSuccessfulAndSomeSkippedFixture : AbortingSpecification() {
+class SuccessfulIfSomeUnrolledAreSuccessfulAndSomeSkippedFixture : Specification() {
   fun `a feature`(a: Int) {
-    if (a == 1) abort()
+    if (a == 1) throw TestAbortedException()
 
     expect
     a == 2
@@ -205,9 +199,9 @@ class SuccessfulIfSomeUnrolledAreSuccessfulAndSomeSkippedFixture : AbortingSpeci
   }
 }
 
-class SuccessfulIfSomeUnrolledAreFailingAndSomeSkippedFixture : AbortingSpecification() {
+class SuccessfulIfSomeUnrolledAreFailingAndSomeSkippedFixture : Specification() {
   fun `a feature`(a: Int) {
-    if (a == 1) abort()
+    if (a == 1) throw TestAbortedException()
 
     expect
     a == 3
@@ -217,10 +211,10 @@ class SuccessfulIfSomeUnrolledAreFailingAndSomeSkippedFixture : AbortingSpecific
   }
 }
 
-class SuccessfulIfSomeUnrolledAreErroringAndSomeSkippedFixture : AbortingSpecification() {
+class SuccessfulIfSomeUnrolledAreErroringAndSomeSkippedFixture : Specification() {
   fun `a feature`(a: Int) {
-    if (a == 1) abort()
-    raiseError()
+    if (a == 1) throw TestAbortedException()
+    throw Error()
 
     expect
     true
@@ -230,7 +224,7 @@ class SuccessfulIfSomeUnrolledAreErroringAndSomeSkippedFixture : AbortingSpecifi
   }
 }
 
-class SuccessfulIfAllUnrolledAreSuccessfulFixture : AbortingSpecification() {
+class SuccessfulIfAllUnrolledAreSuccessfulFixture : Specification() {
   fun `a feature`(a: Int) {
     expect
     a in listOf(1, 2)
@@ -240,7 +234,7 @@ class SuccessfulIfAllUnrolledAreSuccessfulFixture : AbortingSpecification() {
   }
 }
 
-class SuccessfulIfSomeUnrolledAreFailingAndSomeSuccessfulFixture : AbortingSpecification() {
+class SuccessfulIfSomeUnrolledAreFailingAndSomeSuccessfulFixture : Specification() {
   fun `a feature`(a: Int) {
     expect
     a == 1
@@ -250,9 +244,9 @@ class SuccessfulIfSomeUnrolledAreFailingAndSomeSuccessfulFixture : AbortingSpeci
   }
 }
 
-class SuccessfulIfSomeUnrolledAreErroringAndSomeSuccessfulFixture : AbortingSpecification() {
+class SuccessfulIfSomeUnrolledAreErroringAndSomeSuccessfulFixture : Specification() {
   fun `a feature`(a: Int) {
-    if (a == 1) raiseError()
+    if (a == 1) throw Error()
 
     expect
     a == 2
@@ -262,7 +256,7 @@ class SuccessfulIfSomeUnrolledAreErroringAndSomeSuccessfulFixture : AbortingSpec
   }
 }
 
-class SuccessfulIfAllUnrolledAreFailingFixture : AbortingSpecification() {
+class SuccessfulIfAllUnrolledAreFailingFixture : Specification() {
   fun `a feature`(a: Int) {
     expect
     a == 3
@@ -272,9 +266,9 @@ class SuccessfulIfAllUnrolledAreFailingFixture : AbortingSpecification() {
   }
 }
 
-class SuccessfulIfSomeUnrolledAreErroringAndSomeFailingFixture : AbortingSpecification() {
+class SuccessfulIfSomeUnrolledAreErroringAndSomeFailingFixture : Specification() {
   fun `a feature`(a: Int) {
-    if (a == 1) raiseError()
+    if (a == 1) throw Error()
 
     expect
     a == 3
@@ -284,9 +278,9 @@ class SuccessfulIfSomeUnrolledAreErroringAndSomeFailingFixture : AbortingSpecifi
   }
 }
 
-class SuccessfulIfAllUnrolledAreErroringFixture : AbortingSpecification() {
+class SuccessfulIfAllUnrolledAreErroringFixture : Specification() {
   fun `a feature`(a: Int) {
-    raiseError()
+    throw Error()
 
     expect
     a in listOf(1, 2)
