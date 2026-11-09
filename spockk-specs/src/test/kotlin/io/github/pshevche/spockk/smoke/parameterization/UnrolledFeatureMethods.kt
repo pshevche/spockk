@@ -34,7 +34,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.Unrol
 import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.UnrolledSimpleSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.UnrolledUnevaluablePatternSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.UnrolledZeroArgMethodPatternSpec
-import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -80,141 +80,203 @@ class UnrolledFeatureMethods : Specification() {
     "org.spockframework.smoke.parameterization.UnrolledFeatureMethods#iterations of an unrolled feature foo are named 'foo [x: 1, #0]', 'foo [x: 2, #1]', etc."
   )
   fun `iterations of an unrolled feature foo are named foo (x 1, #0), foo (x 2, #1), etc`() {
-    expect
-    EngineRuns.startedNames(UnrolledSimpleSpec::class.java) == listOf("foo", "foo [x: 1, #0]", "foo [x: 2, #1]", "foo [x: 3, #2]")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledSimpleSpec::class.java)
+
+    then
+    names == listOf("foo", "foo [x: 1, #0]", "foo [x: 2, #1]", "foo [x: 3, #2]")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#naming pattern may refer to data variables")
   fun `naming pattern may refer to data variables`() {
-    expect
-    EngineRuns.startedNames(UnrolledPatternSpec::class.java) == listOf("foo", "one a two 1 three", "one b two 2 three", "one c two 3 three")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledPatternSpec::class.java)
+
+    then
+    names == listOf("foo", "one a two 1 three", "one b two 2 three", "one c two 3 three")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#naming pattern may refer to feature name and iteration index")
   fun `naming pattern may refer to feature name and iteration index`() {
-    expect
-    EngineRuns.startedNames(UnrolledFeatureNameAndIndexPatternSpec::class.java) ==
-      listOf("foo", "one foo two 0 three", "one foo two 1 three", "one foo two 2 three")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledFeatureNameAndIndexPatternSpec::class.java)
+
+    then
+    names == listOf("foo", "one foo two 0 three", "one foo two 1 three", "one foo two 2 three")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#naming pattern may refer to dataVariables")
   fun `naming pattern may refer to dataVariables`() {
-    expect
-    EngineRuns.startedNames(UnrolledDataVariablesPatternSpec::class.java) ==
-      listOf("foo", "one x: 1, y: a two", "one x: 2, y: b two", "one x: 3, y: c two")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledDataVariablesPatternSpec::class.java)
+
+    then
+    names == listOf("foo", "one x: 1, y: a two", "one x: 2, y: b two", "one x: 3, y: c two")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#naming pattern may refer to dataVariablesWithIndex")
   fun `naming pattern may refer to dataVariablesWithIndex`() {
-    expect
-    EngineRuns.startedNames(UnrolledDataVariablesWithIndexPatternSpec::class.java) ==
-      listOf("foo", "one x: 1, y: a, #0 two", "one x: 2, y: b, #1 two", "one x: 3, y: c, #2 two")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledDataVariablesWithIndexPatternSpec::class.java)
+
+    then
+    names == listOf("foo", "one x: 1, y: a, #0 two", "one x: 2, y: b, #1 two", "one x: 3, y: c, #2 two")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#old iteration naming is restorable using configuration script")
   fun `old iteration naming is restorable using configuration script`() {
-    expect
-    EngineRuns.startedNames(UnrolledDefaultNamingSpec::class.java, "defaultPattern" to "#featureName[#iterationIndex]") ==
-      listOf("foo", "foo[0]", "foo[1]", "foo[2]")
+    given
+    val script = EngineRuns.unrollScript("defaultPattern" to "#featureName[#iterationIndex]")
+
+    `when`
+    val names = EngineRuns.startedNames(UnrolledDefaultNamingSpec::class.java, script)
+
+    then
+    names == listOf("foo", "foo[0]", "foo[1]", "foo[2]")
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.UnrolledFeatureMethods#default iteration naming is configurable using configuration script"
   )
   fun `default iteration naming is configurable using configuration script`() {
-    expect
-    EngineRuns.startedNames(UnrolledDefaultNamingSpec::class.java, "defaultPattern" to "#featureName") ==
-      listOf("foo", "foo", "foo", "foo")
+    given
+    val script = EngineRuns.unrollScript("defaultPattern" to "#featureName")
+
+    `when`
+    val names = EngineRuns.startedNames(UnrolledDefaultNamingSpec::class.java, script)
+
+    then
+    names == listOf("foo", "foo", "foo", "foo")
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.UnrolledFeatureMethods#includeFeatureNameForIterations is configurable using configuration script"
   )
   fun `includeFeatureNameForIterations is configurable using configuration script`() {
-    expect
-    EngineRuns.startedNames(UnrolledDefaultNamingSpec::class.java, "includeFeatureNameForIterations" to false) ==
-      listOf("foo", "x: 1, y: a, #0", "x: 2, y: b, #1", "x: 3, y: c, #2")
+    given
+    val script = EngineRuns.unrollScript("includeFeatureNameForIterations" to false)
+
+    `when`
+    val names = EngineRuns.startedNames(UnrolledDefaultNamingSpec::class.java, script)
+
+    then
+    names == listOf("foo", "x: 1, y: a, #0", "x: 2, y: b, #1", "x: 3, y: c, #2")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#dataVariablesWithIndex can be used in @Unroll")
   fun `dataVariablesWithIndex can be used in @Unroll`() {
-    expect
-    EngineRuns.startedNames(UnrolledDataVariablesWithIndexOnlyPatternSpec::class.java) ==
-      listOf("foo", "x: 1, y: a, #0", "x: 2, y: b, #1", "x: 3, y: c, #2")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledDataVariablesWithIndexOnlyPatternSpec::class.java)
+
+    then
+    names == listOf("foo", "x: 1, y: a, #0", "x: 2, y: b, #1", "x: 3, y: c, #2")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#variables in naming pattern whose value is null are replaced correctly")
   fun `variables in naming pattern whose value is null are replaced correctly`() {
-    expect
-    EngineRuns.startedNames(UnrolledNullVariablePatternSpec::class.java) == listOf("foo", "one 1 two null three")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledNullVariablePatternSpec::class.java)
+
+    then
+    names == listOf("foo", "one 1 two null three")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#naming pattern supports property expressions")
   fun `naming pattern supports property expressions`() {
-    expect
-    EngineRuns.startedNames(UnrolledPropertyExpressionPatternSpec::class.java) == listOf("foo", "one fred two")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledPropertyExpressionPatternSpec::class.java)
+
+    then
+    names == listOf("foo", "one fred two")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#naming pattern supports zero-arg method calls")
   fun `naming pattern supports zero-arg method calls`() {
-    expect
-    EngineRuns.startedNames(UnrolledZeroArgMethodPatternSpec::class.java) == listOf("foo", "one 4 two")
+    `when`
+    val names = EngineRuns.startedNames(UnrolledZeroArgMethodPatternSpec::class.java)
+
+    then
+    names == listOf("foo", "one 4 two")
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.UnrolledFeatureMethods#expressions in naming pattern that can't be evaluated are prefixed with '#Error:' if expressions asserting is disabled"
   )
   fun `expressions in naming pattern that can't be evaluated are prefixed with #Error if expressions asserting is disabled`() {
-    expect
-    EngineRuns.startedNames(UnrolledUnevaluablePatternSpec::class.java, "validateExpressions" to false) ==
-      listOf("foo", "#Error:obj ok #Error:obj.bang() #Error:obj.missing() #Error:missing")
+    given
+    val script = EngineRuns.unrollScript("validateExpressions" to false)
+
+    `when`
+    val names = EngineRuns.startedNames(UnrolledUnevaluablePatternSpec::class.java, script)
+
+    then
+    names == listOf("foo", "#Error:obj ok #Error:obj.bang() #Error:obj.missing() #Error:missing")
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.UnrolledFeatureMethods#method-level unroll annotation wins over class-level annotation"
   )
   fun `method-level unroll annotation wins over class-level annotation`() {
-    expect
-    EngineRuns.startedNames(ClassLevelUnrollSpec::class.java) == listOf("method", "fred")
+    `when`
+    val names = EngineRuns.startedNames(ClassLevelUnrollSpec::class.java)
+
+    then
+    names == listOf("method", "fred")
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.UnrolledFeatureMethods#method-level unroll annotation wins over class-level uproll annotation"
   )
   fun `method-level unroll annotation wins over class-level uproll annotation`() {
-    expect
-    EngineRuns.startedNames(ClassLevelRollupSpec::class.java) == listOf("method", "fred")
+    `when`
+    val names = EngineRuns.startedNames(ClassLevelRollupSpec::class.java)
+
+    then
+    names == listOf("method", "fred")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#method-level unroll annotation wins over configuration script")
   fun `method-level unroll annotation wins over configuration script`() {
-    expect
-    EngineRuns.startedNames(MethodLevelUnrollSpec::class.java, "unrollByDefault" to false) == listOf("method", "fred")
+    given
+    val script = EngineRuns.unrollScript("unrollByDefault" to false)
+
+    `when`
+    val names = EngineRuns.startedNames(MethodLevelUnrollSpec::class.java, script)
+
+    then
+    names == listOf("method", "fred")
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.UnrolledFeatureMethods#class-level unroll annotation wins over configuration script")
   fun `class-level unroll annotation wins over configuration script`() {
-    expect
-    EngineRuns.startedNames(ClassLevelUnrollOnlySpec::class.java, "unrollByDefault" to false) == listOf("method", "fred")
+    given
+    val script = EngineRuns.unrollScript("unrollByDefault" to false)
+
+    `when`
+    val names = EngineRuns.startedNames(ClassLevelUnrollOnlySpec::class.java, script)
+
+    then
+    names == listOf("method", "fred")
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.parameterization.UnrolledFeatureMethods#custom name provider for both simple and parameterized features"
   )
   fun `custom name provider for both simple and parameterized features`() {
-    expect
-    EngineRuns.startedNames(CustomNameProviderSpec::class.java) ==
-      listOf("test [suffix]", "parameterized [suffix]", "parameterized [t: 0, #0] [suffix]", "parameterized [t: 1, #1] [suffix]")
+    `when`
+    val names = EngineRuns.startedNames(CustomNameProviderSpec::class.java)
+
+    then
+    names == listOf("test [suffix]", "parameterized [suffix]", "parameterized [t: 0, #0] [suffix]", "parameterized [t: 1, #1] [suffix]")
   }
 }
 
 private object EngineRuns {
-  fun startedNames(spec: Class<*>, vararg unrollConfig: Pair<String, Any?>): List<String> =
-    run(selectClass(spec), *unrollConfig).testEvents().started().list().map { it.testDescriptor.displayName }
+  fun startedNames(spec: Class<*>, script: DelegatingScript? = null): List<String> =
+    run(selectClass(spec), script).testEvents().started().list().map { it.testDescriptor.displayName }
 
-  fun run(selector: DiscoverySelector, vararg unrollConfig: Pair<String, Any?>): EngineExecutionResults {
-    val script = if (unrollConfig.isEmpty()) null else unrollScript(unrollConfig.toMap())
-    return RunContext.withNewContext<EngineExecutionResults, RuntimeException>(
+  fun run(selector: DiscoverySelector, script: DelegatingScript? = null): EngineExecutionResults =
+    RunContext.withNewContext<EngineExecutionResults, RuntimeException>(
       "UnrolledFeatureMethods",
       RunContext.get().spockUserHome,
       script,
@@ -223,11 +285,10 @@ private object EngineRuns {
       true,
       IThrowableFunction { EngineTestKit.engine("spock").selectors(selector).execute() }
     )
-  }
 
   // Equivalent of the config script `unroll { <key> <value> ... }`, built by hand because the Groovy shell
   // on the test classpath cannot compile a script under Spock's AST transform.
-  private fun unrollScript(settings: Map<String, Any?>): DelegatingScript = object : DelegatingScript() {
+  fun unrollScript(vararg settings: Pair<String, Any?>): DelegatingScript = object : DelegatingScript() {
     private var configDelegate: Any? = null
 
     override fun `$setDelegate`(delegate: Any?) {
