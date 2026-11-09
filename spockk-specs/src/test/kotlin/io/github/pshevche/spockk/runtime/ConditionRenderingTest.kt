@@ -837,7 +837,7 @@ class ConditionRenderingTest : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.condition.EqualityComparisonRendering#type hints are not added when equals method is used (but only when equality operator is used)")
-  fun `type hints are not added when equals method is used`() {
+  fun `type hints are not added when equals method is used (but only when equality operator is used)`() {
     expect
     failureMessage(EqualsMethodNoTypeHintsSpec::class) ==
       """
