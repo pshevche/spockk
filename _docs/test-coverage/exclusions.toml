@@ -454,3 +454,9 @@ decided = "2026-11-03"
 status = "not-applicable"
 reason = "Tests runs of `;;`, `;;;` as one cell separator; Kotlin rejects consecutive semicolons (empty statements) at parse time, so the table cannot be written"
 decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataTables#cell references are evaluated correctly in the method's name"]]
+status = "blocked"
+reason = "Asserts the iteration display names with a lambda inside a then condition (events.finished().list().map { ... } == listOf(...)), which crashes the compiler plugin with a StackOverflowError"
+gap = "https://github.com/pshevche/spockk/issues/938"
+decided = "2026-11-09"

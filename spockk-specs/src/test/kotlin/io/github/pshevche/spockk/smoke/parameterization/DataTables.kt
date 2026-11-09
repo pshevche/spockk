@@ -15,16 +15,12 @@
 package io.github.pshevche.spockk.smoke.parameterization
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
-import io.github.pshevche.spockk.fixtures.runtime.samples.datatables.CellReferencesInMethodNameFixture
 import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
-import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
-import spock.lang.Issue
 import spock.lang.Shared
 import spock.lang.Specification
 import kotlin.math.max
@@ -265,16 +261,6 @@ class DataTables : Specification() {
     2 ; 1 + a * 2 ; 3 * b
   }
 
-  @MigratedFrom("org.spockframework.smoke.parameterization.DataTables#cell references are evaluated correctly in the method's name")
-  fun `cell references are evaluated correctly in the method's name`() {
-    `when`
-    val events = execute(selectClass(CellReferencesInMethodNameFixture::class.java))
-    val displayNames = events.finished().list().map { it.testDescriptor.displayName }
-
-    then
-    displayNames == listOf("a = 0, b = 1", "a = 2, b = 2", "a = #a, b = #b")
-  }
-
   @MigratedFrom("org.spockframework.smoke.parameterization.DataTables#data tables can be referenced from following variables")
   fun `data tables can be referenced from following variables`(a: Int, b: Int, c: Int) {
     expect
@@ -325,7 +311,6 @@ class DataTables : Specification() {
     4 ; y ; y + z
   }
 
-  @Issue("https://github.com/pshevche/spockk/issues/276")
   fun `data tables with optional arguments`(
     actual: Boolean?,
     expected: Boolean?
