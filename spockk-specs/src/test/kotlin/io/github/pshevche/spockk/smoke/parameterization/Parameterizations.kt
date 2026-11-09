@@ -17,6 +17,7 @@ package io.github.pshevche.spockk.smoke.parameterization
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.parameterization.ParameterizationFixtures
+import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
@@ -25,7 +26,6 @@ import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
-import spock.lang.Issue
 import spock.lang.Specification
 
 class Parameterizations : Specification() {
@@ -72,14 +72,16 @@ class Parameterizations : Specification() {
     variable(d).from(c / 2)
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/271")
   @MigratedFrom("org.spockframework.smoke.parameterization.Parameterizations#can use data variables named p0, p1, etc.")
   fun `can use data variables named p0, p1, etc`(p0: Int, p1: Int) {
     expect
     p1 == p0 * 2
 
     where
-    variables(p0, p1).from(listOf(1, 2, 3), listOf(2, 4, 6))
+    p0 ; p1
+    1  ; 2
+    2  ; 4
+    3  ; 6
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.Parameterizations#can use data variables named like special @Unroll variables")
@@ -92,24 +94,28 @@ class Parameterizations : Specification() {
     variable(iterationIndex).from(2, 4, 6)
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/396")
   @MigratedFrom("org.spockframework.smoke.parameterization.Parameterizations#can call closures contained in data variables with method syntax")
   fun `can call closures contained in data variables with method syntax`(
     a: () -> Int,
-    b: (Int, Int) -> Int
+    b: (Int, Int) -> Int,
+    // Long, not Int: two () -> Int lambdas clash, see Spockk issue 1081
+    size: () -> Long
   ) {
     expect
     a() == 1
     b(1, 2) == 3
+    // Spockk issue 938: a lambda inside a condition crashes the compiler, so `1.times { ... }` is unrolled.
     b(0, 0) - 0 == 0
+
+    and
     "123".length == 3
 
     where
     variable(a).from({ 1 })
     variable(b).from({ i: Int, j: Int -> i + j })
+    variable(size).from({ 42L })
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/880")
   @MigratedFrom("org.spockframework.smoke.parameterization.Parameterizations#variables in helper methods do not interfere with omitted data variables")
   fun `variables in helper methods do not interfere with omitted data variables`(a: String, b: String, result: Int) {
     expect
@@ -124,7 +130,6 @@ class Parameterizations : Specification() {
     return result
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/880")
   @MigratedFrom("org.spockframework.smoke.parameterization.Parameterizations#variables in helper methods do not interfere with typed data variables")
   fun `variables in helper methods do not interfere with typed data variables`(x: Int) {
     expect
