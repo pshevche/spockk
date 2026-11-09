@@ -24,44 +24,62 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.verifyall.VerifyAllTar
 import io.github.pshevche.spockk.fixtures.runtime.samples.verifyall.VerifyAllUnrelatedExceptionSpec
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
+import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.verifyAll
+import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.opentest4j.MultipleFailuresError
 import org.spockframework.runtime.SpockComparisonFailure
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
 
 class VerifyAllSpecification : Specification() {
 
-  private fun failureOf(spec: KClass<*>): Throwable {
-    val events = execute(selectClass(spec.java))
-    events.assertStatistics { it.started(1).failed(1) }
-    return events.failed().list().single()
-      .getRequiredPayload(TestExecutionResult::class.java).throwable.orElseThrow()
-  }
-
-  private fun comparisons(error: Throwable): List<Pair<String, String>> {
-    val multi = error as MultipleFailuresError
-    return multi.failures.map {
-      val c = it as SpockComparisonFailure
-      c.expected.stringRepresentation.trim() to c.actual.stringRepresentation.trim()
-    }
-  }
+  private fun failuresOf(spec: KClass<*>): List<Throwable> =
+    execute(selectClass(spec.java)).failed().list()
+      .map { it.getRequiredPayload(TestExecutionResult::class.java).throwable.orElseThrow() }
 
   @MigratedFrom("org.spockframework.verifyall.VerifyAllSpecification#verifyAll")
   fun verifyAll() {
-    expect
-    comparisons(failureOf(VerifyAllImplicitFailuresSpec::class)) == listOf("2" to "1", "4" to "3")
+    `when`
+    val thrown = failuresOf(VerifyAllImplicitFailuresSpec::class)
+
+    then
+    thrown.size == 1
+    verify(thrown[0] as MultipleFailuresError) {
+      failures.size == 2
+      verify(failures[0] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "2"
+        actual.stringRepresentation.trim() == "1"
+      }
+      verify(failures[1] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "4"
+        actual.stringRepresentation.trim() == "3"
+      }
+    }
   }
 
   @MigratedFrom("org.spockframework.verifyall.VerifyAllSpecification#verifyAll works with only explicit conditions")
   fun `verifyAll works with only explicit conditions`() {
-    expect
-    comparisons(failureOf(VerifyAllExplicitFailuresSpec::class)) == listOf("2" to "1", "4" to "3")
+    `when`
+    val thrown = failuresOf(VerifyAllExplicitFailuresSpec::class)
+
+    then
+    thrown.size == 1
+    verify(thrown[0] as MultipleFailuresError) {
+      failures.size == 2
+      verify(failures[0] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "2"
+        actual.stringRepresentation.trim() == "1"
+      }
+      verify(failures[1] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "4"
+        actual.stringRepresentation.trim() == "3"
+      }
+    }
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1070")
@@ -69,21 +87,67 @@ class VerifyAllSpecification : Specification() {
     "org.spockframework.verifyall.VerifyAllSpecification#if exception is not in condition, all already failed conditions should be reported"
   )
   fun `if exception is not in condition, all already failed conditions should be reported`() {
-    expect
-    comparisons(failureOf(VerifyAllUnrelatedExceptionSpec::class)) == listOf("3" to "2", "4" to "3")
+    `when`
+    val thrown = failuresOf(VerifyAllUnrelatedExceptionSpec::class)
+
+    then
+    thrown.size == 1
+    verify(thrown[0] as MultipleFailuresError) {
+      failures.size == 2
+      verify(failures[0] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "3"
+        actual.stringRepresentation.trim() == "2"
+      }
+      verify(failures[1] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "4"
+        actual.stringRepresentation.trim() == "3"
+      }
+    }
   }
 
   @MigratedFrom("org.spockframework.verifyall.VerifyAllSpecification#verifyAll with target and failures")
   fun `verifyAll with target and failures`() {
-    expect
-    comparisons(failureOf(VerifyAllTargetFailuresSpec::class)) == listOf("Bob" to "Fred", "137" to "42")
+    `when`
+    val thrown = failuresOf(VerifyAllTargetFailuresSpec::class)
+
+    then
+    thrown.size == 1
+    verify(thrown[0] as MultipleFailuresError) {
+      failures.size == 2
+      verify(failures[0] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "Bob"
+        actual.stringRepresentation.trim() == "Fred"
+      }
+      verify(failures[1] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "137"
+        actual.stringRepresentation.trim() == "42"
+      }
+    }
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1069")
   @MigratedFrom("org.spockframework.verifyall.VerifyAllSpecification#verifyAll with nested verifyAll")
   fun `verifyAll with nested verifyAll`() {
-    expect
-    comparisons(failureOf(VerifyAllNestedFailuresSpec::class)) == listOf("2" to "1", "4" to "3", "5" to "4")
+    `when`
+    val thrown = failuresOf(VerifyAllNestedFailuresSpec::class)
+
+    then
+    thrown.size == 1
+    verify(thrown[0] as MultipleFailuresError) {
+      failures.size == 3
+      verify(failures[0] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "2"
+        actual.stringRepresentation.trim() == "1"
+      }
+      verify(failures[1] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "4"
+        actual.stringRepresentation.trim() == "3"
+      }
+      verify(failures[2] as SpockComparisonFailure) {
+        expected.stringRepresentation.trim() == "5"
+        actual.stringRepresentation.trim() == "4"
+      }
+    }
   }
 
   @MigratedFrom("org.spockframework.verifyall.VerifyAllSpecification#verifyAll with target")
@@ -98,7 +162,6 @@ class VerifyAllSpecification : Specification() {
     }
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/886")
   @MigratedFrom("org.spockframework.verifyall.VerifyAllSpecification#verifyAll works with void methods")
   fun `verifyAll works with void methods`() {
     expect
@@ -114,7 +177,6 @@ class VerifyAllSpecification : Specification() {
     }
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/886")
   @MigratedFrom("org.spockframework.verifyall.VerifyAllSpecification#verifyAll works with void methods of delegates")
   fun `verifyAll works with void methods of delegates`() {
     given
