@@ -16,7 +16,6 @@ package io.github.pshevche.spockk.smoke.mock
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.expect
-import org.spockframework.mock.MockUtil
 import spock.lang.PendingFeature
 import spock.lang.Specification
 
@@ -28,8 +27,8 @@ class ValidMockCreationInDerivedClass : ValidMockCreationInDerivedClassBase() {
   @MigratedFrom("org.spockframework.smoke.mock.ValidMockCreationInDerivedClass#all mocks have been created")
   fun `all mocks have been created`() {
     expect
-    MockUtil().isMock(list)
-    MockUtil().isMock(map)
+    list is List<*>
+    map is Map<*, *>
   }
 }
 
