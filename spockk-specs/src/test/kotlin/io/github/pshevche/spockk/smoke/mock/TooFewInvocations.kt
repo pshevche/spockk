@@ -113,6 +113,7 @@ None
     )
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1105")
   @MigratedFrom("org.spockframework.smoke.mock.TooFewInvocations#shows all unsatisfied interactions")
   fun `shows all unsatisfied interactions`() {
     expect
@@ -130,13 +131,13 @@ One or more arguments(s) didn't match:
    |        |  |
    2        |  1
             false
-1 * list.get(2)
+1 * list.remove(2)
 methodName == "add"
 |          |
-get        false
-           3 differences (0% similarity)
-           (get)
-           (add)
+remove     false
+           6 differences (0% similarity)
+           (remove)
+           (add---)
 
 One or more arguments(s) didn't match:
 0: argument == expected
@@ -146,23 +147,23 @@ One or more arguments(s) didn't match:
 
 Too few invocations for:
 
-1 * list.get(1)   (0 invocations)
+1 * list.remove(1)   (0 invocations)
 
 Unmatched invocations (ordered by similarity):
 
-1 * list.get(2)
+1 * list.remove(2)
 One or more arguments(s) didn't match:
 0: argument == expected
    |        |  |
    2        |  1
             false
 1 * list.add(2)
-methodName == "get"
+methodName == "remove"
 |          |
 add        false
-           3 differences (0% similarity)
-           (add)
-           (get)
+           6 differences (0% similarity)
+           (add---)
+           (remove)
 
 One or more arguments(s) didn't match:
 0: argument == expected

@@ -80,11 +80,11 @@ class TooFewInvocationsAllUnsatisfiedSpec : Specification() {
 
     `when`
     list.add(2)
-    list.get(2)
+    list.removeAt(2)
 
     then
     1 * list.add(1)
-    1 * list.get(1)
+    1 * list.removeAt(1)
   }
 }
 
