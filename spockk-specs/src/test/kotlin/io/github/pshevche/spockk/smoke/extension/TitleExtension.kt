@@ -18,6 +18,7 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.TitledSpec
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.verify
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.junit.platform.testkit.engine.EngineTestKit
@@ -41,6 +42,8 @@ class TitleExtension : Specification() {
 
     then
     val containers = result.containerEvents().succeeded().list().filter { it.testDescriptor is SpecNode }
-    containers[0].testDescriptor.displayName == "A beautiful mind"
+    verify(containers[0].testDescriptor as SpecNode) {
+      displayName == "A beautiful mind"
+    }
   }
 }
