@@ -29,49 +29,27 @@ class EmptyListProviderFixture : Specification() {
   }
 }
 
-class UnequalProvidersFixture1 : Specification() {
-  fun `a feature`(x: Int, y: Int) {
-    expect
-    x == y
+object CurrentUnequalProviders {
+  private val holder = ThreadLocal<Triple<List<Int>, List<Int>, List<Int>>>()
 
-    where
-    variable(x).from(1, 2)
-    variable(y).from(1)
-  }
+  fun set(xs: List<Int>, ys: List<Int>, zs: List<Int>) = holder.set(Triple(xs, ys, zs))
+
+  fun xs(): List<Int> = holder.get().first
+
+  fun ys(): List<Int> = holder.get().second
+
+  fun zs(): List<Int> = holder.get().third
 }
 
-class UnequalProvidersFixture2 : Specification() {
-  fun `a feature`(x: Int, y: Int) {
-    expect
-    x == y
-
-    where
-    variable(x).from(1)
-    variable(y).from(1, 2)
-  }
-}
-
-class UnequalProvidersFixture3 : Specification() {
+class UnequalProvidersFixture : Specification() {
   fun `a feature`(x: Int, y: Int, z: Int) {
     expect
     x == y
 
     where
-    variable(x).from(1)
-    variable(y).from(1, 2)
-    variable(z).from(1)
-  }
-}
-
-class UnequalProvidersFixture4 : Specification() {
-  fun `a feature`(x: Int, y: Int, z: Int) {
-    expect
-    x == y
-
-    where
-    variable(x).from(1, 2)
-    variable(y).from(1)
-    variable(z).from(1, 2)
+    variable(x).from(CurrentUnequalProviders.xs())
+    variable(y).from(CurrentUnequalProviders.ys())
+    variable(z).from(CurrentUnequalProviders.zs())
   }
 }
 

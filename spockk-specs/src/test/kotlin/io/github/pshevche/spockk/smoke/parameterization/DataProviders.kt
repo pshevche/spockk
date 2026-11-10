@@ -16,21 +16,19 @@ package io.github.pshevche.spockk.smoke.parameterization
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
+import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.CurrentUnequalProviders
 import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.EmptyListProviderFixture
 import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.ProviderWithoutValuesFixture
-import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.UnequalProvidersFixture1
-import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.UnequalProvidersFixture2
-import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.UnequalProvidersFixture3
-import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.UnequalProvidersFixture4
+import io.github.pshevche.spockk.fixtures.runtime.samples.datapipes.UnequalProvidersFixture
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
+import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.spockframework.runtime.SpockExecutionException
-import spock.lang.PendingFeature
 import spock.lang.Specification
 import kotlin.reflect.KClass
 
@@ -42,17 +40,10 @@ class DataProviders : Specification() {
         .getRequiredPayload(TestExecutionResult::class.java)
         .throwable.orElseThrow()
 
-    fun failuresOf(vararg fixtures: KClass<*>): List<Throwable> = fixtures.map { failureOf(it) }
-
-    fun allSpockExecutionExceptions(failures: List<Throwable>): Boolean = failures.all { it is SpockExecutionException }
-
-    fun computedValues(): List<Int> {
-      val x = 0
-      val y = 1
-      return listOf(x, y)
+    fun failureOf(xs: List<Int>, ys: List<Int>, zs: List<Int>): Throwable {
+      CurrentUnequalProviders.set(xs, ys, zs)
+      return failureOf(UnequalProvidersFixture::class)
     }
-
-    fun singleCharMatches(input: String): List<String> = input.toCharArray().map(Char::toString)
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.DataProviders#literal")
@@ -101,19 +92,20 @@ class DataProviders : Specification() {
     variable(y).from(listOf(1, 2, 3))
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1044")
   @MigratedFrom("org.spockframework.smoke.parameterization.DataProviders#data providers with different number of values")
-  fun `data providers with different number of values`() {
+  fun `data providers with different number of values`(xs: List<Int>, ys: List<Int>, zs: List<Int>) {
     `when`
-    val failures = failuresOf(
-      UnequalProvidersFixture1::class,
-      UnequalProvidersFixture2::class,
-      UnequalProvidersFixture3::class,
-      UnequalProvidersFixture4::class
-    )
+    val failure = failureOf(xs, ys, zs)
 
     then
-    allSpockExecutionExceptions(failures)
+    failure is SpockExecutionException
+
+    where
+    variables(xs, ys, zs).from(
+      listOf(listOf(1, 2), listOf(1), listOf(1), listOf(1, 2)),
+      listOf(listOf(1), listOf(1, 2), listOf(1, 2), listOf(1)),
+      listOf(listOf(1, 2), listOf(1, 2), listOf(1), listOf(1, 2))
+    )
   }
 
   @MigratedFrom("org.spockframework.smoke.parameterization.DataProviders#data providers one of which has no values")
@@ -125,26 +117,19 @@ class DataProviders : Specification() {
     failure is SpockExecutionException
   }
 
-  @MigratedFrom("org.spockframework.smoke.parameterization.DataProviders#different kinds of data providers used together")
-  fun `different kinds of data providers used together`(a: String, b: String, c: String, d: String, e: String) {
-    expect
-    a + b + c + d + e == "abcde"
-
-    where
-    variable(a).from("a")
-    variable(b).from(listOf("b"))
-    variable(c).from(singleCharMatches("c"))
-    variable(d).from(arrayOf("d").toList())
-    variable(e).from("YES".lowercase()[1].toString())
-  }
-
   @MigratedFrom("org.spockframework.smoke.parameterization.DataProviders#computed")
   fun computed(a: Int, b: Int) {
     expect
     a == b
 
     where
-    variable(a).from(computedValues())
+    variable(a).from(
+      run {
+        val x = 0
+        val y = 1
+        listOf(x, y)
+      }
+    )
     variable(b).from(listOf(0, 1))
   }
 

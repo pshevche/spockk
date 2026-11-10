@@ -484,3 +484,9 @@ decided = "2026-11-03"
 status = "not-applicable"
 reason = "Guards Groovy's rewriting of assert statements inside closures in where blocks; Kotlin lambdas have no such rewriting"
 decided = "2026-11-03"
+
+[["org.spockframework.smoke.parameterization.DataProviders#different kinds of data providers used together"]]
+status = "blocked"
+reason = "Upstream mixes a matcher and an array as providers, and Spockk data pipes only accept a List or vararg source"
+gap = "https://github.com/pshevche/spockk/issues/650"
+decided = "2026-11-10"
