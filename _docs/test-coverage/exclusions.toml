@@ -364,3 +364,15 @@ status = "blocked"
 reason = "The interaction DSL has no wildcard target, so Spock's `3 * _` has no Kotlin spelling"
 gap = "https://github.com/pshevche/spockk/issues/1001"
 decided = "2026-11-03"
+
+[["org.spockframework.smoke.mock.WildcardUsages#wildcard method name doesn't match Object's equals(), hashCode(), toString(), and finalize() methods"]]
+status = "blocked"
+reason = "Upstream asserts `0 * list._()`, `0 * list._` and `0 * _`, which need the wildcard target, and the feature calls the protected `finalize()`, which Kotlin cannot call on the mock"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-10"
+
+[["org.spockframework.smoke.mock.WildcardUsages#usage in interaction doesn't interfere with usage in where-block"]]
+status = "blocked"
+reason = "Upstream asserts `1 * _._(_)`, which needs the wildcard target"
+gap = "https://github.com/pshevche/spockk/issues/1001"
+decided = "2026-11-10"

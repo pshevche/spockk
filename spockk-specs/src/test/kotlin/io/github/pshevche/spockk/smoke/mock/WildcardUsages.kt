@@ -20,18 +20,10 @@ import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.anyMethod
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
-import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.`when`
-import io.github.pshevche.spockk.lang.where
-import spock.lang.Issue
 import spock.lang.Specification
 
 class WildcardUsages : Specification() {
-
-  private companion object {
-    @Suppress("UNCHECKED_CAST")
-    val LIST_TYPE = MutableList::class.java as Class<MutableList<Any?>>
-  }
 
   @MigratedFrom("org.spockframework.smoke.mock.WildcardUsages#match any argument")
   fun `match any argument`() {
@@ -59,22 +51,6 @@ class WildcardUsages : Specification() {
     3 * list.anyMethod()
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/460")
-  @MigratedFrom(
-    "org.spockframework.smoke.mock.WildcardUsages#wildcard method name doesn't match Object's equals(), hashCode(), toString(), and finalize() methods"
-  )
-  fun `wildcard method name doesn't match Object's equals(), hashCode(), toString(), and finalize() methods`() {
-    val list = Mock(ArrayList::class.java)
-
-    `when`
-    list.equals(Any())
-    list.hashCode()
-    list.toString()
-
-    then
-    0 * list.anyMethod()
-  }
-
   @MigratedFrom(
     "org.spockframework.smoke.mock.WildcardUsages#wildcard method name matches overloaded equals(), hashCode(), toString(), and finalize() methods"
   )
@@ -89,22 +65,6 @@ class WildcardUsages : Specification() {
 
     then
     4 * overloaded.anyMethod()
-  }
-
-  @MigratedFrom(
-    "org.spockframework.smoke.mock.WildcardUsages#usage in interaction doesn't interfere with usage in where-block"
-  )
-  fun `usage in interaction doesn't interfere with usage in where-block`(ignored: Int, type: Class<MutableList<Any?>>) {
-    val list = Mock(type)
-
-    `when`
-    list.add(1)
-
-    then
-    1 * list.add(any())
-
-    where
-    variables(ignored, type).from(listOf(123), listOf(LIST_TYPE))
   }
 }
 
