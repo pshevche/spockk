@@ -40,6 +40,7 @@ class PartialMocking : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.PartialMocking#can stub method on same object")
   fun `can stub method on same object`() {
+    // Upstream spies on the class; Spockk has no Spy(type) { } overload yet (#935).
     val persister = Spy(MessagePersister()) {
       isStorable(any()) returns false
     }
