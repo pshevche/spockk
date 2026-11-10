@@ -18,14 +18,12 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.did
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returned
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
-import spock.lang.Issue
 import spock.lang.Specification
 import java.io.IOException
 import java.util.concurrent.Callable
@@ -34,7 +32,6 @@ class ResponseGenerators : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ResponseGenerators#return simple response")
   fun `return simple response`() {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Int>
 
     `when`
@@ -49,7 +46,6 @@ class ResponseGenerators : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ResponseGenerators#return code response")
   fun `return code response`() {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Int>
 
     `when`
@@ -64,47 +60,51 @@ class ResponseGenerators : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ResponseGenerators#access args with 'it' variable")
   fun `access args with it variable`() {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Int>
     var received: List<Any?> = emptyList()
 
     `when`
-    list.add(3, 5)
+    list.subList(3, 5)
 
     then
-    1 * list.add(any(), any()) did { received = it }
+    1 * list.subList(any(), any()) did {
+      received = it
+      mutableListOf()
+    }
     received[0] == 3
     received[1] == 5
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ResponseGenerators#access args with named variable")
   fun `access args with named variable`() {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Int>
     var argCount = -1
 
     `when`
-    list.add(3, 5)
+    list.subList(3, 5)
 
     then
-    1 * list.add(any(), any()) did { args -> argCount = args.size }
+    1 * list.subList(any(), any()) did { args ->
+      argCount = args.size
+      mutableListOf()
+    }
     argCount == 2
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ResponseGenerators#access args with destructuring")
   fun `access args with destructuring`() {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Int>
     var from: Any? = null
     var to: Any? = null
 
     `when`
-    list.add(3, 5)
+    list.subList(3, 5)
 
     then
-    1 * list.add(any(), any()) did { (f, t) ->
+    1 * list.subList(any(), any()) did { (f, t) ->
       from = f
       to = t
+      mutableListOf()
     }
     from == 3
     to == 5
@@ -112,7 +112,6 @@ class ResponseGenerators : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ResponseGenerators#access single arg without destructuring")
   fun `access single arg without destructuring`() {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Int>
     var received: List<Any?> = emptyList()
 
@@ -127,22 +126,27 @@ class ResponseGenerators : Specification() {
     received == listOf(3)
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/288")
   @MigratedFrom("org.spockframework.smoke.mock.ResponseGenerators#exceptions thrown from code response generators aren't wrapped")
-  fun `exceptions thrown from code response generators aren't wrapped`(exception: Throwable) {
-    given
+  fun `exceptions thrown from code response generators aren't wrapped`(caller: KotlinCaller, exception: Throwable) {
     val callable = Mock(Callable::class.java) {
       call() did { throw exception }
     }
 
     `when`
-    val caught = KotlinCaller().call(callable)
+    val caught = caller.call(callable)
 
     then
     caught === exception
 
     where
-    variable(exception).from(RuntimeException(), IOException())
+    variable(caller).from(callers.map { it.first })
+    variable(exception).from(callers.map { it.second })
+  }
+
+  companion object {
+    private val callers = listOf(KotlinCaller()).flatMap { caller ->
+      listOf<Throwable>(RuntimeException(), IOException()).map { caller to it }
+    }
   }
 
   class KotlinCaller {
