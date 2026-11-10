@@ -24,6 +24,7 @@ import spock.lang.Specification
 class TargetMatching : Specification() {
 
   val runner1: Runnable = Mock(Runnable::class.java)
+  val runner2: Runnable = Mock(Runnable::class.java)
 
   @MigratedFrom("org.spockframework.smoke.mock.TargetMatching#match equally named collaborator")
   fun `match equally named collaborator`() {
