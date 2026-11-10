@@ -19,10 +19,10 @@ import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
-import spock.lang.Issue
+import org.spockframework.mock.TooManyInvocationsError
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
-@Issue("https://github.com/spockframework/spock/issues/127")
 class OverlappingInteractions : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.OverlappingInteractions#invocations are spread over identical interactions")
@@ -39,5 +39,22 @@ class OverlappingInteractions : Specification() {
     1 * list.add(1)
     2 * list.add(2)
     1 * list.add(1)
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
+  @MigratedFrom(
+    "org.spockframework.smoke.mock.OverlappingInteractions#invocations are not spread over overlapping interactions in different scopes"
+  )
+  fun `invocations are not spread over overlapping interactions in different scopes`() {
+    val list = Mock(MutableList::class.java) as MutableList<Int>
+
+    1 * list.add(1)
+
+    `when`
+    list.add(1)
+
+    then
+    0 * list.add(1)
+    thrown(TooManyInvocationsError::class.java)
   }
 }
