@@ -15,14 +15,13 @@
 package io.github.pshevche.spockk.smoke.extension
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.fixtures.runtime.samples.timeout.ClassLevelTimeoutSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.timeout.HungInHelperSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.timeout.ThreeInterruptAttemptsSpec
-import io.github.pshevche.spockk.fixtures.runtime.samples.timeout.TimeoutSettingsSpec
 import io.github.pshevche.spockk.fixtures.runtime.samples.timeout.TwoInterruptAttemptsSpec
+import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
+import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -50,7 +49,6 @@ import spock.util.environment.RestoreSystemProperties
 import java.io.File
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit.MILLISECONDS
-import java.util.concurrent.atomic.AtomicInteger
 
 @Isolated("The timings are quite tight and it can get flaky on weak machines if run in parallel, and thread dumps interfere with other test output.")
 @Retry
@@ -77,74 +75,6 @@ class TimeoutExtension : Specification() {
     capturer.stop()
   }
 
-  @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#method that completes in time")
-  @Timeout(1)
-  fun `method that completes in time`() {
-    given
-    Thread.sleep(500)
-
-    expect
-    true
-  }
-
-  @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#method that doesn't complete in time")
-  @FailsWith(SpockTimeoutError::class)
-  @Timeout(1)
-  fun `method that doesn't complete in time`() {
-    given
-    Thread.sleep(1100)
-
-    expect
-    true
-  }
-
-  @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#method that completes in time (millis)")
-  @Timeout(value = 500, unit = MILLISECONDS)
-  fun `method that completes in time (millis)`() {
-    given
-    Thread.sleep(250)
-
-    expect
-    true
-  }
-
-  @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#method that doesn't complete in time (millis)")
-  @FailsWith(SpockTimeoutError::class)
-  @Timeout(value = 250, unit = MILLISECONDS)
-  fun `method that doesn't complete in time (millis)`() {
-    given
-    Thread.sleep(500)
-
-    expect
-    true
-  }
-
-  @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#stack trace shows where thread is hung")
-  fun `stack trace shows where thread is hung`() {
-    `when`
-    val failures = run(HungInHelperSpec::class.java).failures()
-
-    then
-    val e = failures.single() as SpockTimeoutError
-    val hungFrames = e.stackTrace.filter { it.className == HungInHelperSpec::class.java.name }.map { it.methodName }
-    hungFrames.take(2) == listOf("helper", "foo")
-  }
-
-  @MigratedFrom(
-    "org.spockframework.smoke.extension.TimeoutExtension#annotating spec class has same effect as annotating every feature method not already annotated with @Timeout"
-  )
-  fun `annotating spec class has same effect as annotating every feature method not already annotated with @Timeout`() {
-    `when`
-    val failures = run(ClassLevelTimeoutSpec::class.java).failures()
-
-    then
-    failures.size == 2
-    val e1 = failures[0] as SpockTimeoutError
-    e1.timeout == 0.25
-    val e2 = failures[1] as SpockTimeoutError
-    e2.timeout == 0.1
-  }
-
   @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#method invocation occurs on regular test framework thread")
   @Timeout(1)
   fun `method invocation occurs on regular test framework thread`() {
@@ -152,23 +82,15 @@ class TimeoutExtension : Specification() {
     Thread.currentThread() == testFrameworkThread
   }
 
-  @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#SpockTimeoutError indicates timeout settings")
-  fun `SpockTimeoutError indicates timeout settings`() {
-    `when`
-    val failures = run(TimeoutSettingsSpec::class.java).failures()
-
-    then
-    val e = failures.single() as SpockTimeoutError
-    e.timeout == 0.1
-  }
-
   @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#repeatedly interrupts timed out method until it returns")
   fun `repeatedly interrupts timed out method until it returns`() {
     `when`
     val failures = run(ThreeInterruptAttemptsSpec::class.java).failures()
 
-    then
+    then("timeout is propagated")
     failures.single() is SpockTimeoutError
+
+    and("thread dumps are captured on each interrupt attempt")
     capturedThreadDumps() == expectedThreadDumps(2, 0, false)
   }
 
@@ -182,6 +104,8 @@ class TimeoutExtension : Specification() {
 
     then
     failures.single() is SpockTimeoutError
+
+    and
     capturedThreadDumps() == expectedThreadDumps(2, 2, false)
   }
 
@@ -200,6 +124,8 @@ class TimeoutExtension : Specification() {
 
     then
     failures.single() is SpockTimeoutError
+
+    and
     capturedThreadDumps() == expectedThreadDumps(2, 1, true)
   }
 
@@ -216,19 +142,22 @@ class TimeoutExtension : Specification() {
 
     then
     failures.single() is SpockTimeoutError
+
+    and
     capturedThreadDumps(ThreadDumpUtilityType.JSTACK) == expectedThreadDumps(2, 2, false)
   }
 
   @MigratedFrom("org.spockframework.smoke.extension.TimeoutExtension#notifies custom interrupt listeners")
   fun `notifies custom interrupt listeners`() {
     given
-    val someListeners = listOf(AtomicInteger(), AtomicInteger())
-    val anotherListener = AtomicInteger()
+    val firstListener = Mock(Runnable::class.java)
+    val secondListener = Mock(Runnable::class.java)
+    val anotherListener = Mock(Runnable::class.java)
     val configure: (TimeoutConfiguration) -> Unit = {
       it.printThreadDumpsOnInterruptAttempts = true
       it.maxInterruptAttemptsWithThreadDumps = 1
-      someListeners.forEach { counter -> it.interruptAttemptListeners.add { counter.incrementAndGet() } }
-      it.interruptAttemptListeners.add { anotherListener.incrementAndGet() }
+      it.interruptAttemptListeners.addAll(listOf(firstListener, secondListener))
+      it.interruptAttemptListeners.add(anotherListener)
       it.interruptAttemptListeners.add { println("inline interrupt listener") }
     }
 
@@ -237,10 +166,14 @@ class TimeoutExtension : Specification() {
 
     then
     failures.single() is SpockTimeoutError
+
+    and
     capturedThreadDumps() == expectedThreadDumps(2, 1, true)
-    val listenerCounts = someListeners.map { it.get() }
-    listenerCounts == listOf(2, 2)
-    anotherListener.get() == 2
+
+    and
+    2 * firstListener.run()
+    2 * secondListener.run()
+    2 * anotherListener.run()
     output.count("inline interrupt listener") == 2
   }
 

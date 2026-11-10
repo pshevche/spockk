@@ -190,3 +190,45 @@ decided = "2026-10-14"
 status = "not-applicable"
 reason = "Upstream skips this feature on Java 21+, where the watcher runs on a virtual thread that cannot be enumerated. The project toolchain is JDK 21, so the feature could never run"
 decided = "2026-10-30"
+
+[["org.spockframework.smoke.extension.TimeoutExtension#method that completes in time"]]
+status = "blocked"
+reason = "The upstream feature ends with a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-10"
+
+[["org.spockframework.smoke.extension.TimeoutExtension#method that doesn't complete in time"]]
+status = "blocked"
+reason = "The upstream feature ends with a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-10"
+
+[["org.spockframework.smoke.extension.TimeoutExtension#method that completes in time (millis)"]]
+status = "blocked"
+reason = "The upstream feature ends with a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-10"
+
+[["org.spockframework.smoke.extension.TimeoutExtension#method that doesn't complete in time (millis)"]]
+status = "blocked"
+reason = "The upstream feature ends with a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-10"
+
+[["org.spockframework.smoke.extension.TimeoutExtension#stack trace shows where thread is hung"]]
+status = "blocked"
+reason = "The upstream feature ends with a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-10"
+
+[["org.spockframework.smoke.extension.TimeoutExtension#annotating spec class has same effect as annotating every feature method not already annotated with @Timeout"]]
+status = "blocked"
+reason = "The upstream feature ends with a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-10"
+
+[["org.spockframework.smoke.extension.TimeoutExtension#SpockTimeoutError indicates timeout settings"]]
+status = "blocked"
+reason = "The upstream feature ends with a setup block, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-10"

@@ -14,8 +14,6 @@
 
 package io.github.pshevche.spockk.fixtures.runtime.samples.timeout
 
-import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import spock.lang.Specification
@@ -23,57 +21,6 @@ import spock.lang.Timeout
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
 private const val FOREVER = 99999999999L
-
-class HungInHelperSpec : Specification() {
-  @Timeout(value = 250, unit = MILLISECONDS)
-  fun foo() {
-    given
-    helper()
-
-    expect
-    true
-  }
-
-  private fun helper() {
-    Thread.sleep(300)
-  }
-}
-
-@Timeout(value = 250, unit = MILLISECONDS)
-class ClassLevelTimeoutSpec : Specification() {
-  fun foo() {
-    expect
-    true
-  }
-
-  fun bar() {
-    given
-    Thread.sleep(300)
-
-    expect
-    true
-  }
-
-  @Timeout(value = 100, unit = MILLISECONDS)
-  fun baz() {
-    given
-    Thread.sleep(150)
-
-    expect
-    true
-  }
-}
-
-class TimeoutSettingsSpec : Specification() {
-  @Timeout(value = 100, unit = MILLISECONDS)
-  fun foo() {
-    given
-    Thread.sleep(250)
-
-    expect
-    true
-  }
-}
 
 class TwoInterruptAttemptsSpec : Specification() {
   @Timeout(value = 100, unit = MILLISECONDS)
