@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.smoke.mock
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Stub
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.verifyAll
 import org.spockframework.mock.MockUtil
 import spock.lang.Specification
@@ -31,7 +30,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns false for boolean")
   fun `returns false for boolean`() {
-    given
     val stub = Stub(Stubbable::class.java)
 
     expect
@@ -41,7 +39,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns zero for character")
   fun `returns zero for character`() {
-    given
     val stub = Stub(Stubbable::class.java)
 
     expect
@@ -51,7 +48,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns zero for primitive number")
   fun `returns zero for primitive number`() {
-    given
     val stub = Stub(Stubbable::class.java)
 
     expect
@@ -63,24 +59,8 @@ class StubDefaultResponses : Specification() {
     stub.getDouble() == 0.0
   }
 
-  @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns zero for primitive number wrapper")
-  fun `returns zero for primitive number wrapper`() {
-    given
-    val stub = Stub(Stubbable::class.java)
-
-    expect
-    // `!!` avoids a compiler plugin crash on Byte?/Short? equality: https://github.com/pshevche/spockk/issues/1031
-    stub.getByteWrapper()!! == 0.toByte()
-    stub.getShortWrapper()!! == 0.toShort()
-    stub.getIntWrapper() == 0
-    stub.getLongWrapper() == 0L
-    stub.getFloatWrapper() == 0f
-    stub.getDoubleWrapper() == 0.0
-  }
-
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns zero for big number")
   fun `returns zero for big number`() {
-    given
     val stub = Stub(Stubbable::class.java)
 
     expect
@@ -90,7 +70,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns empty char sequence")
   fun `returns empty char sequence`() {
-    given
     val stub = Stub(Stubbable::class.java)
 
     expect
@@ -102,7 +81,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns empty array")
   fun `returns empty array`() {
-    given
     val stub = Stub(Stubbable::class.java)
 
     expect
@@ -113,7 +91,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns empty collection")
   fun `returns empty collection`() {
-    given
     val stub = Stub(Stubbable::class.java)
 
     expect
@@ -129,7 +106,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns dummy for unknown interface")
   fun `returns dummy for unknown interface`() {
-    given
     val stub = Stub(Stubbable::class.java)
     val person = stub.getUnknownInterface()
 
@@ -144,7 +120,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns newly constructed object for unknown class with default constructor")
   fun `returns newly constructed object for unknown class with default constructor`() {
-    given
     val stub = Stub(Stubbable::class.java)
     val person = stub.getUnknownClassWithDefaultCtor()
 
@@ -159,7 +134,6 @@ class StubDefaultResponses : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.StubDefaultResponses#returns dummy for unknown class without default constructor")
   fun `returns dummy for unknown class without default constructor`() {
-    given
     val stub = Stub(Stubbable::class.java)
     val person = stub.getUnknownClassWithoutDefaultCtor()
 

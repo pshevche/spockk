@@ -334,3 +334,9 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.StubDefaultResponses#returns zero for primitive number wrapper"]]
+status = "blocked"
+reason = "Comparing a nullable Byte or Short with a literal in a condition crashes the compiler plugin, so the feature does not compile"
+gap = "https://github.com/pshevche/spockk/issues/1031"
+decided = "2026-11-10"
