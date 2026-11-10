@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.smoke.mock
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
 import spock.lang.PendingFeature
 import spock.lang.Specification
@@ -33,7 +32,7 @@ class ValidMockCreation : Specification() {
   @MigratedFrom(
     "org.spockframework.smoke.mock.ValidMockCreation#field typed w/ mock untyped, separate assignment"
   )
-  fun `field typed w- mock untyped, separate assignment`() {
+  fun `field typed with mock untyped, separate assignment`() {
     list1a = Mock()
 
     expect
@@ -41,7 +40,7 @@ class ValidMockCreation : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ValidMockCreation#field typed w/ mock typed")
-  fun `field typed w- mock typed`() {
+  fun `field typed with mock typed`() {
     expect
     list2 is ArrayList<*>
   }
@@ -49,7 +48,7 @@ class ValidMockCreation : Specification() {
   @MigratedFrom(
     "org.spockframework.smoke.mock.ValidMockCreation#field typed w/ mock typed, separate assignment"
   )
-  fun `field typed w- mock typed, separate assignment`() {
+  fun `field typed with mock typed, separate assignment`() {
     list2a = Mock(ArrayList::class.java)
 
     expect
@@ -57,13 +56,13 @@ class ValidMockCreation : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ValidMockCreation#field untyped w/ mock typed")
-  fun `field untyped w- mock typed`() {
+  fun `field untyped with mock typed`() {
     expect
     list3 is List<*>
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ValidMockCreation#local typed w/ mock untyped")
-  fun `local typed w- mock untyped`() {
+  fun `local typed with mock untyped`() {
     val list: List<Any?> = Mock()
 
     expect
@@ -73,7 +72,7 @@ class ValidMockCreation : Specification() {
   @MigratedFrom(
     "org.spockframework.smoke.mock.ValidMockCreation#local typed with w/ mock untyped, separate assignment"
   )
-  fun `local typed with w- mock untyped, separate assignment`() {
+  fun `local typed with with mock untyped, separate assignment`() {
     val list: List<Any?>
     list = Mock()
 
@@ -82,7 +81,7 @@ class ValidMockCreation : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ValidMockCreation#local typed w/ mock typed")
-  fun `local typed w- mock typed`() {
+  fun `local typed with mock typed`() {
     val list: List<Any?> = Mock(ArrayList::class.java)
 
     expect
@@ -92,7 +91,7 @@ class ValidMockCreation : Specification() {
   @MigratedFrom(
     "org.spockframework.smoke.mock.ValidMockCreation#local typed w/ mock typed, separate assignment"
   )
-  fun `local typed w- mock typed, separate assignment`() {
+  fun `local typed with mock typed, separate assignment`() {
     val list: List<Any?>
     list = Mock(ArrayList::class.java)
 
@@ -101,7 +100,7 @@ class ValidMockCreation : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ValidMockCreation#local untyped w/ mock typed")
-  fun `local untyped w- mock typed`() {
+  fun `local untyped with mock typed`() {
     val list = Mock(List::class.java)
 
     expect
@@ -127,7 +126,6 @@ class ValidMockCreation : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.ValidMockCreation#creation in interaction result")
   fun `creation in interaction result`() {
-    given
     val list: List<Any?> = Mock()
     list.get(any()) returns Mock(Map::class.java)
 
