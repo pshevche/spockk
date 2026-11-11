@@ -19,7 +19,6 @@ import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.does
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
 import spock.lang.PendingFeature
 import spock.lang.Specification
@@ -28,7 +27,6 @@ class MockCreationWithClosure : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.MockCreationWithClosure#stub method")
   fun `stub method`() {
-    given
     val list = Mock(CreationList::class.java) {
       size() returns 42
     }
@@ -39,7 +37,6 @@ class MockCreationWithClosure : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.MockCreationWithClosure#stub property")
   fun `stub property`() {
-    given
     val list = Mock(CreationList::class.java) {
       isEmpty() returns false
     }
@@ -51,16 +48,15 @@ class MockCreationWithClosure : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1006")
   @MigratedFrom("org.spockframework.smoke.mock.MockCreationWithClosure#mock is declared in interaction")
   fun `mock is declared in interaction`() {
-    given
     val list = Mock(CreationList::class.java)
-
-    expect
     list.get(any()) does { args ->
       val index = args[0] as Int
       Mock(CreationMap::class.java) {
         containsKey(any()) does { index % 2 == 0 }
       }
     }
+
+    expect
     list.get(42).containsKey("foo")
     !list.get(21).containsKey("foo")
   }
@@ -68,7 +64,6 @@ class MockCreationWithClosure : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1006")
   @MigratedFrom("org.spockframework.smoke.mock.MockCreationWithClosure#nested mock declaration")
   fun `nested mock declaration`() {
-    given
     val list = Mock(CreationList::class.java) {
       get(any()) does { args ->
         val index = args[0] as Int
