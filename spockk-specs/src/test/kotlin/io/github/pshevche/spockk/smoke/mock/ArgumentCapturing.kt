@@ -18,9 +18,7 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.did
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
-import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
 import spock.lang.Shared
 import spock.lang.Specification
@@ -33,15 +31,14 @@ class ArgumentCapturing : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentCapturing#capture argument in local variable")
   fun `capture argument in local variable`() {
-    given
-    val list = mockStringList()
+    val list: MutableList<String> = Mock()
     var local: String? = null
 
     `when`
     list.add("foo")
 
     then
-    1 * list.add(any()) did { args ->
+    list.add(any()) did { args ->
       local = args[0] as String
       true
     }
@@ -50,14 +47,13 @@ class ArgumentCapturing : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentCapturing#capture argument in instance field")
   fun `capture argument in instance field`() {
-    given
-    val list = mockStringList()
+    val list: MutableList<String> = Mock()
 
     `when`
     list.add("foo")
 
     then
-    1 * list.add(any()) did { args ->
+    list.add(any()) did { args ->
       instanceField = args[0] as String
       true
     }
@@ -66,20 +62,16 @@ class ArgumentCapturing : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentCapturing#capture argument in shared field")
   fun `capture argument in shared field`() {
-    given
-    val list = mockStringList()
+    val list: MutableList<String> = Mock()
 
     `when`
     list.add("foo")
 
     then
-    1 * list.add(any()) did { args ->
+    list.add(any()) did { args ->
       sharedField = args[0] as String
       true
     }
     sharedField == "foo"
   }
-
-  @Suppress("UNCHECKED_CAST")
-  private fun mockStringList(): MutableList<String> = Mock(MutableList::class.java) as MutableList<String>
 }
