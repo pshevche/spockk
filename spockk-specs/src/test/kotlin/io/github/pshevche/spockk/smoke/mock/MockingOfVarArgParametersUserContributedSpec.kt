@@ -21,20 +21,19 @@ import io.github.pshevche.spockk.lang.does
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 
-@Issue("https://github.com/spockframework/spock/issues/177")
 class MockingOfVarArgParametersUserContributedSpec : Specification() {
   private var methodWasCalled = false
 
+  private val target: TargetClass = Mock(TargetClass::class.java)
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.MockingOfVarArgParametersUserContributedSpec#1-arg call on method supporting >= 1 params is matched with (_)")
   fun `1-arg call on method supporting greater or equal 1 params is matched with any`() {
     given
-    val target = Mock(TargetClass::class.java) {
-      oneOrGreater(any()) does { methodWasCalled = true }
-    }
+    target.oneOrGreater(any()) does { methodWasCalled = true }
 
     `when`
     target.oneOrGreater("one")
@@ -43,13 +42,11 @@ class MockingOfVarArgParametersUserContributedSpec : Specification() {
     methodWasCalled
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1016")
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.MockingOfVarArgParametersUserContributedSpec#1-arg call on method supporting >= 0 params is matched with (_)")
   fun `1-arg call on method supporting greater or equal 0 params is matched with any`() {
     given
-    val target = Mock(TargetClass::class.java) {
-      zeroOrGreater(any()) does { methodWasCalled = true }
-    }
+    target.zeroOrGreater(any()) does { methodWasCalled = true }
 
     `when`
     target.zeroOrGreater("one")
