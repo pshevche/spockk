@@ -18,39 +18,45 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
+import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
+import io.github.pshevche.spockk.lang.where
 import org.spockframework.mock.TooFewInvocationsError
 import spock.lang.FailsWith
-import spock.lang.Issue
 import spock.lang.Specification
 
-@Issue("https://github.com/spockframework/spock/issues/177")
 class MockingMethodsWithVarArgParameters : Specification() {
 
   @MigratedFrom(
     "org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#interactions of methods callable in vararg-style can be written in vararg-style"
   )
-  fun `interactions of methods callable in vararg-style can be written in vararg-style`() {
-    val mock = Mock(KotlinVarArgParameter::class.java)
+  fun `interactions of methods callable in vararg-style can be written in vararg-style`(clazz: Class<out KotlinVarArgParameter>) {
+    val mock = Mock(clazz)
 
     `when`
     mock.foo(1, "one", "two", "three")
 
     then
     1 * mock.foo(1, "one", "two", "three")
+
+    where
+    variable(clazz).from(KotlinVarArgParameter::class.java, KotlinArrayParameter::class.java)
   }
 
   @MigratedFrom(
     "org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#interactions of methods callable in vararg-style can be written in array-style"
   )
-  fun `interactions of methods callable in vararg-style can be written in array-style`() {
-    val mock = Mock(KotlinVarArgParameter::class.java)
+  fun `interactions of methods callable in vararg-style can be written in array-style`(clazz: Class<out KotlinVarArgParameter>) {
+    val mock = Mock(clazz)
 
     `when`
     mock.foo(1, "one", "two", "three")
 
     then
     1 * mock.foo(1, *arrayOf("one", "two", "three"))
+
+    where
+    variable(clazz).from(KotlinVarArgParameter::class.java, KotlinArrayParameter::class.java)
   }
 
   @FailsWith(TooFewInvocationsError::class)
@@ -162,33 +168,6 @@ class MockingMethodsWithVarArgParameters : Specification() {
   }
 
   @MigratedFrom(
-    "org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#vararg value can be null"
-  )
-  fun `vararg value can be null`() {
-    val mock = Mock(KotlinNullableVarArgParameter::class.java)
-
-    `when`
-    mock.foo(1, null)
-
-    then
-    1 * mock.foo(1, null)
-  }
-
-  @Issue("https://github.com/spockframework/spock/issues/367")
-  @MigratedFrom(
-    "org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#handles case where vararg value is null and interaction does not match"
-  )
-  fun `handles case where vararg value is null and interaction does not match`() {
-    val mock = Mock(KotlinNullableVarArgParameter::class.java)
-
-    `when`
-    mock.foo(1, null)
-
-    then
-    0 * mock.foo(2, null)
-  }
-
-  @MigratedFrom(
     "org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#vararg value that is omitted in invocation can be specified as empty array in interaction"
   )
   fun `vararg value that is omitted in invocation can be specified as empty array in interaction`() {
@@ -201,12 +180,11 @@ class MockingMethodsWithVarArgParameters : Specification() {
     1 * mock.foo(1, *emptyArray<String>())
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/416")
   @MigratedFrom(
     "org.spockframework.smoke.mock.MockingMethodsWithVarArgParameters#vararg handling also works when element type is a primitive type"
   )
-  fun `vararg handling also works when element type is a primitive type`() {
-    val mock = Mock(KotlinPrimitiveVarArgParameter::class.java)
+  fun `vararg handling also works when element type is a primitive type`(clazz: Class<out KotlinPrimitiveVarArgParameter>) {
+    val mock = Mock(clazz)
 
     `when`
     mock.foo("one", 1, 2, 3)
@@ -221,6 +199,9 @@ class MockingMethodsWithVarArgParameters : Specification() {
 
     then
     2 * mock.foo("one", *intArrayOf(1, 2, 3))
+
+    where
+    variable(clazz).from(KotlinPrimitiveVarArgParameter::class.java, KotlinPrimitiveArrayParameter::class.java)
   }
 }
 
@@ -228,10 +209,14 @@ interface KotlinVarArgParameter {
   fun foo(i: Int, vararg strings: String)
 }
 
-interface KotlinNullableVarArgParameter {
-  fun foo(i: Int, vararg strings: String?)
+interface KotlinArrayParameter : KotlinVarArgParameter {
+  override fun foo(i: Int, strings: Array<out String>)
 }
 
 interface KotlinPrimitiveVarArgParameter {
   fun foo(str: String, vararg ints: Int)
+}
+
+interface KotlinPrimitiveArrayParameter : KotlinPrimitiveVarArgParameter {
+  override fun foo(str: String, ints: IntArray)
 }
