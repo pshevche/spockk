@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.MockNames#a mock's name is inferred from the variable it is assigned to at the point of its creation"]]
+status = "blocked"
+reason = "The name is asserted inside a response closure through IMockInvocation, which Spockk's does/did lambdas cannot reach. Field-held mocks also get no inferred name (see the gap #1112)"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-11"
+
+[["org.spockframework.smoke.mock.MockNames#if a mock isn't assigned to a variable at the point of its creation, it doesn't have a name"]]
+status = "blocked"
+reason = "Needs a target-less '1 * _ >> { inv -> ... }' interaction that reads IMockInvocation, which the DSL cannot express"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-11"
