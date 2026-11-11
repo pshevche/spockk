@@ -33,7 +33,7 @@ class MockDefaultResponses : Specification() {
   )
   fun `return values for unmatched invocations on interface-based mocks`() {
     expect
-    !imock.getBoolean()
+    imock.getBoolean() == false
     imock.getByte() == 0.toByte()
     imock.getShort() == 0.toShort()
     imock.getInt() == 0
@@ -64,7 +64,7 @@ class MockDefaultResponses : Specification() {
   )
   fun `return values for unmatched invocations on class-based mocks`() {
     expect
-    !cmock.getBoolean()
+    cmock.getBoolean() == false
     cmock.getByte() == 0.toByte()
     cmock.getShort() == 0.toShort()
     cmock.getInt() == 0
