@@ -18,10 +18,8 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.cleanup
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
-import spock.lang.Issue
 import spock.lang.Specification
 
-@Issue("https://github.com/spockframework/spock/issues/2080")
 class StackFrameReproducer : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.issues.StackFrameReproducer#this should compile and run without errors")
