@@ -364,6 +364,130 @@ reason = "The block-order validator rejects consecutive then blocks, which the f
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
 
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument mismatch"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument mismatch in with block"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument mismatch in mock definition"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument mismatch with nested closures in mock definition"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument mismatch with nested closures"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument explicit assertion mismatch"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument with multiple lines"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe code argument with verifyAll"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe hamcrest matcher argument mismatch"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a Hamcrest matcher as an argument constraint, so this spec does not compile"
+gap = "https://github.com/pshevche/spockk/issues/877"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe type argument mismatch"]]
+status = "blocked"
+reason = "Spockk interactions only have the untyped any() wildcard; there is no equivalent of Spock's `_ as String` type constraint"
+gap = "https://github.com/pshevche/spockk/issues/684"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe type not enough args"]]
+status = "not-applicable"
+reason = "Wrong argument counts are a Groovy dynamic-dispatch scenario; Kotlin's static typing rejects a call with too few or too many arguments at compile time, so the interaction cannot be written"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe type too many args"]]
+status = "not-applicable"
+reason = "Wrong argument counts are a Groovy dynamic-dispatch scenario; Kotlin's static typing rejects a call with too few or too many arguments at compile time, so the interaction cannot be written"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe regex method name mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no regex method or property name constraint (Spock's `fred./kids?/(...)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe regex property name mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no regex method or property name constraint (Spock's `fred./kids?/(...)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe not equal mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no negated argument constraint (Spock's `!null`, `!{ ... }`, `!(_ as Map)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe not other mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no negated argument constraint (Spock's `!null`, `!{ ... }`, `!(_ as Map)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe namedArgument on normal method mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no named-argument constraint (Spock's `fred.family(firstName: Wilma, ...)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe namedArgument on map method mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no named-argument constraint (Spock's `fred.family(firstName: Wilma, ...)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe namedArgument on map method size mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no named-argument constraint (Spock's `fred.family(firstName: Wilma, ...)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can describe mixed namedArgument and positionalArgument mismatch"]]
+status = "blocked"
+reason = "Spockk interactions have no named-argument constraint (Spock's `fred.family(firstName: Wilma, ...)`)"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
+[["org.spockframework.smoke.mock.TooFewInvocations#can compute similarity between an interaction and a completely different invocation (without blowing up)"]]
+status = "blocked"
+reason = "Spockk interactions cannot take a code (lambda) argument constraint, so a spec asserting on its mismatch description does not compile"
+gap = "https://github.com/pshevche/spockk/issues/780"
+decided = "2026-11-02"
+
 [["org.spockframework.smoke.mock.GlobalInteractionsInCleanup#run a successful test"]]
 status = "blocked"
 reason = "Interactions in a setup() fixture method are never rewritten, so the global interaction the feature relies on throws inside the fixture, which @PendingFeature cannot cover"
