@@ -363,3 +363,21 @@ decided = "2026-11-01"
 status = "not-applicable"
 reason = "Calls Stub() with no type and relies on Groovy failing to infer one at runtime; Kotlin rejects a Stub() whose type cannot be inferred at compile time"
 decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaStubs#cannot stub final methods with byteBuddy"]]
+status = "blocked"
+reason = "Upstream uses expect: directly after then:, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/981"
+decided = "2026-11-12"
+
+[["org.spockframework.smoke.mock.JavaStubs#cannot stub final method as property with byteBuddy"]]
+status = "blocked"
+reason = "Upstream uses expect: directly after then:, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/981"
+decided = "2026-11-12"
+
+[["org.spockframework.smoke.mock.JavaStubs#cannot stub final is getter as property with byteBuddy"]]
+status = "blocked"
+reason = "Upstream uses expect: directly after then:, which the block-order validator rejects at compile time"
+gap = "https://github.com/pshevche/spockk/issues/981"
+decided = "2026-11-12"

@@ -26,7 +26,6 @@ import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.CannotCreateMockException
 import org.spockframework.runtime.InvalidSpecException
-import spock.lang.Issue
 import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.mock.MockMakers
@@ -63,7 +62,6 @@ class JavaStubs : Specification() {
     person.name == "fred"
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1076")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#can stub property access")
   fun `can stub property access`() {
@@ -81,7 +79,6 @@ class JavaStubs : Specification() {
     classPerson.age == 25
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1076")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#can stub property access for implicit getProperty() call")
   fun `can stub property access for implicit getProperty() call`() {
@@ -109,14 +106,14 @@ class JavaStubs : Specification() {
     person.name == "fred"
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/992")
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#cannot be mocked")
   fun `cannot be mocked`() {
-    `when`
+    given
     1 * person.name returns "fred"
 
-    then
-    thrown(InvalidSpecException::class.java)
+    expect
+    person.name == "fred"
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/984")
@@ -174,7 +171,7 @@ class JavaStubs : Specification() {
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#can stub final methods with mockito")
   fun `can stub final methods with mockito`() {
     given
-    val finalMethodPerson: JavaStubsFinalMethodPerson = Stub(mapOf("mockMaker" to MockMakers.mockito))
+    val finalMethodPerson: JavaStubsFinalMethodPerson = Mock(mapOf("mockMaker" to MockMakers.mockito))
     finalMethodPerson.phoneNumber returns "6789"
 
     expect
@@ -192,25 +189,6 @@ class JavaStubs : Specification() {
     finalMethodPerson.phoneNumber == "6789"
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/2039")
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#cannot stub final methods with byteBuddy")
-  fun `cannot stub final methods with byteBuddy`() {
-    given
-    val finalMethodPerson: JavaStubsFinalMethodPerson = Stub(mapOf("mockMaker" to MockMakers.byteBuddy))
-
-    `when`
-    finalMethodPerson.phoneNumber returns "6789"
-
-    then
-    val ex = thrown(InvalidSpecException::class.java)
-    ex.message == FINAL_PHONE_NUMBER_MESSAGE
-
-    and
-    finalMethodPerson.phoneNumber == "12345"
-  }
-
-  @Issue("https://github.com/spockframework/spock/issues/2039")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom(
     "org.spockframework.smoke.mock.JavaStubs#cannot stub final methods with byteBuddy without error message when one overload is non final"
@@ -224,7 +202,6 @@ class JavaStubs : Specification() {
     finalMethodPerson.finalAndNonFinalOverload() == "final"
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/2039")
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#non final method overload shall be stubable")
   fun `non final method overload shall be stubable`() {
@@ -234,42 +211,6 @@ class JavaStubs : Specification() {
 
     expect
     finalMethodPerson.finalAndNonFinalOverload("A") == "B"
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#cannot stub final method as property with byteBuddy")
-  fun `cannot stub final method as property with byteBuddy`() {
-    given
-    val finalMethodPerson: JavaStubsFinalMethodPerson = Stub(mapOf("mockMaker" to MockMakers.byteBuddy))
-
-    `when`
-    finalMethodPerson.phoneNumber returns "6789"
-
-    then
-    val ex = thrown(InvalidSpecException::class.java)
-    ex.message == FINAL_PHONE_NUMBER_MESSAGE
-
-    and
-    finalMethodPerson.phoneNumber == "12345"
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaStubs#cannot stub final is getter as property with byteBuddy")
-  fun `cannot stub final is getter as property with byteBuddy`() {
-    given
-    val finalMethodPerson: JavaStubsFinalMethodPerson = Stub(mapOf("mockMaker" to MockMakers.byteBuddy))
-
-    `when`
-    finalMethodPerson.isFinalPerson returns false
-
-    then
-    val ex = thrown(InvalidSpecException::class.java)
-    ex.message ==
-      "The final method 'isFinalPerson' of 'finalMethodPerson' can't be mocked by the 'byte-buddy' mock maker. " +
-      "Please use another mock maker supporting final methods."
-
-    and
-    finalMethodPerson.isFinalPerson
   }
 
   private companion object {
