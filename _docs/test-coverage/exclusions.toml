@@ -334,3 +334,33 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.JavaSpies#can be used as partial mocks"]]
+status = "blocked"
+reason = "Upstream stubs the spy inside a Spy(Person, constructorArgs: ...) builder closure with a chained >>> response; Spockk has no Spy overload combining an options map with a builder block, so it does not compile"
+gap = "https://github.com/pshevche/spockk/issues/991"
+decided = "2026-11-12"
+
+[["org.spockframework.smoke.mock.JavaSpies#can spy final methods with mockito with closure"]]
+status = "blocked"
+reason = "Upstream uses Spy(mockMaker: ...) with a builder closure; Spockk has no Spy overload combining an options map with a builder block, so it does not compile"
+gap = "https://github.com/pshevche/spockk/issues/991"
+decided = "2026-11-12"
+
+[["org.spockframework.smoke.mock.JavaSpies#can spy on instances of classes with no default constructor"]]
+status = "blocked"
+reason = "Upstream starts the feature with an expect block followed by when/then; the block-order validator rejects expect followed by when, so it does not compile"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-11-12"
+
+[["org.spockframework.smoke.mock.JavaSpies#cannot spy on final methods with byteBuddy"]]
+status = "blocked"
+reason = "Upstream ends the feature with an expect block after then; the block-order validator rejects expect directly after then, so it does not compile"
+gap = "https://github.com/pshevche/spockk/issues/981"
+decided = "2026-11-12"
+
+[["org.spockframework.smoke.mock.JavaSpies#cannot spy on final methods as property with byteBuddy"]]
+status = "blocked"
+reason = "Upstream ends the feature with an expect block after then; the block-order validator rejects expect directly after then, so it does not compile"
+gap = "https://github.com/pshevche/spockk/issues/981"
+decided = "2026-11-12"

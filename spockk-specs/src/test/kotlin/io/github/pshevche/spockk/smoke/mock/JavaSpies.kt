@@ -14,6 +14,7 @@
 
 package io.github.pshevche.spockk.smoke.mock
 
+import groovy.lang.Closure
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Spy
 import io.github.pshevche.spockk.lang.any
@@ -28,8 +29,10 @@ import io.github.pshevche.spockk.lang.where
 import org.spockframework.mock.CannotCreateMockException
 import org.spockframework.runtime.InvalidSpecException
 import org.spockframework.runtime.SpockException
+import org.spockframework.runtime.extension.builtin.PreconditionContext
 import org.spockframework.util.SpockDocLinks
 import spock.lang.PendingFeature
+import spock.lang.Requires
 import spock.lang.Specification
 import spock.mock.MockMakers
 
@@ -49,7 +52,7 @@ class JavaSpies : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#construct spied-on object using provided constructor args")
   fun `construct spied-on object using provided constructor args`(
-    ctorArgs: List<Any?>,
+    ctorArgs: Any,
     arg1: Int,
     arg2: Int,
     arg3: Int,
@@ -69,9 +72,10 @@ class JavaSpies : Specification() {
     listOf(1)                                                 ; 1    ; 0    ; 0    ; null
     listOf(2, 3)                                              ; 0    ; 2    ; 3    ; null
     listOf("hi")                                              ; 0    ; 0    ; 0    ; "hi"
-    listOf(mapOf("arg4" to "hi"))                             ; 0    ; 0    ; 0    ; "hi"
+    mapOf("arg4" to "hi")                                     ; 0    ; 0    ; 0    ; "hi"
+    mapOf("arg1" to 2, "arg3" to 5, "arg4" to "hi")           ; 2    ; 0    ; 5    ; "hi"
     listOf(mapOf("arg1" to 2, "arg3" to 5, "arg4" to "hi"))   ; 2    ; 0    ; 5    ; "hi"
-    listOf(mapOf("arg2" to 1))                                ; 0    ; 1    ; 0    ; null
+    mapOf("arg2" to 1)                                        ; 0    ; 1    ; 0    ; null
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -134,20 +138,6 @@ class JavaSpies : Specification() {
     result == "singing, singing"
   }
 
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#can be used as partial mocks")
-  fun `can be used as partial mocks`() {
-    given
-    val person: Person = Spy(mapOf("constructorArgs" to listOf("fred", 42)), Person::class.java)
-    val hours = listOf(3, 2, 1).iterator()
-    person.getWorkHours() does { hours.next() }
-
-    expect
-    person.work() == "singing, singing, singing"
-    person.work() == "singing, singing"
-    person.work() == "singing"
-  }
-
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#can spy on concrete instances")
   fun `can spy on concrete instances`() {
     given
@@ -196,25 +186,6 @@ class JavaSpies : Specification() {
     result == "work, work"
   }
 
-  @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#can spy on instances of classes with no default constructor")
-  fun `can spy on instances of classes with no default constructor`() {
-    given
-    val spy = Spy(NoDefaultConstructor(42))
-
-    `when`
-    val first = spy.getValue()
-
-    then
-    first == 42
-
-    `when`
-    val result = spy.getValue()
-
-    then
-    1 * spy.getValue() returns 7
-    result == 7
-  }
-
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#can define interactions for spy on instances directly with closure")
   fun `can define interactions for spy on instances directly with closure`() {
     given
@@ -226,17 +197,15 @@ class JavaSpies : Specification() {
     spy.getValue() == 7
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/992")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#can stub final classes")
   fun `can stub final classes`() {
-    given
-    val person: FinalPerson = Spy()
-
     `when`
-    val phoneNumber = person.getPhoneNumber()
+    val person: FinalPerson = Spy()
+    person.getPhoneNumber() returns "6789"
 
     then
-    person.getPhoneNumber() returns "6789"
-    phoneNumber == "6789"
+    person.getPhoneNumber() == "6789"
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
@@ -259,47 +228,6 @@ class JavaSpies : Specification() {
 
     expect
     person.getPhoneNumber() == "6789"
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/991")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#can spy final methods with mockito with closure")
-  fun `can spy final methods with mockito with closure`() {
-    given
-    val person: FinalMethodPerson = Spy(mapOf("mockMaker" to MockMakers.mockito), FinalMethodPerson::class.java)
-    person.getPhoneNumber() returns "6789"
-
-    expect
-    person.getPhoneNumber() == "6789"
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/992")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#cannot spy on final methods with byteBuddy")
-  fun `cannot spy on final methods with byteBuddy`() {
-    given
-    val person: FinalMethodPerson = Spy(mapOf("mockMaker" to MockMakers.byteBuddy), FinalMethodPerson::class.java)
-
-    `when`
-    person.getPhoneNumber() returns "6789"
-
-    then
-    val ex = thrown(InvalidSpecException::class.java)
-    ex.message == FINAL_METHOD_MESSAGE
-    person.getPhoneNumber() == "12345"
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/992")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#cannot spy on final methods as property with byteBuddy")
-  fun `cannot spy on final methods as property with byteBuddy`() {
-    given
-    val person: FinalPropertyPerson = Spy(mapOf("mockMaker" to MockMakers.byteBuddy), FinalPropertyPerson::class.java)
-
-    `when`
-    person.phoneNumber returns "6789"
-
-    then
-    val ex = thrown(InvalidSpecException::class.java)
-    ex.message == FINAL_METHOD_MESSAGE
-    person.phoneNumber == "12345"
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/992")
@@ -350,6 +278,7 @@ class JavaSpies : Specification() {
     thrown(SpockException::class.java)
   }
 
+  @Requires(Java17Compatible::class, reason = "Only happens on 17+, without an explicit --add-opens")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpies#known issue copy fields")
   fun `known issue copy fields`() {
     `when`
@@ -399,6 +328,11 @@ class JavaSpies : Specification() {
     constructor(arg4: String) : this() {
       this.arg4 = arg4
     }
+  }
+
+  class Java17Compatible(owner: Any?, thisObject: Any?) : Closure<Boolean>(owner, thisObject) {
+    @Suppress("unused")
+    fun doCall(context: PreconditionContext<*>): Boolean = context.jvm.isJava17Compatible
   }
 
   interface Being
