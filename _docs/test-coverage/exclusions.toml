@@ -352,3 +352,9 @@ status = "blocked"
 reason = "Creation-time interactions on a class spy need a Spy(type) { ... } builder overload, which Spockk lacks; Spy(instance) { ... } cannot spy ArrayList on JDK 17+"
 gap = "https://github.com/pshevche/spockk/issues/935"
 decided = "2026-11-01"
+
+[["org.spockframework.smoke.mock.JavaSpyBasics#can mock call beforehand"]]
+status = "blocked"
+reason = "Upstream ends the feature with a setup: block after an anonymous-block interaction; Spockk's block-order validator rejects a feature that ends with a setup block"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-12"

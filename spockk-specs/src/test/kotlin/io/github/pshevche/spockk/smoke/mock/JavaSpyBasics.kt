@@ -49,7 +49,6 @@ class JavaSpyBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can stub interface")
   fun `can stub interface`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
     list.get(42) returns "foo"
 
@@ -60,7 +59,6 @@ class JavaSpyBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can stub class")
   fun `can stub class`() {
-    given
     val list = createArrayListDouble()
     list.get(42) returns "foo"
 
@@ -71,7 +69,6 @@ class JavaSpyBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can stub call beforehand")
   fun `can stub call beforehand`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
     list.get(42) returns "foo"
 
@@ -81,7 +78,6 @@ class JavaSpyBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can stub call in then-block")
   fun `can stub call in then-block`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
 
     `when`
@@ -94,7 +90,6 @@ class JavaSpyBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can mock interface")
   fun `can mock interface`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
 
     `when`
@@ -106,7 +101,6 @@ class JavaSpyBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can mock class")
   fun `can mock class`() {
-    given
     val list = createArrayListDouble()
 
     `when`
@@ -117,22 +111,8 @@ class JavaSpyBasics : Specification() {
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can mock call beforehand")
-  fun `can mock call beforehand`() {
-    val list: MutableList<Any?> = createArrayListDouble()
-    1 * list.get(42)
-
-    `when`
-    list.get(42)
-
-    then
-    noExceptionThrown()
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can stub and mock call beforehand")
   fun `can stub and mock call beforehand`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
     1 * list.get(42) returns "foo"
 
@@ -142,7 +122,6 @@ class JavaSpyBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can mock call in then-block")
   fun `can mock call in then-block`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
 
     `when`
@@ -154,7 +133,6 @@ class JavaSpyBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#can stub and mock call in then-block")
   fun `can stub and mock call in then-block`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
 
     `when`
@@ -168,7 +146,6 @@ class JavaSpyBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/994")
   @MigratedFrom("org.spockframework.smoke.mock.JavaSpyBasics#using >>_ returns stubbed value")
   fun `using returns any returns stubbed value`() {
-    given
     val list: MutableList<Any?> = createArrayListDouble()
 
     `when`
