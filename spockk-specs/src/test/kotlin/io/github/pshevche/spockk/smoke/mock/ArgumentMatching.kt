@@ -22,12 +22,11 @@ import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.variable
-import io.github.pshevche.spockk.lang.variables
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
 import org.spockframework.mock.TooFewInvocationsError
 import spock.lang.FailsWith
-import spock.lang.Issue
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import java.util.function.Consumer
 
@@ -35,7 +34,6 @@ class ArgumentMatching : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#match identical argument")
   fun `match identical argument`(arg: Any) {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Any?>
 
     `when`
@@ -50,7 +48,6 @@ class ArgumentMatching : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#match equal argument")
   fun `match equal argument`(arg1: Any?, arg2: Any?) {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Any?>
 
     `when`
@@ -60,23 +57,23 @@ class ArgumentMatching : Specification() {
     1 * list.add(arg2)
 
     where
-    variables(arg1, arg2).from(listOf(setOf(1, 2, 3), null), listOf(setOf(3, 2, 1), null))
+    variable(arg1).from(1, setOf(1, 2, 3), null)
+    variable(arg2).from(1.0, setOf(3, 2, 1), null)
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/670")
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#match empty argument list")
   fun `match empty argument list`() {
-    given
     val list = Mock(MutableList::class.java) as MutableList<Any?>
 
     `when`
-    list.isEmpty()
+    list.size
 
     then
-    1 * list.isEmpty()
+    1 * list.size
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#allow list casting")
-  @Issue("https://github.com/spockframework/spock/issues/1260")
   fun `allow list casting`() {
     given
     val consumer = Mock(Consumer::class.java) as Consumer<Any?>
@@ -90,7 +87,6 @@ class ArgumentMatching : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#match named argument (empty args)")
   fun `match named argument (empty args)`() {
-    given
     val na = Mock(NamedArgs::class.java)
 
     `when`
@@ -104,7 +100,6 @@ class ArgumentMatching : Specification() {
     "org.spockframework.smoke.mock.ArgumentMatching#match named argument (named args only, explicit map)"
   )
   fun `match named argument (named args only, explicit map)`() {
-    given
     val na = Mock(NamedArgs::class.java)
 
     `when`
@@ -118,7 +113,6 @@ class ArgumentMatching : Specification() {
     "org.spockframework.smoke.mock.ArgumentMatching#match named argument (named args only, explicit map and positional arguments)"
   )
   fun `match named argument (named args only, explicit map and positional arguments)`() {
-    given
     val na = Mock(NamedArgs::class.java)
 
     `when`
@@ -130,7 +124,6 @@ class ArgumentMatching : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#match empty (w/ varargs)")
   fun `match empty (with varargs)`() {
-    given
     val varargs = Mock(Varargs2::class.java)
 
     `when`
@@ -142,7 +135,6 @@ class ArgumentMatching : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#match one (w/ varargs)")
   fun `match one (with varargs)`() {
-    given
     val varargs = Mock(Varargs2::class.java)
 
     `when`
@@ -154,7 +146,6 @@ class ArgumentMatching : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#match multi (w/ varargs)")
   fun `match multi (with varargs)`() {
-    given
     val varargs = Mock(Varargs2::class.java)
 
     `when`
@@ -167,7 +158,6 @@ class ArgumentMatching : Specification() {
   @FailsWith(TooFewInvocationsError::class)
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#expect fewer arguments than are provided")
   fun `expect fewer arguments than are provided`() {
-    given
     val overloads = Mock(Overloads::class.java)
 
     `when`
@@ -180,7 +170,6 @@ class ArgumentMatching : Specification() {
   @FailsWith(TooFewInvocationsError::class)
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#expect more arguments than are provided")
   fun `expect more arguments than are provided`() {
-    given
     val overloads = Mock(Overloads::class.java)
 
     `when`
@@ -193,7 +182,6 @@ class ArgumentMatching : Specification() {
   @FailsWith(TooFewInvocationsError::class)
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#expect fewer arguments than are provided (w/ varargs)")
   fun `expect fewer arguments than are provided (with varargs)`() {
-    given
     val varargs = Mock(Varargs2::class.java)
 
     `when`
@@ -206,7 +194,6 @@ class ArgumentMatching : Specification() {
   @FailsWith(TooFewInvocationsError::class)
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#expect more arguments than are provided (w/ varargs)")
   fun `expect more arguments than are provided (with varargs)`() {
-    given
     val varargs = Mock(Varargs2::class.java)
 
     `when`
@@ -216,11 +203,9 @@ class ArgumentMatching : Specification() {
     1 * varargs.m("one")
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1322")
   @FailsWith(TooFewInvocationsError::class)
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#expect non-matching Comparables")
   fun `expect non-matching Comparables`() {
-    given
     val bar = Mock(ComparableExample::class.java)
     val baz = Mock(Comparable::class.java) as Comparable<Any?>
     val qux = Mock(Comparable::class.java) as Comparable<Any?>
@@ -232,7 +217,6 @@ class ArgumentMatching : Specification() {
     1 * bar.foo(qux)
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/2352")
   @MigratedFrom("org.spockframework.smoke.mock.ArgumentMatching#expect non-matching generic Comparables to be unequal")
   fun `expect non-matching generic Comparables to be unequal`() {
     given
