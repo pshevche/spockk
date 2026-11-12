@@ -21,7 +21,7 @@ import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.does
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.returns
-import spock.lang.Issue
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 class JavaMocksDefaultBehavior : Specification() {
@@ -43,7 +43,6 @@ class JavaMocksDefaultBehavior : Specification() {
     !mock.equals(mockOfDifferentType)
   }
 
-  @Issue("https://github.com/spockframework/spock/issues/1322")
   @MigratedFrom(
     "org.spockframework.smoke.mock.JavaMocksDefaultBehavior#by default, a Comparable mock is only equal to itself"
   )
@@ -102,14 +101,12 @@ class JavaMocksDefaultBehavior : Specification() {
     !bar.equals(bar)
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1001")
   @MigratedFrom("org.spockframework.smoke.mock.JavaMocksDefaultBehavior#default hashCode() behavior can be overridden")
   fun `default hashCode() behavior can be overridden`() {
-    val foo = Mock(Foo::class.java) {
-      hashCode() returns 42
-    }
-    val bar = Mock(Bar::class.java) {
-      hashCode() returns 42
-    }
+    val foo = Mock(Foo::class.java)
+    val bar = Mock(Bar::class.java)
+    // Upstream stubs both with a wildcard target (`_.hashCode() >> 42`), which has no Kotlin spelling yet.
 
     expect
     foo.hashCode() == 42
@@ -126,14 +123,12 @@ class JavaMocksDefaultBehavior : Specification() {
     foo.toString() == "mock around the clock"
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1001")
   @MigratedFrom("org.spockframework.smoke.mock.JavaMocksDefaultBehavior#default compareTo() behavior can be overridden")
   fun `default compareTo() behavior can be overridden`() {
-    val baz = Mock(Baz::class.java) {
-      compareTo(any()) returns -1
-    }
-    val qux = Mock(Qux::class.java) {
-      compareTo(any()) returns -1
-    }
+    val baz = Mock(Baz::class.java)
+    val qux = Mock(Qux::class.java)
+    // Upstream stubs both with a wildcard target (`_.compareTo(_) >> -1`), which has no Kotlin spelling yet.
 
     expect
     baz.compareTo(qux) == -1
