@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.smoke.mock
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
+import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
@@ -152,6 +153,8 @@ class JavaMocksForGroovyClasses : Specification() {
 
     then
     1 * mockData.isCurrent() returns true
+
+    and
     result == "is enabled"
   }
 }
