@@ -16,6 +16,7 @@ package io.github.pshevche.spockk.smoke.mock
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
+import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
 import io.github.pshevche.spockk.lang.then
@@ -86,6 +87,19 @@ class JavaFinalMocks : Specification() {
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
+  @MigratedFrom("org.spockframework.smoke.mock.JavaFinalMocks#cannot mock final method as property with byteBuddy")
+  fun `cannot mock final method as property with byteBuddy`() {
+    given
+    val person: FinalMethodPerson = Mock(mapOf("mockMaker" to MockMakers.byteBuddy), FinalMethodPerson::class.java)
+
+    `when`
+    person.phoneNumber
+
+    then
+    1 * person.phoneNumber returns "6789"
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/657")
   @MigratedFrom("org.spockframework.smoke.mock.JavaFinalMocks#cannot mock final is getter as property with byteBuddy")
   fun `cannot mock final is getter as property with byteBuddy`() {
     given
@@ -106,11 +120,13 @@ class JavaFinalMocks : Specification() {
     given
     val person: FinalMethodPerson = Mock(mapOf("mockMaker" to MockMakers.byteBuddy), FinalMethodPerson::class.java)
 
-    `when`
+    `when`("calling the method that has both a final and non final overload")
     val result = person.finalAndNonFinalOverload()
 
-    then
+    then("the mocking does not work")
     0 * person.finalAndNonFinalOverload() returns "B"
+
+    and("the result is not stubbed")
     result == "final"
   }
 
@@ -154,9 +170,22 @@ class JavaFinalMocks : Specification() {
   }
 }
 
-class FinalPerson(val phoneNumber: String = "12345")
+interface IPerson {
+  val name: String
 
-open class FinalMethodPerson {
+  val age: Int
+}
+
+open class Person : IPerson {
+  override val name: String = "default"
+  override val age: Int = 0
+}
+
+class FinalPerson : Person() {
+  val phoneNumber: String = "12345"
+}
+
+open class FinalMethodPerson : Person() {
   val phoneNumber: String = "12345"
   val isFinalPerson: Boolean = true
 
