@@ -18,7 +18,6 @@ import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.any
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returned
 import io.github.pshevche.spockk.lang.returns
 import io.github.pshevche.spockk.lang.then
@@ -38,7 +37,6 @@ class JavaMockBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub interface")
   fun `can stub interface`() {
-    given
     val list = Mock(listType)
     list.get(42) returns "foo"
 
@@ -49,7 +47,6 @@ class JavaMockBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub class")
   fun `can stub class`() {
-    given
     val list = Mock(arrayListType)
     list.get(42) returns "foo"
 
@@ -59,7 +56,6 @@ class JavaMockBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub call at creation time")
   fun `can stub call at creation time`() {
-    given
     val list = Mock(listType) {
       get(42) returns "foo"
     }
@@ -71,7 +67,6 @@ class JavaMockBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub call beforehand")
   fun `can stub call beforehand`() {
-    given
     val list = Mock(listType)
     list.get(42) returns "foo"
 
@@ -81,7 +76,6 @@ class JavaMockBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub call in then-block")
   fun `can stub call in then-block`() {
-    given
     val list = Mock(listType)
 
     `when`
@@ -94,7 +88,6 @@ class JavaMockBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can mock interface")
   fun `can mock interface`() {
-    given
     val list = Mock(listType)
 
     `when`
@@ -106,7 +99,6 @@ class JavaMockBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can mock class")
   fun `can mock class`() {
-    given
     val list = Mock(arrayListType)
 
     `when`
@@ -116,23 +108,8 @@ class JavaMockBasics : Specification() {
     1 * list.add(1)
   }
 
-  @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can mock call at creation time")
-  fun `can mock call at creation time`() {
-    given
-    val list = Mock(listType) {
-      1 * get(42)
-    }
-
-    `when`
-    list.get(42)
-
-    then
-    noExceptionThrown()
-  }
-
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub and mock call at creation time")
   fun `can stub and mock call at creation time`() {
-    given
     val list = Mock(listType) {
       1 * get(42) returned "foo"
     }
@@ -142,23 +119,8 @@ class JavaMockBasics : Specification() {
   }
 
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
-  @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can mock call beforehand")
-  fun `can mock call beforehand`() {
-    given
-    val list = Mock(listType)
-    1 * list.get(42)
-
-    `when`
-    list.get(42)
-
-    then
-    noExceptionThrown()
-  }
-
-  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub and mock call beforehand")
   fun `can stub and mock call beforehand`() {
-    given
     val list = Mock(listType)
     1 * list.get(42) returned "foo"
 
@@ -168,7 +130,6 @@ class JavaMockBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can mock call in then-block")
   fun `can mock call in then-block`() {
-    given
     val list = Mock(listType)
 
     `when`
@@ -180,7 +141,6 @@ class JavaMockBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#can stub and mock call in then-block")
   fun `can stub and mock call in then-block`() {
-    given
     val list = Mock(listType)
 
     `when`
@@ -194,7 +154,6 @@ class JavaMockBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/994")
   @MigratedFrom("org.spockframework.smoke.mock.JavaMockBasics#using >>_ returns stubbed value")
   fun `using returns any returns stubbed value`() {
-    given
     val list = Mock(listType)
 
     `when`

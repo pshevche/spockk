@@ -334,3 +334,15 @@ status = "blocked"
 reason = "The block-order validator rejects consecutive then blocks, which the feature needs to express an ordered interaction"
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.JavaMockBasics#can mock call at creation time"]]
+status = "blocked"
+reason = "The feature ends with a setup block that has no following when or expect block, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-12"
+
+[["org.spockframework.smoke.mock.JavaMockBasics#can mock call beforehand"]]
+status = "blocked"
+reason = "The feature ends with a setup block that has no following when or expect block, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/860"
+decided = "2026-11-12"
