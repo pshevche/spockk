@@ -21,7 +21,9 @@ import io.github.pshevche.spockk.lang.times
 import io.github.pshevche.spockk.lang.`when`
 import org.spockframework.mock.TooFewInvocationsError
 import org.spockframework.mock.TooManyInvocationsError
+import spock.lang.AutoCleanup
 import spock.lang.PendingFeature
+import spock.lang.Shared
 import spock.lang.Specification
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
@@ -34,32 +36,32 @@ class InvokingMocksFromMultipleThreads : Specification() {
   private val list: MutableList<Int> = Mock(MutableList::class.java) as MutableList<Int>
   private val latch = CountDownLatch(numThreads)
 
+  @Shared
+  @AutoCleanup("shutdownNow")
+  private val executorService: ExecutorService = Executors.newVirtualThreadPerTaskExecutor()
+
   private companion object {
     const val WAIT_TIME_S = 200L
   }
 
-  private fun runThreads(body: (threadId: Int, count: Int) -> Unit, onError: (Throwable) -> Unit = {}) {
-    val executor: ExecutorService = Executors.newVirtualThreadPerTaskExecutor()
-    try {
-      repeat(numThreads) { threadId ->
-        executor.submit {
-          try {
-            repeat(100) { count ->
-              body(threadId, count)
-              Thread.sleep(1)
-            }
-          } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
-            onError(e)
-          } finally {
-            latch.countDown()
+  private fun runThreads(body: (threadId: Int, count: Int) -> Unit, onError: ((Throwable) -> Unit)? = null) {
+    repeat(numThreads) { threadId ->
+      executorService.submit {
+        try {
+          repeat(100) { count ->
+            body(threadId, count)
+            Thread.sleep(1)
           }
+        } catch (@Suppress("TooGenericExceptionCaught") e: Throwable) {
+          if (onError == null) throw e
+          onError(e)
+        } finally {
+          latch.countDown()
         }
       }
-      check(latch.await(WAIT_TIME_S, TimeUnit.SECONDS)) {
-        "The test threads did not terminate in ${WAIT_TIME_S}s."
-      }
-    } finally {
-      executor.shutdownNow()
+    }
+    check(latch.await(WAIT_TIME_S, TimeUnit.SECONDS)) {
+      "The test threads did not terminate in ${WAIT_TIME_S}s."
     }
   }
 
