@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.smoke.mock
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
@@ -29,7 +28,6 @@ class JavaStubBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubBasics#can stub interface")
   fun `can stub interface`() {
-    given
     val list = Mock(MutableList::class.java as Class<MutableList<String>>)
     list.get(42) returns "foo"
 
@@ -40,7 +38,6 @@ class JavaStubBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubBasics#can stub class")
   fun `can stub class`() {
-    given
     val list = Mock(ArrayList::class.java as Class<ArrayList<String>>)
     list.get(42) returns "foo"
 
@@ -50,7 +47,6 @@ class JavaStubBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubBasics#can stub call at creation time")
   fun `can stub call at creation time`() {
-    given
     val list = Mock(MutableList::class.java as Class<MutableList<String>>) {
       get(42) returns "foo"
     }
@@ -62,7 +58,6 @@ class JavaStubBasics : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubBasics#can stub call beforehand")
   fun `can stub call beforehand`() {
-    given
     val list = Mock(MutableList::class.java as Class<MutableList<String>>)
     list.get(42) returns "foo"
 
@@ -72,7 +67,6 @@ class JavaStubBasics : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.JavaStubBasics#can stub call in then-block")
   fun `can stub call in then-block`() {
-    given
     val list = Mock(MutableList::class.java as Class<MutableList<String>>)
 
     `when`
