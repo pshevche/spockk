@@ -337,7 +337,7 @@ decided = "2026-10-31"
 
 [["org.spockframework.smoke.mock.GroovySpyBasics#can stub interface"]]
 status = "not-applicable"
-reason = "GroovySpy exists to intercept dynamic Groovy-only behavior (metaclass dispatch) that Kotlin types never go through. Spockk has no GroovySpy, and the plain-Spy variant of this same feature is covered by the JavaSpyBasics port"
+reason = "GroovySpy exists to intercept dynamic Groovy-only behavior (metaclass dispatch) that Kotlin types never go through. Spockk has no GroovySpy, and the plain-Spy variant of this same feature is tracked separately under JavaSpyBasics"
 decided = "2026-10-31"
 
 [["org.spockframework.smoke.mock.GroovySpyBasics#can stub class"]]
