@@ -27,7 +27,7 @@ import spock.lang.Specification
 class InvalidMockCreation : Specification() {
 
   @MigratedFrom("org.spockframework.smoke.mock.InvalidMockCreation#field w/ incompatible type")
-  fun `field w incompatible type`() {
+  fun `field with incompatible type`() {
     `when`
     val events = execute(selectClass(InvalidMockCreationFieldSpec::class.java))
 
@@ -39,7 +39,7 @@ class InvalidMockCreation : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.InvalidMockCreation#local w/ incompatible type")
-  fun `local w incompatible type`() {
+  fun `local with incompatible type`() {
     `when`
     val list: List<*> = Mock(Map::class.java) as List<*>
 
@@ -48,7 +48,7 @@ class InvalidMockCreation : Specification() {
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.InvalidMockCreation#expr w/ missing type")
-  fun `expr w missing type`() {
+  fun `expr with missing type`() {
     `when`
     Mock<Any>()
 
