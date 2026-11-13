@@ -17,7 +17,6 @@ package io.github.pshevche.spockk.smoke.mock
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.times
@@ -30,7 +29,6 @@ class InteractionsWithPropertySyntax : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing properties")
   fun `stubbing properties`() {
-    given
     val props = Mock(HasProperties::class.java)
     props.length returns 10
 
@@ -43,7 +41,6 @@ class InteractionsWithPropertySyntax : Specification() {
     "org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing properties in initializer closure with 'it'"
   )
   fun `stubbing properties in initializer closure with 'it'`() {
-    given
     val props = Mock(HasProperties::class.java) {
       this.length returns 10
     }
@@ -57,7 +54,6 @@ class InteractionsWithPropertySyntax : Specification() {
     "org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing properties in initializer closure without 'it'"
   )
   fun `stubbing properties in initializer closure without 'it'`() {
-    given
     val props = Mock(HasProperties::class.java) {
       length returns 10
     }
@@ -69,7 +65,6 @@ class InteractionsWithPropertySyntax : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/984")
   @MigratedFrom("org.spockframework.smoke.mock.InteractionsWithPropertySyntax#mocking properties")
   fun `mocking properties`() {
-    given
     val props = Mock(HasProperties::class.java)
 
     `when`
@@ -83,7 +78,6 @@ class InteractionsWithPropertySyntax : Specification() {
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   @MigratedFrom("org.spockframework.smoke.mock.InteractionsWithPropertySyntax#stubbing/mocking boolean properties")
   fun `stubbing mocking boolean properties`() {
-    given
     val props = Mock(HasProperties::class.java)
     props.isEmpty returns true
     props.full returns false
