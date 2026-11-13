@@ -17,19 +17,14 @@ package io.github.pshevche.spockk.smoke.mock
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.expect
-import io.github.pshevche.spockk.lang.given
-import spock.lang.Issue
 import spock.lang.Specification
 import java.util.Queue
 
-@Issue("https://github.com/spockframework/spock/issues/357")
 class ChainedResponseGenerators : Specification() {
+  private val queue: Queue<*> = Mock(Queue::class.java)
 
   @MigratedFrom("org.spockframework.smoke.mock.ChainedResponseGenerators#implicit default response")
   fun `implicit default response`() {
-    given
-    val queue = Mock(Queue::class.java)
-
     expect
     queue.poll() == null
     queue.poll() == null
