@@ -22,6 +22,7 @@ import io.github.pshevche.spockk.fixtures.runtime.samples.mock.InvalidStubIntera
 import io.github.pshevche.spockk.fixtures.runtime.samples.mock.InvalidStubInteractionUncalledFieldStubSpec
 import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.Stub
+import io.github.pshevche.spockk.lang.and
 import io.github.pshevche.spockk.lang.expect
 import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.then
@@ -39,7 +40,8 @@ class InvalidStubInteraction : Specification() {
   @MigratedFrom("org.spockframework.smoke.mock.InvalidStubInteraction#required interaction on field mock but not on stub")
   fun `required interaction on field mock but not on stub`() {
     expect
-    execute(selectClass(InvalidStubInteractionFieldMockSpec::class.java)).failed().list().isEmpty()
+    !failedWithInvalidSpec(InvalidStubInteractionFieldMockSpec::class)
+    execute(selectClass(InvalidStubInteractionFieldMockSpec::class.java)).succeeded().list().size == 1
   }
 
   @MigratedFrom("org.spockframework.smoke.mock.InvalidStubInteraction#required interaction on local mock but not on stub")
@@ -48,7 +50,11 @@ class InvalidStubInteraction : Specification() {
     val listMock = Mock(List::class.java) {
       0 * size
     }
+
+    and
     val list = Stub(List::class.java)
+
+    and
     list.size
 
     then
@@ -68,6 +74,8 @@ class InvalidStubInteraction : Specification() {
     val list = Stub(List::class.java) {
       0 * size
     }
+
+    and
     list.size
 
     then
@@ -92,6 +100,8 @@ class InvalidStubInteraction : Specification() {
     val list = Stub(List::class.java) {
       0 * size
     }
+
+    and
     list.isEmpty()
 
     then
@@ -117,6 +127,11 @@ class InvalidStubInteraction : Specification() {
     val ise = thrown(InvalidSpecException::class.java)
     ise.message!!.contains("turn the stub into a mock")
   }
+
+  private fun failedWithInvalidSpec(spec: KClass<*>): Boolean =
+    execute(selectClass(spec.java)).failed().list().any {
+      it.getRequiredPayload(TestExecutionResult::class.java).throwable.orElse(null) is InvalidSpecException
+    }
 
   private fun failureOf(spec: KClass<*>): String =
     execute(selectClass(spec.java)).failed().list().single()
