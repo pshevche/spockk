@@ -380,12 +380,41 @@ status = "not-applicable"
 reason = "Checks Groovy 3 property resolution for a boxed Boolean is getter; Groovy property resolution rules do not exist in Kotlin, and Spockk targets Groovy 4 or newer"
 decided = "2026-10-31"
 
-[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed is getters is not mockable Groovy >= 4"]]
-status = "not-applicable"
-reason = "Asserts that Groovy 4 throws MissingPropertyException for property access of a boxed Boolean is getter; Kotlin has no Groovy property access. The mockable method-call half is covered by the boxed get getters port"
-decided = "2026-10-31"
 
 [["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed is getters shall be mockable Groovy <= 3"]]
 status = "not-applicable"
 reason = "Groovy 3 property-syntax stubbing of a boxed Boolean is getter; Groovy property syntax does not exist in Kotlin, and Spockk targets Groovy 4 or newer"
 decided = "2026-10-31"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#physical method"]]
+status = "not-applicable"
+reason = "Upstream uses GroovyMock(Person) and exercises Groovy-only mock dispatch (including property syntax on the mock). Spockk has no GroovyMock, and swapping in a plain Mock would test something different"
+decided = "2026-11-13"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#get physical property"]]
+status = "not-applicable"
+reason = "Upstream uses GroovyMock(Person) and exercises Groovy-only mock dispatch (including property syntax on the mock). Spockk has no GroovyMock, and swapping in a plain Mock would test something different"
+decided = "2026-11-13"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#set physical property"]]
+status = "not-applicable"
+reason = "Upstream uses GroovyMock(Person) and exercises Groovy-only mock dispatch (including property syntax on the mock). Spockk has no GroovyMock, and swapping in a plain Mock would test something different"
+decided = "2026-11-13"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean is getters shall be mockable"]]
+status = "blocked"
+reason = "Creates Stub builder blocks in a where block, which Spockk does not rewrite. The failure happens while the data is evaluated, so @PendingFeature cannot absorb it and a ported test would fail the build"
+gap = "https://github.com/pshevche/spockk/issues/1115"
+decided = "2026-11-13"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean get getters shall be mockable"]]
+status = "blocked"
+reason = "Creates Stub builder blocks in a where block, which Spockk does not rewrite. The failure happens while the data is evaluated, so @PendingFeature cannot absorb it and a ported test would fail the build"
+gap = "https://github.com/pshevche/spockk/issues/1115"
+decided = "2026-11-13"
+
+[["org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed get getters shall be mockable"]]
+status = "blocked"
+reason = "Creates Stub builder blocks in a where block, which Spockk does not rewrite. The failure happens while the data is evaluated, so @PendingFeature cannot absorb it and a ported test would fail the build"
+gap = "https://github.com/pshevche/spockk/issues/1115"
+decided = "2026-11-13"

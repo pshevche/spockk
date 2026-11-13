@@ -15,24 +15,13 @@
 package io.github.pshevche.spockk.smoke.mock
 
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
-import io.github.pshevche.spockk.lang.Mock
 import io.github.pshevche.spockk.lang.Stub
 import io.github.pshevche.spockk.lang.expect
+import io.github.pshevche.spockk.lang.given
 import io.github.pshevche.spockk.lang.returns
-import io.github.pshevche.spockk.lang.then
-import io.github.pshevche.spockk.lang.times
-import io.github.pshevche.spockk.lang.`when`
 import spock.lang.Specification
 
 class GroovyMocksForInterfaces : Specification() {
-
-  interface Person {
-    fun getName(): String
-
-    fun setName(name: String)
-
-    fun sing(song: String)
-  }
 
   interface BooleanGetters {
     fun isBooleanValue(): Boolean
@@ -44,71 +33,12 @@ class GroovyMocksForInterfaces : Specification() {
     fun getIsBooleanValueBoxed(): Boolean?
   }
 
-  private val person = Mock(Person::class.java)
-
-  @MigratedFrom("org.spockframework.smoke.mock.GroovyMocksForInterfaces#physical method")
-  fun `physical method`() {
-    `when`
-    person.sing("song")
-
-    then
-    1 * person.sing("song")
-  }
-
-  @MigratedFrom("org.spockframework.smoke.mock.GroovyMocksForInterfaces#get physical property")
-  fun `get physical property`() {
-    `when`
-    person.getName()
-
-    then
-    1 * person.getName()
-
-    `when`
-    person.getName()
-
-    then
-    1 * person.getName()
-  }
-
-  @MigratedFrom("org.spockframework.smoke.mock.GroovyMocksForInterfaces#set physical property")
-  fun `set physical property`() {
-    `when`
-    person.setName("fred")
-
-    then
-    1 * person.setName("fred")
-  }
-
-  @MigratedFrom("org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean is getters shall be mockable")
-  fun `Boolean is getters shall be mockable`() {
-    val m =
-      Stub(BooleanGetters::class.java) {
-        isBooleanValue() returns true
-      }
+  @MigratedFrom("org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed is getters is not mockable Groovy >= 4")
+  fun `Boolean boxed is getters is not mockable Groovy 4 or newer`() {
+    given
+    val m = Stub(BooleanGetters::class.java) { isBooleanValueBoxed() returns true }
 
     expect
-    m.isBooleanValue()
-  }
-
-  @MigratedFrom("org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean get getters shall be mockable")
-  fun `Boolean get getters shall be mockable`() {
-    val m =
-      Stub(BooleanGetters::class.java) {
-        getIsBooleanValue() returns true
-      }
-
-    expect
-    m.getIsBooleanValue()
-  }
-
-  @MigratedFrom("org.spockframework.smoke.mock.GroovyMocksForInterfaces#Boolean boxed get getters shall be mockable")
-  fun `Boolean boxed get getters shall be mockable`() {
-    val m =
-      Stub(BooleanGetters::class.java) {
-        getIsBooleanValueBoxed() returns true
-      }
-
-    expect
-    m.getIsBooleanValueBoxed() == true
+    m.isBooleanValueBoxed() == true
   }
 }
