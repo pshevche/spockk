@@ -2,8 +2,8 @@
   "upstream": {
     "repo": "spockframework/spock",
     "ref": "master",
-    "sha": "f51907994d739aa761474c01883572ffbb7e7fdf",
-    "generated_at": "2026-10-05T11:14:30Z"
+    "sha": "ce7e8afa895210d0b06103223f10d963a83f7a08",
+    "generated_at": "2026-11-08T15:24:04Z"
   },
   "classes": [
     {
@@ -798,8 +798,8 @@
           "hash": "80e22c56"
         },
         {
-          "name": "NPE when stubbing method on null object",
-          "hash": "7fba1534"
+          "name": "stubbing method on null object does not NPE and reports InvalidSpecException",
+          "hash": "17356bca"
         }
       ]
     },
@@ -7257,6 +7257,23 @@
       ]
     },
     {
+      "key": "org.spockframework.smoke.mock.GlobalInteractionsInCleanup",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/GlobalInteractionsInCleanup.groovy",
+      "base": "GlobalInteractionsInCleanupSuperSpec",
+      "recipe": "smoke",
+      "area": "mocking",
+      "features": [
+        {
+          "name": "run a successful test",
+          "hash": "19f4c6c8"
+        },
+        {
+          "name": "run a failing test",
+          "hash": "a4eb14d6"
+        }
+      ]
+    },
+    {
       "key": "org.spockframework.smoke.mock.GroovyMockAbstractGlobalClass",
       "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/GroovyMockAbstractGlobalClass.groovy",
       "base": "Specification",
@@ -9031,6 +9048,27 @@
         {
           "name": "mock response generators do not deadlock when self-referencing",
           "hash": "26c363e0"
+        }
+      ]
+    },
+    {
+      "key": "org.spockframework.smoke.mock.NullTargetInteraction",
+      "path": "spock-specs/src/test/groovy/org/spockframework/smoke/mock/NullTargetInteraction.groovy",
+      "base": "Specification",
+      "recipe": "smoke",
+      "area": "mocking",
+      "features": [
+        {
+          "name": "interaction on null target throws InvalidSpecException",
+          "hash": "38f0ac0d"
+        },
+        {
+          "name": "required interaction on null target throws InvalidSpecException",
+          "hash": "584fc6a2"
+        },
+        {
+          "name": "interaction on real mock is still accepted",
+          "hash": "81e86d08"
         }
       ]
     },
