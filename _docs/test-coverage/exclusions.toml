@@ -204,6 +204,36 @@ reason = "A @Shared @TempDir field is never injected, and the base spec's inheri
 gap = "https://github.com/pshevche/spockk/issues/928"
 decided = "2026-10-30"
 
+[["org.spockframework.smoke.mock.GenericMockInvocations#mock with parameterized type"]]
+status = "blocked"
+reason = "Needs Mock(type = ...) through the options-map overload (#657) and a response that reads the IMockInvocation (parameterTypes, returnType), which Spockk's does/did lambdas do not expose"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-14"
+
+[["org.spockframework.smoke.mock.GenericMockInvocations#mock with raw type"]]
+status = "blocked"
+reason = "Asserts the intercepted method's parameterTypes, returnType, exactParameterTypes and exactReturnType from the IMockInvocation inside the interaction response, which Spockk's does/did lambdas do not expose"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-14"
+
+[["org.spockframework.smoke.mock.GenericMockInvocations#mock whose type implements parameterized interface"]]
+status = "blocked"
+reason = "Asserts the intercepted method's parameterTypes and returnType from the IMockInvocation inside the interaction response, which Spockk's does/did lambdas do not expose"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-14"
+
+[["org.spockframework.smoke.mock.GenericMockInvocations#mock whose type extends parameterized class"]]
+status = "blocked"
+reason = "Asserts the intercepted method's parameterTypes and returnType from the IMockInvocation inside the interaction response, which Spockk's does/did lambdas do not expose"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-14"
+
+[["org.spockframework.smoke.mock.GenericMockInvocations#mock with generic method"]]
+status = "blocked"
+reason = "Asserts the intercepted method's returnType and exactReturnType from the IMockInvocation inside the interaction response, which Spockk's does/did lambdas do not expose"
+gap = "https://github.com/pshevche/spockk/issues/1011"
+decided = "2026-11-14"
+
 [["org.spockframework.smoke.mock.GenericMockInvocations#mock with parameterized parameter and return types"]]
 status = "not-applicable"
 reason = "Upstream marks the feature @Ignore (\"appears to run into a groovy 2.3.x bug\"), so it never runs upstream and there is no behavior left to cover"
