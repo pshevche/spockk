@@ -14,7 +14,6 @@
 
 package io.github.pshevche.spockk.smoke.extension
 
-import groovy.lang.Closure
 import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.fixtures.runtime.EngineTestKitUtils.execute
 import io.github.pshevche.spockk.fixtures.runtime.samples.extension.TempDirLocationSpec
@@ -25,16 +24,19 @@ import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.variable
 import io.github.pshevche.spockk.lang.`when`
 import io.github.pshevche.spockk.lang.where
-import org.codehaus.groovy.runtime.InvokerHelper
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import org.spockframework.builder.DelegatingScript
+import org.spockframework.runtime.ConfigurationScriptLoader
 import org.spockframework.runtime.RunContext
+import org.spockframework.runtime.model.parallel.Resources
 import org.spockframework.util.IThrowableFunction
 import spock.lang.PendingFeature
+import spock.lang.ResourceLock
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Stepwise
 import spock.lang.TempDir
+import spock.util.environment.RestoreSystemProperties
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -125,37 +127,25 @@ class TempDirExtensionSpec : Specification() {
     variable(i).from(0, 1)
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/1118")
+  @RestoreSystemProperties
+  @ResourceLock(Resources.SYSTEM_PROPERTIES)
   @MigratedFrom("org.spockframework.smoke.extension.TempDirExtensionSpec#define temp directory location using configuration script")
   fun `define temp directory location using configuration script`() {
     given
     val userDefinedBase = (untypedPath as Path).resolve("build")
-    val script = baseDirConfigurationScript(userDefinedBase)
+    val configFile = Files.createTempFile((untypedPath as Path), "SpockConfig", ".groovy")
+    Files.writeString(configFile, "tempdir { baseDir java.nio.file.Paths.get('${userDefinedBase.toString().replace("\\", "/")}') }")
+    System.setProperty("spock.configuration", configFile.toString())
+    val userHome = File(RunContext.get().spockUserHome, "Embedded")
 
     `when`
-    val events = inNewContext(script) { execute(selectClass(TempDirLocationSpec::class.java)) }
+    val events = inNewContext(ConfigurationScriptLoader(userHome).loadAutoDetectedScript()) {
+      execute(selectClass(TempDirLocationSpec::class.java))
+    }
 
     then
     events.assertStatistics { it.started(1).succeeded(1) }
-  }
-
-  // A Groovy-parsed script cannot run here: Gradle TestKit puts its own Groovy before the one Spock needs.
-  private fun baseDirConfigurationScript(baseDir: Path) = object : DelegatingScript() {
-    private var target: Any? = null
-
-    override fun `$setDelegate`(delegate: Any?) {
-      target = delegate
-    }
-
-    override fun run(): Any? {
-      val section = object : Closure<Any?>(this) {
-        override fun call(vararg args: Any?): Any? {
-          InvokerHelper.setProperty(getDelegate(), "baseDir", baseDir)
-          return null
-        }
-      }
-      section.resolveStrategy = Closure.DELEGATE_FIRST
-      return InvokerHelper.invokeMethod(target, "tempdir", arrayOf<Any?>(section))
-    }
   }
 
   private fun <T> inNewContext(script: DelegatingScript?, block: () -> T): T {
