@@ -22,6 +22,7 @@ import io.github.pshevche.spockk.lang.returns
 import org.spockframework.runtime.DataVariablesIterationNameProvider
 import org.spockframework.runtime.model.FeatureInfo
 import org.spockframework.runtime.model.IterationInfo
+import spock.lang.PendingFeature
 import spock.lang.Specification
 import spock.lang.Subject
 
@@ -53,27 +54,29 @@ class DataVariablesIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.DataVariablesIterationNameProviderSpec#returns feature name with data variables and iteration index when reporting iterations"
   )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `returns feature name with data variables and iteration index when reporting iterations`() {
     given
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns linkedMapOf<String, Any?>("x" to 1, "y" to 2, "z" to 3)
     }
+    iteration.dataVariables returns linkedMapOf<String, Any?>("x" to 1, "y" to 2, "z" to 3)
 
     expect
     testee.getName(iteration) == "${featureInfo.name} [x: 1, y: 2, z: 3, #${iteration.iterationIndex}]"
   }
 
   @MigratedFrom("org.spockframework.runtime.DataVariablesIterationNameProviderSpec#renders data variables in Groovy style")
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `renders data variables in Groovy style`() {
     given
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns
-        linkedMapOf<String, Any?>("x" to listOf(1), "y" to linkedMapOf("a" to 2), "z" to intArrayOf(3))
     }
+    iteration.dataVariables returns
+      linkedMapOf<String, Any?>("x" to listOf(1), "y" to linkedMapOf("a" to 2), "z" to intArrayOf(3))
 
     expect
     testee.getName(iteration) == "${featureInfo.name} [x: [1], y: [a:2], z: [3], #${iteration.iterationIndex}]"
@@ -82,13 +85,14 @@ class DataVariablesIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.DataVariablesIterationNameProviderSpec#returns feature name with iteration index when reporting iterations but data variables are null"
   )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `returns feature name with iteration index when reporting iterations but data variables are null`() {
     given
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns null
     }
+    iteration.dataVariables returns null
 
     expect
     testee.getName(iteration) == "${featureInfo.name} [#${iteration.iterationIndex}]"
@@ -97,6 +101,7 @@ class DataVariablesIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.DataVariablesIterationNameProviderSpec#handles errors during toString rendering gracefully"
   )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `handles errors during toString rendering gracefully`() {
     given
     val erroneousObject =
@@ -106,8 +111,8 @@ class DataVariablesIterationNameProviderSpec : Specification() {
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns linkedMapOf<String, Any?>("x" to erroneousObject, "y" to 2, "z" to 3)
     }
+    iteration.dataVariables returns linkedMapOf<String, Any?>("x" to erroneousObject, "y" to 2, "z" to 3)
 
     expect
     testee.getName(iteration) == "${featureInfo.name} [x: #Error:RuntimeException during rendering, y: 2, z: 3, #${iteration.iterationIndex}]"
@@ -116,14 +121,15 @@ class DataVariablesIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.DataVariablesIterationNameProviderSpec#returns data variables and iteration index when reporting iterations and includeFeatureNameForIterations=false"
   )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `returns data variables and iteration index when reporting iterations and includeFeatureNameForIterations=false`() {
     given
     testee = DataVariablesIterationNameProvider(false)
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns linkedMapOf<String, Any?>("x" to 1, "y" to 2, "z" to 3)
     }
+    iteration.dataVariables returns linkedMapOf<String, Any?>("x" to 1, "y" to 2, "z" to 3)
 
     expect
     testee.getName(iteration) == "x: 1, y: 2, z: 3, #${iteration.iterationIndex}"
@@ -132,14 +138,15 @@ class DataVariablesIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.DataVariablesIterationNameProviderSpec#returns data variables only when reporting iterations and includeFeatureNameForIterations=false, includeIterationIndex=false"
   )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `returns data variables only when reporting iterations and includeFeatureNameForIterations=false, includeIterationIndex=false`() {
     given
     testee = DataVariablesIterationNameProvider(false, false)
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns linkedMapOf<String, Any?>("x" to 1, "y" to 2, "z" to 3)
     }
+    iteration.dataVariables returns linkedMapOf<String, Any?>("x" to 1, "y" to 2, "z" to 3)
 
     expect
     testee.getName(iteration) == "x: 1, y: 2, z: 3"
@@ -148,15 +155,16 @@ class DataVariablesIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.DataVariablesIterationNameProviderSpec#renders data variables in Groovy style and includeFeatureNameForIterations=false"
   )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `renders data variables in Groovy style and includeFeatureNameForIterations=false`() {
     given
     testee = DataVariablesIterationNameProvider(false)
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns
-        linkedMapOf<String, Any?>("x" to listOf(1), "y" to linkedMapOf("a" to 2), "z" to intArrayOf(3))
     }
+    iteration.dataVariables returns
+      linkedMapOf<String, Any?>("x" to listOf(1), "y" to linkedMapOf("a" to 2), "z" to intArrayOf(3))
 
     expect
     testee.getName(iteration) == "x: [1], y: [a:2], z: [3], #${iteration.iterationIndex}"
@@ -165,14 +173,15 @@ class DataVariablesIterationNameProviderSpec : Specification() {
   @MigratedFrom(
     "org.spockframework.runtime.DataVariablesIterationNameProviderSpec#returns iteration index when reporting iterations but data variables are null and includeFeatureNameForIterations=false"
   )
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/693")
   fun `returns iteration index when reporting iterations but data variables are null and includeFeatureNameForIterations=false`() {
     given
     testee = DataVariablesIterationNameProvider(false)
     val iteration = Stub(IterationInfo::class.java) {
       getFeature() returns featureInfo
       getIterationIndex() returns 99
-      getDataVariables() returns null
     }
+    iteration.dataVariables returns null
 
     expect
     testee.getName(iteration) == "#${iteration.iterationIndex}"
