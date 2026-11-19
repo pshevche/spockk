@@ -13,7 +13,7 @@ dependencies {
   testImplementation(libs.junit4)
 
   testRuntimeOnly(libs.junit.platform.launcher)
-  testRuntimeOnly(libs.mockito)
+  testImplementation(libs.mockito)
 
   testFixturesImplementation(projects.spockkCompilerPlugin)
   testFixturesImplementation(projects.spockkCore)
