@@ -63,6 +63,17 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.runtime.SafeIterationNameProviderSpec#iteration name defaults to feature name when iterations aren't reported"]]
+status = "blocked"
+reason = "Needs expect: followed by when:/then: blocks. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', even though real Spock allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.SafeIterationNameProviderSpec#iteration name defaults to indexed feature name when iterations are reported"]]
+status = "blocked"
+reason = "Needs expect: followed by when:/then: blocks. Spockk's block-order validator only allows 'and'/'cleanup'/'where' after 'expect:', even though real Spock allows a following WHEN"
+gap = "https://github.com/pshevche/spockk/issues/665"
+
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
 reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
