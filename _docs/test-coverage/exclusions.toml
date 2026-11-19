@@ -63,6 +63,18 @@ reason = "Needs given:/expect: (checks the spy forwards to the real getter) foll
 gap = "https://github.com/pshevche/spockk/issues/665"
 decided = "2026-09-29"
 
+[["org.spockframework.runtime.GroovyRuntimeUtilSpec#coerce"]]
+status = "blocked"
+reason = "Needs an expect block followed by a when block, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
+[["org.spockframework.runtime.GroovyRuntimeUtilSpec#coerce to first successful candidate type"]]
+status = "blocked"
+reason = "Needs an expect block followed by a when block, which the block-order validator rejects"
+gap = "https://github.com/pshevche/spockk/issues/665"
+decided = "2026-10-14"
+
 [["org.spockframework.runtime.ClosingOfDataProviders#close one provider which potentially throws an exception"]]
 status = "not-applicable"
 reason = "Upstream marks the whole class @Ignore (\"Method removed from PlatformParameterizedSpecRunner\"): it calls PlatformParameterizedSpecRunner.closeDataProviders, which no longer exists, so the feature never runs upstream. Spockk reuses Spock's own runner unchanged and has no equivalent code path to port"
