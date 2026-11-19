@@ -364,6 +364,11 @@ reason = "The block-order validator rejects consecutive then blocks, which the f
 gap = "https://github.com/pshevche/spockk/issues/712"
 decided = "2026-10-31"
 
+[["org.spockframework.smoke.mock.GroovyMockFinalClass#Mock for final class shall only change meta class of instance"]]
+status = "not-applicable"
+reason = "The feature asserts that GroovyMock() on a final class swaps only the instance's Groovy metaclass for a GroovyMockMetaClass. Kotlin calls are plain JVM bytecode and never consult the metaclass, so there is nothing to port"
+decided = "2026-10-31"
+
 [["org.spockframework.smoke.mock.GlobalInteractionsInCleanup#run a successful test"]]
 status = "blocked"
 reason = "Interactions in a setup() fixture method are never rewritten, so the global interaction the feature relies on throws inside the fixture, which @PendingFeature cannot cover"
