@@ -17,9 +17,11 @@ package io.github.pshevche.spockk.compilation
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithBody
 import io.github.pshevche.spockk.compilation.TestDataFactory.specWithFeatureBody
 import io.github.pshevche.spockk.fixtures.compilation.CompilationUtils.transform
+import io.github.pshevche.spockk.fixtures.coverage.MigratedFrom
 import io.github.pshevche.spockk.lang.then
 import io.github.pshevche.spockk.lang.`when`
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import spock.lang.PendingFeature
 import spock.lang.Specification
 
 @OptIn(ExperimentalCompilerApi::class)
@@ -656,5 +658,29 @@ class FeatureBlockStructureValidationTest : Specification() {
         """
         .trimIndent()
     )
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/747")
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#'old' method used outside then-block")
+  fun `'old' method used outside then-block`() {
+    `when`
+    val result =
+      transform(
+        specWithFeatureBody(
+          """
+          val x = 1
+
+          io.github.pshevche.spockk.lang.`when`
+          val y = old(x)
+
+          io.github.pshevche.spockk.lang.then
+          assert(true)
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
   }
 }
