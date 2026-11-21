@@ -442,15 +442,16 @@ def plan_hierarchy(
 MUTATION_PACING_SECONDS = 1
 
 
-def apply(mutations: list[Mutation], github, sleep=time.sleep) -> None:
+def apply(mutations: list[Mutation], github, sleep=time.sleep, known: dict[str, tuple[int, int]] = None) -> None:
     """Paces one request-ish per mutation; GitHub throttles bulk content creation (issues,
     comments, labels) more strictly than plain API reads, via a secondary rate limit that
     `GitHub._request` retries but that pacing avoids tripping in the first place.
 
     Also threads a namespaced ("spec"/"area"/"dashboard") key -> (issue number, issue id) map,
     seeded as each issue is created or updated, so a later `link_sub_issue` mutation can resolve
-    both ends whether they're pre-existing or were just created earlier in this same run."""
-    resolved: dict[str, tuple[int, int]] = {}
+    both ends whether they're pre-existing or were just created earlier in this same run.
+    `known` seeds the map with issues that exist but need no create/update this run."""
+    resolved: dict[str, tuple[int, int]] = dict(known or {})
 
     def _create(ns):
         created = github.post(
@@ -552,7 +553,11 @@ def run(
         return mutations
 
     check_blast_radius(mutations, max_mutations)
-    apply(mutations, github, sleep=sleep)
+    known = {f"spec:{key}": (issue.number, issue.id) for key, issue in existing_issues.items()}
+    known.update({f"area:{key}": (area.number, area.id) for key, area in (existing_areas or {}).items()})
+    if existing_dashboard:
+        known[f"dashboard:{DASHBOARD_KEY}"] = (existing_dashboard.number, existing_dashboard.id)
+    apply(mutations, github, sleep=sleep, known=known)
     return mutations
 
 
