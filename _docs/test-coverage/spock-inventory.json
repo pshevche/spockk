@@ -2,8 +2,8 @@
   "upstream": {
     "repo": "spockframework/spock",
     "ref": "master",
-    "sha": "ce7e8afa895210d0b06103223f10d963a83f7a08",
-    "generated_at": "2026-11-09T12:36:45Z"
+    "sha": "3ff35eb838823f87510ad61b8095c75d1566a305",
+    "generated_at": "2026-11-16T12:29:48Z"
   },
   "classes": [
     {
