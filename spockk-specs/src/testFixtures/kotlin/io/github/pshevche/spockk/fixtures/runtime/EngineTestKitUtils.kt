@@ -15,10 +15,22 @@
 package io.github.pshevche.spockk.fixtures.runtime
 
 import org.junit.platform.engine.DiscoverySelector
+import org.junit.platform.engine.TestExecutionResult
+import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
+import org.junit.platform.launcher.PostDiscoveryFilter
 import org.junit.platform.testkit.engine.EngineTestKit
 import org.junit.platform.testkit.engine.Events
+import kotlin.reflect.KClass
 
 object EngineTestKitUtils {
-  fun execute(selector: DiscoverySelector): Events =
-    EngineTestKit.engine("spock").selectors(selector).execute().testEvents().debug()
+  fun execute(vararg selectors: DiscoverySelector): Events =
+    EngineTestKit.engine("spock").selectors(*selectors).execute().testEvents().debug()
+
+  fun execute(selector: DiscoverySelector, filter: PostDiscoveryFilter): Events =
+    EngineTestKit.engine("spock").selectors(selector).filters(filter).execute().testEvents().debug()
+
+  fun failureMessage(clazz: KClass<*>): String =
+    execute(selectClass(clazz.java)).failed().list().single()
+      .getRequiredPayload(TestExecutionResult::class.java)
+      .throwable.orElseThrow().message ?: ""
 }

@@ -167,4 +167,10 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     expect
     assertTransformation(sampleFromResource("parametrization/ReferenceFeatureVariableInDataTableSpec"))
   }
+
+  @MigratedFrom("org.spockframework.smoke.ast.DataTablesAstSpec#using a variable in a cell multiple times compiles")
+  fun `using a variable in a cell multiple times compiles`() {
+    expect
+    assertTransformation(sampleFromResource("parametrization/VariableUsedMultipleTimesInDataTableCellSpec"))
+  }
 }

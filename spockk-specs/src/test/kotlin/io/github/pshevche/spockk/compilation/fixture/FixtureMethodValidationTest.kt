@@ -139,6 +139,60 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     variable(fixtureMethodName).from("setupSpec", "cleanupSpec")
   }
 
+  @MigratedFrom("org.spockframework.smoke.FixtureMethods#setupSpec() may not access instance fields (only @Shared and static fields)")
+  fun `setupSpec() may not access instance fields (only @Shared and static fields)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                val x = 42
+
+                fun setupSpec() {
+                    val foo = x
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("@Shared")
+  }
+
+  @MigratedFrom("org.spockframework.smoke.FixtureMethods#cleanupSpec() may not access instance fields (only @Shared and static fields)")
+  fun `cleanupSpec() may not access instance fields (only @Shared and static fields)`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+                var x = 42
+
+                fun cleanupSpec() {
+                    repeat(3) { x = 0 }
+                }
+
+                fun `some feature`() {
+                    io.github.pshevche.spockk.lang.expect
+                    assert(true)
+                }
+                """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+    result.compilation.messages.contains("@Shared")
+  }
+
   fun `supports feature-scoped fixture method accessing instance field`(fixtureMethodName: String) {
     `when`
     val result =
@@ -251,6 +305,36 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
             .trimIndent()
         )
       )
+      
+    then
+    !result.isSuccess()
+  }
+  
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
+  @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#misspelled setup causes compile error")
+  fun `misspelled setup causes compile error`() {
+    `when`
+    val result = transform(specWithBody("fun setUp() {}"))
+
+    then
+    !result.isSuccess()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
+  @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#misspelled cleanup causes compile error")
+  fun `misspelled cleanup causes compile error`() {
+    `when`
+    val result = transform(specWithBody("fun cLeanup() {}"))
+
+    then
+    !result.isSuccess()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
+  @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#misspelled setupSpec causes compile error")
+  fun `misspelled setupSpec causes compile error`() {
+    `when`
+    val result = transform(specWithBody("fun setupspec() {}"))
 
     then
     !result.isSuccess()
@@ -274,8 +358,27 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
             .trimIndent()
         )
       )
+    
+    then
+    !result.isSuccess()
+  }   
+  
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
+  @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#misspelled cleanupSpec causes compile error")
+  fun `misspelled cleanupSpec causes compile error`() {
+    `when`
+    val result = transform(specWithBody("fun CleanupSpec() {}"))
 
     then
     !result.isSuccess()
+  }
+
+  @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#correctly spelled setup compiles successfully")
+  fun `correctly spelled setup compiles successfully`() {
+    `when`
+    val result = transform(specWithBody("fun setup() {}"))
+
+    then
+    result.isSuccess()
   }
 }
