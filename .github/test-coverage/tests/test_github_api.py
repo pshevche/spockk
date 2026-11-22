@@ -196,7 +196,7 @@ class GitHubClientTest(unittest.TestCase):
         self.assertEqual("GET", method)
         self.assertIn("/issues/99/sub_issues", url)
 
-    def test_add_sub_issue_posts_the_sub_issue_id(self):
+    def test_add_sub_issue_posts_the_sub_issue_id_and_replaces_any_existing_parent(self):
         transport = FakeTransport([FakeResponse(201, {}, b"{}")])
         gh = GitHub(token="t", repo="o/r", transport=transport)
 
@@ -205,7 +205,7 @@ class GitHubClientTest(unittest.TestCase):
         method, url, _, body = transport.requests[0]
         self.assertEqual("POST", method)
         self.assertIn("/issues/99/sub_issues", url)
-        self.assertEqual({"sub_issue_id": 555}, body)
+        self.assertEqual({"sub_issue_id": 555, "replace_parent": True}, body)
 
 
 if __name__ == "__main__":
