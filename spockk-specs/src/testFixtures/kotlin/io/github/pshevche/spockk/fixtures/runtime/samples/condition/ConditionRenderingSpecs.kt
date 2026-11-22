@@ -200,6 +200,41 @@ class ObjectArrayValueSpec : Specification() {
   }
 }
 
+class DefaultToStringArrayValueSpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(DefaultToString(), DefaultToString())
+    expect
+    x == null
+  }
+}
+
+class IntArray2dEqualitySpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(intArrayOf(1, 2), intArrayOf(2, 5))
+    val y = arrayOf(intArrayOf(1, 2), intArrayOf(1, 5))
+    expect
+    x == y
+  }
+}
+
+class ObjectArray2dEqualitySpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(arrayOf("one", "two"), arrayOf("two", "five"))
+    val y = arrayOf(arrayOf("one", "two"), arrayOf("one", "five"))
+    expect
+    x == y
+  }
+}
+
+class IntArray3dEqualitySpec : Specification() {
+  fun `test`() {
+    val x = arrayOf(arrayOf(intArrayOf(1, 2), intArrayOf(2, 5)), arrayOf(intArrayOf(1, 2), intArrayOf(2, 5)))
+    val y = arrayOf(arrayOf(intArrayOf(1, 2), intArrayOf(1, 5)), arrayOf(intArrayOf(1, 2), intArrayOf(1, 5)))
+    expect
+    x == y
+  }
+}
+
 class SingleLineToString {
   override fun toString() = "single line"
 }
@@ -383,5 +418,59 @@ class NestedVerifyInVerifyAllSpec : Specification() {
     verifyAll {
       verify(str) { length == 3 }
     }
+  }
+}
+
+class SetMissingAndExtraSpec : Specification() {
+  fun `test`() {
+    val a = setOf(1, 2, 3)
+    val b = setOf(2, 3, 4)
+    expect
+    a == b
+  }
+}
+
+class SetOnlyMissingSpec : Specification() {
+  fun `test`() {
+    val a = setOf(1, 2, 3)
+    val b = setOf(1, 2, 3, 4)
+    expect
+    a == b
+  }
+}
+
+class SetLargeSmallDifferencesSpec : Specification() {
+  fun `test`() {
+    val a = (1..15).toSet()
+    val b = (6..20).toSet()
+    expect
+    a == b
+  }
+}
+
+class SetLargeLargeDifferencesSpec : Specification() {
+  fun `test`() {
+    val a = (1..15).toSet()
+    val b = (16..30).toSet()
+    expect
+    a == b
+  }
+}
+
+class SetContainedSpec : Specification() {
+  fun `test`() {
+    val a = (10..15).toSet()
+    val b = (5..20).toSet()
+    expect
+    a == b
+  }
+}
+
+class SetContainingSpec : Specification() {
+  fun `test`() {
+    val a = (5..20).toSet()
+    val b = (10..15).toSet()
+    expect
+    a == b
   }
 }
