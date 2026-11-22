@@ -32,6 +32,7 @@ class DataTablesCompilationTest : BaseCompilationTest() {
     assertTransformation(sampleFromResource("parametrization/BasicDataTableSpec"))
   }
 
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#non-parameterization in where-block")
   fun `rejects unrecognized data provider syntax`() {
     `when`
     val result =

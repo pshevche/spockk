@@ -284,6 +284,32 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
     variable(fixtureMethodName).from("setupSpec", "setup", "cleanup", "cleanupSpec")
   }
 
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/755")
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#constructor declaration")
+  fun `constructor declaration`() {
+    `when`
+    val result =
+      transform(
+        SourceFile.kotlin(
+          "Spec.kt",
+          """
+          class Spec : spock.lang.Specification {
+              constructor() : super()
+
+              fun `some feature`() {
+                  io.github.pshevche.spockk.lang.expect
+                  assert(true)
+              }
+          }
+          """
+            .trimIndent()
+        )
+      )
+
+    then
+    !result.isSuccess()
+  }
+
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
   @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#misspelled setup causes compile error")
   fun `misspelled setup causes compile error`() {
@@ -309,6 +335,29 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
   fun `misspelled setupSpec causes compile error`() {
     `when`
     val result = transform(specWithBody("fun setupspec() {}"))
+
+    then
+    !result.isSuccess()
+  }
+
+  @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
+  @MigratedFrom("org.spockframework.smoke.CompileTimeErrorReporting#wrong spelling of 'setup' method")
+  fun `wrong spelling of 'setup' method`() {
+    `when`
+    val result =
+      transform(
+        specWithBody(
+          """
+          fun setUp() {}
+
+          fun `some feature`() {
+              io.github.pshevche.spockk.lang.expect
+              assert(true)
+          }
+          """
+            .trimIndent()
+        )
+      )
 
     then
     !result.isSuccess()
