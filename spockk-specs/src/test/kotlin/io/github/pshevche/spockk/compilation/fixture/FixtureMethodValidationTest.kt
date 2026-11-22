@@ -305,11 +305,11 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
             .trimIndent()
         )
       )
-      
+
     then
     !result.isSuccess()
   }
-  
+
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
   @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#misspelled setup causes compile error")
   fun `misspelled setup causes compile error`() {
@@ -358,11 +358,11 @@ class FixtureMethodValidationTest : BaseCompilationTest() {
             .trimIndent()
         )
       )
-    
+
     then
     !result.isSuccess()
-  }   
-  
+  }
+
   @PendingFeature(reason = "https://github.com/pshevche/spockk/issues/756")
   @MigratedFrom("org.spockframework.smoke.MisspelledFixtureMethods#misspelled cleanupSpec causes compile error")
   fun `misspelled cleanupSpec causes compile error`() {
