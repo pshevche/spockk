@@ -5,7 +5,7 @@ excluded_classes = 81
 repo = "spockframework/spock"
 ref = "master"
 sha = "3ff35eb838823f87510ad61b8095c75d1566a305"
-generated_at = "2026-11-16T12:29:48Z"
+generated_at = "2026-11-23T14:08:10Z"
 
 ["org.spockframework.datapipes.DataPipesIteratorSpec"]
 path = "spock-specs/src/test/groovy/org/spockframework/datapipes/DataPipesIteratorSpec.groovy"
