@@ -563,12 +563,12 @@ def run(
 
 def main(argv: list[str]) -> int:
     import argparse
-    import json
     import os
     from pathlib import Path
 
     from exclusions import load_exclusions
     from github_api import GitHub
+    from manifest import load_manifest
     from scanner import scan
 
     parser = argparse.ArgumentParser()
@@ -577,7 +577,7 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv)
 
     repo_root = Path(__file__).parents[2]
-    manifest = json.loads((repo_root / "_docs" / "test-coverage" / "spock-inventory.json").read_text())
+    manifest = load_manifest()
     coverage = scan([repo_root / "spockk-specs" / "src" / "test", repo_root / "spockk-specs" / "src" / "testFixtures"])
     exclusions = load_exclusions()
 

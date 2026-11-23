@@ -8,7 +8,7 @@
 # plain unsigned local commit is not - required if the base branch enforces signed commits.
 set -euo pipefail
 
-MANIFEST_PATH="_docs/test-coverage/spock-inventory.json"
+MANIFEST_PATH="_docs/test-coverage/spock-inventory.toml"
 BASE_BRANCH="main"
 
 if git diff --quiet -- "$MANIFEST_PATH"; then

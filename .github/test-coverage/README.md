@@ -18,6 +18,7 @@ cd .github/test-coverage && python3 -m unittest discover -s tests -v
 - `parser.py` - parses upstream Groovy sources into classes and features.
 - `classify.py` - classifies a parsed class by recipe, area and scope.
 - `inventory.py` - generates the checked-in manifest from an upstream clone.
+- `manifest.py` - reads and writes the manifest (`_docs/test-coverage/spock-inventory.toml`).
 - `scanner.py` - reads `@MigratedFrom` coverage annotations out of `spockk-specs`.
 - `exclusions.py` - loads the not-applicable/blocked exclusions ledger.
 - `validate.py` - the PR-time check that coverage annotations are consistent.

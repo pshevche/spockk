@@ -40,7 +40,7 @@ jobs:
       - name: Regenerate the inventory
         run: |
           python3 .github/test-coverage/inventory.py \
-            --upstream upstream-spock --out _docs/test-coverage/spock-inventory.json
+            --upstream upstream-spock --out _docs/test-coverage/spock-inventory.toml
 
       - name: Reconcile issues
         env:

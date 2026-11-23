@@ -1,11 +1,11 @@
 """Generate the checked-in upstream spock-specs inventory manifest (spec section 5)."""
 import argparse
-import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from classify import area_for, classify_source, is_excluded, load_config
+from manifest import dumps_manifest, load_manifest
 from parser import SpecClass, parse_file
 
 
@@ -112,13 +112,18 @@ def build_manifest(source_root: Path, sha: str, config: dict, repo_root: Path | 
     for spec_class, classify_base in classes:
         recipe = classify_source(spec_class.body, classify_base)
         area = area_for(spec_class.key, config)
+        # Upstream occasionally declares the same feature name twice in one class; the
+        # manifest keys features by name, so only the first survives.
+        features = {}
+        for f in spec_class.features:
+            features.setdefault(f.name, f.hash)
         class_entries.append({
             "key": spec_class.key,
             "path": spec_class.path,
             "base": spec_class.base,
             "recipe": recipe,
             "area": area,
-            "features": [{"name": f.name, "hash": f.hash} for f in spec_class.features],
+            "features": [{"name": name, "hash": h} for name, h in features.items()],
         })
 
     class_entries.sort(key=lambda c: c["key"])
@@ -170,7 +175,7 @@ def main(argv: list[str] | None = None) -> int:
         if not out_path.exists():
             print(f"{out_path} does not exist", file=sys.stderr)
             return 1
-        old_manifest = json.loads(out_path.read_text())
+        old_manifest = load_manifest(out_path)
         try:
             check_guard(old_manifest, new_manifest, tolerance=config["guard"]["class_count_tolerance"])
         except GuardTripped as e:
@@ -185,7 +190,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(new_manifest, indent=2) + "\n")
+    out_path.write_text(dumps_manifest(new_manifest))
     print(f"wrote {out_path}: {len(new_manifest['classes'])} classes, "
           f"{sum(len(c['features']) for c in new_manifest['classes'])} features, "
           f"{new_manifest['excluded']['classes']} excluded")
