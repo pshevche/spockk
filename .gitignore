@@ -38,3 +38,6 @@ spockk-docs/docs/.vitepress/dist
 
 # Ness config
 .ness.json
+
+# Gain build logs
+.gain
