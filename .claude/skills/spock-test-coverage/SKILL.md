@@ -122,7 +122,7 @@ that's fixed, not a permanent requirement.
 ## Definition of done
 
 - `@MigratedFrom` is present on the ported (or moved) test and every key is spelled exactly as it appears in the
-  inventory (`_docs/test-coverage/spock-inventory.json`).
+  inventory (`_docs/test-coverage/spock-inventory.toml`).
 - The test passes, or carries `@PendingFeature` backed by a live gap issue, or the feature is recorded in
   `exclusions.toml` with the outcome that applies.
 - `python3 .github/test-coverage/validate.py` exits 0.

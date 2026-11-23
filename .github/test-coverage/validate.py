@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from exclusions import Exclusion, load_exclusions
+from manifest import load_manifest
 from scanner import Coverage, scan
 
 REPO = "pshevche/spockk"
@@ -107,13 +108,10 @@ def _fetch_closed_gaps(token: str | None) -> set[int]:
     return closed
 
 
-MANIFEST_PATH = REPO_ROOT / "_docs" / "test-coverage" / "spock-inventory.json"
-
-
 def main(argv: list[str]) -> int:
     import os
 
-    manifest = json.loads(MANIFEST_PATH.read_text())
+    manifest = load_manifest()
     coverage = scan(SPOCKK_SPECS_ROOTS)
     exclusions = load_exclusions()
     closed_gaps = _fetch_closed_gaps(os.environ.get("GH_TOKEN"))

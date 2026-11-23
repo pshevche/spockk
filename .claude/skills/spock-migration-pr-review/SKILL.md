@@ -15,7 +15,7 @@ for Step 4; do not post them yet.
 ## Step 2 - Load the upstream source
 
 1. Read the `@MigratedFrom` keys in the diff. Each is `<upstream fqcn>#<feature name>`.
-2. Look the class up in `_docs/test-coverage/spock-inventory.json` to get its upstream `path`.
+2. Look the class up in `_docs/test-coverage/spock-inventory.toml` to get its upstream `path`.
 3. Fetch that file from `https://raw.githubusercontent.com/spockframework/spock/master/<path>`.
 4. Put each upstream feature next to its Kotlin port and compare them line by line.
 
